@@ -1,0 +1,35 @@
+
+
+import { Navbar } from "@/components/navbar"
+import { HeroSection } from "@/components/hero-section"
+import { ComboPopup } from "@/components/combo-popup"
+import { CategorySection } from "@/components/category-section"
+import { BestSellers } from "@/components/best-sellers"
+import { TraditionSection } from "@/components/tradition-section"
+import { ReviewsSection } from "@/components/reviews-section"
+import { GallerySection } from "@/components/gallery-section"
+import { CTASection } from "@/components/cta-section"
+import { Footer } from "@/components/footer"
+
+export default function Home() {
+  return (
+    <main className="min-h-screen bg-[#0f0f0f]">
+      <Navbar />
+      <HeroSection />
+      <ComboPopup />
+      <CategorySection />
+      <section id="bestsellers">
+        <BestSellers />
+      </section>
+      <section id="tradition">
+        <TraditionSection />
+      </section>
+      <ReviewsSection />
+      <GallerySection />
+      <section id="contact">
+        <CTASection />
+      </section>
+      <Footer />
+    </main>
+  )
+}
