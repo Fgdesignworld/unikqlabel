@@ -12,6 +12,8 @@ const galleryImages = [
   { src: "/images/gallery-4.jpg", alt: "Spice powders variety" },
   { src: "/images/gallery-5.jpg", alt: "Bundhi snack" },
   { src: "/images/gallery-6.jpg", alt: "Tomato pickle" },
+  { src: "/images/gallery-7.jpg", alt: "Traditional Indian sweets" },
+  { src: "/images/gallery-8.jpg", alt: "Homemade premium pickles" },
 ]
 
 export function GallerySection() {
@@ -37,7 +39,7 @@ export function GallerySection() {
         </motion.div>
 
         {/* Gallery Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {galleryImages.map((image, index) => (
             <motion.div
               key={image.src}

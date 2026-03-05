@@ -59,6 +59,7 @@ export default function AboutPage() {
       <PageHeader
         title="About Us"
         subtitle="The story behind Lakshmi Home Foods and our commitment to authentic flavors"
+        backgroundImage="/images/about-hero.jpg"
       />
 
       {/* Features Grid */}

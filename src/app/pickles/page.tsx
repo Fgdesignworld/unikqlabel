@@ -7,6 +7,7 @@ import { motion } from "framer-motion"
 import { Star, ShoppingBag, Leaf, Award, Clock, Sparkles, ChevronRight, Check } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
+import { PageHeader } from "@/components/page-header"
 import { useCart } from "@/context/cart-context"
 import { getProductsByCategory, type Product } from "@/data/products"
 
@@ -188,46 +189,29 @@ export default function PicklesPage() {
     <main className="min-h-screen bg-[#0f0f0f] overflow-x-hidden">
       <Navbar />
       
-      {/* Hero Section */}
-      <section className="relative pt-24 pb-16 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#7f1d1d]/20 via-transparent to-transparent" />
-        <div className="absolute top-20 left-10 w-72 h-72 bg-[#d97706]/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#7f1d1d]/10 rounded-full blur-3xl" />
-        
-        <div className="container mx-auto px-4 max-w-6xl relative">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <span className="inline-flex items-center gap-2 px-4 py-2 bg-[#7f1d1d]/30 text-[#f59e0b] rounded-full text-sm font-medium mb-6">
-              <Sparkles className="w-4 h-4" />
-              Authentic Andhra Pickles
-            </span>
-            <h1 className="font-serif text-4xl md:text-6xl font-bold text-[#fef3e2] mb-4">
-              Traditional <span className="bg-gradient-to-r from-[#f59e0b] via-[#d97706] to-[#b45309] bg-clip-text text-transparent">Veg Pickles</span>
-            </h1>
-            <p className="text-[#fef3e2]/70 text-lg md:text-xl max-w-2xl mx-auto mb-8">
-              Handcrafted with love using grandmother&apos;s recipes. Pure ingredients, authentic taste, and generations of tradition in every jar.
-            </p>
-            
-            {/* Feature badges */}
-            <div className="flex flex-wrap justify-center gap-4">
-              {features.map((feature, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 + index * 0.1 }}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#1a1410] rounded-full border border-[#d97706]/20"
-                >
-                  <feature.icon className={`w-4 h-4 ${feature.color}`} />
-                  <span className="text-[#fef3e2]/80 text-sm">{feature.text}</span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+      <PageHeader 
+        title="Traditional Veg Pickles"
+        subtitle="Handcrafted with love using grandmother's recipes. Pure ingredients, authentic taste, and generations of tradition in every jar."
+        backgroundImage="/images/pickles.jpg"
+      />
+
+      {/* Feature badges (moved under header) */}
+      <section className="px-4 pb-12 -mt-12 relative z-20">
+        <div className="container mx-auto max-w-6xl">
+          <div className="flex flex-wrap justify-center gap-4">
+            {features.map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 + index * 0.1 }}
+                className="flex items-center gap-2 px-4 py-2 bg-[#1a1410]/80 backdrop-blur-md rounded-full border border-[#d97706]/20 shadow-xl"
+              >
+                <feature.icon className={`w-4 h-4 ${feature.color}`} />
+                <span className="text-[#fef3e2]/80 text-sm font-medium">{feature.text}</span>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 

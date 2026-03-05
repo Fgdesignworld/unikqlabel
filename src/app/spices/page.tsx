@@ -15,6 +15,7 @@ export default function SpicesPage() {
       <PageHeader
         title="Spice Powders"
         subtitle="Fresh ground spices and karam powders for authentic Andhra flavor"
+        backgroundImage="/images/spices.jpg"
       />
 
       {/* Info Banner */}

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Gift, MessageCircle, Sparkles } from "lucide-react"
+import { X, Gift, Sparkles } from "lucide-react"
+import { WhatsAppIcon } from '@/components/icons/whatsapp'
 
 export function ComboPopup() {
   const [isOpen, setIsOpen] = useState(false)
@@ -105,7 +106,7 @@ export function ComboPopup() {
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-3 w-full py-4 bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-[#25D366]/30 transition-all duration-300 hover:-translate-y-0.5"
               >
-                <MessageCircle className="w-5 h-5" />
+                <WhatsAppIcon className="w-5 h-5" />
                 Order on WhatsApp
               </a>
             </div>

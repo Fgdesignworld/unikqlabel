@@ -235,29 +235,31 @@
 
 /* WhatsApp button styling */
 .btn-whatsapp {
+  --whatsapp-start: #25D366;
+  --whatsapp-end: #128C7E;
+
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 1rem 2rem;
-  background: rgba(21, 21, 21, 0.8);
-  border: 2px solid #25d366;
-  color: #25d366;
+  padding: 0.85rem 1.5rem;
+  background: linear-gradient(90deg, var(--whatsapp-start), var(--whatsapp-end));
+  border: 1px solid rgba(255,255,255,0.06);
+  color: #ffffff;
   font-weight: 700;
   border-radius: 9999px;
-  transition: all 0.3s ease;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
   cursor: pointer;
   text-decoration: none;
-  box-shadow: 0 10px 25px rgba(37, 211, 102, 0.15);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(18,140,126,0.18), inset 0 -6px 18px rgba(0,0,0,0.12);
+  backdrop-filter: blur(6px);
 }
 
 .btn-whatsapp:hover {
-  background: #25d366;
-  color: #0f0f0f;
-  transform: translateY(-2px);
-  box-shadow: 0 20px 40px rgba(37, 211, 102, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px rgba(18,140,126,0.25);
+  opacity: 0.98;
 }
 
 .btn-whatsapp:active {
-  transform: translateY(0px);
+  transform: translateY(0px) scale(0.995);
 }

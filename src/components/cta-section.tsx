@@ -1,7 +1,8 @@
 
 
 import { motion } from "framer-motion"
-import { MessageCircle, Phone, Sparkles } from "lucide-react"
+import { Phone, Sparkles } from "lucide-react"
+import { WhatsAppIcon } from '@/components/icons/whatsapp'
 
 export function CTASection() {
   return (
@@ -48,7 +49,7 @@ export function CTASection() {
                 rel="noopener noreferrer"
                 className="group flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-semibold rounded-full hover:shadow-lg hover:shadow-[#25D366]/30 transition-all duration-300 hover:-translate-y-1"
               >
-                <MessageCircle className="w-5 h-5" />
+                <WhatsAppIcon className="w-5 h-5" />
                 Order on WhatsApp
               </a>
               <a

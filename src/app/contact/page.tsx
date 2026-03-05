@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { MessageCircle, Phone, MapPin, Send, CheckCircle } from "lucide-react"
+import { Phone, MapPin, Send, CheckCircle } from "lucide-react"
+import { WhatsAppIcon } from '@/components/icons/whatsapp'
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { PageHeader } from "@/components/page-header"
@@ -38,6 +39,7 @@ export default function ContactPage() {
       <PageHeader
         title="Contact Us"
         subtitle="We would love to hear from you. Get in touch with us!"
+        backgroundImage="/images/our-ingredients.jpg"
       />
 
       <section className="px-4 pb-20">
@@ -64,8 +66,8 @@ export default function ContactPage() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-4 p-4 bg-[#25D366]/10 rounded-xl border border-[#25D366]/20 hover:border-[#25D366]/40 transition-colors group"
                 >
-                  <div className="w-12 h-12 bg-[#25D366] rounded-full flex items-center justify-center flex-shrink-0">
-                    <MessageCircle className="w-6 h-6 text-white" />
+                    <div className="w-12 h-12 bg-[#25D366] rounded-full flex items-center justify-center flex-shrink-0">
+                    <WhatsAppIcon className="w-6 h-6 text-white" />
                   </div>
                   <div>
                     <p className="text-[#fef3e2] font-medium group-hover:text-[#25D366] transition-colors">
@@ -108,7 +110,7 @@ export default function ContactPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-[#25D366] text-white font-bold rounded-full hover:bg-[#128C7E] transition-colors w-full sm:w-auto justify-center"
               >
-                <MessageCircle className="w-5 h-5" />
+                <WhatsAppIcon className="w-5 h-5" />
                 Order on WhatsApp
               </a>
             </motion.div>

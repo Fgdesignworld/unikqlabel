@@ -22,6 +22,7 @@ export default function ProductsPage() {
       <PageHeader
         title="Our Products"
         subtitle="Authentic homemade traditional foods made with love and care"
+        backgroundImage="/images/hero-bg.jpg"
       />
 
       {/* Filter Buttons */}

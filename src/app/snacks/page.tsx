@@ -15,6 +15,7 @@ export default function SnacksPage() {
       <PageHeader
         title="Traditional Snacks"
         subtitle="Crispy, crunchy, and delicious homemade snacks made with authentic recipes"
+        backgroundImage="/images/snacks.jpg"
       />
 
       {/* Products Grid */}

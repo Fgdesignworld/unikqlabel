@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
-import { Home, UtensilsCrossed, ShoppingBag, MessageCircle } from "lucide-react"
+import { Home, UtensilsCrossed, ShoppingBag } from "lucide-react"
+import { WhatsAppIcon } from '@/components/icons/whatsapp'
 import { useCart } from "@/context/cart-context"
 import { motion } from "framer-motion"
 
@@ -8,7 +9,7 @@ const navItems = [
   { name: "Home", href: "/", icon: Home },
   { name: "Menu", href: "/products", icon: UtensilsCrossed },
   { name: "Cart", href: "#cart", icon: ShoppingBag },
-  { name: "WhatsApp", href: "https://wa.me/918639424039", icon: MessageCircle, external: true },
+  { name: "WhatsApp", href: "https://wa.me/918639424039", icon: WhatsAppIcon, external: true },
 ]
 
 export function MobileBottomBar() {

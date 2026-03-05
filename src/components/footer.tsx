@@ -4,7 +4,8 @@ import { ImgHTMLAttributes } from 'react';
 const Image = (props: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean, fill?: boolean, quality?: number }) => <img {...props} />;
 import { Link } from 'react-router-dom';
 import { motion } from "framer-motion"
-import { MessageCircle, Phone, MapPin, Instagram, Facebook, Youtube, Heart } from "lucide-react"
+import { Phone, MapPin, Instagram, Facebook, Youtube, Heart } from "lucide-react"
+import { WhatsAppIcon } from '@/components/icons/whatsapp'
 
 const quickLinks = [
   { name: "Home", href: "/" },
@@ -128,7 +129,7 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-[#fef3e2]/70 hover:text-[#25D366] transition-colors text-sm"
               >
-                <MessageCircle className="w-5 h-5 text-[#25D366]" />
+                <WhatsAppIcon className="w-5 h-5 text-[#25D366]" />
                 WhatsApp: 8639424039
               </a>
               <a
@@ -151,7 +152,7 @@ export function Footer() {
               rel="noopener noreferrer"
               className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-[#25D366] text-white font-medium rounded-full hover:bg-[#128C7E] transition-colors text-sm"
             >
-              <MessageCircle className="w-4 h-4" />
+              <WhatsAppIcon className="w-4 h-4" />
               Chat with us
             </a>
           </motion.div>
