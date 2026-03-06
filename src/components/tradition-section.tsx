@@ -1,9 +1,8 @@
 
 
-import { ImgHTMLAttributes } from 'react';
-const Image = (props: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean, fill?: boolean, quality?: number }) => <img {...props} />;
 import { motion } from "framer-motion"
 import { Check, Heart, Leaf, Sparkles, Utensils } from "lucide-react"
+import { Image } from "@/components/ui/image"
 
 const features = [
   { icon: Heart, text: "100% Homemade" },

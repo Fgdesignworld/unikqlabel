@@ -1,12 +1,11 @@
 
 
 import { useState } from "react"
-import { ImgHTMLAttributes } from 'react';
-const Image = (props: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean, fill?: boolean, quality?: number }) => <img {...props} />;
 import { Link } from 'react-router-dom';
 import { motion } from "framer-motion"
 import { ShoppingBag, Star, ArrowRight, Check } from "lucide-react"
 import { useCart } from "@/context/cart-context"
+import { Image } from "@/components/ui/image"
 import { getBestsellers } from "@/data/products"
 
 function BestSellerCard({ product, index }: { product: ReturnType<typeof getBestsellers>[0]; index: number }) {
@@ -40,42 +39,42 @@ function BestSellerCard({ product, index }: { product: ReturnType<typeof getBest
       className="group glass rounded-2xl overflow-hidden"
     >
       {/* Image */}
-      <div className="relative aspect-square overflow-hidden">
+      <div className="relative aspect-[16/11] overflow-hidden">
         <Image
           src={product.image}
           alt={product.name}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute top-3 left-3 px-3 py-1 bg-[#d97706] text-[#0f0f0f] text-xs font-bold rounded-full">
+        <div className="absolute top-2 left-2 px-2 py-0.5 bg-[#d97706]/90 backdrop-blur-sm text-[#0f0f0f] text-[10px] font-bold rounded-full">
           Bestseller
         </div>
         {product.rating && (
-          <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full bg-[#0f0f0f]/80 backdrop-blur-sm">
-            <Star className="w-3 h-3 fill-[#f59e0b] text-[#f59e0b]" />
-            <span className="text-xs text-[#fef3e2]">{product.rating}</span>
+          <div className="absolute top-2 right-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#0f0f0f]/80 backdrop-blur-sm">
+            <Star className="w-2.5 h-2.5 fill-[#f59e0b] text-[#f59e0b]" />
+            <span className="text-[10px] text-[#fef3e2]">{product.rating}</span>
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="p-5">
-        <h3 className="font-serif text-lg font-bold text-[#fef3e2] mb-2">
+      <div className="p-3 md:p-5">
+        <h3 className="font-serif text-sm md:text-lg font-bold text-[#fef3e2] mb-1 md:mb-2 line-clamp-1">
           {product.name}
         </h3>
 
-        {/* Weight Variants */}
+        {/* Weight Variants - Smaller on mobile */}
         {variants.length > 1 && (
-          <div className="mb-3">
-            <div className="flex flex-wrap gap-1.5">
+          <div className="mb-2 md:mb-3">
+            <div className="flex flex-wrap gap-1 md:gap-1.5">
               {variants.map((variant, idx) => (
                 <button
                   key={variant.weight}
                   onClick={() => setSelectedVariant(idx)}
-                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
+                  className={`px-1.5 md:px-2.5 py-0.5 md:py-1 rounded-md text-[10px] md:text-xs font-medium transition-all ${
                     selectedVariant === idx
                       ? "bg-[#d97706] text-[#0f0f0f]"
-                      : "bg-[#1a1410] text-[#fef3e2]/70 border border-[#d97706]/20 hover:border-[#d97706]/50"
+                      : "bg-[#1a1410] text-[#fef3e2]/70 border border-[#d97706]/20"
                   }`}
                 >
                   {variant.weight}
@@ -85,12 +84,12 @@ function BestSellerCard({ product, index }: { product: ReturnType<typeof getBest
           </div>
         )}
 
-        <div className="flex items-center justify-between">
-          <span className="text-2xl font-bold text-[#f59e0b]">Rs.{currentVariant.price}</span>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+          <span className="text-base md:text-2xl font-bold text-[#f59e0b]">Rs.{currentVariant.price}</span>
           <button
             onClick={handleAddToCart}
             disabled={isAdded}
-            className={`flex items-center gap-2 px-4 py-2 font-medium rounded-full transition-all duration-300 ${
+            className={`w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 md:px-4 py-1.5 md:py-2 text-xs md:font-medium rounded-full transition-all duration-300 ${
               isAdded
                 ? "bg-green-600 text-white"
                 : "bg-[#d97706] text-[#0f0f0f] hover:bg-[#f59e0b]"
@@ -98,12 +97,12 @@ function BestSellerCard({ product, index }: { product: ReturnType<typeof getBest
           >
             {isAdded ? (
               <>
-                <Check className="w-4 h-4" />
-                Added
+                <Check className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden xs:inline">Added</span>
               </>
             ) : (
               <>
-                <ShoppingBag className="w-4 h-4" />
+                <ShoppingBag className="w-3 h-3 md:w-4 md:h-4" />
                 Add
               </>
             )}
@@ -135,8 +134,8 @@ export function BestSellers() {
           <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#d97706] to-transparent mx-auto mt-4" />
         </motion.div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Products Grid - 2 columns on mobile */}
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {products.map((product, index) => (
             <BestSellerCard key={product.id} product={product} index={index} />
           ))}

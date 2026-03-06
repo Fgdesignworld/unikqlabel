@@ -33,7 +33,7 @@ export default function SpicesPage() {
       {/* Products Grid */}
       <section className="px-4 pb-20">
         <div className="container mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {spices.map((product, index) => (
               <ProductCard key={product.id} product={product} index={index} />
             ))}

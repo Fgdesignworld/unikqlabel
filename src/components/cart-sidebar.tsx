@@ -1,11 +1,10 @@
 
 
 import { motion, AnimatePresence } from "framer-motion"
-import { ImgHTMLAttributes } from 'react';
-const Image = (props: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean, fill?: boolean, quality?: number }) => <img {...props} />;
 import { Link } from 'react-router-dom';
 import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight } from "lucide-react"
 import { useCart } from "@/context/cart-context"
+import { Image } from "@/components/ui/image"
 
 export function CartSidebar() {
   const { 

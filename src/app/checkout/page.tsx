@@ -526,14 +526,25 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `Rs.${deliveryCharge}`}
                       Order Summary
                     </h2>
 
-                    {/* Items Count */}
-                    <div className="space-y-3 mb-6">
+                    {/* Items List with Images */}
+                    <div className="space-y-4 mb-6 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
                       {items.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between text-sm">
-                          <span className="text-[#fef3e2]/70 truncate flex-1 mr-2">
-                            {item.name} x {item.quantity}
-                          </span>
-                          <span className="text-[#fef3e2]">Rs.{item.price * item.quantity}</span>
+                        <div key={item.id} className="flex gap-4 items-center p-3 bg-[#0f0f0f]/50 rounded-2xl border border-[#d97706]/10 group hover:border-[#d97706]/30 transition-all">
+                          <div className="relative w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+                            <Image
+                              src={item.image}
+                              alt={item.name}
+                              fill
+                              className="object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-sm font-medium text-[#fef3e2] truncate mb-0.5">{item.name}</h3>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-[#fef3e2]/50">{item.weight} x {item.quantity}</span>
+                              <span className="text-sm font-bold text-[#d97706]">Rs.{item.price * item.quantity}</span>
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>

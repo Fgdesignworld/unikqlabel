@@ -1,14 +1,13 @@
 
 
 import { useState, useEffect } from "react"
-import { ImgHTMLAttributes } from 'react';
-const Image = (props: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean, fill?: boolean, quality?: number }) => <img {...props} />;
 import { Link } from 'react-router-dom';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from "framer-motion"
 import { Menu, X, ShoppingBag, Phone, ChevronDown } from "lucide-react"
 import { WhatsAppIcon } from "@/components/icons/whatsapp"
 import { useCart } from "@/context/cart-context"
+import { Image } from "@/components/ui/image"
 
 const navLinks = [
   { name: "Home", href: "/" },

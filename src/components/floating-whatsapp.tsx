@@ -15,7 +15,7 @@ export function FloatingWhatsApp() {
         stiffness: 200,
         damping: 20,
       }}
-      className="fixed bottom-28 right-6 md:bottom-8 md:right-8 z-30"
+      className="fixed bottom-28 right-6 md:bottom-8 md:right-8 z-30 hidden md:block"
       aria-label="Contact on WhatsApp"
     >
       <motion.a

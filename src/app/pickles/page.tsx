@@ -4,7 +4,7 @@ import { useState } from "react"
 import { ImgHTMLAttributes } from 'react';
 const Image = (props: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean, fill?: boolean, quality?: number }) => <img {...props} />;
 import { motion } from "framer-motion"
-import { Star, ShoppingBag, Leaf, Award, Clock, Sparkles, ChevronRight, Check } from "lucide-react"
+import { Star, ShoppingBag, Leaf, Award, Clock, Sparkles, ChevronRight, Check, Circle } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { PageHeader } from "@/components/page-header"
@@ -43,11 +43,11 @@ function PickleCard({ product, index }: { product: Product; index: number }) {
       {/* Glow effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#d97706]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
-      <div className="relative p-6">
-        <div className="flex flex-col sm:flex-row gap-6">
+      <div className="relative p-3 md:p-6">
+        <div className="flex flex-col sm:flex-row gap-4 md:gap-6">
           {/* Image Container */}
           <div className="relative">
-            <div className="relative w-full sm:w-40 h-40 rounded-2xl overflow-hidden bg-[#0f0f0f]">
+            <div className="relative w-full sm:w-40 aspect-[4/3] sm:h-40 rounded-xl md:rounded-2xl overflow-hidden bg-[#0f0f0f]">
               <Image
                 src={product.image}
                 alt={product.name}
@@ -56,75 +56,63 @@ function PickleCard({ product, index }: { product: Product; index: number }) {
               />
               {/* Jar shine effect */}
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            </div>
-            
-            {/* Bestseller badge */}
-            {product.bestseller && (
-              <div className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-[#d97706] blur-lg opacity-50" />
-                  <span className="relative flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-[#d97706] to-[#f59e0b] text-[#0f0f0f] text-xs font-bold rounded-full shadow-lg">
-                    <Star className="w-3 h-3 fill-current" />
-                    Bestseller
-                  </span>
-                </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] via-transparent to-transparent opacity-60" />
+
+              {/* Badges on Image */}
+              <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
+                {product.isVeg !== undefined && (
+                  <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider ${
+                    product.isVeg 
+                      ? "bg-[#064e3b]/90 text-[#10b981] border border-[#10b981]/20 backdrop-blur-sm" 
+                      : "bg-red-900/90 text-red-400 border border-red-400/20 backdrop-blur-sm"
+                  }`}>
+                    {product.isVeg ? <Leaf className="w-2.5 h-2.5 fill-current" /> : <Circle className="w-2 h-2 fill-current" />}
+                    <span className="hidden xs:inline">{product.isVeg ? "Veg" : "Non-Veg"}</span>
+                  </div>
+                )}
               </div>
-            )}
+
+              {product.bestseller && (
+                <div className="absolute top-2 right-2 z-10 px-2 py-0.5 bg-[#d97706] text-[#0f0f0f] text-[8px] font-bold uppercase tracking-wider rounded-full shadow-lg backdrop-blur-sm">
+                  Best
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Content */}
-          <div className="flex-1 flex flex-col justify-between">
+          <div className="flex-1 flex flex-col">
             <div>
-              {/* Rating */}
-              {product.rating && (
-                <div className="flex items-center gap-1 mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-4 h-4 ${
-                        i < Math.floor(product.rating!)
-                          ? "text-[#f59e0b] fill-[#f59e0b]"
-                          : "text-[#f59e0b]/30"
-                      }`}
-                    />
-                  ))}
-                  <span className="text-[#f59e0b] text-sm font-medium ml-1">
-                    {product.rating}
-                  </span>
-                </div>
-              )}
-
-              <h3 className="font-serif text-xl md:text-2xl font-bold text-[#fef3e2] mb-2 group-hover:text-[#d97706] transition-colors">
-                {product.name}
-              </h3>
+              <div className="flex items-start justify-between gap-2 mb-1 md:mb-2">
+                <h3 className="font-serif text-sm md:text-2xl font-bold text-[#fef3e2] group-hover:text-[#d97706] transition-colors line-clamp-1">
+                  {product.name}
+                </h3>
+                {product.rating && (
+                  <div className="flex items-center gap-0.5 mt-1">
+                    <Star className="w-3 h-3 md:w-4 md:h-4 text-[#f59e0b] fill-[#f59e0b]" />
+                    <span className="text-[#f59e0b] text-[10px] md:text-sm font-medium">
+                      {product.rating}
+                    </span>
+                  </div>
+                )}
+              </div>
               
-              <p className="text-[#fef3e2]/60 text-sm mb-4 line-clamp-2">
+              <p className="hidden md:block text-[#fef3e2]/60 text-[10px] md:text-sm mb-2 md:mb-4 line-clamp-2">
                 {product.description}
               </p>
 
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                <span className="px-2 py-1 bg-green-500/10 text-green-500 text-xs rounded-full flex items-center gap-1">
-                  <Leaf className="w-3 h-3" />
-                  Pure Veg
-                </span>
-                <span className="px-2 py-1 bg-[#d97706]/10 text-[#d97706] text-xs rounded-full">
-                  Homemade
-                </span>
-              </div>
-
               {/* Weight Variants */}
               {variants.length > 1 && (
-                <div className="mb-4">
-                  <p className="text-[#fef3e2]/50 text-xs mb-2">Select Size:</p>
-                  <div className="flex flex-wrap gap-2">
+                <div className="mb-3 md:mb-4">
+                  <p className="text-[#fef3e2]/50 text-[10px] md:text-xs mb-1.5 md:mb-2">Select Size:</p>
+                  <div className="flex flex-nowrap items-center gap-1.5 md:gap-2">
                     {variants.map((variant, idx) => (
                       <button
                         key={variant.weight}
                         onClick={() => setSelectedVariant(idx)}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                        className={`flex-1 xs:flex-none min-w-0 px-1 md:px-3 py-1.5 md:py-2 rounded-lg text-[9px] md:text-sm font-medium transition-all truncate ${
                           selectedVariant === idx
-                            ? "bg-[#d97706] text-[#0f0f0f]"
+                            ? "bg-[#d97706] text-[#0f0f0f] shadow-lg shadow-[#d97706]/20"
                             : "bg-[#1a1410] text-[#fef3e2]/70 border border-[#d97706]/20 hover:border-[#d97706]/50"
                         }`}
                       >
@@ -137,11 +125,11 @@ function PickleCard({ product, index }: { product: Product; index: number }) {
             </div>
 
             {/* Price & Action */}
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 md:gap-4 mt-auto pt-2 border-t border-[#d97706]/5">
               <div>
-                <p className="text-[#d97706] text-2xl font-bold">Rs.{currentVariant.price}</p>
+                <p className="text-[#d97706] text-base md:text-2xl font-bold">Rs.{currentVariant.price}</p>
                 {variants.length === 1 && (
-                  <p className="text-[#fef3e2]/40 text-sm">{currentVariant.weight}</p>
+                  <p className="text-[#fef3e2]/40 text-[10px] md:text-sm">{currentVariant.weight}</p>
                 )}
               </div>
               
@@ -150,21 +138,21 @@ function PickleCard({ product, index }: { product: Product; index: number }) {
                 whileTap={{ scale: 0.95 }}
                 onClick={handleAddToCart}
                 disabled={isAdded}
-                className={`flex items-center gap-2 px-5 py-3 font-bold rounded-full transition-all ${
+                className={`w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 md:px-6 py-2 md:py-3 font-bold rounded-full transition-all text-xs md:text-sm ${
                   isAdded
                     ? "bg-green-600 text-white"
-                    : "bg-gradient-to-r from-[#d97706] to-[#b45309] text-[#0f0f0f] hover:shadow-lg hover:shadow-[#d97706]/30"
+                    : "bg-gradient-to-r from-[#d97706] to-[#b45309] text-[#0f0f0f]"
                 }`}
               >
                 {isAdded ? (
                   <>
-                    <Check className="w-4 h-4" />
-                    <span className="hidden sm:inline">Added</span>
+                    <Check className="w-3 h-3 md:w-4 md:h-4" />
+                    Added
                   </>
                 ) : (
                   <>
-                    <ShoppingBag className="w-4 h-4" />
-                    <span className="hidden sm:inline">Add</span>
+                    <ShoppingBag className="w-3 h-3 md:w-4 md:h-4" />
+                    Add
                   </>
                 )}
               </motion.button>
@@ -215,10 +203,10 @@ export default function PicklesPage() {
         </div>
       </section>
 
-      {/* Pickles Grid */}
+      {/* Pickles Grid - 2 columns on mobile */}
       <section className="px-4 pb-20">
         <div className="container mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-6">
             {pickles.map((product, index) => (
               <PickleCard key={product.id} product={product} index={index} />
             ))}

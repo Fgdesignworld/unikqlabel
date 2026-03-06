@@ -146,7 +146,7 @@ export function HeroSection() {
                 href={WHATSAPP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-whatsapp text-base w-full sm:w-auto justify-center"
+                className="btn-whatsapp-hero text-base w-full sm:w-auto justify-center"
                 style={{ minWidth: 180 }}
               >
                 <WhatsAppIcon className="w-4 h-4 mr-2 text-white" />

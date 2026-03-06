@@ -1,9 +1,8 @@
 
 
-import { ImgHTMLAttributes } from 'react';
-const Image = (props: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean, fill?: boolean, quality?: number }) => <img {...props} />;
 import { motion } from "framer-motion"
 import { Instagram } from "lucide-react"
+import { Image } from "@/components/ui/image"
 
 const galleryImages = [
   { src: "/images/gallery-1.jpg", alt: "Homemade laddu sweets" },

@@ -121,6 +121,15 @@
   background: #f59e0b;
 }
 
+/* Hide scrollbar utility */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Glassmorphism effect */
 .glass {
   background: rgba(30, 20, 15, 0.6);
@@ -261,5 +270,31 @@
 }
 
 .btn-whatsapp:active {
+  transform: translateY(0px) scale(0.995);
+}
+
+/* Hero-specific WhatsApp button (red gradient) */
+.btn-whatsapp-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  background: linear-gradient(135deg, rgb(185, 28, 28), rgb(153, 27, 27));
+  color: rgb(255, 255, 255);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 9999px;
+  font-weight: 700;
+  box-shadow: rgba(153, 27, 27, 0.35) 0px 4px 20px;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-whatsapp-hero:hover {
+  transform: translateY(-3px);
+  box-shadow: rgba(153, 27, 27, 0.45) 0px 10px 30px;
+}
+
+.btn-whatsapp-hero:active {
   transform: translateY(0px) scale(0.995);
 }
