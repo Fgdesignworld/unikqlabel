@@ -1,10 +1,11 @@
 
-
+```
 import { useState, useEffect } from "react"
 import { ImgHTMLAttributes } from 'react';
 const Image = (props: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean, fill?: boolean, quality?: number }) => <img {...props} />;
 import { Link } from 'react-router-dom';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { toast } from "sonner"
 import { motion } from "framer-motion"
 import { 
   ArrowLeft, 
@@ -28,6 +29,8 @@ import { WhatsAppIcon } from '@/components/icons/whatsapp'
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { useCart } from "@/context/cart-context"
+import { InvoiceTemplate } from "@/components/invoice/InvoiceTemplate"
+import { generateInvoice } from "@/components/invoice/generateInvoice"
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
@@ -45,6 +48,7 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
+  const [invoiceNumber, setInvoiceNumber] = useState("")
 
   // Wait for hydration before checking cart
   useEffect(() => {
@@ -99,37 +103,50 @@ export default function CheckoutPage() {
     }
   }
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     setIsSubmitting(true)
 
-    // Build WhatsApp message
-    const itemsList = items
-      .map((item) => `- ${item.name} (${item.weight}) x ${item.quantity} = Rs.${item.price * item.quantity}`)
-      .join("\n")
+    // Generate Invoice Number
+    const newInvoiceNo = `LHF-${Date.now().toString().slice(-6)}`
+    setInvoiceNumber(newInvoiceNo)
 
-    const message = `
-*New Order from Lakshmi Home Foods*
+    // Wait for the InvoiceTemplate to render with the new invoice number
+    await new Promise(resolve => setTimeout(resolve, 100))
 
-*Customer Details:*
-Name: ${customerDetails.name}
-Phone: ${customerDetails.phone}
-Address: ${customerDetails.address}
-City: ${customerDetails.city}
-Pincode: ${customerDetails.pincode}
-${customerDetails.notes ? `Notes: ${customerDetails.notes}` : ""}
+    // Attempt to generate PDF
+    let pdfBlob: Blob | null = null
+    try {
+      pdfBlob = await generateInvoice("invoice-template-pdf", newInvoiceNo)
+    } catch (e) {
+      console.error("PDF generation error:", e)
+    }
 
-*Order Details:*
-${itemsList}
-
-Subtotal: Rs.${totalPrice}
-Delivery: ${deliveryCharge === 0 ? "FREE" : `Rs.${deliveryCharge}`}
-*Total: Rs.${finalTotal}*
-    `.trim()
+    let message = `🚀 *New Order - Lakshmi Home Foods*\n\n━━━━━━━━━━━━━━━━━━━━\n*Customer:* ${customerDetails.name}\n*Phone:* ${customerDetails.phone}\n*Invoice:* ${newInvoiceNo}\n━━━━━━━━━━━━━━━━━━━━\n\n✅ *Total Amount: Rs.${finalTotal}*\n\nThank you for the order!`
 
     const whatsappURL = `https://wa.me/918639424039?text=${encodeURIComponent(message)}`
 
-    // Open WhatsApp
-    window.open(whatsappURL, "_blank")
+    // Expert Share Logic
+    let sharedSuccessfully = false
+    if (pdfBlob && navigator.share && navigator.canShare) {
+      try {
+        const file = new File([pdfBlob], `Invoice_LHF_${newInvoiceNo}.pdf`, { type: 'application/pdf' })
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: `Laxmi Home Foods Invoice - ${newInvoiceNo}`,
+            text: message
+          })
+          sharedSuccessfully = true
+        }
+      } catch (shareError) {
+        console.warn("Web Share failed, falling back to URL redirect:", shareError)
+      }
+    }
+
+    // Fallback or secondary action
+    if (!sharedSuccessfully) {
+      window.open(whatsappURL, "_blank")
+    }
 
     // Show success
     setTimeout(() => {
@@ -242,23 +259,80 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `Rs.${deliveryCharge}`}
                 <CheckCircle2 className="w-12 h-12 text-green-500" />
               </motion.div>
               <h1 className="font-serif text-3xl md:text-4xl font-bold text-[#fef3e2] mb-4">
-                Order Sent Successfully!
+                Order Placed Successfully!
               </h1>
-              <p className="text-[#fef3e2]/70 text-lg max-w-md mx-auto mb-8">
-                Your order has been sent via WhatsApp. We will confirm your order and contact you shortly.
+              <p className="text-[#fef3e2]/70 text-lg max-w-md mx-auto mb-6">
+                Your order order summary has been sent via WhatsApp.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              
+              {/* PDF Instruction Alert */}
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="max-w-md mx-auto mb-10 p-5 bg-[#d97706]/10 rounded-3xl border border-[#d97706]/30 text-left relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                  <FileText className="w-20 h-20" />
+                </div>
+                <div className="relative z-10 flex gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-[#d97706] flex items-center justify-center flex-shrink-0 shadow-lg shadow-[#d97706]/20">
+                    <FileText className="w-6 h-6 text-[#0f0f0f]" />
+                  </div>
+                  <div>
+                    <h4 className="text-[#fef3e2] font-extrabold text-base mb-2">Send PDF to Lakshmi Home Foods</h4>
+                    <p className="text-sm text-[#fef3e2]/80 leading-relaxed mb-4">
+                      Browsers prevent auto-sending files to a specific number. To complete your order, please:
+                    </p>
+                    <ul className="space-y-3 text-sm text-[#fef3e2]/90">
+                      <li className="flex items-start gap-2">
+                        <span className="w-5 h-5 rounded-full bg-[#d97706]/20 text-[#d97706] flex items-center justify-center text-[10px] font-bold mt-0.5">1</span>
+                        <span>Open WhatsApp and select <strong>Lakshmi Home Foods</strong></span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="w-5 h-5 rounded-full bg-[#d97706]/20 text-[#d97706] flex items-center justify-center text-[10px] font-bold mt-0.5">2</span>
+                        <span>Tap the 📎 (Paperclip) icon</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="w-5 h-5 rounded-full bg-[#d97706]/20 text-[#d97706] flex items-center justify-center text-[10px] font-bold mt-0.5">3</span>
+                        <span>Select the <strong>Invoice_LHF...</strong> PDF from your downloads</span>
+                      </li>
+                    </ul>
+                    
+                    <div className="mt-6 flex flex-col gap-3">
+                      <div className="p-3 bg-black/40 rounded-xl border border-white/10 flex items-center justify-between">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] uppercase tracking-wider text-[#d97706] font-bold">Admin Number</span>
+                          <span className="text-[#fef3e2] font-mono">+91 8639424039</span>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText("8639424039");
+                            toast.success("Number copied to clipboard!");
+                          }}
+                          className="px-3 py-1.5 bg-[#d97706] text-[#0f0f0f] text-xs font-bold rounded-lg hover:bg-[#b45309] transition-colors"
+                        >
+                          Copy
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
+                <button
+                  onClick={() => generateInvoice("invoice-template-pdf", invoiceNumber)}
+                  className="w-full px-8 py-4 bg-[#1a1410] border border-[#d97706]/50 text-[#d97706] font-extrabold rounded-2xl hover:bg-[#d97706]/10 transition-all flex items-center justify-center gap-2 group"
+                >
+                  <FileText className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  Download Invoice Again
+                </button>
                 <Link
                   to="/products"
-                  className="px-8 py-3 bg-[#d97706] text-[#0f0f0f] font-bold rounded-full hover:bg-[#f59e0b] transition-colors"
+                  className="w-full px-8 py-4 bg-[#d97706] text-[#0f0f0f] font-extrabold rounded-2xl hover:bg-[#b45309] transition-all text-center shadow-lg shadow-[#d97706]/20"
                 >
                   Continue Shopping
-                </Link>
-                <Link
-                  to="/"
-                  className="px-8 py-3 border border-[#d97706] text-[#d97706] font-bold rounded-full hover:bg-[#d97706]/10 transition-colors"
-                >
-                  Go to Home
                 </Link>
               </div>
             </motion.div>
@@ -527,10 +601,10 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `Rs.${deliveryCharge}`}
                     </h2>
 
                     {/* Items List with Images */}
-                    <div className="space-y-4 mb-6 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
+                    <div className="space-y-2.5 mb-6 max-h-[400px] overflow-y-auto pr-1 scrollbar-hide">
                       {items.map((item) => (
-                        <div key={item.id} className="flex gap-4 items-center p-3 bg-[#0f0f0f]/50 rounded-2xl border border-[#d97706]/10 group hover:border-[#d97706]/30 transition-all">
-                          <div className="relative w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+                        <div key={item.id} className="flex gap-3 items-center p-2 bg-[#1a1410]/30 rounded-xl border border-[#d97706]/10 group hover:border-[#d97706]/20 transition-all">
+                          <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border border-[#d97706]/5">
                             <Image
                               src={item.image}
                               alt={item.name}
@@ -539,10 +613,10 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `Rs.${deliveryCharge}`}
                             />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-sm font-medium text-[#fef3e2] truncate mb-0.5">{item.name}</h3>
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs text-[#fef3e2]/50">{item.weight} x {item.quantity}</span>
-                              <span className="text-sm font-bold text-[#d97706]">Rs.{item.price * item.quantity}</span>
+                            <h3 className="text-[13px] font-medium text-[#fef3e2] truncate">{item.name}</h3>
+                            <div className="flex items-center justify-between mt-0.5">
+                              <span className="text-[11px] text-[#fef3e2]/50">{item.weight} x {item.quantity}</span>
+                              <span className="text-xs font-bold text-[#d97706]">Rs.{item.price * item.quantity}</span>
                             </div>
                           </div>
                         </div>
@@ -602,6 +676,21 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `Rs.${deliveryCharge}`}
       </div>
 
       <Footer />
+
+      {/* Hidden Invoice Template Generator */}
+      {step !== "success" && (
+        <InvoiceTemplate
+          id="invoice-template-pdf"
+          invoiceNumber={invoiceNumber}
+          date={new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+          customerDetails={customerDetails}
+          items={items}
+          subtotal={totalPrice}
+          delivery={deliveryCharge === 0 ? 'FREE' : deliveryCharge}
+          total={finalTotal}
+        />
+      )}
     </main>
   )
 }
+
