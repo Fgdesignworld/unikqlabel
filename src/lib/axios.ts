@@ -28,7 +28,8 @@ export async function fetchCsrfToken(): Promise<string> {
 
 // Attach CSRF token to mutating requests
 api.interceptors.request.use(async (config) => {
-    if (['post', 'put', 'delete'].includes(config.method || '')) {
+    const method = (config.method || '').toLowerCase();
+    if (['post', 'put', 'delete'].includes(method)) {
         const token = await fetchCsrfToken();
         config.headers['X-CSRF-Token'] = token;
     }

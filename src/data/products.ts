@@ -16,6 +16,7 @@ export interface Product {
   isVeg?: boolean
   isHomemade?: boolean
   variants?: WeightVariant[]
+  sortOrder?: number
 }
 
 export const products: Product[] = [

@@ -12,6 +12,9 @@ class OrderController {
      * POST /api/checkout — Public: submit order
      */
     public static function store(): void {
+        require_once __DIR__ . '/../middleware/rate_limit.php';
+        checkRateLimit('checkout'); // Limit: 5 per 15 mins (defined in middleware)
+
         $input = json_decode(file_get_contents('php://input'), true);
 
         // Validate required fields

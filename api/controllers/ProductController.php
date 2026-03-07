@@ -61,12 +61,18 @@ class ProductController {
         // Validation
         $required = ['name', 'category', 'price'];
         foreach ($required as $field) {
-            if (empty($input[$field])) {
+            if (empty($input[$field]) && $input[$field] !== 0 && $input[$field] !== '0') {
                 http_response_code(400);
                 echo json_encode(['error' => "Field '$field' is required"]);
                 return;
             }
         }
+
+        // Safe Defaults
+        if (empty($input['weight'])) {
+            $input['weight'] = '1kg';
+        }
+        $input['price'] = (float) $input['price'];
 
         $validCategories = ['snacks', 'pickles', 'spices', 'sweets'];
         if (!in_array($input['category'], $validCategories)) {
@@ -99,6 +105,14 @@ class ProductController {
         }
 
         $input = json_decode(file_get_contents('php://input'), true);
+        
+        // Safe Defaults
+        if (isset($input['weight']) && empty($input['weight'])) {
+            $input['weight'] = '1kg';
+        }
+        if (isset($input['price'])) {
+            $input['price'] = (float) $input['price'];
+        }
 
         try {
             Product::update($id, $input);
@@ -107,6 +121,28 @@ class ProductController {
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(['error' => 'Failed to update product']);
+        }
+    }
+
+    /**
+     * POST /api/admin/products/reorder — Reorder products
+     */
+    public static function reorder(): void {
+        requireAuth();
+        
+        $input = json_decode(file_get_contents('php://input'), true);
+        if (!is_array($input)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Expected JSON array']);
+            return;
+        }
+
+        try {
+            Product::updateSortOrder($input);
+            echo json_encode(['success' => true]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to reorder products']);
         }
     }
 

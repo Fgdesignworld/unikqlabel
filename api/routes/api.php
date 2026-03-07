@@ -15,6 +15,18 @@ function handleRequest(): void {
     $uri = preg_replace('#^/api#', '', $uri);
     $uri = rtrim($uri, '/');
 
+    // Apply global security middleware
+    require_once __DIR__ . '/../middleware/rate_limit.php';
+    require_once __DIR__ . '/../middleware/csrf.php';
+    
+    // 1. Rate limiting (General API limit: 60 requests per minute)
+    // checkRateLimit('api'); // Standard limit for all routes
+    
+    // 2. CSRF Protection for state-changing methods
+    if (in_array($method, ['POST', 'PUT', 'DELETE'])) {
+        requireCsrf();
+    }
+
     // If empty, show API info
     if ($uri === '' || $uri === '/') {
         echo json_encode([
@@ -94,6 +106,12 @@ function handleRequest(): void {
     // PUT /admin/products/{id}
     if ($method === 'PUT' && preg_match('#^/admin/products/(\d+)$#', $uri, $matches)) {
         ProductController::update((int) $matches[1]);
+        return;
+    }
+
+    // POST /admin/products/reorder
+    if ($method === 'POST' && $uri === '/admin/products/reorder') {
+        ProductController::reorder();
         return;
     }
 

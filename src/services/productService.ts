@@ -1,4 +1,5 @@
 import api from '@/lib/axios';
+import type { Product } from '@/data/products';
 
 export interface ProductVariant {
   weight: string;
@@ -20,6 +21,29 @@ export interface ApiProduct {
   is_homemade: boolean;
   variants: ProductVariant[] | null;
   status: 'active' | 'inactive';
+  sort_order: number;
+}
+
+/**
+ * Maps an API product to the frontend Product interface
+ * used by ProductCard, PickleCard, BestSellerCard, etc.
+ */
+function mapToProduct(p: ApiProduct): Product {
+  return {
+    id: p.slug || String(p.id),
+    name: p.name,
+    price: p.price,
+    weight: p.weight,
+    image: p.image || '/images/placeholder.jpg',
+    category: p.category,
+    description: p.description || undefined,
+    rating: p.rating,
+    bestseller: p.bestseller,
+    isVeg: p.is_veg,
+    isHomemade: p.is_homemade,
+    variants: p.variants || undefined,
+    sortOrder: p.sort_order ?? 0,
+  };
 }
 
 export const productService = {
@@ -56,6 +80,13 @@ export const productService = {
   },
 
   /**
+   * Reorder products (admin)
+   */
+  async reorderProducts(items: { id: number; sort_order: number }[]): Promise<void> {
+    await api.post('/admin/products/reorder', items);
+  },
+
+  /**
    * Delete a product (admin)
    */
   async delete(id: number): Promise<void> {
@@ -72,5 +103,33 @@ export const productService = {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     return response.data.path;
+  },
+
+  // ─── PUBLIC-FACING METHODS (return frontend Product format) ───
+
+  /**
+   * Get all active products mapped to the frontend Product interface
+   */
+  async getPublicProducts(): Promise<Product[]> {
+    const apiProducts = await this.getAll();
+    return apiProducts
+      .map(mapToProduct)
+      .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+  },
+
+  /**
+   * Get products by category
+   */
+  async getProductsByCategory(category: string): Promise<Product[]> {
+    const all = await this.getPublicProducts();
+    return all.filter(p => p.category === category);
+  },
+
+  /**
+   * Get bestseller products
+   */
+  async getBestsellers(): Promise<Product[]> {
+    const all = await this.getPublicProducts();
+    return all.filter(p => p.bestseller);
   },
 };

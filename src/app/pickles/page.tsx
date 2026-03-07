@@ -1,15 +1,16 @@
 
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ImgHTMLAttributes } from 'react';
 const Image = (props: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean, fill?: boolean, quality?: number }) => <img {...props} />;
 import { motion } from "framer-motion"
-import { Star, ShoppingBag, Leaf, Award, Clock, Sparkles, ChevronRight, Check, Circle } from "lucide-react"
+import { Star, ShoppingBag, Leaf, Award, Clock, Sparkles, ChevronRight, Check, Circle, Loader2 } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { PageHeader } from "@/components/page-header"
 import { useCart } from "@/context/cart-context"
-import { getProductsByCategory, type Product } from "@/data/products"
+import { productService } from "@/services/productService"
+import type { Product } from "@/data/products"
 
 function PickleCard({ product, index }: { product: Product; index: number }) {
   const { addItem } = useCart()
@@ -165,7 +166,17 @@ function PickleCard({ product, index }: { product: Product; index: number }) {
 }
 
 export default function PicklesPage() {
-  const pickles = getProductsByCategory("pickles")
+  const [pickles, setPickles] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    productService.getProductsByCategory("pickles")
+      .then(setPickles)
+      .catch(() => {
+        import("@/data/products").then(m => setPickles(m.getProductsByCategory("pickles")))
+      })
+      .finally(() => setLoading(false))
+  }, [])
 
   const features = [
     { icon: Leaf, text: "100% Vegetarian", color: "text-green-500" },
@@ -206,13 +217,20 @@ export default function PicklesPage() {
       {/* Pickles Grid - 2 columns on mobile */}
       <section className="px-4 pb-20">
         <div className="container mx-auto max-w-6xl">
-          <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-6">
-            {pickles.map((product, index) => (
-              <PickleCard key={product.id} product={product} index={index} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-10 h-10 text-[#d97706] animate-spin" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-6">
+              {pickles.map((product: Product, index: number) => (
+                <PickleCard key={product.id} product={product} index={index} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
+
 
       {/* Info Banner */}
       <section className="px-4 pb-20">

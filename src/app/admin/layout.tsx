@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link, Outlet, useLocation } from 'react-router-dom'
 import { authService, type AdminUser } from '@/services/authService'
 import { Package, ShoppingCart, LogOut, LayoutDashboard, Menu, X } from 'lucide-react'
+import { Toaster } from '@/components/ui/toaster'
 
 export default function AdminLayout() {
   const navigate = useNavigate()
@@ -124,6 +125,7 @@ export default function AdminLayout() {
           <Outlet />
         </main>
       </div>
+      <Toaster />
     </div>
   )
 }

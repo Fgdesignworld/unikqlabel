@@ -16,6 +16,12 @@ function generateCsrfToken(): string {
 }
 
 function validateCsrfToken(): bool {
+    // Skip CSRF for safe methods
+    $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+    if (in_array($method, ['GET', 'HEAD', 'OPTIONS'])) {
+        return true;
+    }
+
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }

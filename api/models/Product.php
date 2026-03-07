@@ -12,17 +12,18 @@ class Product {
      */
     public static function getActive(): array {
         $db = getDB();
-        $stmt = $db->query("SELECT * FROM products WHERE status = 'active' ORDER BY category, name");
+        $stmt = $db->query("SELECT * FROM products WHERE status = 'active' ORDER BY sort_order ASC, name ASC");
         return $stmt->fetchAll();
     }
 
     /**
-     * Get all products (admin)
+     * Get all products (admin view)
      */
     public static function getAll(): array {
         $db = getDB();
-        $stmt = $db->query("SELECT * FROM products ORDER BY created_at DESC");
-        return $stmt->fetchAll();
+        $stmt = $db->query("SELECT * FROM products ORDER BY sort_order ASC, id DESC");
+        $products = $stmt->fetchAll();
+        return $products;
     }
 
     /**
@@ -101,6 +102,33 @@ class Product {
         $db = getDB();
         $stmt = $db->prepare("DELETE FROM products WHERE id = :id");
         return $stmt->execute(['id' => $id]);
+    }
+
+    /**
+     * Update product sort order
+     */
+    public static function updateSortOrder(array $items): bool {
+        $db = getDB();
+        
+        try {
+            $db->beginTransaction();
+            $stmt = $db->prepare("UPDATE products SET sort_order = :sort_order WHERE id = :id");
+            
+            foreach ($items as $item) {
+                if (isset($item['id']) && isset($item['sort_order'])) {
+                    $stmt->execute([
+                        'id' => $item['id'],
+                        'sort_order' => $item['sort_order']
+                    ]);
+                }
+            }
+            
+            $db->commit();
+            return true;
+        } catch (Exception $e) {
+            $db->rollBack();
+            throw $e;
+        }
     }
 
     /**

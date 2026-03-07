@@ -6,6 +6,7 @@ const Image = (props: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean
 import { Link } from 'react-router-dom';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { motion } from "framer-motion"
+import api from '@/lib/axios'
 import { 
   ArrowLeft, 
   User, 
@@ -128,14 +129,39 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async () => {
     setIsSubmitting(true)
 
-    // Generate Invoice Number
-    const newInvoiceNo = `LHF-${Date.now().toString().slice(-6)}`
+    // ─── STEP 1: Save order to database ───
+    let newInvoiceNo = `LHF-${Date.now().toString().slice(-6)}` // fallback
+    try {
+      const orderPayload = {
+        customer_name: customerDetails.name,
+        phone: customerDetails.phone,
+        address: customerDetails.address,
+        city: customerDetails.city,
+        pincode: customerDetails.pincode,
+        notes: customerDetails.notes || '',
+        cart_items: items.map(item => ({
+          product_id: null,
+          name: item.name,
+          weight: item.weight,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      }
+      const response = await api.post('/checkout', orderPayload)
+      if (response.data?.success && response.data?.invoice_number) {
+        newInvoiceNo = response.data.invoice_number
+      }
+    } catch (e) {
+      console.error('Order storage error (continuing with invoice):', e)
+      // Graceful degradation: continue with client-generated invoice number
+    }
+
     setInvoiceNumber(newInvoiceNo)
 
     // Wait for the InvoiceTemplate to render with the new invoice number
     await new Promise(resolve => setTimeout(resolve, 100))
 
-    // Attempt to generate and download PDF
+    // ─── STEP 2: Generate and download PDF (existing logic) ───
     try {
       const invoiceProps = {
         items: [...items],
@@ -159,12 +185,14 @@ export default function CheckoutPage() {
       customer: { ...customerDetails }
     })
 
-    // Construct detailed WhatsApp message
+    // ─── STEP 3: Send WhatsApp message (existing logic) ───
     const itemsList = items
       .map((item) => ` • ${item.name} (${item.weight}) x ${item.quantity} = Rs.${item.price * item.quantity}`)
       .join("\n")
 
     const message = `*New Order from Lakshmi Home Foods*
+
+*Invoice:* ${newInvoiceNo}
 
 *Customer Details:*
 Name: ${customerDetails.name}
@@ -186,7 +214,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `Rs.${deliveryCharge}`}
     // Open WhatsApp directly
     window.open(whatsappURL, "_blank")
 
-    // Show success
+    // ─── STEP 4: Show success (existing logic) ───
     setTimeout(() => {
       setIsSubmitting(false)
       setStep("success")

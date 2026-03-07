@@ -1,14 +1,15 @@
 
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link } from 'react-router-dom';
 import { motion } from "framer-motion"
-import { ShoppingBag, Star, ArrowRight, Check } from "lucide-react"
+import { ShoppingBag, Star, ArrowRight, Check, Loader2 } from "lucide-react"
 import { useCart } from "@/context/cart-context"
 import { Image } from "@/components/ui/image"
-import { getBestsellers } from "@/data/products"
+import { productService } from "@/services/productService"
+import type { Product } from "@/data/products"
 
-function BestSellerCard({ product, index }: { product: ReturnType<typeof getBestsellers>[0]; index: number }) {
+function BestSellerCard({ product, index }: { product: Product; index: number }) {
   const { addItem } = useCart()
   const [selectedVariant, setSelectedVariant] = useState(0)
   const [isAdded, setIsAdded] = useState(false)
@@ -114,7 +115,18 @@ function BestSellerCard({ product, index }: { product: ReturnType<typeof getBest
 }
 
 export function BestSellers() {
-  const products = getBestsellers().slice(0, 4)
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    productService.getBestsellers()
+      .then(items => setProducts(items.slice(0, 4)))
+      .catch(() => {
+        import("@/data/products").then(m => setProducts(m.getBestsellers().slice(0, 4)))
+      })
+      .finally(() => setLoading(false))
+  }, [])
+
 
   return (
     <section className="py-20 px-4 bg-[#0f0f0f]">
@@ -135,11 +147,17 @@ export function BestSellers() {
         </motion.div>
 
         {/* Products Grid - 2 columns on mobile */}
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {products.map((product, index) => (
-            <BestSellerCard key={product.id} product={product} index={index} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-10 h-10 text-[#d97706] animate-spin" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {products.map((product, index) => (
+              <BestSellerCard key={product.id} product={product} index={index} />
+            ))}
+          </div>
+        )}
 
         {/* View All Link */}
         <motion.div

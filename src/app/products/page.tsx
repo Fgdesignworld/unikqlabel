@@ -1,15 +1,31 @@
 
 
-import { useState } from "react"
+
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
+import { Loader2 } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { PageHeader } from "@/components/page-header"
 import { ProductCard } from "@/components/product-card"
-import { products, categories } from "@/data/products"
+import { productService } from "@/services/productService"
+import { categories } from "@/data/products"
+import type { Product } from "@/data/products"
 
 export default function ProductsPage() {
   const [activeFilter, setActiveFilter] = useState<string>("all")
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    productService.getPublicProducts()
+      .then(setProducts)
+      .catch(() => {
+        // Fallback to static data if API fails
+        import("@/data/products").then(m => setProducts(m.products))
+      })
+      .finally(() => setLoading(false))
+  }, [])
 
   const filteredProducts =
     activeFilter === "all"
@@ -64,16 +80,22 @@ export default function ProductsPage() {
       {/* Products Grid */}
       <section className="px-4 pb-20">
         <div className="container mx-auto max-w-7xl">
-          <motion.div
-            layout
-            className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"
-          >
-            {filteredProducts.map((product, index) => (
-              <ProductCard key={product.id} product={product} index={index} />
-            ))}
-          </motion.div>
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-10 h-10 text-[#d97706] animate-spin" />
+            </div>
+          ) : (
+            <motion.div
+              layout
+              className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"
+            >
+              {filteredProducts.map((product, index) => (
+                <ProductCard key={product.id} product={product} index={index} />
+              ))}
+            </motion.div>
+          )}
 
-          {filteredProducts.length === 0 && (
+          {!loading && filteredProducts.length === 0 && (
             <div className="text-center py-20">
               <p className="text-[#fef3e2]/60 text-lg">No products found in this category.</p>
             </div>

@@ -1,13 +1,27 @@
 
 
+
+import { useState, useEffect } from "react"
+import { Loader2 } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { PageHeader } from "@/components/page-header"
 import { ProductCard } from "@/components/product-card"
-import { getProductsByCategory } from "@/data/products"
+import { productService } from "@/services/productService"
+import type { Product } from "@/data/products"
 
 export default function SpicesPage() {
-  const spices = getProductsByCategory("spices")
+  const [spices, setSpices] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    productService.getProductsByCategory("spices")
+      .then(setSpices)
+      .catch(() => {
+        import("@/data/products").then(m => setSpices(m.getProductsByCategory("spices")))
+      })
+      .finally(() => setLoading(false))
+  }, [])
 
   return (
     <main className="min-h-screen bg-[#0f0f0f]">
@@ -33,11 +47,17 @@ export default function SpicesPage() {
       {/* Products Grid */}
       <section className="px-4 pb-20">
         <div className="container mx-auto max-w-7xl">
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-            {spices.map((product, index) => (
-              <ProductCard key={product.id} product={product} index={index} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-10 h-10 text-[#d97706] animate-spin" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+              {spices.map((product, index) => (
+                <ProductCard key={product.id} product={product} index={index} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
