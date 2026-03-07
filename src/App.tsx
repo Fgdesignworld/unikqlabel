@@ -11,19 +11,36 @@ import ProductsPage from '@/app/products/page';
 import SnacksPage from '@/app/snacks/page';
 import SpicesPage from '@/app/spices/page';
 
+// Admin pages
+import AdminLoginPage from '@/app/admin/login/page';
+import AdminLayout from '@/app/admin/layout';
+import AdminDashboard from '@/app/admin/dashboard/page';
+import AdminProductsPage from '@/app/admin/products/page';
+import AdminProductFormPage from '@/app/admin/products/form-page';
+import AdminOrdersPage from '@/app/admin/orders/page';
+
 export default function App() {
   return (
-    <RootLayout>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/pickles" element={<PicklesPage />} />
-        <Route path="/products" element={<ProductsPage />} />
-        <Route path="/snacks" element={<SnacksPage />} />
-        <Route path="/spices" element={<SpicesPage />} />
-      </Routes>
-    </RootLayout>
+    <Routes>
+      {/* Public routes */}
+      <Route element={<RootLayout><HomePage /></RootLayout>} path="/" />
+      <Route path="/about" element={<RootLayout><AboutPage /></RootLayout>} />
+      <Route path="/checkout" element={<RootLayout><CheckoutPage /></RootLayout>} />
+      <Route path="/contact" element={<RootLayout><ContactPage /></RootLayout>} />
+      <Route path="/pickles" element={<RootLayout><PicklesPage /></RootLayout>} />
+      <Route path="/products" element={<RootLayout><ProductsPage /></RootLayout>} />
+      <Route path="/snacks" element={<RootLayout><SnacksPage /></RootLayout>} />
+      <Route path="/spices" element={<RootLayout><SpicesPage /></RootLayout>} />
+
+      {/* Admin routes */}
+      <Route path="/admin/login" element={<AdminLoginPage />} />
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="products" element={<AdminProductsPage />} />
+        <Route path="products/new" element={<AdminProductFormPage />} />
+        <Route path="products/:id" element={<AdminProductFormPage />} />
+        <Route path="orders" element={<AdminOrdersPage />} />
+      </Route>
+    </Routes>
   );
 }

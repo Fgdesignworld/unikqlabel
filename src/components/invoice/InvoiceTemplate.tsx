@@ -16,11 +16,15 @@ interface InvoiceTemplateProps {
     weight: string;
     quantity: number;
     price: number;
-    image: string; // Added image
+    image: string;
   }>;
   subtotal: number;
   delivery: number | 'FREE';
   total: number;
+  startIndex?: number; // Added to support sequential numbering
+  showTotals?: boolean; // Controlled by the generator
+  showBillingInfo?: boolean; // Controlled by the generator
+  showFooter?: boolean; // Added to only show on final page
 }
 
 export const InvoiceTemplate = ({
@@ -32,6 +36,10 @@ export const InvoiceTemplate = ({
   subtotal,
   delivery,
   total,
+  startIndex = 0,
+  showTotals = true,
+  showBillingInfo = true,
+  showFooter = true,
 }: InvoiceTemplateProps) => {
   return (
     <div
@@ -87,29 +95,32 @@ export const InvoiceTemplate = ({
       </div>
 
       {/* Details Section */}
-      <div style={{ position: 'relative', zIndex: 1, display: 'flex', gap: '40px', marginBottom: '35px' }}>
-        <div style={{ flex: 1, padding: '15px 20px', backgroundColor: '#fdf8f0', border: '1px solid #fee2b3', borderRadius: '12px' }}>
-          <h3 style={{ textTransform: 'uppercase', fontSize: '10px', fontWeight: '800', color: '#b45309', letterSpacing: '1.2px', marginBottom: '10px' }}>Billed To</h3>
-          <p style={{ margin: '0', fontSize: '18px', fontWeight: '800', color: '#000' }}>{customerDetails.name}</p>
-          <p style={{ margin: '4px 0', fontSize: '14px', color: '#444', fontWeight: '500' }}>+91 {customerDetails.phone}</p>
-          <div style={{ marginTop: '8px', fontSize: '13px', color: '#444', lineHeight: '1.5' }}>
-            <p style={{ margin: 0 }}>{customerDetails.address}</p>
-            <p style={{ margin: 0 }}>{customerDetails.city} - {customerDetails.pincode}</p>
+      {showBillingInfo && (
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', gap: '40px', marginBottom: '35px' }}>
+          <div style={{ flex: 1, padding: '15px 20px', backgroundColor: '#fdf8f0', border: '1px solid #fee2b3', borderRadius: '12px' }}>
+            <h3 style={{ textTransform: 'uppercase', fontSize: '10px', fontWeight: '800', color: '#b45309', letterSpacing: '1.2px', marginBottom: '10px' }}>Billed To</h3>
+            <p style={{ margin: '0', fontSize: '18px', fontWeight: '800', color: '#000' }}>{customerDetails.name}</p>
+            <p style={{ margin: '4px 0', fontSize: '14px', color: '#444', fontWeight: '500' }}>+91 {customerDetails.phone}</p>
+            <div style={{ marginTop: '8px', fontSize: '13px', color: '#444', lineHeight: '1.5' }}>
+              <p style={{ margin: 0 }}>{customerDetails.address}</p>
+              <p style={{ margin: 0 }}>{customerDetails.city} - {customerDetails.pincode}</p>
+            </div>
+          </div>
+          <div style={{ width: '200px', paddingTop: '5px' }}>
+            <h3 style={{ textTransform: 'uppercase', fontSize: '10px', fontWeight: '800', color: '#999', letterSpacing: '1.2px', marginBottom: '10px' }}>Store Info</h3>
+            <p style={{ margin: 0, fontSize: '14px', fontWeight: '700', color: '#000' }}>Laxmi Home Foods</p>
+            <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Quality Homemade Products</p>
+            <p style={{ margin: '4px 0', fontSize: '13px', color: '#d97706', fontWeight: '700' }}>WA: +91 8639424039</p>
           </div>
         </div>
-        <div style={{ width: '200px', paddingTop: '5px' }}>
-          <h3 style={{ textTransform: 'uppercase', fontSize: '10px', fontWeight: '800', color: '#999', letterSpacing: '1.2px', marginBottom: '10px' }}>Store Info</h3>
-          <p style={{ margin: 0, fontSize: '14px', fontWeight: '700', color: '#000' }}>Laxmi Home Foods</p>
-          <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Quality Homemade Products</p>
-          <p style={{ margin: '4px 0', fontSize: '13px', color: '#d97706', fontWeight: '700' }}>WA: +91 8639424039</p>
-        </div>
-      </div>
+      )}
 
       {/* Products Table */}
       <div style={{ position: 'relative', zIndex: 1 }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: showTotals ? '30px' : '0' }}>
           <thead>
             <tr style={{ borderBottom: '2px solid #1a1a1a' }}>
+              <th style={{ textAlign: 'left', padding: '12px 10px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: '#000', letterSpacing: '1px', width: '40px' }}>No.</th>
               <th style={{ textAlign: 'left', padding: '12px 10px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: '#000', letterSpacing: '1px' }}>Item Details</th>
               <th style={{ textAlign: 'center', padding: '12px 10px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: '#000', letterSpacing: '1px' }}>Weight</th>
               <th style={{ textAlign: 'center', padding: '12px 10px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: '#000', letterSpacing: '1px' }}>Qty</th>
@@ -120,6 +131,7 @@ export const InvoiceTemplate = ({
           <tbody>
             {items.map((item, index) => (
               <tr key={index}>
+                <td style={{ textAlign: 'left', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', fontSize: '13px', fontWeight: '700', color: '#666' }}>{startIndex + index + 1}</td>
                 <td style={{ padding: '12px 10px', borderBottom: '1px solid #f0f0f0' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                     <img src={item.image} crossOrigin="anonymous" style={{ width: '45px', height: '45px', borderRadius: '8px', objectFit: 'cover', border: '1px solid #fee2b3', padding: '1px', backgroundColor: '#fff' }} alt="" />
@@ -140,31 +152,35 @@ export const InvoiceTemplate = ({
       </div>
 
       {/* Summary Section */}
-      <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-        <div style={{ width: '280px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', fontSize: '13px', color: '#666', fontWeight: '500' }}>
-            <span>Subtotal</span>
-            <span style={{ color: '#000', fontWeight: '700' }}>₹{subtotal}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', fontSize: '13px', color: '#666', fontWeight: '500' }}>
-            <span>Delivery</span>
-            <span style={{ color: delivery === 'FREE' ? '#10b981' : '#000', fontWeight: '700' }}>{delivery === 'FREE' ? 'FREE' : `₹${delivery}`}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 12px', marginTop: '10px', backgroundColor: '#000', borderRadius: '10px', color: '#fff' }}>
-            <span style={{ fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px', alignSelf: 'center' }}>Total Amount</span>
-            <span style={{ fontSize: '20px', fontWeight: '900', color: '#fbbf24' }}>₹{total}</span>
+      {showTotals && (
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+          <div style={{ width: '280px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', fontSize: '13px', color: '#666', fontWeight: '500' }}>
+              <span>Subtotal</span>
+              <span style={{ color: '#000', fontWeight: '700' }}>₹{subtotal}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', fontSize: '13px', color: '#666', fontWeight: '500' }}>
+              <span>Delivery</span>
+              <span style={{ color: delivery === 'FREE' ? '#10b981' : '#000', fontWeight: '700' }}>{delivery === 'FREE' ? 'FREE' : `₹${delivery}`}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 12px', marginTop: '10px', backgroundColor: '#000', borderRadius: '10px', color: '#fff' }}>
+              <span style={{ fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px', alignSelf: 'center' }}>Total Amount</span>
+              <span style={{ fontSize: '20px', fontWeight: '900', color: '#fbbf24' }}>₹{total}</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Footer */}
-      <div style={{ position: 'relative', zIndex: 1, marginTop: '40px', textAlign: 'center' }}>
-        <p style={{ margin: '0 0 5px 0', fontSize: '14px', fontWeight: '800', color: '#000' }}>Thank you for your order!</p>
-        <p style={{ margin: 0, fontSize: '12px', color: '#666', fontWeight: '500' }}>Questions? WhatsApp: <span style={{ color: '#d97706', fontWeight: '700' }}>+91 8639424039</span></p>
-        <div style={{ marginTop: '20px', borderTop: '1px dashed #eee', paddingTop: '15px', fontSize: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '2px' }}>
-          • Quality Homemade Traditions •
+      {showFooter && (
+        <div style={{ position: 'relative', zIndex: 1, marginTop: '40px', textAlign: 'center' }}>
+          <p style={{ margin: '0 0 5px 0', fontSize: '14px', fontWeight: '800', color: '#000' }}>Thank you for your order!</p>
+          <p style={{ margin: 0, fontSize: '12px', color: '#666', fontWeight: '500' }}>Questions? WhatsApp: <span style={{ color: '#d97706', fontWeight: '700' }}>+91 8639424039</span></p>
+          <div style={{ marginTop: '20px', borderTop: '1px dashed #eee', paddingTop: '15px', fontSize: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '2px' }}>
+            • Quality Homemade Traditions •
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

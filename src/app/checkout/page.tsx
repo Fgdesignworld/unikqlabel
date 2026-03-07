@@ -1,11 +1,10 @@
 
-```
+
 import { useState, useEffect } from "react"
 import { ImgHTMLAttributes } from 'react';
 const Image = (props: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean, fill?: boolean, quality?: number }) => <img {...props} />;
 import { Link } from 'react-router-dom';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import { toast } from "sonner"
 import { motion } from "framer-motion"
 import { 
   ArrowLeft, 
@@ -49,6 +48,29 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
   const [invoiceNumber, setInvoiceNumber] = useState("")
+  const [confirmedOrder, setConfirmedOrder] = useState<{
+    items: typeof items,
+    subtotal: number,
+    delivery: number | 'FREE',
+    total: number,
+    customer: typeof customerDetails
+  } | null>(null)
+
+  // Paging state for the hidden generator template
+  const [pagingState, setPagingState] = useState({
+    items: [] as typeof items,
+    startIndex: 0,
+    showBillingInfo: true,
+    showTotals: true,
+    showFooter: true
+  })
+
+  // Bridge for the generator utility to update this component's template state
+  useEffect(() => {
+    (window as any).updateInvoiceData = async (data: any) => {
+      setPagingState(prev => ({ ...prev, ...data }))
+    }
+  }, [])
 
   // Wait for hydration before checking cart
   useEffect(() => {
@@ -113,40 +135,56 @@ export default function CheckoutPage() {
     // Wait for the InvoiceTemplate to render with the new invoice number
     await new Promise(resolve => setTimeout(resolve, 100))
 
-    // Attempt to generate PDF
-    let pdfBlob: Blob | null = null
+    // Attempt to generate and download PDF
     try {
-      pdfBlob = await generateInvoice("invoice-template-pdf", newInvoiceNo)
+      const invoiceProps = {
+        items: [...items],
+        customerDetails: { ...customerDetails },
+        subtotal: totalPrice,
+        delivery: deliveryCharge === 0 ? 'FREE' : deliveryCharge,
+        total: finalTotal,
+        date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+      }
+      await generateInvoice("invoice-template-pdf", newInvoiceNo, true, invoiceProps)
     } catch (e) {
       console.error("PDF generation error:", e)
     }
 
-    let message = `🚀 *New Order - Lakshmi Home Foods*\n\n━━━━━━━━━━━━━━━━━━━━\n*Customer:* ${customerDetails.name}\n*Phone:* ${customerDetails.phone}\n*Invoice:* ${newInvoiceNo}\n━━━━━━━━━━━━━━━━━━━━\n\n✅ *Total Amount: Rs.${finalTotal}*\n\nThank you for the order!`
+    // Save order snapshot for "Download Again" feature
+    setConfirmedOrder({
+      items: [...items],
+      subtotal: totalPrice,
+      delivery: deliveryCharge === 0 ? 'FREE' : deliveryCharge,
+      total: finalTotal,
+      customer: { ...customerDetails }
+    })
+
+    // Construct detailed WhatsApp message
+    const itemsList = items
+      .map((item) => ` • ${item.name} (${item.weight}) x ${item.quantity} = Rs.${item.price * item.quantity}`)
+      .join("\n")
+
+    const message = `*New Order from Lakshmi Home Foods*
+
+*Customer Details:*
+Name: ${customerDetails.name}
+Phone: ${customerDetails.phone}
+Address: ${customerDetails.address}
+City: ${customerDetails.city}
+Pincode: ${customerDetails.pincode}
+${customerDetails.notes ? `Notes: ${customerDetails.notes}` : ""}
+
+*Order Details:*
+${itemsList}
+
+Subtotal: Rs.${totalPrice}
+Delivery: ${deliveryCharge === 0 ? "FREE" : `Rs.${deliveryCharge}`}
+*Total: Rs.${finalTotal}*`.trim()
 
     const whatsappURL = `https://wa.me/918639424039?text=${encodeURIComponent(message)}`
 
-    // Expert Share Logic
-    let sharedSuccessfully = false
-    if (pdfBlob && navigator.share && navigator.canShare) {
-      try {
-        const file = new File([pdfBlob], `Invoice_LHF_${newInvoiceNo}.pdf`, { type: 'application/pdf' })
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: `Laxmi Home Foods Invoice - ${newInvoiceNo}`,
-            text: message
-          })
-          sharedSuccessfully = true
-        }
-      } catch (shareError) {
-        console.warn("Web Share failed, falling back to URL redirect:", shareError)
-      }
-    }
-
-    // Fallback or secondary action
-    if (!sharedSuccessfully) {
-      window.open(whatsappURL, "_blank")
-    }
+    // Open WhatsApp directly
+    window.open(whatsappURL, "_blank")
 
     // Show success
     setTimeout(() => {
@@ -261,68 +299,20 @@ export default function CheckoutPage() {
               <h1 className="font-serif text-3xl md:text-4xl font-bold text-[#fef3e2] mb-4">
                 Order Placed Successfully!
               </h1>
-              <p className="text-[#fef3e2]/70 text-lg max-w-md mx-auto mb-6">
-                Your order order summary has been sent via WhatsApp.
+              <p className="text-[#fef3e2]/70 text-lg max-w-md mx-auto mb-10">
+                Your order details have been sent to our WhatsApp. We will process your order shortly.
               </p>
-              
-              {/* PDF Instruction Alert */}
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="max-w-md mx-auto mb-10 p-5 bg-[#d97706]/10 rounded-3xl border border-[#d97706]/30 text-left relative overflow-hidden"
-              >
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <FileText className="w-20 h-20" />
-                </div>
-                <div className="relative z-10 flex gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-[#d97706] flex items-center justify-center flex-shrink-0 shadow-lg shadow-[#d97706]/20">
-                    <FileText className="w-6 h-6 text-[#0f0f0f]" />
-                  </div>
-                  <div>
-                    <h4 className="text-[#fef3e2] font-extrabold text-base mb-2">Send PDF to Lakshmi Home Foods</h4>
-                    <p className="text-sm text-[#fef3e2]/80 leading-relaxed mb-4">
-                      Browsers prevent auto-sending files to a specific number. To complete your order, please:
-                    </p>
-                    <ul className="space-y-3 text-sm text-[#fef3e2]/90">
-                      <li className="flex items-start gap-2">
-                        <span className="w-5 h-5 rounded-full bg-[#d97706]/20 text-[#d97706] flex items-center justify-center text-[10px] font-bold mt-0.5">1</span>
-                        <span>Open WhatsApp and select <strong>Lakshmi Home Foods</strong></span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="w-5 h-5 rounded-full bg-[#d97706]/20 text-[#d97706] flex items-center justify-center text-[10px] font-bold mt-0.5">2</span>
-                        <span>Tap the 📎 (Paperclip) icon</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="w-5 h-5 rounded-full bg-[#d97706]/20 text-[#d97706] flex items-center justify-center text-[10px] font-bold mt-0.5">3</span>
-                        <span>Select the <strong>Invoice_LHF...</strong> PDF from your downloads</span>
-                      </li>
-                    </ul>
-                    
-                    <div className="mt-6 flex flex-col gap-3">
-                      <div className="p-3 bg-black/40 rounded-xl border border-white/10 flex items-center justify-between">
-                        <div className="flex flex-col">
-                          <span className="text-[10px] uppercase tracking-wider text-[#d97706] font-bold">Admin Number</span>
-                          <span className="text-[#fef3e2] font-mono">+91 8639424039</span>
-                        </div>
-                        <button 
-                          onClick={() => {
-                            navigator.clipboard.writeText("8639424039");
-                            toast.success("Number copied to clipboard!");
-                          }}
-                          className="px-3 py-1.5 bg-[#d97706] text-[#0f0f0f] text-xs font-bold rounded-lg hover:bg-[#b45309] transition-colors"
-                        >
-                          Copy
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
                 <button
-                  onClick={() => generateInvoice("invoice-template-pdf", invoiceNumber)}
+                  onClick={() => {
+                    if (confirmedOrder) {
+                      generateInvoice("invoice-template-pdf", invoiceNumber, true, {
+                        ...confirmedOrder,
+                        date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                      })
+                    }
+                  }}
                   className="w-full px-8 py-4 bg-[#1a1410] border border-[#d97706]/50 text-[#d97706] font-extrabold rounded-2xl hover:bg-[#d97706]/10 transition-all flex items-center justify-center gap-2 group"
                 >
                   <FileText className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -677,19 +667,23 @@ export default function CheckoutPage() {
 
       <Footer />
 
-      {/* Hidden Invoice Template Generator */}
-      {step !== "success" && (
+      {/* Hidden Invoice Template Generator - Stays in DOM for download features */}
+      <div style={{ position: 'fixed', top: '-9999px', left: '-9999px', opacity: 0, pointerEvents: 'none', zIndex: -100, overflow: 'hidden' }}>
         <InvoiceTemplate
           id="invoice-template-pdf"
           invoiceNumber={invoiceNumber}
           date={new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-          customerDetails={customerDetails}
-          items={items}
-          subtotal={totalPrice}
-          delivery={deliveryCharge === 0 ? 'FREE' : deliveryCharge}
-          total={finalTotal}
+          customerDetails={confirmedOrder?.customer || customerDetails}
+          items={pagingState.items} // Use paging segment
+          subtotal={confirmedOrder?.subtotal || totalPrice}
+          delivery={confirmedOrder?.delivery ?? (deliveryCharge === 0 ? 'FREE' : deliveryCharge)}
+          total={confirmedOrder?.total || finalTotal}
+          startIndex={pagingState.startIndex} // For sequential numbering
+          showTotals={pagingState.showTotals} // Only on final page
+          showBillingInfo={pagingState.showBillingInfo} // Only on first page
+          showFooter={pagingState.showFooter} // Only on final page
         />
-      )}
+      </div>
     </main>
   )
 }
