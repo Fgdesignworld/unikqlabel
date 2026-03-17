@@ -1,6 +1,6 @@
 <?php
 /**
- * Order Controller — Checkout order submission + Admin listing
+ * Order Controller — Checkout order submission + Admin listing + Analytics
  */
 
 require_once __DIR__ . '/../models/Order.php';
@@ -13,11 +13,10 @@ class OrderController {
      */
     public static function store(): void {
         require_once __DIR__ . '/../middleware/rate_limit.php';
-        checkRateLimit('checkout'); // Limit: 5 per 15 mins (defined in middleware)
+        checkRateLimit('checkout');
 
         $input = json_decode(file_get_contents('php://input'), true);
 
-        // Validate required fields
         $requiredFields = ['customer_name', 'phone', 'address', 'city', 'pincode', 'cart_items'];
         foreach ($requiredFields as $field) {
             if (empty($input[$field])) {
@@ -27,28 +26,24 @@ class OrderController {
             }
         }
 
-        // Validate phone (10 digits)
         if (!preg_match('/^\d{10}$/', $input['phone'])) {
             http_response_code(400);
             echo json_encode(['error' => 'Phone must be a 10-digit number']);
             return;
         }
 
-        // Validate pincode (6 digits)
         if (!preg_match('/^\d{6}$/', $input['pincode'])) {
             http_response_code(400);
             echo json_encode(['error' => 'Pincode must be a 6-digit number']);
             return;
         }
 
-        // Validate cart items
         if (!is_array($input['cart_items']) || count($input['cart_items']) === 0) {
             http_response_code(400);
             echo json_encode(['error' => 'Cart must contain at least one item']);
             return;
         }
 
-        // Map cart items to order_items format
         $items = [];
         foreach ($input['cart_items'] as $cartItem) {
             if (empty($cartItem['name']) || empty($cartItem['price']) || empty($cartItem['quantity'])) {
@@ -77,7 +72,6 @@ class OrderController {
 
         try {
             $result = Order::create($orderData, $items);
-
             http_response_code(201);
             echo json_encode([
                 'success'        => true,
@@ -95,19 +89,43 @@ class OrderController {
     }
 
     /**
-     * GET /api/admin/orders — Admin: list all orders
+     * GET /api/admin/orders — Admin: list paginated/filtered orders
+     * Query params: ?filter=today|week|month|all  &page=N
      */
     public static function adminIndex(): void {
         requireAuth();
-        $orders = Order::getAll();
 
-        foreach ($orders as &$order) {
+        $filter = in_array($_GET['filter'] ?? '', ['today', 'week', 'month', 'all'])
+            ? $_GET['filter']
+            : 'all';
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+
+        $result = Order::getAll($filter, $page);
+
+        foreach ($result['orders'] as &$order) {
             $order['subtotal'] = (float) $order['subtotal'];
             $order['delivery'] = (float) $order['delivery'];
             $order['total']    = (float) $order['total'];
         }
 
-        echo json_encode(['orders' => $orders]);
+        echo json_encode($result);
+    }
+
+    /**
+     * GET /api/admin/orders/analytics — Summary stats
+     */
+    public static function adminAnalytics(): void {
+        requireAuth();
+        echo json_encode(Order::getAnalytics());
+    }
+
+    /**
+     * GET /api/admin/orders/chart — Daily chart data (last 14 days)
+     */
+    public static function adminChart(): void {
+        requireAuth();
+        $days = min(90, max(7, (int) ($_GET['days'] ?? 14)));
+        echo json_encode(['chart' => Order::getDailyChart($days)]);
     }
 
     /**

@@ -26,6 +26,20 @@ export interface CheckoutResponse {
     total: number;
 }
 
+export interface OrdersAnalytics {
+    today: { count: number; revenue: number };
+    week: { count: number; revenue: number };
+    month: { count: number; revenue: number };
+    total: { count: number; revenue: number };
+}
+
+export interface ChartDay {
+    date: string;
+    day: string;
+    orders: number;
+    revenue: number;
+}
+
 export const orderService = {
     /**
      * Submit a checkout order
@@ -36,11 +50,11 @@ export const orderService = {
     },
 
     /**
-     * Get all orders (admin)
+     * Get paginated/filtered orders (admin)
      */
-    async getAll() {
-        const response = await api.get('/admin/orders');
-        return response.data.orders;
+    async getAll(filter = 'all', page = 1) {
+        const response = await api.get('/admin/orders', { params: { filter, page } });
+        return response.data;
     },
 
     /**
@@ -57,5 +71,21 @@ export const orderService = {
     async updateStatus(id: number, status: string) {
         const response = await api.put(`/admin/orders/${id}/status`, { status });
         return response.data;
+    },
+
+    /**
+     * Get analytics summary (admin)
+     */
+    async getAnalytics(): Promise<OrdersAnalytics> {
+        const response = await api.get('/admin/orders/analytics');
+        return response.data;
+    },
+
+    /**
+     * Get daily chart data (admin)
+     */
+    async getChart(days = 14): Promise<ChartDay[]> {
+        const response = await api.get('/admin/orders/chart', { params: { days } });
+        return response.data.chart;
     },
 };

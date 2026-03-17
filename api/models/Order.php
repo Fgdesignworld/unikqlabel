@@ -1,9 +1,10 @@
 <?php
 /**
- * Order Model — Order creation with transaction safety
+ * Order Model — Order creation with transaction safety + Analytics
  */
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../models/Notification.php';
 
 class Order {
 
@@ -68,6 +69,18 @@ class Order {
 
             $db->commit();
 
+            // Trigger notification for admin (non-critical)
+            try {
+                $customerName = htmlspecialchars($orderData['customer_name'], ENT_QUOTES, 'UTF-8');
+                Notification::create(
+                    'new_order',
+                    $orderId,
+                    "New order #{$invoiceNumber} from {$customerName} — ₹{$total}"
+                );
+            } catch (Exception $ne) {
+                error_log('Notification creation failed: ' . $ne->getMessage());
+            }
+
             return [
                 'id'             => $orderId,
                 'invoice_number' => $invoiceNumber,
@@ -83,12 +96,38 @@ class Order {
     }
 
     /**
-     * Get all orders (admin)
+     * Get all orders (admin) with optional filter and pagination
+     * @param string $filter  today|week|month|all
+     * @param int    $page    Page number (1-based)
+     * @param int    $perPage Items per page
      */
-    public static function getAll(): array {
+    public static function getAll(string $filter = 'all', int $page = 1, int $perPage = 10): array {
         $db = getDB();
-        $stmt = $db->query("SELECT * FROM orders ORDER BY created_at DESC");
-        return $stmt->fetchAll();
+
+        $where = self::buildFilterWhere($filter);
+        $offset = ($page - 1) * $perPage;
+
+        $countStmt = $db->prepare("SELECT COUNT(*) FROM orders {$where['clause']}");
+        $countStmt->execute($where['params']);
+        $total = (int) $countStmt->fetchColumn();
+
+        $stmt = $db->prepare(
+            "SELECT * FROM orders {$where['clause']} ORDER BY created_at DESC LIMIT :limit OFFSET :offset"
+        );
+        foreach ($where['params'] as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return [
+            'orders'    => $stmt->fetchAll(PDO::FETCH_ASSOC),
+            'total'     => $total,
+            'page'      => $page,
+            'per_page'  => $perPage,
+            'last_page' => (int) ceil($total / $perPage),
+        ];
     }
 
     /**
@@ -99,13 +138,13 @@ class Order {
         
         $stmt = $db->prepare("SELECT * FROM orders WHERE id = :id LIMIT 1");
         $stmt->execute(['id' => $id]);
-        $order = $stmt->fetch();
+        $order = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$order) return null;
 
         $itemStmt = $db->prepare("SELECT * FROM order_items WHERE order_id = :order_id ORDER BY id");
         $itemStmt->execute(['order_id' => $id]);
-        $order['items'] = $itemStmt->fetchAll();
+        $order['items'] = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
 
         return $order;
     }
@@ -117,5 +156,85 @@ class Order {
         $db = getDB();
         $stmt = $db->prepare("UPDATE orders SET status = :status WHERE id = :id");
         return $stmt->execute(['status' => $status, 'id' => $id]);
+    }
+
+    /**
+     * Get analytics: count + revenue for today/week/month/total
+     */
+    public static function getAnalytics(): array {
+        $db = getDB();
+
+        $periods = [
+            'today' => "DATE(created_at) = CURDATE()",
+            'week'  => "created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)",
+            'month' => "created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)",
+            'total' => "1=1",
+        ];
+
+        $result = [];
+        foreach ($periods as $key => $condition) {
+            $stmt = $db->query(
+                "SELECT COUNT(*) as cnt, COALESCE(SUM(total), 0) as revenue FROM orders WHERE {$condition}"
+            );
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $result[$key] = [
+                'count'   => (int) $row['cnt'],
+                'revenue' => (float) $row['revenue'],
+            ];
+        }
+        return $result;
+    }
+
+    /**
+     * Get daily order/revenue chart data for the last N days
+     */
+    public static function getDailyChart(int $days = 14): array {
+        $db = getDB();
+        $stmt = $db->prepare(
+            "SELECT DATE(created_at) as date, COUNT(*) as orders, COALESCE(SUM(total), 0) as revenue
+             FROM orders
+             WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL :days DAY)
+             GROUP BY DATE(created_at)
+             ORDER BY date ASC"
+        );
+        $stmt->execute(['days' => $days]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Pre-fill all dates to ensure no gaps in chart
+        $data = [];
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date = date('Y-m-d', strtotime("-{$i} days"));
+            $data[$date] = [
+                'date'    => $date,
+                'day'     => date('D d', strtotime($date)),
+                'orders'  => 0,
+                'revenue' => 0.0,
+            ];
+        }
+        foreach ($rows as $row) {
+            if (isset($data[$row['date']])) {
+                $data[$row['date']]['orders']  = (int) $row['orders'];
+                $data[$row['date']]['revenue'] = (float) $row['revenue'];
+            }
+        }
+
+        return array_values($data);
+    }
+
+    // ─────────────────────────────────────────
+    // Private helpers
+    // ─────────────────────────────────────────
+
+    private static function buildFilterWhere(string $filter): array {
+        switch ($filter) {
+            case 'today':
+                return ['clause' => "WHERE DATE(created_at) = CURDATE()", 'params' => []];
+            case 'week':
+                return ['clause' => "WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)", 'params' => []];
+            case 'month':
+                return ['clause' => "WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)", 'params' => []];
+            default:
+                return ['clause' => "", 'params' => []];
+        }
     }
 }

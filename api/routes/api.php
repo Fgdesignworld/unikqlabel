@@ -6,6 +6,7 @@
 require_once __DIR__ . '/../controllers/AuthController.php';
 require_once __DIR__ . '/../controllers/ProductController.php';
 require_once __DIR__ . '/../controllers/OrderController.php';
+require_once __DIR__ . '/../controllers/NotificationController.php';
 
 function handleRequest(): void {
     $method = $_SERVER['REQUEST_METHOD'];
@@ -19,10 +20,7 @@ function handleRequest(): void {
     require_once __DIR__ . '/../middleware/rate_limit.php';
     require_once __DIR__ . '/../middleware/csrf.php';
     
-    // 1. Rate limiting (General API limit: 60 requests per minute)
-    // checkRateLimit('api'); // Standard limit for all routes
-    
-    // 2. CSRF Protection for state-changing methods
+    // CSRF Protection for state-changing methods
     if (in_array($method, ['POST', 'PUT', 'DELETE'])) {
         requireCsrf();
     }
@@ -30,9 +28,9 @@ function handleRequest(): void {
     // If empty, show API info
     if ($uri === '' || $uri === '/') {
         echo json_encode([
-            'name' => 'Lakshmi Home Foods API',
+            'name'    => 'Lakshmi Home Foods API',
             'version' => '1.0.0',
-            'status' => 'running'
+            'status'  => 'running'
         ]);
         return;
     }
@@ -41,19 +39,19 @@ function handleRequest(): void {
     // PUBLIC ROUTES
     // ========================================
 
-    // GET /products — Public product listing
+    // GET /products
     if ($method === 'GET' && $uri === '/products') {
         ProductController::index();
         return;
     }
 
-    // POST /checkout — Submit order
+    // POST /checkout
     if ($method === 'POST' && $uri === '/checkout') {
         OrderController::store();
         return;
     }
 
-    // GET /csrf-token — Get CSRF token
+    // GET /csrf-token
     if ($method === 'GET' && $uri === '/csrf-token') {
         AuthController::csrfToken();
         return;
@@ -125,6 +123,18 @@ function handleRequest(): void {
     // ADMIN ORDER ROUTES
     // ========================================
 
+    // GET /admin/orders/analytics
+    if ($method === 'GET' && $uri === '/admin/orders/analytics') {
+        OrderController::adminAnalytics();
+        return;
+    }
+
+    // GET /admin/orders/chart
+    if ($method === 'GET' && $uri === '/admin/orders/chart') {
+        OrderController::adminChart();
+        return;
+    }
+
     // GET /admin/orders
     if ($method === 'GET' && $uri === '/admin/orders') {
         OrderController::adminIndex();
@@ -140,6 +150,28 @@ function handleRequest(): void {
     // PUT /admin/orders/{id}/status
     if ($method === 'PUT' && preg_match('#^/admin/orders/(\d+)/status$#', $uri, $matches)) {
         OrderController::updateStatus((int) $matches[1]);
+        return;
+    }
+
+    // ========================================
+    // ADMIN NOTIFICATION ROUTES
+    // ========================================
+
+    // GET /admin/notifications
+    if ($method === 'GET' && $uri === '/admin/notifications') {
+        NotificationController::getAll();
+        return;
+    }
+
+    // PUT /admin/notifications/read-all
+    if ($method === 'PUT' && $uri === '/admin/notifications/read-all') {
+        NotificationController::markAllRead();
+        return;
+    }
+
+    // PUT /admin/notifications/{id}/read
+    if ($method === 'PUT' && preg_match('#^/admin/notifications/(\d+)/read$#', $uri, $matches)) {
+        NotificationController::markRead((int) $matches[1]);
         return;
     }
 

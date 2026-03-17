@@ -1,10 +1,26 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { orderService } from '@/services/orderService'
+import { useState, useEffect, useCallback } from 'react'
+import { orderService, type OrdersAnalytics, type ChartDay } from '@/services/orderService'
 import { productService } from '@/services/productService'
-import { Package, ShoppingCart, TrendingUp, IndianRupee } from 'lucide-react'
+import { Package, ShoppingCart, TrendingUp, IndianRupee, ChevronRight, RefreshCw } from 'lucide-react'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts'
+import { Link } from 'react-router-dom'
 import { cn } from '@/lib/utils'
+
+// ─── Custom Tooltip ─────────────────────────────────────────────────────────────
+function CustomTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="bg-[#111] border border-gray-800 rounded-xl p-3 shadow-2xl z-50">
+      <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">{label}</p>
+      <p className="text-amber-500 font-black text-sm">{payload[0]?.value} orders</p>
+      {payload[1] && (
+        <p className="text-green-400 font-bold text-xs">₹{payload[1]?.value?.toFixed(0)}</p>
+      )}
+    </div>
+  )
+}
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -13,33 +29,48 @@ export default function AdminDashboard() {
     totalProducts: 0,
     pendingOrders: 0,
   })
+  const [analytics, setAnalytics] = useState<OrdersAnalytics | null>(null)
+  const [chartData, setChartData] = useState<ChartDay[]>([])
   const [recentOrders, setRecentOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
 
-  useEffect(() => {
-    loadData()
-  }, [])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
-      const [orders, products] = await Promise.all([
-        orderService.getAll(),
+      const [orderData, products, orderAnalytics, chart] = await Promise.all([
+        orderService.getAll('all', 1), // Get first page of all orders
         productService.adminGetAll(),
+        orderService.getAnalytics(),
+        orderService.getChart(14),
       ])
 
+      const allOrdersResult = orderData.orders || []
+
       setStats({
-        totalOrders: orders.length,
-        totalRevenue: orders.reduce((sum: number, o: any) => sum + (o.total || 0), 0),
+        totalOrders: orderData.total || 0,
+        totalRevenue: orderAnalytics.total.revenue || 0,
         totalProducts: products.length,
-        pendingOrders: orders.filter((o: any) => o.status === 'pending').length,
+        pendingOrders: allOrdersResult.filter((o: any) => o.status === 'pending').length,
       })
 
-      setRecentOrders(orders.slice(0, 5))
+      setAnalytics(orderAnalytics)
+      setChartData(chart)
+      setRecentOrders(allOrdersResult.slice(0, 5))
     } catch (err) {
       console.error('Dashboard error:', err)
     } finally {
       setLoading(false)
+      setRefreshing(false)
     }
+  }, [])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
+
+  const handleRefresh = () => {
+    setRefreshing(true)
+    loadData()
   }
 
   if (loading) {
@@ -57,8 +88,36 @@ export default function AdminDashboard() {
     { label: 'Pending', value: stats.pendingOrders, icon: TrendingUp, color: 'text-red-400 bg-red-500/10' },
   ]
 
+  // Status Badge Config
+  const getStatusConfig = (status: string) => {
+    switch(status) {
+      case 'delivered': return { bg: 'bg-green-500/10', text: 'text-green-500', border: 'border-green-500/20', dot: 'bg-green-500' }
+      case 'pending': return { bg: 'bg-amber-500/10', text: 'text-amber-500', border: 'border-amber-500/20', dot: 'bg-amber-500' }
+      case 'cancelled': return { bg: 'bg-red-500/10', text: 'text-red-500', border: 'border-red-500/20', dot: 'bg-red-500' }
+      case 'processing': return { bg: 'bg-purple-500/10', text: 'text-purple-500', border: 'border-purple-500/20', dot: 'bg-purple-500' }
+      case 'shipped': return { bg: 'bg-cyan-500/10', text: 'text-cyan-500', border: 'border-cyan-500/20', dot: 'bg-cyan-500' }
+      default: return { bg: 'bg-blue-500/10', text: 'text-blue-500', border: 'border-blue-500/20', dot: 'bg-blue-500' }
+    }
+  }
+
   return (
-    <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500 pb-20 lg:pb-0">
+      
+      {/* Header & Refresh */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl md:text-2xl font-black text-white tracking-tight">Dashboard Overview</h1>
+        </div>
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-gray-800 rounded-xl text-gray-400 hover:text-white hover:border-gray-700 transition-colors text-xs font-bold"
+        >
+          <RefreshCw className={cn("w-3.5 h-3.5", refreshing && "animate-spin")} />
+          <span className="hidden sm:inline">Refresh</span>
+        </button>
+      </div>
+
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {statCards.map((stat) => (
@@ -72,88 +131,111 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Recent Orders */}
-      <div className="bg-[#0c0c0c] border border-gray-800 rounded-[2rem] overflow-hidden shadow-2xl shadow-black">
-        <div className="p-5 md:p-6 border-b border-gray-800 bg-[#0e0e0e] flex items-center justify-between">
-          <h2 className="text-sm md:text-lg font-black text-white uppercase tracking-widest">Recent Orders</h2>
-          <button className="text-[10px] font-black uppercase tracking-widest text-amber-500 hover:text-amber-400 transition-colors">View All</button>
+      {/* Chart & Recent Orders Row */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        
+        {/* Chart Column (Takes 2 columns on XL) */}
+        <div className="xl:col-span-2">
+          <div className="bg-[#0c0c0c] border border-gray-800/50 rounded-[2rem] overflow-hidden shadow-2xl shadow-black">
+            <div className="p-5 md:p-6 border-b border-gray-800 bg-[#0e0e0e] flex items-center justify-between">
+              <div>
+                <h2 className="text-sm md:text-lg font-black text-white uppercase tracking-widest">Growth Analytics</h2>
+                <p className="text-[10px] text-gray-500 mt-0.5 uppercase font-medium">Last 14 days activity</p>
+              </div>
+              <div className="flex items-center gap-4 text-[10px] font-bold text-gray-500">
+                <span className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-amber-500" />
+                  Orders
+                </span>
+                <span className="flex items-center gap-1.5 hidden sm:flex">
+                  <div className="w-2 h-2 rounded-full bg-green-500" />
+                  Revenue
+                </span>
+              </div>
+            </div>
+            <div className="p-4 h-[250px] md:h-[350px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData} margin={{ left: -20, right: 8, top: 10, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#22c55e" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f" vertical={false} />
+                  <XAxis dataKey="day" stroke="#374151" tick={{ fill: '#6b7280', fontSize: 10, fontWeight: 700 }} tickMargin={10} axisLine={false} tickLine={false} />
+                  <YAxis stroke="#374151" tick={{ fill: '#6b7280', fontSize: 10 }} tickMargin={10} axisLine={false} tickLine={false} />
+                  <RechartsTooltip content={<CustomTooltip />} cursor={{ stroke: '#374151', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                  <Area type="monotone" dataKey="orders" name="orders" stroke="#f59e0b" strokeWidth={3} fill="url(#colorOrders)" activeDot={{ r: 6, fill: '#f59e0b', stroke: '#111', strokeWidth: 2 }} />
+                  <Area type="monotone" dataKey="revenue" name="revenue" stroke="#22c55e" strokeWidth={2} fill="url(#colorRevenue)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
 
-        <div className="p-3 md:p-0">
-          {recentOrders.length === 0 ? (
-            <p className="text-gray-500 text-center py-12 italic">No transactions recorded yet.</p>
-          ) : (
-            <>
-              {/* Desktop Table */}
-              <div className="hidden md:block overflow-x-auto">
-                <table className="w-full text-sm border-spacing-0 border-separate">
-                  <thead>
-                    <tr className="bg-white/[0.02]">
-                      <th className="text-left py-4 px-8 text-gray-500 text-[10px] font-black uppercase tracking-widest">Invoice</th>
-                      <th className="text-left py-4 px-8 text-gray-500 text-[10px] font-black uppercase tracking-widest">Customer</th>
-                      <th className="text-left py-4 px-8 text-gray-500 text-[10px] font-black uppercase tracking-widest">Total</th>
-                      <th className="text-center py-4 px-8 text-gray-500 text-[10px] font-black uppercase tracking-widest">Status</th>
-                      <th className="text-right py-4 px-8 text-gray-500 text-[10px] font-black uppercase tracking-widest">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentOrders.map((order: any) => (
-                      <tr key={order.id} className="border-b border-gray-800/50 hover:bg-white/[0.02] transition-colors group">
-                        <td className="py-4 px-8 text-amber-500 font-black tracking-tight">{order.invoice_number}</td>
-                        <td className="py-4 px-8 text-white font-bold">{order.customer_name}</td>
-                        <td className="py-4 px-8 text-white font-black">₹{order.total}</td>
-                        <td className="py-4 px-8 text-center">
+        {/* Recent Orders Column (Takes 1 column on XL) */}
+        <div className="xl:col-span-1">
+          <div className="bg-[#0c0c0c] border border-gray-800/50 rounded-[2rem] overflow-hidden shadow-2xl shadow-black">
+            <div className="p-5 md:p-6 border-b border-gray-800 bg-[#0e0e0e] flex items-center justify-between">
+              <h2 className="text-sm md:text-lg font-black text-white uppercase tracking-widest">Recent Activity</h2>
+              <Link to="/admin/orders" className="text-[10px] font-black uppercase tracking-widest text-amber-500 hover:text-amber-400 transition-colors flex items-center">
+                View All <ChevronRight className="w-3 h-3 ml-0.5" />
+              </Link>
+            </div>
+
+            <div className="p-3">
+              {recentOrders.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 text-gray-500">
+                  <ShoppingCart className="w-10 h-10 mb-3 opacity-20" />
+                  <p className="text-sm italic">No recent transactions</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {recentOrders.map((order: any) => {
+                    const cfg = getStatusConfig(order.status)
+                    return (
+                      <Link key={order.id} to="/admin/orders" className="block p-4 rounded-xl hover:bg-white/[0.03] transition-colors border border-transparent hover:border-gray-800">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-amber-500 font-black text-xs tracking-tight">{order.invoice_number}</span>
                           <span className={cn(
-                            "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-1.5 border",
-                            order.status === 'delivered' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
-                            order.status === 'pending' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
-                            order.status === 'cancelled' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
-                            'bg-blue-500/10 text-blue-500 border-blue-500/20'
+                            "rounded-full text-[8.5px] font-black uppercase tracking-widest border px-2 py-0.5 flex items-center gap-1.5",
+                            cfg.bg, cfg.text, cfg.border
                           )}>
-                            <div className={cn("w-1 h-1 rounded-full", 
-                              order.status === 'delivered' ? 'bg-green-500' :
-                              order.status === 'pending' ? 'bg-amber-500' :
-                              order.status === 'cancelled' ? 'bg-red-500' :
-                              'bg-blue-500'
-                            )} />
+                            <div className={cn("w-1 h-1 rounded-full", cfg.dot)} />
                             {order.status}
                           </span>
-                        </td>
-                        <td className="py-4 px-8 text-right text-gray-500 font-bold text-xs">{new Date(order.created_at).toLocaleDateString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </div>
+                        
+                        <div className="flex items-end justify-between">
+                          <div>
+                            <p className="text-white font-bold text-sm">{order.customer_name}</p>
+                            <p className="text-gray-500 text-[10px] uppercase font-bold tracking-widest mt-1">
+                              {new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' })}
+                            </p>
+                          </div>
+                          <p className="text-green-400 font-black text-base tracking-tight">₹{order.total}</p>
+                        </div>
+                      </Link>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+            
+            {/* View All Button at bottom */}
+            {recentOrders.length > 0 && (
+              <div className="p-3 pt-0">
+                <Link to="/admin/orders" className="flex items-center justify-center w-full py-3 bg-[#111] hover:bg-[#151515] text-white text-xs font-black uppercase tracking-widest rounded-xl transition-colors border border-gray-800">
+                  Manage All Orders
+                </Link>
               </div>
-
-              {/* Mobile Cards */}
-              <div className="md:hidden space-y-3">
-                {recentOrders.map((order: any) => (
-                  <div key={order.id} className="bg-[#0e0e0e] border border-gray-800/50 rounded-2xl p-4 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-amber-500 font-black text-xs tracking-tight">{order.invoice_number}</span>
-                      <span className={cn(
-                        "px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border",
-                        order.status === 'delivered' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
-                        order.status === 'pending' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
-                        'bg-blue-500/10 text-blue-500 border-blue-500/20'
-                      )}>
-                        {order.status}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-end justify-between">
-                      <div>
-                        <p className="text-white font-bold text-xs">{order.customer_name}</p>
-                        <p className="text-gray-500 text-[10px] font-medium mt-0.5">{new Date(order.created_at).toLocaleDateString()}</p>
-                      </div>
-                      <p className="text-white font-black text-base tracking-tight">₹{order.total}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
