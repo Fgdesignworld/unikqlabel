@@ -48,23 +48,26 @@ const defaultCustomerDetails: CustomerDetails = {
   notes: "",
 }
 
+function loadCart(): CartItem[] {
+  try {
+    const raw = localStorage.getItem('lakshmi-cart')
+    return raw ? (JSON.parse(raw) as CartItem[]) : []
+  } catch {
+    return []
+  }
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([])
+  // Lazy initialiser — reads localStorage synchronously so the persisted
+  // cart is available on the very first render (no flash of empty cart).
+  const [items, setItems] = useState<CartItem[]>(loadCart)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
   const [customerDetails, setCustomerDetails] = useState<CustomerDetails>(defaultCustomerDetails)
 
-  // Load cart from localStorage on mount
+  // Persist cart to localStorage whenever it changes
   useEffect(() => {
-    const savedCart = localStorage.getItem("lakshmi-cart")
-    if (savedCart) {
-      setItems(JSON.parse(savedCart))
-    }
-  }, [])
-
-  // Save cart to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("lakshmi-cart", JSON.stringify(items))
+    localStorage.setItem('lakshmi-cart', JSON.stringify(items))
   }, [items])
 
   const addItem = (newItem: Omit<CartItem, "quantity">) => {

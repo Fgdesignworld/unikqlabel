@@ -30,12 +30,14 @@ import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { useCart } from "@/context/cart-context"
 import { useSettings } from "@/context/settings-context"
+import { useDelivery } from "@/hooks/use-delivery"
 import { InvoiceTemplate } from "@/components/invoice/InvoiceTemplate"
 import { generateInvoice } from "@/components/invoice/generateInvoice"
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
   const { settings } = useSettings()
+  const { rule: deliveryRule, calculate: calcDelivery } = useDelivery()
   const { 
     items, 
     totalPrice, 
@@ -87,8 +89,9 @@ export default function CheckoutPage() {
     }
   }, [isHydrated, items.length, step, navigate])
 
-  const deliveryCharge = totalPrice >= 500 ? 0 : 50
-  const finalTotal = totalPrice + deliveryCharge
+  const deliveryInfo = calcDelivery(totalPrice)
+  const deliveryCharge = Number(deliveryInfo.fee) || 0
+  const finalTotal = Number(totalPrice) + Number(deliveryCharge)
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -657,9 +660,9 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                           <span className="text-[#fef3e2]">{settings?.currency_symbol || '₹'}{deliveryCharge}</span>
                         )}
                       </div>
-                      {totalPrice < 500 && (
+                      {totalPrice < deliveryRule.free_delivery_above && deliveryRule.free_delivery_above > 0 && (
                         <p className="text-xs text-[#fef3e2]/50">
-                          Add {settings?.currency_symbol || '₹'}{500 - totalPrice} more for free delivery
+                          Add {settings?.currency_symbol || '₹'}{deliveryRule.free_delivery_above - totalPrice} more for free delivery
                         </p>
                       )}
                       <div className="flex items-center justify-between pt-3 border-t border-[#d97706]/20">
@@ -678,7 +681,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                   >
                     <div className="flex items-center gap-3 text-[#fef3e2]/70">
                       <Truck className="w-5 h-5 text-[#d97706]" />
-                      <span className="text-sm">Free delivery on orders above {settings?.currency_symbol || '₹'}500</span>
+                      <span className="text-sm">Free delivery on orders above {settings?.currency_symbol || '₹'}{deliveryRule.free_delivery_above}</span>
                     </div>
                     <div className="flex items-center gap-3 text-[#fef3e2]/70">
                       <Shield className="w-5 h-5 text-[#d97706]" />

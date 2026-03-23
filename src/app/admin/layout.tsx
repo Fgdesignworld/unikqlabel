@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link, Outlet, useLocation } from 'react-router-dom'
 import { authService, type AdminUser } from '@/services/authService'
-import { Package, ShoppingCart, LogOut, LayoutDashboard, Menu, X, Tag, Globe, Settings, Megaphone, Truck } from 'lucide-react'
+import { Package, ShoppingCart, LogOut, LayoutDashboard, Menu, X, Tag, Globe, Settings, Megaphone, Truck, Bell } from 'lucide-react'
 import { Toaster } from '@/components/ui/toaster'
 import { NotificationBell } from '@/components/admin/NotificationBell'
 import { MobileBottomNav } from '@/components/admin/MobileBottomNav'
@@ -59,6 +59,7 @@ export default function AdminLayout() {
     { path: '/admin/settings', icon: Settings, label: 'Settings' },
     { path: '/admin/popup', icon: Megaphone, label: 'Popup' },
     { path: '/admin/delivery', icon: Truck, label: 'Delivery' },
+    { path: '/admin/notifications', icon: Bell, label: 'Notifications' },
   ]
 
   const pageTitle = location.pathname.split('/').filter(Boolean).pop() || 'Dashboard'
@@ -89,7 +90,12 @@ export default function AdminLayout() {
               }`}
             >
               <item.icon className="w-4 h-4" />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {item.path === '/admin/notifications' && unreadNotifications > 0 && (
+                <span className="min-w-[18px] h-[18px] flex items-center justify-center bg-amber-500 text-black text-[9px] font-black rounded-full px-1">
+                  {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                </span>
+              )}
             </Link>
           ))}
         </nav>

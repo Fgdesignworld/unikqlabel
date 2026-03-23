@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { orderService, type OrdersAnalytics, type ChartDay } from '@/services/orderService'
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
@@ -237,6 +238,10 @@ function OrderCard({ order, expanded, onToggle, onStatusChange }: {
 
 // ─── Main Orders Page ────────────────────────────────────────────────────────────
 export default function AdminOrdersPage() {
+  const [searchParams] = useSearchParams()
+  const highlightId = searchParams.get('highlight') ? Number(searchParams.get('highlight')) : null
+  const highlightRef = useRef<HTMLDivElement>(null)
+
   const [orders, setOrders]           = useState<any[]>([])
   const [analytics, setAnalytics]     = useState<OrdersAnalytics | null>(null)
   const [chartData, setChartData]     = useState<ChartDay[]>([])
@@ -245,7 +250,7 @@ export default function AdminOrdersPage() {
   const [page, setPage]               = useState(1)
   const [lastPage, setLastPage]       = useState(1)
   const [total, setTotal]             = useState(0)
-  const [expandedOrder, setExpandedOrder] = useState<number | null>(null)
+  const [expandedOrder, setExpandedOrder] = useState<number | null>(highlightId)
   const [refreshing, setRefreshing]   = useState(false)
 
   const loadAnalyticsAndChart = useCallback(async () => {
@@ -276,6 +281,13 @@ export default function AdminOrdersPage() {
     }
     init()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Scroll to highlighted order once orders load
+  useEffect(() => {
+    if (highlightId && highlightRef.current) {
+      setTimeout(() => highlightRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 400)
+    }
+  }, [highlightId, orders])
 
   const handleFilterChange = async (f: string) => {
     setFilter(f)
@@ -380,13 +392,21 @@ export default function AdminOrdersPage() {
           </div>
         ) : (
           orders.map(order => (
-            <OrderCard
+            <div
               key={order.id}
-              order={order}
-              expanded={expandedOrder === order.id}
-              onToggle={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
-              onStatusChange={handleStatusChange}
-            />
+              ref={order.id === highlightId ? highlightRef : undefined}
+              className={cn(
+                'rounded-2xl transition-all duration-700',
+                order.id === highlightId && 'ring-2 ring-amber-500/60 shadow-lg shadow-amber-500/10'
+              )}
+            >
+              <OrderCard
+                order={order}
+                expanded={expandedOrder === order.id}
+                onToggle={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
+                onStatusChange={handleStatusChange}
+              />
+            </div>
           ))
         )}
       </div>

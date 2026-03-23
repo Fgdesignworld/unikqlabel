@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Bell, X, CheckCheck, ShoppingBag } from 'lucide-react'
+import { useNavigate, Link } from 'react-router-dom'
 import { notificationService, type AdminNotification } from '@/services/notificationService'
 import { cn } from '@/lib/utils'
 
@@ -10,10 +11,11 @@ interface NotificationBellProps {
 }
 
 export function NotificationBell({ onUnreadChange }: NotificationBellProps) {
+  const navigate = useNavigate()
   const [notifications, setNotifications] = useState<AdminNotification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
-  const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -44,18 +46,23 @@ export function NotificationBell({ onUnreadChange }: NotificationBellProps) {
     }
   }
 
-  const handleMarkRead = async (id: number) => {
-    try {
-      setLoading(true)
-      const result = await notificationService.markRead(id)
-      setUnreadCount(result.unread_count)
-      setNotifications(prev =>
-        prev.map(n => n.id === id ? { ...n, is_read: 1 } : n)
-      )
-      onUnreadChange?.(result.unread_count)
-    } catch {
-    } finally {
-      setLoading(false)
+  const handleNotificationClick = async (n: AdminNotification) => {
+    // Mark as read
+    if (!n.is_read) {
+      try {
+        setLoading(true)
+        const result = await notificationService.markRead(n.id)
+        setUnreadCount(result.unread_count)
+        setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, is_read: 1 } : x))
+        onUnreadChange?.(result.unread_count)
+      } catch {} finally {
+        setLoading(false)
+      }
+    }
+    // Navigate to related order if reference_id exists
+    if (n.reference_id) {
+      setOpen(false)
+      navigate(`/admin/orders?highlight=${n.reference_id}`)
     }
   }
 
@@ -66,8 +73,7 @@ export function NotificationBell({ onUnreadChange }: NotificationBellProps) {
       setUnreadCount(0)
       setNotifications(prev => prev.map(n => ({ ...n, is_read: 1 })))
       onUnreadChange?.(0)
-    } catch {
-    } finally {
+    } catch {} finally {
       setLoading(false)
     }
   }
@@ -141,10 +147,10 @@ export function NotificationBell({ onUnreadChange }: NotificationBellProps) {
                 <div
                   key={n.id}
                   className={cn(
-                    "flex gap-3 p-4 border-b border-gray-800/50 hover:bg-white/[0.02] transition-colors cursor-pointer",
+                    "flex gap-3 p-4 border-b border-gray-800/50 hover:bg-white/[0.04] transition-colors cursor-pointer",
                     !n.is_read && "bg-amber-500/[0.03] border-l-2 border-l-amber-500/50"
                   )}
-                  onClick={() => !n.is_read && handleMarkRead(n.id)}
+                  onClick={() => handleNotificationClick(n)}
                 >
                   <div className={cn(
                     "w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5",
@@ -157,6 +163,9 @@ export function NotificationBell({ onUnreadChange }: NotificationBellProps) {
                       {n.message}
                     </p>
                     <p className="text-[10px] text-gray-600 mt-1">{formatTime(n.created_at)}</p>
+                    {n.reference_id && (
+                      <p className="text-[10px] text-amber-600 mt-0.5 font-bold">Tap to view order →</p>
+                    )}
                   </div>
                   {!n.is_read && (
                     <div className="w-2 h-2 rounded-full bg-amber-500 flex-shrink-0 mt-2" />
@@ -164,6 +173,17 @@ export function NotificationBell({ onUnreadChange }: NotificationBellProps) {
                 </div>
               ))
             )}
+          </div>
+
+          {/* Footer — View All */}
+          <div className="p-3 border-t border-gray-800 bg-[#0a0a0a]">
+            <Link
+              to="/admin/notifications"
+              onClick={() => setOpen(false)}
+              className="flex items-center justify-center w-full py-2 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-amber-500 transition-colors rounded-xl hover:bg-white/5"
+            >
+              View All Notifications
+            </Link>
           </div>
         </div>
       )}

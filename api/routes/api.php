@@ -74,6 +74,12 @@ function handleRequest(): void {
         return;
     }
 
+    // POST /popup/track — Public analytics (view/click)
+    if ($method === 'POST' && $uri === '/popup/track') {
+        PopupController::track();
+        return;
+    }
+
     // GET /delivery-rules — Public active delivery rule
     if ($method === 'GET' && $uri === '/delivery-rules') {
         DeliveryController::getActive();

@@ -1,5 +1,12 @@
 import api from '@/lib/axios';
 
+export interface PopupItem {
+    id: number;
+    name: string;
+    weight: string;
+    image?: string;
+}
+
 export interface PopupData {
     id?: number;
     title: string;
@@ -9,6 +16,11 @@ export interface PopupData {
     button_link?: string | null;
     delay_seconds?: number;
     is_active?: boolean;
+    price?: number | null;
+    header_background?: string;
+    items?: PopupItem[] | null;
+    views?: number;
+    clicks?: number;
 }
 
 export const popupService = {

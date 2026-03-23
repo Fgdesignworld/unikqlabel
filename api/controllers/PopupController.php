@@ -30,6 +30,29 @@ class PopupController {
         self::ok(['popup' => $popup]);
     }
 
+    /**
+     * POST /api/popup/track — Increment view or click counter
+     * Body: { id: int, event: 'view'|'click' }
+     */
+    public static function track(): void {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $id    = (int) ($input['id'] ?? 0);
+        $event = $input['event'] ?? '';
+
+        if ($id <= 0 || !in_array($event, ['view', 'click'], true)) {
+            self::error('Invalid tracking payload');
+            return;
+        }
+
+        if ($event === 'view') {
+            Popup::incrementViews($id);
+        } else {
+            Popup::incrementClicks($id);
+        }
+
+        self::ok([], 'Tracked');
+    }
+
     // ─── Admin ───────────────────────────────────────────────────────────────
 
     /**

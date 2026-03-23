@@ -23,6 +23,7 @@ import AdminSeoPage from '@/app/admin/seo/page';
 import AdminSettingsPage from '@/app/admin/settings/page';
 import AdminPopupPage from '@/app/admin/popup/page';
 import AdminDeliveryPage from '@/app/admin/delivery/page';
+import AdminNotificationsPage from '@/app/admin/notifications/page';
 
 export default function App() {
   return (
@@ -50,6 +51,7 @@ export default function App() {
         <Route path="settings" element={<AdminSettingsPage />} />
         <Route path="popup" element={<AdminPopupPage />} />
         <Route path="delivery" element={<AdminDeliveryPage />} />
+        <Route path="notifications" element={<AdminNotificationsPage />} />
       </Route>
     </Routes>
   );

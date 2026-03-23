@@ -2,7 +2,6 @@
 
 import { Navbar } from "@/components/navbar"
 import { HeroSection } from "@/components/hero-section"
-import { ComboPopup } from "@/components/combo-popup"
 import { CategorySection } from "@/components/category-section"
 import { BestSellers } from "@/components/best-sellers"
 import { TraditionSection } from "@/components/tradition-section"
@@ -18,7 +17,6 @@ export default function Home() {
     <main className="min-h-screen bg-[#0f0f0f]">
       <Navbar />
       <HeroSection />
-      <ComboPopup />
       <CategorySection />
       <section id="bestsellers">
         <BestSellers />

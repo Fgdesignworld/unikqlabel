@@ -13,7 +13,8 @@ import {
   AlertCircle, 
   Image as ImageIcon,
   Loader2,
-  Trash2
+  Trash2,
+  Plus
 } from 'lucide-react'
 
 export default function AdminProductFormPage() {
@@ -37,8 +38,9 @@ export default function AdminProductFormPage() {
     is_veg: true,
     is_homemade: true,
     status: 'active' as 'active' | 'inactive',
-    variants: '' // JSON string
   })
+
+  const [variantRows, setVariantRows] = useState<{ weight: string; price: string }[]>([])
 
   useEffect(() => {
     if (isEdit) {
@@ -66,8 +68,10 @@ export default function AdminProductFormPage() {
         is_veg: product.is_veg,
         is_homemade: product.is_homemade,
         status: product.status,
-        variants: product.variants ? JSON.stringify(product.variants, null, 2) : ''
       })
+      if (Array.isArray(product.variants)) {
+        setVariantRows(product.variants.map((v: any) => ({ weight: String(v.weight ?? ''), price: String(v.price ?? '') })))
+      }
     } catch (err) {
       setError('Failed to load product details')
     } finally {
@@ -89,17 +93,10 @@ export default function AdminProductFormPage() {
       is_homemade: form.is_homemade ? 1 : 0,
     }
 
-    if (form.variants) {
-      try {
-        data.variants = JSON.parse(form.variants)
-      } catch (err) {
-        setError('Invalid JSON format for variants')
-        setSaving(false)
-        return
-      }
-    } else {
-      data.variants = null
-    }
+    const filledVariants = variantRows.filter(r => r.weight.trim() && r.price.trim())
+    data.variants = filledVariants.length > 0
+      ? filledVariants.map(r => ({ weight: r.weight.trim(), price: parseFloat(r.price) || 0 }))
+      : null
 
     try {
       if (isEdit) {
@@ -276,15 +273,71 @@ export default function AdminProductFormPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-400 mb-2">Weight Variants (JSON)</label>
-                <textarea 
-                  value={form.variants} 
-                  onChange={e => setForm(f => ({ ...f, variants: e.target.value }))}
-                  placeholder='[{"weight": "250g", "price": 300}, {"weight": "500g", "price": 550}]'
-                  rows={3}
-                  className="w-full px-5 py-4 bg-[#0a0a0a] border border-gray-800 rounded-2xl text-white font-mono text-xs focus:outline-none focus:border-amber-500/50 transition-all resize-none placeholder:text-gray-700"
-                />
-                <p className="mt-2 text-xs text-gray-500">Provide variants in JSON array format for multi-option products.</p>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-sm font-semibold text-gray-400">Weight Variants</label>
+                  <button
+                    type="button"
+                    onClick={() => setVariantRows(r => [...r, { weight: '', price: '' }])}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-500 text-xs font-bold rounded-xl transition-all"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Add Variant
+                  </button>
+                </div>
+
+                {variantRows.length === 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => setVariantRows([{ weight: '', price: '' }])}
+                    className="w-full py-6 border-2 border-dashed border-gray-800 rounded-2xl text-gray-600 hover:text-amber-500 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all text-sm font-medium flex flex-col items-center gap-2"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Add weight &amp; price variants
+                    <span className="text-xs text-gray-700">(e.g. 250g → ₹219, 500g → ₹399)</span>
+                  </button>
+                ) : (
+                  <div className="space-y-2">
+                    {/* Column headers */}
+                    <div className="grid grid-cols-[1fr_1fr_auto] gap-2 px-1">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-600">Weight</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-600">Price (₹)</span>
+                      <span className="w-8" />
+                    </div>
+
+                    {variantRows.map((row, idx) => (
+                      <div key={idx} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center group">
+                        <input
+                          type="text"
+                          value={row.weight}
+                          onChange={e => setVariantRows(rows => rows.map((r, i) => i === idx ? { ...r, weight: e.target.value } : r))}
+                          placeholder="250g"
+                          className="px-4 py-2.5 bg-[#0a0a0a] border border-gray-800 rounded-xl text-white text-sm focus:outline-none focus:border-amber-500/50 transition-all placeholder:text-gray-700"
+                        />
+                        <input
+                          type="number"
+                          value={row.price}
+                          onChange={e => setVariantRows(rows => rows.map((r, i) => i === idx ? { ...r, price: e.target.value } : r))}
+                          placeholder="219"
+                          className="px-4 py-2.5 bg-[#0a0a0a] border border-gray-800 rounded-xl text-white text-sm focus:outline-none focus:border-amber-500/50 transition-all placeholder:text-gray-700"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setVariantRows(rows => rows.filter((_, i) => i !== idx))}
+                          className="w-8 h-9 flex items-center justify-center text-gray-700 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+
+                    <button
+                      type="button"
+                      onClick={() => setVariantRows(r => [...r, { weight: '', price: '' }])}
+                      className="w-full mt-1 py-2 border border-dashed border-gray-800 text-gray-600 hover:text-amber-500 hover:border-amber-500/30 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+                    >
+                      <Plus className="w-3.5 h-3.5" /> Add another variant
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </section>

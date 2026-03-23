@@ -15,7 +15,8 @@ class Popup {
         $db   = getDB();
         $stmt = $db->query("SELECT * FROM popups WHERE is_active = 1 ORDER BY id DESC LIMIT 1");
         $row  = $stmt->fetch();
-        return $row ?: null;
+        if (!$row) return null;
+        return self::normalizeRow($row);
     }
 
     /**
@@ -24,7 +25,8 @@ class Popup {
     public static function getAll(): array {
         $db   = getDB();
         $stmt = $db->query("SELECT * FROM popups ORDER BY id DESC");
-        return $stmt->fetchAll();
+        $rows = $stmt->fetchAll();
+        return array_map(fn($r) => self::normalizeRow($r), $rows);
     }
 
     /**
@@ -35,7 +37,23 @@ class Popup {
         $stmt = $db->prepare("SELECT * FROM popups WHERE id = :id LIMIT 1");
         $stmt->execute(['id' => $id]);
         $row  = $stmt->fetch();
-        return $row ?: null;
+        return $row ? self::normalizeRow($row) : null;
+    }
+
+    /**
+     * Normalize row data — parse JSON fields, convert types
+     */
+    private static function normalizeRow(array $row): array {
+        // JSON decode items
+        if (!empty($row['items']) && is_string($row['items'])) {
+            $row['items'] = json_decode($row['items'], true) ?? [];
+        }
+        // Convert numeric fields
+        $row['price'] = isset($row['price']) ? (float) $row['price'] : null;
+        $row['delay_seconds'] = (int) $row['delay_seconds'];
+        $row['views'] = (int) ($row['views'] ?? 0);
+        $row['clicks'] = (int) ($row['clicks'] ?? 0);
+        return $row;
     }
 
     /**
@@ -44,17 +62,27 @@ class Popup {
     public static function create(array $data): int {
         $db   = getDB();
         $stmt = $db->prepare(
-            "INSERT INTO popups (title, description, image, button_text, button_link, delay_seconds, is_active)
-             VALUES (:title, :description, :image, :button_text, :button_link, :delay_seconds, :is_active)"
+            "INSERT INTO popups (title, description, image, button_text, button_link, delay_seconds, is_active, price, header_background, items)
+             VALUES (:title, :description, :image, :button_text, :button_link, :delay_seconds, :is_active, :price, :header_background, :items)"
         );
+        
+        // Handle JSON encoding for items
+        $items = null;
+        if (!empty($data['items']) && is_array($data['items'])) {
+            $items = json_encode($data['items']);
+        }
+        
         $stmt->execute([
-            'title'         => trim($data['title']),
-            'description'   => $data['description'] ?? null,
-            'image'         => $data['image'] ?? null,
-            'button_text'   => $data['button_text'] ?? null,
-            'button_link'   => $data['button_link'] ?? null,
-            'delay_seconds' => (int) ($data['delay_seconds'] ?? 2),
-            'is_active'     => (int) ($data['is_active'] ?? 0),
+            'title'               => trim($data['title']),
+            'description'         => $data['description'] ?? null,
+            'image'               => $data['image'] ?? null,
+            'button_text'         => $data['button_text'] ?? null,
+            'button_link'         => $data['button_link'] ?? null,
+            'delay_seconds'       => (int) ($data['delay_seconds'] ?? 2),
+            'is_active'           => (int) ($data['is_active'] ?? 0),
+            'price'               => isset($data['price']) ? (float) $data['price'] : null,
+            'header_background'   => $data['header_background'] ?? '#b91c1c',
+            'items'               => $items,
         ]);
         return (int) $db->lastInsertId();
     }
@@ -67,13 +95,23 @@ class Popup {
         $fields = [];
         $params = ['id' => $id];
 
-        $allowed = ['title', 'description', 'image', 'button_text', 'button_link', 'delay_seconds', 'is_active'];
+        $allowed = ['title', 'description', 'image', 'button_text', 'button_link', 'delay_seconds', 'is_active', 'price', 'header_background', 'items'];
         foreach ($allowed as $field) {
             if (array_key_exists($field, $data)) {
-                $fields[] = "$field = :$field";
-                $params[$field] = $field === 'is_active' || $field === 'delay_seconds'
-                    ? (int) $data[$field]
-                    : $data[$field];
+                if ($field === 'items') {
+                    // JSON encode items
+                    $fields[] = "$field = :$field";
+                    $params[$field] = is_array($data[$field]) ? json_encode($data[$field]) : $data[$field];
+                } elseif ($field === 'price') {
+                    $fields[] = "$field = :$field";
+                    $params[$field] = isset($data[$field]) ? (float) $data[$field] : null;
+                } elseif ($field === 'is_active' || $field === 'delay_seconds') {
+                    $fields[] = "$field = :$field";
+                    $params[$field] = (int) $data[$field];
+                } else {
+                    $fields[] = "$field = :$field";
+                    $params[$field] = $data[$field];
+                }
             }
         }
 
@@ -123,6 +161,36 @@ class Popup {
             // Turning ON — deactivate others first
             self::setActive($id);
             return 1;
+        }
+    }
+
+    // ─── Analytics ──────────────────────────────────────────────────────────
+
+    /**
+     * Increment the view counter for a popup.
+     * Safely adds the column if it doesn't exist yet (zero-migration approach).
+     */
+    public static function incrementViews(int $id): void {
+        try {
+            $db = getDB();
+            // Ensure column exists (idempotent)
+            $db->exec("ALTER TABLE popups ADD COLUMN IF NOT EXISTS views INT UNSIGNED NOT NULL DEFAULT 0");
+            $db->prepare("UPDATE popups SET views = views + 1 WHERE id = :id")->execute(['id' => $id]);
+        } catch (\Throwable $e) {
+            error_log('Popup::incrementViews error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Increment the click counter for a popup.
+     */
+    public static function incrementClicks(int $id): void {
+        try {
+            $db = getDB();
+            $db->exec("ALTER TABLE popups ADD COLUMN IF NOT EXISTS clicks INT UNSIGNED NOT NULL DEFAULT 0");
+            $db->prepare("UPDATE popups SET clicks = clicks + 1 WHERE id = :id")->execute(['id' => $id]);
+        } catch (\Throwable $e) {
+            error_log('Popup::incrementClicks error: ' . $e->getMessage());
         }
     }
 }

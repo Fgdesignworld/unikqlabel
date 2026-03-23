@@ -19,16 +19,20 @@ function PopupForm({ popup, onSave, onClose }: { popup?: PopupData, onSave: () =
     const isEditing = !!popup?.id
 
     const [form, setForm] = useState<PopupData>({
-        title:          popup?.title ?? '',
-        description:    popup?.description ?? '',
-        image:          popup?.image ?? null,
-        button_text:    popup?.button_text ?? '',
-        button_link:    popup?.button_link ?? '',
-        delay_seconds:  popup?.delay_seconds ?? 2,
-        is_active:      popup?.is_active ?? false,
+        title:               popup?.title ?? '',
+        description:         popup?.description ?? '',
+        image:               popup?.image ?? null,
+        button_text:         popup?.button_text ?? '',
+        button_link:         popup?.button_link ?? '',
+        delay_seconds:       popup?.delay_seconds ?? 2,
+        is_active:           popup?.is_active ?? false,
+        price:               popup?.price ?? null,
+        header_background:   popup?.header_background ?? '#b91c1c',
+        items:               popup?.items ?? [],
     })
     const [uploading, setUploading] = useState(false)
     const [saving, setSaving]       = useState(false)
+    const [newItem, setNewItem]     = useState({ id: 0, name: '', weight: '', image: '' })
 
     const set = (key: keyof PopupData, val: unknown) => setForm(p => ({ ...p, [key]: val }))
 
@@ -138,6 +142,79 @@ function PopupForm({ popup, onSave, onClose }: { popup?: PopupData, onSave: () =
                             className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500/50 transition-all"
                         />
                         <p className="text-gray-600 text-xs mt-1">0 = show immediately</p>
+                    </div>
+
+                    {/* Price (for combo) */}
+                    <div>
+                        <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-2">Combo Price (₹)</label>
+                        <input type="number" min={0} step={0.01} value={form.price ?? ''} onChange={e => set('price', e.target.value ? parseFloat(e.target.value) : null)} placeholder="899"
+                            className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
+                        />
+                        <p className="text-gray-600 text-xs mt-1">Optional: Set a price for the combo offer</p>
+                    </div>
+
+                    {/* Header Background Color */}
+                    <div>
+                        <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-2">Header Color (Hex)</label>
+                        <div className="flex gap-2">
+                            <input type="color" value={form.header_background ?? '#b91c1c'} onChange={e => set('header_background', e.target.value)}
+                                className="w-12 h-10 rounded-lg border border-gray-700 cursor-pointer"
+                            />
+                            <input type="text" value={form.header_background ?? '#b91c1c'} onChange={e => set('header_background', e.target.value)}
+                                className="flex-1 bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Combo Items */}
+                    <div>
+                        <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-2">Combo Items</label>
+                        <div className="space-y-2 mb-3 max-h-48 overflow-y-auto">
+                            {Array.isArray(form.items) && form.items.map((item, idx) => (
+                                <div key={idx} className="bg-white/2 border border-gray-700 rounded-lg p-3 flex items-center justify-between group">
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-white text-sm font-bold truncate">{item.name}</p>
+                                        <p className="text-gray-500 text-xs">{item.weight}</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => set('items', (form.items as any[])?.filter((_, i) => i !== idx) || [])}
+                                        className="ml-2 text-red-400 hover:text-red-300 transition-colors p-1"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 mb-2">
+                            <input
+                                type="text"
+                                placeholder="Item name"
+                                value={newItem.name}
+                                onChange={e => setNewItem({ ...newItem, name: e.target.value })}
+                                className="bg-white/4 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50"
+                            />
+                            <input
+                                type="text"
+                                placeholder="Weight (e.g. 250g)"
+                                value={newItem.weight}
+                                onChange={e => setNewItem({ ...newItem, weight: e.target.value })}
+                                className="bg-white/4 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50"
+                            />
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (newItem.name.trim() && newItem.weight.trim()) {
+                                    set('items', [...(form.items as any[] || []), { id: Date.now(), name: newItem.name, weight: newItem.weight, image: '' }])
+                                    setNewItem({ id: 0, name: '', weight: '', image: '' })
+                                }
+                            }}
+                            className="w-full py-2 rounded-lg border border-gray-700 text-gray-400 hover:text-white text-sm font-bold transition-colors flex items-center justify-center gap-2"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Add Item
+                        </button>
                     </div>
 
                     {/* Active toggle */}
@@ -263,7 +340,23 @@ export default function AdminPopupPage() {
                                             )}
                                         </div>
                                         {p.description && <p className="text-gray-500 text-xs line-clamp-2">{p.description}</p>}
+                                        <div className="flex items-center gap-2 mt-1">
+                                            {p.price && <span className="text-amber-400 text-xs font-bold">₹{p.price}</span>}
+                                            {Array.isArray(p.items) && p.items.length > 0 && (
+                                                <span className="text-blue-400 text-xs">{p.items.length} items</span>
+                                            )}
+                                        </div>
                                         <p className="text-gray-700 text-xs mt-1">Delay: {p.delay_seconds ?? 2}s</p>
+                                        {/* Analytics */}
+                                        <div className="flex items-center gap-3 mt-2">
+                                            <span className="text-gray-600 text-xs">👁 {p.views ?? 0} views</span>
+                                            <span className="text-gray-600 text-xs">🔗 {p.clicks ?? 0} clicks</span>
+                                            {(p.views ?? 0) > 0 && (
+                                                <span className="text-emerald-600 text-xs font-bold">
+                                                    {((( p.clicks ?? 0) / (p.views ?? 1)) * 100).toFixed(1)}% CTR
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-800">
