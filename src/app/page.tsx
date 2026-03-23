@@ -10,8 +10,10 @@ import { ReviewsSection } from "@/components/reviews-section"
 import { GallerySection } from "@/components/gallery-section"
 import { CTASection } from "@/components/cta-section"
 import { Footer } from "@/components/footer"
+import { useSeo } from "@/hooks/use-seo"
 
 export default function Home() {
+  useSeo({ pageType: 'home', pageSlug: 'home', fallbackTitle: 'Lakshmi Home Foods — Authentic Homemade Goodness' })
   return (
     <main className="min-h-screen bg-[#0f0f0f]">
       <Navbar />

@@ -7,8 +7,12 @@ import { WhatsAppIcon } from '@/components/icons/whatsapp'
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { PageHeader } from "@/components/page-header"
+import { useSeo } from "@/hooks/use-seo"
+import { useSettings } from '@/context/settings-context'
 
 export default function ContactPage() {
+  useSeo({ pageType: 'page', pageSlug: 'contact', fallbackTitle: 'Contact Us — Lakshmi Home Foods' })
+  const { settings } = useSettings()
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -23,8 +27,11 @@ export default function ContactPage() {
     const message = `Hello! My name is ${formData.name}.\n\nPhone: ${formData.phone}\n\nMessage: ${formData.message}`
     const encodedMessage = encodeURIComponent(message)
     
+    // Determine WhatsApp number (fallback to phone)
+    const waRaw = settings?.whatsapp || settings?.phone || '918639424039'
+    const waNumber = String(waRaw).replace(/\D/g, '')
     // Open WhatsApp
-    window.open(`https://wa.me/918639424039?text=${encodedMessage}`, "_blank")
+    window.open(`https://wa.me/${waNumber}?text=${encodedMessage}`, "_blank")
     
     setIsSubmitted(true)
     setTimeout(() => {
@@ -61,7 +68,7 @@ export default function ContactPage() {
 
               <div className="space-y-6 mb-10">
                 <a
-                  href="https://wa.me/918639424039"
+                  href={settings?.whatsapp ? `https://wa.me/${String(settings.whatsapp).replace(/\D/g, '')}` : '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-4 p-4 bg-[#25D366]/10 rounded-xl border border-[#25D366]/20 hover:border-[#25D366]/40 transition-colors group"
@@ -73,12 +80,12 @@ export default function ContactPage() {
                     <p className="text-[#fef3e2] font-medium group-hover:text-[#25D366] transition-colors">
                       WhatsApp
                     </p>
-                    <p className="text-[#fef3e2]/60 text-sm">+91 8639424039</p>
+                    <p className="text-[#fef3e2]/60 text-sm">{settings?.whatsapp || settings?.phone || '+91 8639424039'}</p>
                   </div>
                 </a>
 
                 <a
-                  href="tel:+918639424039"
+                  href={settings?.phone ? `tel:${settings.phone}` : '#'}
                   className="flex items-center gap-4 p-4 bg-[#d97706]/10 rounded-xl border border-[#d97706]/20 hover:border-[#d97706]/40 transition-colors group"
                 >
                   <div className="w-12 h-12 bg-[#d97706] rounded-full flex items-center justify-center flex-shrink-0">
@@ -88,7 +95,7 @@ export default function ContactPage() {
                     <p className="text-[#fef3e2] font-medium group-hover:text-[#d97706] transition-colors">
                       Phone
                     </p>
-                    <p className="text-[#fef3e2]/60 text-sm">+91 8639424039</p>
+                    <p className="text-[#fef3e2]/60 text-sm">{settings?.phone || '+91 8639424039'}</p>
                   </div>
                 </a>
 
@@ -98,20 +105,20 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <p className="text-[#fef3e2] font-medium">Location</p>
-                    <p className="text-[#fef3e2]/60 text-sm">Andhra Pradesh, India</p>
+                    <p className="text-[#fef3e2]/60 text-sm">{settings?.address || 'Andhra Pradesh, India'}</p>
                   </div>
                 </div>
               </div>
 
               {/* WhatsApp CTA */}
               <a
-                href="https://wa.me/918639424039"
+                href={settings?.whatsapp ? `https://wa.me/${String(settings.whatsapp).replace(/\D/g, '')}` : '#'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-[#25D366] text-white font-bold rounded-full hover:bg-[#128C7E] transition-colors w-full sm:w-auto justify-center"
               >
                 <WhatsAppIcon className="w-5 h-5" />
-                Order on WhatsApp
+                {settings?.site_name ? `Order on WhatsApp` : 'Order on WhatsApp'}
               </a>
             </motion.div>
 

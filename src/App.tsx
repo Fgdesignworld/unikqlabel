@@ -18,6 +18,11 @@ import AdminDashboard from '@/app/admin/dashboard/page';
 import AdminProductsPage from '@/app/admin/products/page';
 import AdminProductFormPage from '@/app/admin/products/form-page';
 import AdminOrdersPage from '@/app/admin/orders/page';
+import AdminCategoriesPage from '@/app/admin/categories/page';
+import AdminSeoPage from '@/app/admin/seo/page';
+import AdminSettingsPage from '@/app/admin/settings/page';
+import AdminPopupPage from '@/app/admin/popup/page';
+import AdminDeliveryPage from '@/app/admin/delivery/page';
 
 export default function App() {
   return (
@@ -40,6 +45,11 @@ export default function App() {
         <Route path="products/new" element={<AdminProductFormPage />} />
         <Route path="products/:id" element={<AdminProductFormPage />} />
         <Route path="orders" element={<AdminOrdersPage />} />
+        <Route path="categories" element={<AdminCategoriesPage />} />
+        <Route path="seo" element={<AdminSeoPage />} />
+        <Route path="settings" element={<AdminSettingsPage />} />
+        <Route path="popup" element={<AdminPopupPage />} />
+        <Route path="delivery" element={<AdminDeliveryPage />} />
       </Route>
     </Routes>
   );

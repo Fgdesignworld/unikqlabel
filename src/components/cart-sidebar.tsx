@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Link } from 'react-router-dom';
 import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight } from "lucide-react"
 import { useCart } from "@/context/cart-context"
+import { useSettings } from "@/context/settings-context"
 import { Image } from "@/components/ui/image"
 
 export function CartSidebar() {
@@ -16,6 +17,7 @@ export function CartSidebar() {
     totalPrice, 
     clearCart
   } = useCart()
+  const { settings } = useSettings()
 
   return (
     <AnimatePresence>
@@ -85,7 +87,7 @@ export function CartSidebar() {
                       <div className="flex-1 min-w-0">
                         <h3 className="font-medium text-[#fef3e2] truncate">{item.name}</h3>
                         <p className="text-[#fef3e2]/60 text-sm">{item.weight}</p>
-                        <p className="text-[#d97706] font-bold mt-1">Rs.{item.price * item.quantity}</p>
+                        <p className="text-[#d97706] font-bold mt-1">{settings?.currency_symbol || '₹'}{item.price * item.quantity}</p>
                       </div>
                       <div className="flex flex-col items-end justify-between">
                         <button
@@ -123,7 +125,7 @@ export function CartSidebar() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-[#fef3e2]/60">Subtotal</span>
-                    <span className="text-[#fef3e2]">Rs.{totalPrice}</span>
+                    <span className="text-[#fef3e2]">{settings?.currency_symbol || '₹'}{totalPrice}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-[#fef3e2]/60">Delivery</span>
@@ -131,7 +133,7 @@ export function CartSidebar() {
                   </div>
                   <div className="flex items-center justify-between pt-2 border-t border-[#d97706]/10">
                     <span className="text-[#fef3e2] font-medium">Total</span>
-                    <span className="text-2xl font-bold text-[#d97706]">Rs.{totalPrice}</span>
+                    <span className="text-2xl font-bold text-[#d97706]">{settings?.currency_symbol || '₹'}{totalPrice}</span>
                   </div>
                 </div>
                 

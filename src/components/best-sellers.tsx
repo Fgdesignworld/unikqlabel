@@ -5,12 +5,14 @@ import { Link } from 'react-router-dom';
 import { motion } from "framer-motion"
 import { ShoppingBag, Star, ArrowRight, Check, Loader2 } from "lucide-react"
 import { useCart } from "@/context/cart-context"
+import { useSettings } from '@/context/settings-context'
 import { Image } from "@/components/ui/image"
 import { productService } from "@/services/productService"
 import type { Product } from "@/data/products"
 
 function BestSellerCard({ product, index }: { product: Product; index: number }) {
   const { addItem } = useCart()
+  const { settings } = useSettings()
   const [selectedVariant, setSelectedVariant] = useState(0)
   const [isAdded, setIsAdded] = useState(false)
 
@@ -86,7 +88,7 @@ function BestSellerCard({ product, index }: { product: Product; index: number })
         )}
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-          <span className="text-base md:text-2xl font-bold text-[#f59e0b]">Rs.{currentVariant.price}</span>
+          <span className="text-base md:text-2xl font-bold text-[#f59e0b]">{settings?.currency_symbol || '₹'}{currentVariant.price}</span>
           <button
             onClick={handleAddToCart}
             disabled={isAdded}

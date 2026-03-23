@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { Link } from 'react-router-dom';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from "framer-motion"
 import { Menu, X, ShoppingBag, Phone, ChevronDown } from "lucide-react"
 import { WhatsAppIcon } from "@/components/icons/whatsapp"
 import { useCart } from "@/context/cart-context"
 import { Image } from "@/components/ui/image"
+import { useSettings } from "@/context/settings-context"
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -24,6 +25,15 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = useLocation().pathname
   const { totalItems, setIsCartOpen } = useCart()
+  const { settings } = useSettings()
+
+  const siteName   = settings.site_name    || 'Lakshmi Home Foods'
+  const tagline    = settings.site_tagline || 'Pure Taste of Tradition'
+  const logoSrc    = settings.logo_url
+    ? (settings.logo_url.startsWith('/') ? `/api${settings.logo_url}` : settings.logo_url)
+    : '/logo.png'
+  const waNumber   = (settings.whatsapp || settings.phone || '918639424039').replace(/[^0-9]/g, '')
+  const waLink     = `https://wa.me/${waNumber}`
 
   useEffect(() => {
     const handleScroll = () => {
@@ -57,8 +67,8 @@ export function Navbar() {
               <div className={`relative transition-all duration-300 ${isScrolled ? "w-10 h-10" : "w-12 h-12"} rounded-full overflow-hidden`}>
                 <div className="absolute inset-0 bg-gradient-to-br from-[#d97706]/20 to-[#f59e0b]/20 rounded-full blur-md group-hover:blur-lg transition-all" />
                 <Image
-                  src="/logo.png"
-                  alt="Lakshmi Home Foods"
+                  src={logoSrc}
+                  alt={siteName}
                   width={56}
                   height={56}
                   className="relative w-full h-full object-cover rounded-full"
@@ -66,10 +76,10 @@ export function Navbar() {
               </div>
               <div className="hidden sm:block">
                 <h1 className="font-serif text-xl font-bold text-[#fef3e2] group-hover:text-[#f59e0b] transition-colors">
-                  Lakshmi Home Foods
+                  {siteName}
                 </h1>
                 <div className="flex items-center gap-2">
-                  <p className="text-[#d97706] text-xs tracking-widest uppercase">Pure Taste of Tradition</p>
+                  <p className="text-[#d97706] text-xs tracking-widest uppercase">{tagline}</p>
                 </div>
               </div>
             </Link>
@@ -97,7 +107,7 @@ export function Navbar() {
             <div className="flex items-center gap-2 lg:gap-3">
               {/* WhatsApp - Desktop */}
               <a
-                href="https://wa.me/918639424039"
+                href={waLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hidden md:flex items-center justify-center w-9 h-9 bg-[#25D366] hover:bg-[#20BA60] rounded-md border border-[#25D366]/50 transition-all relative hover:shadow-md hover:shadow-[#25D366]/20"
@@ -163,9 +173,9 @@ export function Navbar() {
               {/* Mobile Menu Header */}
               <div className="flex items-center justify-between p-6 border-b border-white/10 bg-white/5">
                 <div className="flex items-center gap-3">
-                  <Image src="/logo.png" alt="Logo" width={40} height={40} />
+                  <Image src={logoSrc} alt={siteName} width={40} height={40} />
                   <div>
-                    <p className="font-serif font-bold text-[#fef3e2]">Lakshmi Home Foods</p>
+                    <p className="font-serif font-bold text-[#fef3e2]">{siteName}</p>
                     <p className="text-xs text-[#d97706]">Menu</p>
                   </div>
                 </div>
@@ -209,7 +219,7 @@ export function Navbar() {
                 {/* Mobile CTA */}
                 <div className="mt-8 space-y-3">
                   <a
-                    href="https://wa.me/918639424039"
+                    href={waLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full py-4 bg-gradient-to-r from-[#22c55e] to-[#16a34a] text-white font-semibold rounded-xl"

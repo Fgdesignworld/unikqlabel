@@ -8,11 +8,13 @@ import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { PageHeader } from "@/components/page-header"
 import { ProductCard } from "@/components/product-card"
+import { useSeo } from "@/hooks/use-seo"
 import { productService } from "@/services/productService"
 import { categories } from "@/data/products"
 import type { Product } from "@/data/products"
 
 export default function ProductsPage() {
+  useSeo({ pageType: 'page', pageSlug: 'products', fallbackTitle: 'All Products — Lakshmi Home Foods' })
   const [activeFilter, setActiveFilter] = useState<string>("all")
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)

@@ -11,6 +11,7 @@ import { PageHeader } from "@/components/page-header"
 import { useCart } from "@/context/cart-context"
 import { productService } from "@/services/productService"
 import type { Product } from "@/data/products"
+import { useSeo } from "@/hooks/use-seo"
 
 function PickleCard({ product, index }: { product: Product; index: number }) {
   const { addItem } = useCart()
@@ -165,6 +166,7 @@ function PickleCard({ product, index }: { product: Product; index: number }) {
 }
 
 export default function PicklesPage() {
+  useSeo({ pageType: 'page', pageSlug: 'pickles', fallbackTitle: 'Veg Pickles — Lakshmi Home Foods' })
   const [pickles, setPickles] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
 

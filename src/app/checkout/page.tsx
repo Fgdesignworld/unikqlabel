@@ -29,11 +29,13 @@ import { WhatsAppIcon } from '@/components/icons/whatsapp'
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { useCart } from "@/context/cart-context"
+import { useSettings } from "@/context/settings-context"
 import { InvoiceTemplate } from "@/components/invoice/InvoiceTemplate"
 import { generateInvoice } from "@/components/invoice/generateInvoice"
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
+  const { settings } = useSettings()
   const { 
     items, 
     totalPrice, 
@@ -186,8 +188,9 @@ export default function CheckoutPage() {
     })
 
     // ─── STEP 3: Send WhatsApp message (existing logic) ───
+    const currency = settings?.currency_symbol || '₹'
     const itemsList = items
-      .map((item) => ` • ${item.name} (${item.weight}) x ${item.quantity} = Rs.${item.price * item.quantity}`)
+      .map((item) => ` • ${item.name} (${item.weight}) x ${item.quantity} = ${currency}${item.price * item.quantity}`)
       .join("\n")
 
     const message = `*New Order from Lakshmi Home Foods*
@@ -205,9 +208,9 @@ ${customerDetails.notes ? `Notes: ${customerDetails.notes}` : ""}
 *Order Details:*
 ${itemsList}
 
-Subtotal: Rs.${totalPrice}
-Delivery: ${deliveryCharge === 0 ? "FREE" : `Rs.${deliveryCharge}`}
-*Total: Rs.${finalTotal}*`.trim()
+Subtotal: ${currency}${totalPrice}
+Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
+*Total: ${currency}${finalTotal}*`.trim()
 
     const whatsappURL = `https://wa.me/918639424039?text=${encodeURIComponent(message)}`
 
@@ -552,7 +555,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `Rs.${deliveryCharge}`}
                             <div className="flex-1 min-w-0">
                               <h3 className="font-medium text-[#fef3e2] truncate">{item.name}</h3>
                               <p className="text-[#fef3e2]/60 text-sm">{item.weight}</p>
-                              <p className="text-[#d97706] font-bold mt-1">Rs.{item.price * item.quantity}</p>
+                              <p className="text-[#d97706] font-bold mt-1">{settings?.currency_symbol || '₹'}{item.price * item.quantity}</p>
                             </div>
                             <div className="flex flex-col items-end justify-between">
                               <button
@@ -634,7 +637,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `Rs.${deliveryCharge}`}
                             <h3 className="text-[13px] font-medium text-[#fef3e2] truncate">{item.name}</h3>
                             <div className="flex items-center justify-between mt-0.5">
                               <span className="text-[11px] text-[#fef3e2]/50">{item.weight} x {item.quantity}</span>
-                              <span className="text-xs font-bold text-[#d97706]">Rs.{item.price * item.quantity}</span>
+                              <span className="text-xs font-bold text-[#d97706]">{settings?.currency_symbol || '₹'}{item.price * item.quantity}</span>
                             </div>
                           </div>
                         </div>
@@ -644,24 +647,24 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `Rs.${deliveryCharge}`}
                     <div className="border-t border-[#d97706]/20 pt-4 space-y-3">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-[#fef3e2]/60">Subtotal</span>
-                        <span className="text-[#fef3e2]">Rs.{totalPrice}</span>
+                        <span className="text-[#fef3e2]">{settings?.currency_symbol || '₹'}{totalPrice}</span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-[#fef3e2]/60">Delivery</span>
                         {deliveryCharge === 0 ? (
                           <span className="text-green-500 font-medium">FREE</span>
                         ) : (
-                          <span className="text-[#fef3e2]">Rs.{deliveryCharge}</span>
+                          <span className="text-[#fef3e2]">{settings?.currency_symbol || '₹'}{deliveryCharge}</span>
                         )}
                       </div>
                       {totalPrice < 500 && (
                         <p className="text-xs text-[#fef3e2]/50">
-                          Add Rs.{500 - totalPrice} more for free delivery
+                          Add {settings?.currency_symbol || '₹'}{500 - totalPrice} more for free delivery
                         </p>
                       )}
                       <div className="flex items-center justify-between pt-3 border-t border-[#d97706]/20">
                         <span className="text-[#fef3e2] font-medium">Total</span>
-                        <span className="text-2xl font-bold text-[#d97706]">Rs.{finalTotal}</span>
+                        <span className="text-2xl font-bold text-[#d97706]">{settings?.currency_symbol || '₹'}{finalTotal}</span>
                       </div>
                     </div>
                   </motion.div>
@@ -675,7 +678,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `Rs.${deliveryCharge}`}
                   >
                     <div className="flex items-center gap-3 text-[#fef3e2]/70">
                       <Truck className="w-5 h-5 text-[#d97706]" />
-                      <span className="text-sm">Free delivery on orders above Rs.500</span>
+                      <span className="text-sm">Free delivery on orders above {settings?.currency_symbol || '₹'}500</span>
                     </div>
                     <div className="flex items-center gap-3 text-[#fef3e2]/70">
                       <Shield className="w-5 h-5 text-[#d97706]" />

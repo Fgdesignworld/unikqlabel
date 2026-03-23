@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Gift, Sparkles } from "lucide-react"
+import { useSettings } from '@/context/settings-context'
 import { WhatsAppIcon } from '@/components/icons/whatsapp'
 
 export function ComboPopup() {
+  const { settings } = useSettings()
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
@@ -94,7 +96,7 @@ export function ComboPopup() {
               {/* Price */}
               <div className="text-center mb-6">
                 <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-[#d97706]/20 to-[#f59e0b]/20 border border-[#d97706]/30">
-                  <span className="font-serif text-3xl font-bold text-[#f59e0b]">₹899</span>
+                  <span className="font-serif text-3xl font-bold text-[#f59e0b]">{settings?.currency_symbol || '₹'}899</span>
                   <span className="text-[#fef3e2]/60 text-sm">Including Delivery</span>
                 </div>
               </div>

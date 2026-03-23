@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSettings } from '@/context/settings-context'
 
 interface InvoiceTemplateProps {
   id: string;
@@ -41,6 +42,7 @@ export const InvoiceTemplate = ({
   showBillingInfo = true,
   showFooter = true,
 }: InvoiceTemplateProps) => {
+  const { settings } = useSettings()
   return (
     <div
       id={id}
@@ -143,8 +145,8 @@ export const InvoiceTemplate = ({
                 </td>
                 <td style={{ textAlign: 'center', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', fontSize: '13px', fontWeight: '600' }}>{item.weight}</td>
                 <td style={{ textAlign: 'center', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', fontSize: '13px', fontWeight: '600' }}>{item.quantity}</td>
-                <td style={{ textAlign: 'right', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', fontSize: '13px', fontWeight: '600' }}>₹{item.price}</td>
-                <td style={{ textAlign: 'right', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', fontSize: '14px', fontWeight: '800', color: '#d97706' }}>₹{item.price * item.quantity}</td>
+                <td style={{ textAlign: 'right', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', fontSize: '13px', fontWeight: '600' }}>{settings?.currency_symbol || '₹'}{item.price}</td>
+                <td style={{ textAlign: 'right', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', fontSize: '14px', fontWeight: '800', color: '#d97706' }}>{settings?.currency_symbol || '₹'}{item.price * item.quantity}</td>
               </tr>
             ))}
           </tbody>
@@ -157,15 +159,15 @@ export const InvoiceTemplate = ({
           <div style={{ width: '280px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', fontSize: '13px', color: '#666', fontWeight: '500' }}>
               <span>Subtotal</span>
-              <span style={{ color: '#000', fontWeight: '700' }}>₹{subtotal}</span>
+              <span style={{ color: '#000', fontWeight: '700' }}>{settings?.currency_symbol || '₹'}{subtotal}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', fontSize: '13px', color: '#666', fontWeight: '500' }}>
               <span>Delivery</span>
-              <span style={{ color: delivery === 'FREE' ? '#10b981' : '#000', fontWeight: '700' }}>{delivery === 'FREE' ? 'FREE' : `₹${delivery}`}</span>
+              <span style={{ color: delivery === 'FREE' ? '#10b981' : '#000', fontWeight: '700' }}>{delivery === 'FREE' ? 'FREE' : `${settings?.currency_symbol || '₹'}${delivery}`}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 12px', marginTop: '10px', backgroundColor: '#000', borderRadius: '10px', color: '#fff' }}>
               <span style={{ fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px', alignSelf: 'center' }}>Total Amount</span>
-              <span style={{ fontSize: '20px', fontWeight: '900', color: '#fbbf24' }}>₹{total}</span>
+              <span style={{ fontSize: '20px', fontWeight: '900', color: '#fbbf24' }}>{settings?.currency_symbol || '₹'}{total}</span>
             </div>
           </div>
         </div>

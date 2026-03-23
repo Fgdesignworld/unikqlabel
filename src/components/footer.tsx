@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { Phone, MapPin, Instagram, Facebook, Youtube, Heart } from "lucide-react"
 import { WhatsAppIcon } from '@/components/icons/whatsapp'
 import { Image } from "@/components/ui/image"
+import { useSettings } from '@/context/settings-context'
 
 const quickLinks = [
   { name: "Home", href: "/" },
@@ -26,6 +27,28 @@ const socialLinks = [
 ]
 
 export function Footer() {
+  const { settings } = useSettings()
+
+  const siteName = settings.site_name    || 'Lakshmi Home Foods'
+  const tagline  = settings.site_tagline || 'Pure Taste of Tradition'
+  const logoSrc  = settings.logo_url
+    ? (settings.logo_url.startsWith('/') ? `/api${settings.logo_url}` : settings.logo_url)
+    : '/logo.png'
+  const phone    = settings.phone    || '+91 8639424039'
+  const waNum    = (settings.whatsapp || settings.phone || '918639424039').replace(/[^0-9]/g, '')
+  const waLink   = `https://wa.me/${waNum}`
+  const waDisplay = settings.whatsapp || settings.phone || '8639424039'
+  const address  = settings.address  || 'Andhra Pradesh, India'
+  const email    = settings.email
+
+  const dynamicSocials = [
+    { icon: Instagram, href: settings.social_instagram || '', label: 'Instagram' },
+    { icon: Facebook,  href: settings.social_facebook  || '', label: 'Facebook'  },
+    { icon: Youtube,   href: settings.social_youtube   || '', label: 'Youtube'   },
+  ].filter(s => s.href)
+
+  const footerSocials = dynamicSocials.length ? dynamicSocials : socialLinks
+
   return (
     <footer className="bg-gradient-to-b from-[#1a1410] to-[#0a0a0a] pt-16 pb-24 md:pb-8 px-4">
       <div className="container mx-auto max-w-7xl">
@@ -39,15 +62,15 @@ export function Footer() {
           >
             <Link to="/" className="flex items-center gap-3 mb-6">
               <Image
-                src="/logo.png"
-                alt="Lakshmi Home Foods"
+                src={logoSrc}
+                alt={siteName}
                 width={60}
                 height={60}
                 className="rounded-full"
               />
               <div>
-                <h3 className="font-serif text-xl font-bold text-[#fef3e2]">Lakshmi Home Foods</h3>
-                <p className="text-[#d97706] text-sm">Pure Taste of Tradition</p>
+                <h3 className="font-serif text-xl font-bold text-[#fef3e2]">{siteName}</h3>
+                <p className="text-[#d97706] text-sm">{tagline}</p>
               </div>
             </Link>
             <p className="text-[#fef3e2]/70 text-sm leading-relaxed mb-6">
@@ -56,7 +79,7 @@ export function Footer() {
             
             {/* Social Links */}
             <div className="flex items-center gap-3">
-              {socialLinks.map((social) => (
+              {footerSocials.map((social) => (
                 <a
                   key={social.label}
                   href={social.href}
@@ -123,30 +146,39 @@ export function Footer() {
             <h4 className="font-serif text-lg font-bold text-[#fef3e2] mb-6">Contact Us</h4>
             <div className="space-y-4">
               <a
-                href="https://wa.me/918639424039"
+                href={waLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-[#fef3e2]/70 hover:text-[#25D366] transition-colors text-sm"
               >
                 <WhatsAppIcon className="w-5 h-5 text-[#25D366]" />
-                WhatsApp: 8639424039
+                WhatsApp: {waDisplay}
               </a>
               <a
-                href="tel:+918639424039"
+                href={`tel:${phone.replace(/\s/g, '')}`}
                 className="flex items-center gap-3 text-[#fef3e2]/70 hover:text-[#d97706] transition-colors text-sm"
               >
                 <Phone className="w-5 h-5 text-[#d97706]" />
-                +91 8639424039
+                {phone}
               </a>
+              {email && (
+                <a
+                  href={`mailto:${email}`}
+                  className="flex items-center gap-3 text-[#fef3e2]/70 hover:text-[#d97706] transition-colors text-sm break-all"
+                >
+                  <span className="text-[#d97706] text-sm">✉</span>
+                  {email}
+                </a>
+              )}
               <div className="flex items-start gap-3 text-[#fef3e2]/70 text-sm">
-                <MapPin className="w-5 h-5 text-[#d97706] flex-shrink-0" />
-                <span>Andhra Pradesh, India</span>
+                <MapPin className="w-5 h-5 text-[#d97706] shrink-0" />
+                <span>{address}</span>
               </div>
             </div>
 
             {/* WhatsApp Button */}
             <a
-              href="https://wa.me/918639424039"
+              href={waLink}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-[#25D366] text-white font-medium rounded-full hover:bg-[#128C7E] transition-colors text-sm"

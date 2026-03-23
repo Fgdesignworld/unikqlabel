@@ -1,7 +1,11 @@
 import { motion } from "framer-motion"
 import { WhatsAppIcon } from '@/components/icons/whatsapp'
+import { useSettings } from '@/context/settings-context'
 
 export function FloatingWhatsApp() {
+  const { settings } = useSettings()
+  const waNum  = (settings.whatsapp || settings.phone || '918639424039').replace(/[^0-9]/g, '')
+  const waLink = `https://wa.me/${waNum}?text=Hi! I'm interested in ordering from ${settings.site_name || 'Lakshmi Home Foods'}.`
   return (
     <motion.div
       initial={{ scale: 0, opacity: 0 }}
@@ -19,7 +23,7 @@ export function FloatingWhatsApp() {
       aria-label="Contact on WhatsApp"
     >
       <motion.a
-        href="https://wa.me/918639424039?text=Hi! I'm interested in ordering from Lakshmi Home Foods."
+        href={waLink}
         target="_blank"
         rel="noopener noreferrer"
         whileHover={{ scale: 1.1 }}

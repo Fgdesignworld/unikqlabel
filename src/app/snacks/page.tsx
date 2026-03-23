@@ -9,8 +9,10 @@ import { PageHeader } from "@/components/page-header"
 import { ProductCard } from "@/components/product-card"
 import { productService } from "@/services/productService"
 import type { Product } from "@/data/products"
+import { useSeo } from "@/hooks/use-seo"
 
 export default function SnacksPage() {
+  useSeo({ pageType: 'page', pageSlug: 'snacks', fallbackTitle: 'Traditional Snacks — Lakshmi Home Foods' })
   const [snacks, setSnacks] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
 

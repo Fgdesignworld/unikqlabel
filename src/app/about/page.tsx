@@ -7,6 +7,7 @@ import { Heart, Leaf, Clock, Award } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { PageHeader } from "@/components/page-header"
+import { useSeo } from "@/hooks/use-seo"
 
 const features = [
   {
@@ -53,6 +54,7 @@ const sections = [
 ]
 
 export default function AboutPage() {
+  useSeo({ pageType: 'page', pageSlug: 'about', fallbackTitle: 'About Us — Lakshmi Home Foods' })
   return (
     <main className="min-h-screen bg-[#0f0f0f]">
       <Navbar />

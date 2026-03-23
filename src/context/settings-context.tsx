@@ -1,0 +1,92 @@
+/**
+ * SettingsContext — Global site settings available throughout the app.
+ * Fetches once at startup, applies Google Fonts dynamically.
+ */
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { settingsService, type SiteSettings } from '@/services/settingsService';
+
+interface SettingsContextValue {
+    settings: SiteSettings;
+    loading: boolean;
+    refresh: () => Promise<void>;
+}
+
+const DEFAULT: SiteSettings = {
+    site_name: 'Lakshmi Home Foods',
+    currency_symbol: '₹',
+    font_heading: 'Playfair Display',
+    font_body: 'Poppins',
+};
+
+const SettingsContext = createContext<SettingsContextValue>({
+    settings: DEFAULT,
+    loading: true,
+    refresh: async () => {},
+});
+
+export function SettingsProvider({ children }: { children: React.ReactNode }) {
+    const [settings, setSettings] = useState<SiteSettings>(DEFAULT);
+    const [loading, setLoading]   = useState(true);
+
+    const apply = (s: SiteSettings) => {
+        // Apply Google Fonts dynamically
+        const headingFont = s.font_heading || DEFAULT.font_heading!;
+        const bodyFont    = s.font_body    || DEFAULT.font_body!;
+
+        // Load fonts
+        const families = [headingFont, bodyFont].filter((f, i, a) => f && a.indexOf(f) === i);
+        families.forEach(fontName => {
+            const id = 'gf-' + fontName.replace(/\s+/g, '-').toLowerCase();
+            if (document.getElementById(id)) return;
+            const link  = document.createElement('link');
+            link.id     = id;
+            link.rel    = 'stylesheet';
+            link.href   = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontName)}:wght@400;500;600;700;800&display=swap`;
+            document.head.appendChild(link);
+        });
+
+        // Set CSS variables so components can use them
+        document.documentElement.style.setProperty('--font-heading', `'${headingFont}', serif`);
+        document.documentElement.style.setProperty('--font-body',    `'${bodyFont}', sans-serif`);
+
+        // Apply CSS variables for theme color
+        if (s.theme_color) {
+            document.documentElement.style.setProperty('--theme-color', s.theme_color);
+        }
+
+        // Update favicon
+        if (s.favicon_url) {
+            let fav = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+            if (!fav) {
+                fav = document.createElement('link');
+                fav.rel = 'icon';
+                document.head.appendChild(fav);
+            }
+            fav.href = s.favicon_url.startsWith('/') ? `/api${s.favicon_url}` : s.favicon_url;
+        }
+    };
+
+    const load = async () => {
+        try {
+            const s = await settingsService.getAll();
+            setSettings({ ...DEFAULT, ...s });
+            apply({ ...DEFAULT, ...s });
+        } catch {
+            // fallback to defaults silently
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => { load(); }, []);
+
+    return (
+        <SettingsContext.Provider value={{ settings, loading, refresh: load }}>
+            {children}
+        </SettingsContext.Provider>
+    );
+}
+
+export function useSettings() {
+    return useContext(SettingsContext);
+}

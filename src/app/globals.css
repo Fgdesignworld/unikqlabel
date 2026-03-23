@@ -52,11 +52,16 @@
   --gold: #f59e0b;
   --cream: #fef3e2;
   --olive: #4a5d23;
+
+  /* Dynamic font CSS vars — set by SettingsProvider at runtime */
+  --font-heading: 'Playfair Display', serif;
+  --font-body: 'Poppins', sans-serif;
+  --theme-color: #f59e0b;
 }
 
 @theme inline {
-  --font-sans: 'Inter', sans-serif;
-  --font-serif: 'Playfair Display', serif;
+  --font-sans: var(--font-body, 'Inter', sans-serif);
+  --font-serif: var(--font-heading, 'Playfair Display', serif);
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -193,12 +198,12 @@
 
 /* Font families */
 .font-heading {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-heading);
   font-weight: 700;
 }
 
 .font-body {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-weight: 400;
 }
 

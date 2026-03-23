@@ -7,6 +7,11 @@ require_once __DIR__ . '/../controllers/AuthController.php';
 require_once __DIR__ . '/../controllers/ProductController.php';
 require_once __DIR__ . '/../controllers/OrderController.php';
 require_once __DIR__ . '/../controllers/NotificationController.php';
+require_once __DIR__ . '/../controllers/CategoryController.php';
+require_once __DIR__ . '/../controllers/SeoController.php';
+require_once __DIR__ . '/../controllers/SettingsController.php';
+require_once __DIR__ . '/../controllers/PopupController.php';
+require_once __DIR__ . '/../controllers/DeliveryController.php';
 
 function handleRequest(): void {
     $method = $_SERVER['REQUEST_METHOD'];
@@ -42,6 +47,42 @@ function handleRequest(): void {
     // GET /products
     if ($method === 'GET' && $uri === '/products') {
         ProductController::index();
+        return;
+    }
+
+    // GET /categories — Public active categories
+    if ($method === 'GET' && $uri === '/categories') {
+        CategoryController::index();
+        return;
+    }
+
+    // GET /seo — Public SEO for any page
+    if ($method === 'GET' && $uri === '/seo') {
+        SeoController::getForPage();
+        return;
+    }
+
+    // GET /settings — Public flat settings
+    if ($method === 'GET' && $uri === '/settings') {
+        SettingsController::index();
+        return;
+    }
+
+    // GET /popup — Public active popup
+    if ($method === 'GET' && $uri === '/popup') {
+        PopupController::getActive();
+        return;
+    }
+
+    // GET /delivery-rules — Public active delivery rule
+    if ($method === 'GET' && $uri === '/delivery-rules') {
+        DeliveryController::getActive();
+        return;
+    }
+
+    // POST /delivery-calculate — Public fee calculator
+    if ($method === 'POST' && $uri === '/delivery-calculate') {
+        DeliveryController::calculate();
         return;
     }
 
@@ -178,6 +219,164 @@ function handleRequest(): void {
     // PUT /admin/notifications/{id}/read
     if ($method === 'PUT' && preg_match('#^/admin/notifications/(\d+)/read$#', $uri, $matches)) {
         NotificationController::markRead((int) $matches[1]);
+        return;
+    }
+
+    // ========================================
+    // ADMIN CATEGORY ROUTES
+    // ========================================
+
+    // GET /admin/categories
+    if ($method === 'GET' && $uri === '/admin/categories') {
+        CategoryController::adminIndex();
+        return;
+    }
+
+    // POST /admin/categories/upload-image
+    if ($method === 'POST' && $uri === '/admin/categories/upload-image') {
+        CategoryController::uploadImage();
+        return;
+    }
+
+    // GET /admin/categories/{id}
+    if ($method === 'GET' && preg_match('#^/admin/categories/(\d+)$#', $uri, $matches)) {
+        CategoryController::adminShow((int) $matches[1]);
+        return;
+    }
+
+    // POST /admin/categories
+    if ($method === 'POST' && $uri === '/admin/categories') {
+        CategoryController::store();
+        return;
+    }
+
+    // PUT /admin/categories/{id}/toggle
+    if ($method === 'PUT' && preg_match('#^/admin/categories/(\d+)/toggle$#', $uri, $matches)) {
+        CategoryController::toggle((int) $matches[1]);
+        return;
+    }
+
+    // PUT /admin/categories/{id}
+    if ($method === 'PUT' && preg_match('#^/admin/categories/(\d+)$#', $uri, $matches)) {
+        CategoryController::update((int) $matches[1]);
+        return;
+    }
+
+    // DELETE /admin/categories/{id}
+    if ($method === 'DELETE' && preg_match('#^/admin/categories/(\d+)$#', $uri, $matches)) {
+        CategoryController::destroy((int) $matches[1]);
+        return;
+    }
+
+    // ========================================
+    // ADMIN SEO ROUTES
+    // ========================================
+
+    // GET /admin/seo
+    if ($method === 'GET' && $uri === '/admin/seo') {
+        SeoController::adminIndex();
+        return;
+    }
+
+    // GET /admin/seo/{id}
+    if ($method === 'GET' && preg_match('#^/admin/seo/(\d+)$#', $uri, $matches)) {
+        SeoController::adminShow((int) $matches[1]);
+        return;
+    }
+
+    // POST /admin/seo — upsert
+    if ($method === 'POST' && $uri === '/admin/seo') {
+        SeoController::upsert();
+        return;
+    }
+
+    // DELETE /admin/seo/{id}
+    if ($method === 'DELETE' && preg_match('#^/admin/seo/(\d+)$#', $uri, $matches)) {
+        SeoController::destroy((int) $matches[1]);
+        return;
+    }
+
+    // ========================================
+    // ADMIN SETTINGS ROUTES
+    // ========================================
+
+    // GET /admin/settings/grouped
+    if ($method === 'GET' && $uri === '/admin/settings/grouped') {
+        SettingsController::adminGrouped();
+        return;
+    }
+
+    // POST /admin/settings/upload-logo
+    if ($method === 'POST' && $uri === '/admin/settings/upload-logo') {
+        SettingsController::uploadLogo();
+        return;
+    }
+
+    // POST /admin/settings
+    if ($method === 'POST' && $uri === '/admin/settings') {
+        SettingsController::bulkUpdate();
+        return;
+    }
+
+    // ========================================
+    // ADMIN POPUP ROUTES
+    // ========================================
+
+    // GET /admin/popups
+    if ($method === 'GET' && $uri === '/admin/popups') {
+        PopupController::adminIndex();
+        return;
+    }
+
+    // POST /admin/popups/upload-image
+    if ($method === 'POST' && $uri === '/admin/popups/upload-image') {
+        PopupController::uploadImage();
+        return;
+    }
+
+    // GET /admin/popups/{id}
+    if ($method === 'GET' && preg_match('#^/admin/popups/(\d+)$#', $uri, $matches)) {
+        PopupController::adminShow((int) $matches[1]);
+        return;
+    }
+
+    // POST /admin/popups
+    if ($method === 'POST' && $uri === '/admin/popups') {
+        PopupController::store();
+        return;
+    }
+
+    // PUT /admin/popups/{id}/toggle
+    if ($method === 'PUT' && preg_match('#^/admin/popups/(\d+)/toggle$#', $uri, $matches)) {
+        PopupController::toggle((int) $matches[1]);
+        return;
+    }
+
+    // PUT /admin/popups/{id}
+    if ($method === 'PUT' && preg_match('#^/admin/popups/(\d+)$#', $uri, $matches)) {
+        PopupController::update((int) $matches[1]);
+        return;
+    }
+
+    // DELETE /admin/popups/{id}
+    if ($method === 'DELETE' && preg_match('#^/admin/popups/(\d+)$#', $uri, $matches)) {
+        PopupController::destroy((int) $matches[1]);
+        return;
+    }
+
+    // ========================================
+    // ADMIN DELIVERY ROUTES
+    // ========================================
+
+    // GET /admin/delivery-rules
+    if ($method === 'GET' && $uri === '/admin/delivery-rules') {
+        DeliveryController::adminGet();
+        return;
+    }
+
+    // POST /admin/delivery-rules
+    if ($method === 'POST' && $uri === '/admin/delivery-rules') {
+        DeliveryController::adminUpdate();
         return;
     }
 

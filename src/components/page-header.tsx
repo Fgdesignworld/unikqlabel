@@ -37,7 +37,7 @@ export function PageHeader({ title, subtitle, backgroundImage = "/images/hero-bg
             className="h-1 bg-[#d97706] mx-auto mb-6"
           />
           
-          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold text-[#fef3e2] mb-6 tracking-tight">
+          <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold text-[#fef3e2] mb-6 tracking-tight">
             {title}
           </h1>
           

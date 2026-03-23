@@ -4,6 +4,7 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Star, ShoppingBag, Check, Leaf, Circle } from "lucide-react"
 import { useCart } from "@/context/cart-context"
+import { useSettings } from "@/context/settings-context"
 import { Image } from "@/components/ui/image"
 import type { Product } from "@/data/products"
 
@@ -14,6 +15,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { addItem } = useCart()
+  const { settings } = useSettings()
   const [selectedVariant, setSelectedVariant] = useState(0)
   const [isAdded, setIsAdded] = useState(false)
 
@@ -131,7 +133,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
           <div>
-            <p className="text-[#d97706] text-base md:text-xl font-bold">Rs.{currentVariant.price}</p>
+            <p className="text-[#d97706] text-base md:text-xl font-bold">{settings?.currency_symbol || '₹'}{currentVariant.price}</p>
             {variants.length === 1 && (
               <p className="text-[#fef3e2]/50 text-[10px] md:text-xs">{currentVariant.weight}</p>
             )}

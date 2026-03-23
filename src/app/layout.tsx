@@ -5,6 +5,7 @@ import { CartSidebar } from '@/components/cart-sidebar';
 import { FloatingWhatsApp } from '@/components/floating-whatsapp';
 import { MobileBottomBar } from '@/components/mobile-bottom-bar';
 import { ScrollToTop } from '@/components/scroll-to-top';
+import { OfferPopup } from '@/components/offer-popup';
 import './globals.css';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CartSidebar />
         <FloatingWhatsApp />
         <MobileBottomBar />
+        <OfferPopup />
       </CartProvider>
     </div>
   );
