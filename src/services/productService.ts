@@ -64,6 +64,14 @@ export const productService = {
   },
 
   /**
+   * Get a single product by ID (admin)
+   */
+  async adminGetById(id: number): Promise<ApiProduct> {
+    const response = await api.get(`/admin/products/${id}`);
+    return response.data.product;
+  },
+
+  /**
    * Create a product (admin)
    */
   async create(data: Partial<ApiProduct>): Promise<ApiProduct> {

@@ -45,9 +45,9 @@ export default function ProductsPage() {
       <section className="px-4 pb-8">
         <div className="container mx-auto max-w-7xl">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
             className="flex flex-wrap items-center justify-center gap-3"
           >
             <button

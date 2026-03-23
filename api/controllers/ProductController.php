@@ -92,6 +92,31 @@ class ProductController {
     }
 
     /**
+     * GET /api/admin/products/{id} — Fetch single product
+     */
+    public static function show(int $id): void {
+        requireAuth();
+
+        $product = Product::findById($id);
+        if (!$product) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Product not found']);
+            return;
+        }
+
+        if (!empty($product['variants']) && is_string($product['variants'])) {
+            $product['variants'] = json_decode($product['variants'], true);
+        }
+        $product['bestseller']  = (bool) $product['bestseller'];
+        $product['is_veg']      = (bool) $product['is_veg'];
+        $product['is_homemade'] = (bool) $product['is_homemade'];
+        $product['price']       = (float) $product['price'];
+        $product['rating']      = (float) $product['rating'];
+
+        echo json_encode(['product' => $product]);
+    }
+
+    /**
      * PUT /api/admin/products/{id} — Update product
      */
     public static function update(int $id): void {

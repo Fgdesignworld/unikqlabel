@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
-import { productService, type ApiProduct } from '@/services/productService'
+import { productService } from '@/services/productService'
 import { Image } from '@/components/ui/image'
 import { 
   ArrowLeft, 
@@ -48,8 +48,7 @@ export default function AdminProductFormPage() {
 
   const loadProduct = async () => {
     try {
-      const allProducts = await productService.adminGetAll()
-      const product = allProducts.find((p: ApiProduct) => p.id === Number(id))
+      const product = await productService.adminGetById(Number(id))
       
       if (!product) {
         setError('Product not found')

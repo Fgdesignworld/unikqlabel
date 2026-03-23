@@ -5,6 +5,12 @@
  * Update these credentials for your environment.
  */
 
+// define('DB_HOST', 'localhost');
+// define('DB_NAME', 'cgqyspyd_lakshmihomefoods');
+// define('DB_USER', 'cgqyspyd_lakshmihomefoods');
+// define('DB_PASS', 'xCM~i(1d(#rlBOg}');
+// define('DB_CHARSET', 'utf8mb4');
+
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'laxmihome_db');
 define('DB_USER', 'root');

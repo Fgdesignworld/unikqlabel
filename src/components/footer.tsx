@@ -20,9 +20,9 @@ const categories = [
 ]
 
 const socialLinks = [
-  { icon: Instagram, href: "#", label: "Instagram" },
-  { icon: Facebook, href: "#", label: "Facebook" },
-  { icon: Youtube, href: "#", label: "Youtube" },
+  { icon: Instagram, href: "https://www.instagram.com/lakshmihomefoods01?igsh=Z3B2dWs4eTkyeXo5", label: "Instagram" },
+  { icon: Facebook, href: "", label: "Facebook" },
+  { icon: Youtube, href: "https://www.youtube.com/@Lakshmihomefoods01", label: "Youtube" },
 ]
 
 export function Footer() {

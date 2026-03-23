@@ -89,6 +89,12 @@ function handleRequest(): void {
         return;
     }
 
+    // GET /admin/products/{id}
+    if ($method === 'GET' && preg_match('#^/admin/products/(\d+)$#', $uri, $matches)) {
+        ProductController::show((int) $matches[1]);
+        return;
+    }
+
     // POST /admin/products
     if ($method === 'POST' && $uri === '/admin/products') {
         ProductController::store();

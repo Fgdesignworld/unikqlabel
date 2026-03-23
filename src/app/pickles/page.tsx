@@ -35,10 +35,9 @@ function PickleCard({ product, index }: { product: Product; index: number }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.25), ease: "easeOut" }}
       className="group relative bg-gradient-to-br from-[#1a1410] to-[#0f0f0f] rounded-3xl border border-[#d97706]/10 overflow-hidden hover:border-[#d97706]/40 transition-all duration-500"
     >
       {/* Glow effect */}
@@ -258,10 +257,9 @@ export default function PicklesPage() {
                   ].map((item, index) => (
                     <motion.li
                       key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.1 }}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.25, delay: index * 0.05, ease: "easeOut" }}
                       className="flex items-center gap-3 text-[#fef3e2]/80"
                     >
                       <ChevronRight className="w-5 h-5 text-[#d97706]" />
