@@ -5,13 +5,14 @@
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/Notification.php';
+require_once __DIR__ . '/../models/DeliveryRule.php';
 
 class Order {
 
     /**
      * Create an order with items (atomic transaction)
      */
-    public static function create(array $orderData, array $items): array {
+    public static function create(array $orderData, array $items, ?float $proposedDelivery = null): array {
         $db = getDB();
         
         try {
@@ -25,7 +26,18 @@ class Order {
             foreach ($items as $item) {
                 $subtotal += ($item['price'] * $item['qty']);
             }
-            $delivery = $subtotal >= 500 ? 0 : 50;
+            
+            // Get active delivery rule from database
+            $activeRule = DeliveryRule::getActive();
+            
+            // Calculate delivery fee based on rule
+            $delivery = self::calculateDelivery($subtotal, $activeRule);
+            
+            // Validate proposed delivery matches calculated (security check)
+            if ($proposedDelivery !== null && abs($delivery - $proposedDelivery) > 0.01) {
+                throw new Exception('Delivery fee mismatch. Please refresh and try again.');
+            }
+            
             $total = $subtotal + $delivery;
 
             // Insert order
@@ -72,10 +84,11 @@ class Order {
             // Trigger notification for admin (non-critical)
             try {
                 $customerName = htmlspecialchars($orderData['customer_name'], ENT_QUOTES, 'UTF-8');
+                $currency = '₹';
                 Notification::create(
                     'new_order',
                     $orderId,
-                    "New order #{$invoiceNumber} from {$customerName} — ₹{$total}"
+                    "New order #{$invoiceNumber} from {$customerName} — {$currency}{$total}"
                 );
             } catch (Exception $ne) {
                 error_log('Notification creation failed: ' . $ne->getMessage());
@@ -96,25 +109,98 @@ class Order {
     }
 
     /**
-     * Get all orders (admin) with optional filter and pagination
-     * @param string $filter  today|week|month|all
-     * @param int    $page    Page number (1-based)
-     * @param int    $perPage Items per page
+     * Calculate delivery fee based on subtotal and delivery rule
      */
-    public static function getAll(string $filter = 'all', int $page = 1, int $perPage = 10): array {
+    private static function calculateDelivery(float $subtotal, ?array $rule): float {
+        if (!$rule || !$rule['is_active']) {
+            return 0;
+        }
+
+        // Check if order is below minimum
+        if ($rule['min_order_amount'] > 0 && $subtotal < $rule['min_order_amount']) {
+            return 0; // Would be blocked at validation level
+        }
+
+        // Check if eligible for free delivery
+        if ($rule['free_delivery_above'] > 0 && $subtotal >= $rule['free_delivery_above']) {
+            return 0;
+        }
+
+        // Apply standard delivery fee
+        return (float) $rule['delivery_fee'];
+    }
+
+    /**
+     * Get all orders (admin) with optional filter, search, status, payment, trash, and pagination
+     *
+     * @param string $filter          today|week|month|all|date (date = use date_from/date_to)
+     * @param int    $page
+     * @param int    $perPage
+     * @param array  $opts            Extra filtering: status, payment_method, search, date_from, date_to, trash
+     */
+    public static function getAll(string $filter = 'all', int $page = 1, int $perPage = 15, array $opts = []): array {
         $db = getDB();
 
-        $where = self::buildFilterWhere($filter);
+        $conditions = [];
+        $params     = [];
+
+        // ── Soft-delete scope ──────────────────────────────────────
+        $trash = !empty($opts['trash']);
+        if ($trash) {
+            $conditions[] = "deleted_at IS NOT NULL";
+        } else {
+            $conditions[] = "deleted_at IS NULL";
+        }
+
+        // ── Date / Period filter ───────────────────────────────────
+        if (!empty($opts['date_from']) && !empty($opts['date_to'])) {
+            $conditions[] = "DATE(created_at) BETWEEN :date_from AND :date_to";
+            $params[':date_from'] = $opts['date_from'];
+            $params[':date_to']   = $opts['date_to'];
+        } else {
+            switch ($filter) {
+                case 'today':
+                    $conditions[] = "DATE(created_at) = CURDATE()";
+                    break;
+                case 'week':
+                    $conditions[] = "created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+                    break;
+                case 'month':
+                    $conditions[] = "created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
+                    break;
+            }
+        }
+
+        // ── Status filter ──────────────────────────────────────────
+        $validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+        if (!empty($opts['status']) && in_array($opts['status'], $validStatuses)) {
+            $conditions[] = "status = :status";
+            $params[':status'] = $opts['status'];
+        }
+
+        // ── Payment method filter ──────────────────────────────────
+        if (!empty($opts['payment_method'])) {
+            $conditions[] = "payment_method = :payment_method";
+            $params[':payment_method'] = $opts['payment_method'];
+        }
+
+        // ── Search (name / phone / invoice) ───────────────────────
+        if (!empty($opts['search'])) {
+            $conditions[] = "(customer_name LIKE :search OR phone LIKE :search OR invoice_number LIKE :search)";
+            $params[':search'] = '%' . $opts['search'] . '%';
+        }
+
+        $where = $conditions ? "WHERE " . implode(' AND ', $conditions) : "";
         $offset = ($page - 1) * $perPage;
 
-        $countStmt = $db->prepare("SELECT COUNT(*) FROM orders {$where['clause']}");
-        $countStmt->execute($where['params']);
+        $countStmt = $db->prepare("SELECT COUNT(*) FROM orders {$where}");
+        $countStmt->execute($params);
         $total = (int) $countStmt->fetchColumn();
 
         $stmt = $db->prepare(
-            "SELECT * FROM orders {$where['clause']} ORDER BY created_at DESC LIMIT :limit OFFSET :offset"
+            "SELECT * FROM orders {$where} ORDER BY created_at DESC LIMIT :limit OFFSET :offset"
         );
-        foreach ($where['params'] as $key => $val) {
+        foreach ($params as $key => $val) {
             $stmt->bindValue($key, $val);
         }
         $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
@@ -126,17 +212,17 @@ class Order {
             'total'     => $total,
             'page'      => $page,
             'per_page'  => $perPage,
-            'last_page' => (int) ceil($total / $perPage),
+            'last_page' => max(1, (int) ceil($total / $perPage)),
         ];
     }
 
     /**
-     * Get order with items
+     * Get order with items (excludes soft-deleted by default)
      */
-    public static function getWithItems(int $id): ?array {
+    public static function getWithItems(int $id, bool $includeTrashed = false): ?array {
         $db = getDB();
-        
-        $stmt = $db->prepare("SELECT * FROM orders WHERE id = :id LIMIT 1");
+        $deletedClause = $includeTrashed ? "" : "AND deleted_at IS NULL";
+        $stmt = $db->prepare("SELECT * FROM orders WHERE id = :id {$deletedClause} LIMIT 1");
         $stmt->execute(['id' => $id]);
         $order = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -150,16 +236,52 @@ class Order {
     }
 
     /**
+     * Soft-delete an order
+     */
+    public static function softDelete(int $id): bool {
+        $db = getDB();
+        $stmt = $db->prepare("UPDATE orders SET deleted_at = NOW() WHERE id = :id AND deleted_at IS NULL");
+        return $stmt->execute(['id' => $id]);
+    }
+
+    /**
+     * Restore a soft-deleted order
+     */
+    public static function restore(int $id): bool {
+        $db = getDB();
+        $stmt = $db->prepare("UPDATE orders SET deleted_at = NULL WHERE id = :id");
+        return $stmt->execute(['id' => $id]);
+    }
+
+    /**
+     * Permanently delete an order (hard delete, only from trash)
+     */
+    public static function hardDelete(int $id): bool {
+        $db = getDB();
+        $stmt = $db->prepare("DELETE FROM orders WHERE id = :id");
+        return $stmt->execute(['id' => $id]);
+    }
+
+    /**
      * Update order status
      */
     public static function updateStatus(int $id, string $status): bool {
         $db = getDB();
-        $stmt = $db->prepare("UPDATE orders SET status = :status WHERE id = :id");
+        $stmt = $db->prepare("UPDATE orders SET status = :status WHERE id = :id AND deleted_at IS NULL");
         return $stmt->execute(['status' => $status, 'id' => $id]);
     }
 
     /**
-     * Get analytics: count + revenue for today/week/month/total
+     * Update payment method / ref (admin can set this manually or from checkout)
+     */
+    public static function updatePayment(int $id, string $method, ?string $ref = null): bool {
+        $db = getDB();
+        $stmt = $db->prepare("UPDATE orders SET payment_method = :method, payment_ref = :ref WHERE id = :id");
+        return $stmt->execute(['method' => $method, 'ref' => $ref, 'id' => $id]);
+    }
+
+    /**
+     * Get analytics: count + revenue for today/week/month/total (excludes soft-deleted)
      */
     public static function getAnalytics(): array {
         $db = getDB();
@@ -174,7 +296,7 @@ class Order {
         $result = [];
         foreach ($periods as $key => $condition) {
             $stmt = $db->query(
-                "SELECT COUNT(*) as cnt, COALESCE(SUM(total), 0) as revenue FROM orders WHERE {$condition}"
+                "SELECT COUNT(*) as cnt, COALESCE(SUM(total), 0) as revenue FROM orders WHERE deleted_at IS NULL AND {$condition}"
             );
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             $result[$key] = [
@@ -182,18 +304,43 @@ class Order {
                 'revenue' => (float) $row['revenue'],
             ];
         }
+
+        // Per-status counts (for calendar/badge display)
+        $statusStmt = $db->query(
+            "SELECT status, COUNT(*) as cnt FROM orders WHERE deleted_at IS NULL GROUP BY status"
+        );
+        $statusCounts = [];
+        foreach ($statusStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $statusCounts[$row['status']] = (int) $row['cnt'];
+        }
+        $result['by_status'] = $statusCounts;
+
+        // Per-payment-method counts
+        $pmStmt = $db->query(
+            "SELECT COALESCE(payment_method, 'unknown') as method, COUNT(*) as cnt FROM orders WHERE deleted_at IS NULL GROUP BY payment_method"
+        );
+        $pmCounts = [];
+        foreach ($pmStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $pmCounts[$row['method']] = (int) $row['cnt'];
+        }
+        $result['by_payment'] = $pmCounts;
+
+        // Trashed count
+        $trashStmt = $db->query("SELECT COUNT(*) FROM orders WHERE deleted_at IS NOT NULL");
+        $result['trashed'] = (int) $trashStmt->fetchColumn();
+
         return $result;
     }
 
     /**
-     * Get daily order/revenue chart data for the last N days
+     * Get daily order/revenue chart data for the last N days (excludes soft-deleted)
      */
     public static function getDailyChart(int $days = 14): array {
         $db = getDB();
         $stmt = $db->prepare(
             "SELECT DATE(created_at) as date, COUNT(*) as orders, COALESCE(SUM(total), 0) as revenue
              FROM orders
-             WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL :days DAY)
+             WHERE deleted_at IS NULL AND created_at >= DATE_SUB(CURDATE(), INTERVAL :days DAY)
              GROUP BY DATE(created_at)
              ORDER BY date ASC"
         );
@@ -221,20 +368,4 @@ class Order {
         return array_values($data);
     }
 
-    // ─────────────────────────────────────────
-    // Private helpers
-    // ─────────────────────────────────────────
-
-    private static function buildFilterWhere(string $filter): array {
-        switch ($filter) {
-            case 'today':
-                return ['clause' => "WHERE DATE(created_at) = CURDATE()", 'params' => []];
-            case 'week':
-                return ['clause' => "WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)", 'params' => []];
-            case 'month':
-                return ['clause' => "WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)", 'params' => []];
-            default:
-                return ['clause' => "", 'params' => []];
-        }
-    }
 }

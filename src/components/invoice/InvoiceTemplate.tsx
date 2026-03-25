@@ -20,7 +20,7 @@ interface InvoiceTemplateProps {
     image: string;
   }>;
   subtotal: number;
-  delivery: number | 'FREE';
+  delivery: number | string;
   total: number;
   startIndex?: number; // Added to support sequential numbering
   showTotals?: boolean; // Controlled by the generator
@@ -163,7 +163,12 @@ export const InvoiceTemplate = ({
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', fontSize: '13px', color: '#666', fontWeight: '500' }}>
               <span>Delivery</span>
-              <span style={{ color: delivery === 'FREE' ? '#10b981' : '#000', fontWeight: '700' }}>{delivery === 'FREE' ? 'FREE' : `${settings?.currency_symbol || '₹'}${delivery}`}</span>
+              <span style={{ 
+                color: typeof delivery === 'string' && delivery.includes('Free') ? '#10b981' : '#000', 
+                fontWeight: '700' 
+              }}>
+                {typeof delivery === 'string' ? delivery : `${settings?.currency_symbol || '₹'}${delivery}`}
+              </span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 12px', marginTop: '10px', backgroundColor: '#000', borderRadius: '10px', color: '#fff' }}>
               <span style={{ fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px', alignSelf: 'center' }}>Total Amount</span>

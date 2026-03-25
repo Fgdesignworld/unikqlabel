@@ -14,7 +14,8 @@ import {
   Image as ImageIcon,
   Loader2,
   Trash2,
-  Plus
+  Plus,
+  Images
 } from 'lucide-react'
 
 export default function AdminProductFormPage() {
@@ -31,6 +32,7 @@ export default function AdminProductFormPage() {
     name: '',
     category: 'snacks',
     price: '',
+    discount_price: '',
     weight: '1kg',
     description: '',
     image: '',
@@ -41,6 +43,7 @@ export default function AdminProductFormPage() {
   })
 
   const [variantRows, setVariantRows] = useState<{ weight: string; price: string }[]>([])
+  const [gallery, setGallery] = useState<string[]>([])
 
   useEffect(() => {
     if (isEdit) {
@@ -61,6 +64,7 @@ export default function AdminProductFormPage() {
         name: product.name,
         category: product.category,
         price: String(product.price),
+        discount_price: product.discount_price ? String(product.discount_price) : '',
         weight: product.weight,
         description: product.description || '',
         image: product.image || '',
@@ -71,6 +75,9 @@ export default function AdminProductFormPage() {
       })
       if (Array.isArray(product.variants)) {
         setVariantRows(product.variants.map((v: any) => ({ weight: String(v.weight ?? ''), price: String(v.price ?? '') })))
+      }
+      if (Array.isArray(product.gallery_images)) {
+        setGallery(product.gallery_images)
       }
     } catch (err) {
       setError('Failed to load product details')
@@ -88,9 +95,11 @@ export default function AdminProductFormPage() {
     const data: any = {
       ...form,
       price: parseFloat(form.price) || 0,
+      discount_price: form.discount_price ? parseFloat(form.discount_price) : null,
       bestseller: form.bestseller ? 1 : 0,
       is_veg: form.is_veg ? 1 : 0,
       is_homemade: form.is_homemade ? 1 : 0,
+      gallery_images: gallery.length > 0 ? gallery : null,
     }
 
     const filledVariants = variantRows.filter(r => r.weight.trim() && r.price.trim())
@@ -260,6 +269,24 @@ export default function AdminProductFormPage() {
                     className="w-full px-5 py-3 bg-[#0a0a0a] border border-gray-800 rounded-2xl text-white focus:outline-none focus:border-amber-500/50"
                     required
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-400 mb-2">
+                    Discount / Sale Price (₹)
+                    <span className="ml-2 text-[10px] text-amber-500/60 font-normal normal-case">optional — show a "X% OFF" badge</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={form.discount_price}
+                    onChange={e => setForm(f => ({ ...f, discount_price: e.target.value }))}
+                    placeholder="e.g. 180 (leave blank if no sale)"
+                    className="w-full px-5 py-3 bg-[#0a0a0a] border border-gray-800 rounded-2xl text-white focus:outline-none focus:border-amber-500/50 placeholder:text-gray-700"
+                  />
+                  {form.discount_price && form.price && parseFloat(form.discount_price) < parseFloat(form.price) && (
+                    <p className="mt-1 text-xs text-amber-400 font-semibold">
+                      {Math.round(((parseFloat(form.price) - parseFloat(form.discount_price)) / parseFloat(form.price)) * 100)}% discount will be shown
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-400 mb-2">Default Weight</label>
@@ -432,6 +459,63 @@ export default function AdminProductFormPage() {
                 className="hidden" 
               />
             </div>
+          </section>
+
+          {/* Gallery Images */}
+          <section className="bg-[#111] border border-gray-800 rounded-3xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                <Images className="w-4 h-4" /> Gallery
+              </h2>
+              <span className="text-[10px] text-gray-600">{gallery.length}/6</span>
+            </div>
+
+            {/* Gallery grid */}
+            {gallery.length > 0 && (
+              <div className="grid grid-cols-3 gap-2 mb-3">
+                {gallery.map((img, idx) => (
+                  <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-gray-800 group">
+                    <img src={img.startsWith('http') ? img : img.startsWith('/api/') ? img : `/api${img}`} alt={`Gallery ${idx+1}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setGallery(g => g.filter((_, i) => i !== idx))}
+                      className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                    >
+                      <X className="w-5 h-5 text-red-400" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {gallery.length < 6 && (
+              <button
+                type="button"
+                onClick={() => document.getElementById('gallery-upload')?.click()}
+                className="w-full py-4 bg-[#0a0a0a] border-2 border-dashed border-gray-800 rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all text-gray-600 hover:text-amber-500 text-xs font-bold"
+              >
+                <Plus className="w-5 h-5" />
+                Add Gallery Image
+              </button>
+            )}
+            <input
+              id="gallery-upload"
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={async (e) => {
+                const files = Array.from(e.target.files || [])
+                for (const file of files.slice(0, 6 - gallery.length)) {
+                  try {
+                    const path = await productService.uploadImage(file)
+                    setGallery(g => [...g, path])
+                  } catch { /* skip failed */ }
+                }
+                e.target.value = ''
+              }}
+              className="hidden"
+            />
+            <p className="mt-2 text-[10px] text-gray-600 text-center">First gallery image appears on product card hover</p>
           </section>
         </div>
       </form>

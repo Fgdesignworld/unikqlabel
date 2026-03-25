@@ -9,24 +9,36 @@ require_once __DIR__ . '/../middleware/auth.php';
 class ProductController {
 
     /**
-     * GET /api/products — Public: active products
+     * GET /api/products — Public: active products (with optional filters)
      */
     public static function index(): void {
-        $products = Product::getActive();
+        $filters = [];
+        if (!empty($_GET['category']))  $filters['category']  = $_GET['category'];
+        if (isset($_GET['veg']))        $filters['is_veg']    = $_GET['veg'] === 'true' ? 1 : 0;
+        if (isset($_GET['min_price'])) $filters['min_price'] = $_GET['min_price'];
+        if (isset($_GET['max_price'])) $filters['max_price'] = $_GET['max_price'];
 
-        // Parse JSON variants for frontend compatibility
+        $products = Product::getActive($filters);
+
         foreach ($products as &$p) {
-            if (!empty($p['variants']) && is_string($p['variants'])) {
-                $p['variants'] = json_decode($p['variants'], true);
-            }
-            $p['bestseller'] = (bool) $p['bestseller'];
-            $p['is_veg']     = (bool) $p['is_veg'];
-            $p['is_homemade'] = (bool) $p['is_homemade'];
-            $p['price']      = (float) $p['price'];
-            $p['rating']     = (float) $p['rating'];
+            self::normalizeProduct($p);
         }
 
         echo json_encode(['products' => $products]);
+    }
+
+    /**
+     * GET /api/products/{slug} — Public: single product detail by slug
+     */
+    public static function showPublic(string $slug): void {
+        $product = Product::findBySlug($slug);
+        if (!$product) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Product not found']);
+            return;
+        }
+        self::normalizeProduct($product);
+        echo json_encode(['product' => $product]);
     }
 
     /**
@@ -37,14 +49,7 @@ class ProductController {
         $products = Product::getAll();
 
         foreach ($products as &$p) {
-            if (!empty($p['variants']) && is_string($p['variants'])) {
-                $p['variants'] = json_decode($p['variants'], true);
-            }
-            $p['bestseller']  = (bool) $p['bestseller'];
-            $p['is_veg']      = (bool) $p['is_veg'];
-            $p['is_homemade'] = (bool) $p['is_homemade'];
-            $p['price']       = (float) $p['price'];
-            $p['rating']      = (float) $p['rating'];
+            self::normalizeProduct($p);
         }
 
         echo json_encode(['products' => $products]);
@@ -104,15 +109,7 @@ class ProductController {
             return;
         }
 
-        if (!empty($product['variants']) && is_string($product['variants'])) {
-            $product['variants'] = json_decode($product['variants'], true);
-        }
-        $product['bestseller']  = (bool) $product['bestseller'];
-        $product['is_veg']      = (bool) $product['is_veg'];
-        $product['is_homemade'] = (bool) $product['is_homemade'];
-        $product['price']       = (float) $product['price'];
-        $product['rating']      = (float) $product['rating'];
-
+        self::normalizeProduct($product);
         echo json_encode(['product' => $product]);
     }
 
@@ -243,5 +240,27 @@ class ProductController {
             http_response_code(500);
             echo json_encode(['error' => 'Failed to upload image']);
         }
+    }
+
+    /**
+     * Shared normalizer — parse JSON fields + cast booleans/floats
+     */
+    private static function normalizeProduct(array &$p): void {
+        if (!empty($p['variants']) && is_string($p['variants'])) {
+            $p['variants'] = json_decode($p['variants'], true);
+        }
+        if (isset($p['gallery_images']) && is_string($p['gallery_images'])) {
+            $p['gallery_images'] = json_decode($p['gallery_images'], true);
+        } else {
+            $p['gallery_images'] = $p['gallery_images'] ?? null;
+        }
+        $p['bestseller']     = (bool)  $p['bestseller'];
+        $p['is_veg']         = (bool)  $p['is_veg'];
+        $p['is_homemade']    = (bool)  $p['is_homemade'];
+        $p['price']          = (float) $p['price'];
+        $p['discount_price'] = isset($p['discount_price']) && $p['discount_price'] !== null
+            ? (float) $p['discount_price']
+            : null;
+        $p['rating']         = (float) ($p['rating'] ?? 4.5);
     }
 }

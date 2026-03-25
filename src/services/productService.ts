@@ -14,7 +14,9 @@ export interface ApiProduct {
   category: 'snacks' | 'pickles' | 'spices' | 'sweets';
   weight: string;
   price: number;
+  discount_price: number | null;
   image: string | null;
+  gallery_images: string[] | null;
   rating: number;
   bestseller: boolean;
   is_veg: boolean;
@@ -33,8 +35,10 @@ function mapToProduct(p: ApiProduct): Product {
     id: p.slug || String(p.id),
     name: p.name,
     price: p.price,
+    discount_price: p.discount_price ?? undefined,
     weight: p.weight,
     image: p.image || '/images/placeholder.jpg',
+    gallery: p.gallery_images ?? undefined,
     category: p.category,
     description: p.description || undefined,
     rating: p.rating,
@@ -139,5 +143,53 @@ export const productService = {
   async getBestsellers(): Promise<Product[]> {
     const all = await this.getPublicProducts();
     return all.filter(p => p.bestseller);
+  },
+
+  /**
+   * Get a single product by slug (public)
+   */
+  async getApiBySlug(slug: string): Promise<ApiProduct | null> {
+    try {
+      const response = await api.get(`/products/${slug}`);
+      return response.data.product as ApiProduct;
+    } catch {
+      const all = await this.getAll();
+      return all.find(p => p.slug === slug) ?? null;
+    }
+  },
+
+  /** Convert raw ApiProduct to frontend Product format */
+  mapApiProduct(raw: ApiProduct): Product {
+    return mapToProduct(raw);
+  },
+
+  async getBySlug(slug: string): Promise<Product | null> {
+    const raw = await this.getApiBySlug(slug);
+    return raw ? mapToProduct(raw) : null;
+  },
+
+  /**
+   * Get filtered products (client-side filter on all active)
+   */
+  async getFiltered(params: {
+    category?: string;
+    isVeg?: boolean | null;
+    minPrice?: number;
+    maxPrice?: number;
+  }): Promise<Product[]> {
+    let products = await this.getPublicProducts();
+    if (params.category && params.category !== 'all') {
+      products = products.filter(p => p.category === params.category);
+    }
+    if (params.isVeg !== undefined && params.isVeg !== null) {
+      products = products.filter(p => p.isVeg === params.isVeg);
+    }
+    if (params.minPrice !== undefined) {
+      products = products.filter(p => p.price >= params.minPrice!);
+    }
+    if (params.maxPrice !== undefined) {
+      products = products.filter(p => p.price <= params.maxPrice!);
+    }
+    return products;
   },
 };

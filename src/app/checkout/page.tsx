@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { ImgHTMLAttributes } from 'react';
-const Image = (props: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean, fill?: boolean, quality?: number }) => <img {...props} />;
+const Image = ({ priority, fill, quality, ...rest }: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean, fill?: boolean, quality?: number }) => <img {...rest} />;
 import { Link } from 'react-router-dom';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { motion } from "framer-motion"
@@ -144,6 +144,7 @@ export default function CheckoutPage() {
         city: customerDetails.city,
         pincode: customerDetails.pincode,
         notes: customerDetails.notes || '',
+        delivery: deliveryCharge,
         cart_items: items.map(item => ({
           product_id: null,
           name: item.name,
@@ -168,11 +169,15 @@ export default function CheckoutPage() {
 
     // ─── STEP 2: Generate and download PDF (existing logic) ───
     try {
+      const deliveryLabel = deliveryCharge === 0 && deliveryRule.free_delivery_above > 0 
+        ? `Free (Order above ${settings?.currency_symbol || '₹'}${deliveryRule.free_delivery_above})`
+        : deliveryCharge
+      
       const invoiceProps = {
         items: [...items],
         customerDetails: { ...customerDetails },
         subtotal: totalPrice,
-        delivery: deliveryCharge === 0 ? 'FREE' : deliveryCharge,
+        delivery: deliveryLabel,
         total: finalTotal,
         date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
       }
@@ -182,10 +187,14 @@ export default function CheckoutPage() {
     }
 
     // Save order snapshot for "Download Again" feature
+    const deliveryLabel = deliveryCharge === 0 && deliveryRule.free_delivery_above > 0 
+      ? `Free (Order above ${settings?.currency_symbol || '₹'}${deliveryRule.free_delivery_above})`
+      : deliveryCharge
+    
     setConfirmedOrder({
       items: [...items],
       subtotal: totalPrice,
-      delivery: deliveryCharge === 0 ? 'FREE' : deliveryCharge,
+      delivery: deliveryLabel,
       total: finalTotal,
       customer: { ...customerDetails }
     })
@@ -654,8 +663,8 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-[#fef3e2]/60">Delivery</span>
-                        {deliveryCharge === 0 ? (
-                          <span className="text-green-500 font-medium">FREE</span>
+                        {deliveryCharge === 0 && deliveryRule.free_delivery_above > 0 ? (
+                          <span className="text-green-500 font-medium">Free (Order above {settings?.currency_symbol || '₹'}{deliveryRule.free_delivery_above})</span>
                         ) : (
                           <span className="text-[#fef3e2]">{settings?.currency_symbol || '₹'}{deliveryCharge}</span>
                         )}
@@ -710,7 +719,9 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
           customerDetails={confirmedOrder?.customer || customerDetails}
           items={pagingState.items} // Use paging segment
           subtotal={confirmedOrder?.subtotal || totalPrice}
-          delivery={confirmedOrder?.delivery ?? (deliveryCharge === 0 ? 'FREE' : deliveryCharge)}
+          delivery={confirmedOrder?.delivery ?? (deliveryCharge === 0 && deliveryRule.free_delivery_above > 0 
+            ? `Free (Order above ${settings?.currency_symbol || '₹'}${deliveryRule.free_delivery_above})`
+            : deliveryCharge)}
           total={confirmedOrder?.total || finalTotal}
           startIndex={pagingState.startIndex} // For sequential numbering
           showTotals={pagingState.showTotals} // Only on final page

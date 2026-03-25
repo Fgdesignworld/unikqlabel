@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { ImgHTMLAttributes } from 'react';
-const Image = (props: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean, fill?: boolean, quality?: number }) => <img {...props} />;
+const Image = ({ priority, fill, quality, ...rest }: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean, fill?: boolean, quality?: number }) => <img {...rest} />;
 import { motion } from "framer-motion"
 import { Star, ShoppingBag, Leaf, Award, Clock, Sparkles, ChevronRight, Check, Circle, Loader2 } from "lucide-react"
 import { Navbar } from "@/components/navbar"

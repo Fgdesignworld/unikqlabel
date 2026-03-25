@@ -1,7 +1,7 @@
 
 
 import { ImgHTMLAttributes } from 'react';
-const Image = (props: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean, fill?: boolean, quality?: number }) => <img {...props} />;
+const Image = ({ priority, fill, quality, ...rest }: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean, fill?: boolean, quality?: number }) => <img {...rest} />;
 import { motion } from "framer-motion"
 import { Heart, Leaf, Clock, Award } from "lucide-react"
 import { Navbar } from "@/components/navbar"

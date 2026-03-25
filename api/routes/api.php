@@ -12,6 +12,7 @@ require_once __DIR__ . '/../controllers/SeoController.php';
 require_once __DIR__ . '/../controllers/SettingsController.php';
 require_once __DIR__ . '/../controllers/PopupController.php';
 require_once __DIR__ . '/../controllers/DeliveryController.php';
+require_once __DIR__ . '/../controllers/ReviewController.php';
 
 function handleRequest(): void {
     $method = $_SERVER['REQUEST_METHOD'];
@@ -47,6 +48,12 @@ function handleRequest(): void {
     // GET /products
     if ($method === 'GET' && $uri === '/products') {
         ProductController::index();
+        return;
+    }
+
+    // GET /products/{slug} — Public product detail
+    if ($method === 'GET' && preg_match('#^/products/([a-z0-9\-]+)$#', $uri, $m)) {
+        ProductController::showPublic($m[1]);
         return;
     }
 
@@ -95,6 +102,28 @@ function handleRequest(): void {
     // POST /checkout
     if ($method === 'POST' && $uri === '/checkout') {
         OrderController::store();
+        return;
+    }
+
+    // ========================================
+    // PUBLIC REVIEW ROUTES
+    // ========================================
+
+    // GET /reviews?product_id=X
+    if ($method === 'GET' && $uri === '/reviews') {
+        ReviewController::index();
+        return;
+    }
+
+    // GET /reviews/verify?token=XYZ
+    if ($method === 'GET' && $uri === '/reviews/verify') {
+        ReviewController::verify();
+        return;
+    }
+
+    // POST /reviews
+    if ($method === 'POST' && $uri === '/reviews') {
+        ReviewController::store();
         return;
     }
 
@@ -203,6 +232,30 @@ function handleRequest(): void {
     // PUT /admin/orders/{id}/status
     if ($method === 'PUT' && preg_match('#^/admin/orders/(\d+)/status$#', $uri, $matches)) {
         OrderController::updateStatus((int) $matches[1]);
+        return;
+    }
+
+    // PUT /admin/orders/{id}/restore
+    if ($method === 'PUT' && preg_match('#^/admin/orders/(\d+)/restore$#', $uri, $matches)) {
+        OrderController::adminRestore((int) $matches[1]);
+        return;
+    }
+
+    // PUT /admin/orders/{id}/payment
+    if ($method === 'PUT' && preg_match('#^/admin/orders/(\d+)/payment$#', $uri, $matches)) {
+        OrderController::updatePayment((int) $matches[1]);
+        return;
+    }
+
+    // DELETE /admin/orders/{id}/force
+    if ($method === 'DELETE' && preg_match('#^/admin/orders/(\d+)/force$#', $uri, $matches)) {
+        OrderController::adminForceDelete((int) $matches[1]);
+        return;
+    }
+
+    // DELETE /admin/orders/{id}
+    if ($method === 'DELETE' && preg_match('#^/admin/orders/(\d+)$#', $uri, $matches)) {
+        OrderController::adminDelete((int) $matches[1]);
         return;
     }
 
@@ -383,6 +436,46 @@ function handleRequest(): void {
     // POST /admin/delivery-rules
     if ($method === 'POST' && $uri === '/admin/delivery-rules') {
         DeliveryController::adminUpdate();
+        return;
+    }
+
+    // ========================================
+    // ADMIN REVIEW ROUTES
+    // ========================================
+
+    // GET /admin/reviews
+    if ($method === 'GET' && $uri === '/admin/reviews') {
+        ReviewController::adminIndex();
+        return;
+    }
+
+    // PUT /admin/reviews/{id}/approve
+    if ($method === 'PUT' && preg_match('#^/admin/reviews/(\d+)/approve$#', $uri, $matches)) {
+        ReviewController::approve((int) $matches[1]);
+        return;
+    }
+
+    // PUT /admin/reviews/{id}/reject
+    if ($method === 'PUT' && preg_match('#^/admin/reviews/(\d+)/reject$#', $uri, $matches)) {
+        ReviewController::reject((int) $matches[1]);
+        return;
+    }
+
+    // DELETE /admin/reviews/{id}
+    if ($method === 'DELETE' && preg_match('#^/admin/reviews/(\d+)$#', $uri, $matches)) {
+        ReviewController::destroy((int) $matches[1]);
+        return;
+    }
+
+    // POST /admin/reviews  (admin direct create)
+    if ($method === 'POST' && $uri === '/admin/reviews') {
+        ReviewController::adminStore();
+        return;
+    }
+
+    // PUT /admin/reviews/{id}  (admin edit)
+    if ($method === 'PUT' && preg_match('#^/admin/reviews/(\d+)$#', $uri, $matches)) {
+        ReviewController::adminUpdate((int) $matches[1]);
         return;
     }
 

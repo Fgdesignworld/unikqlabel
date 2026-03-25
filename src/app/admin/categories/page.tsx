@@ -69,6 +69,10 @@ function CategoryForm({
     }
   }
 
+  const removeImage = () => {
+    setForm(prev => ({ ...prev, image: null }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.name.trim()) {
@@ -116,24 +120,36 @@ function CategoryForm({
           {/* Image upload */}
           <div>
             <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-2">Category Image</label>
-            <div
-              onClick={() => fileRef.current?.click()}
-              className="relative w-full h-32 rounded-2xl border-2 border-dashed border-gray-700 hover:border-amber-500/50 bg-white/2 cursor-pointer flex items-center justify-center overflow-hidden transition-all group"
-            >
-              {form.image ? (
-                <>
-                  <img src={form.image.startsWith('/') ? `/api${form.image}` : form.image} alt="preview" className="absolute inset-0 w-full h-full object-cover rounded-2xl" />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Upload className="w-6 h-6 text-white" />
-                  </div>
-                </>
-              ) : (
-                <div className="flex flex-col items-center gap-2 text-gray-600">
-                  {uploading ? <Loader2 className="w-6 h-6 animate-spin text-amber-500" /> : <ImageIcon className="w-6 h-6" />}
-                  <span className="text-xs">{uploading ? 'Uploading...' : 'Click to upload image'}</span>
+            {form.image ? (
+              <div className="relative w-full h-32 rounded-2xl overflow-hidden border border-gray-700 group">
+                <img src={form.image.startsWith('/') ? `/api${form.image}` : form.image} alt="preview" className="w-full h-full object-cover rounded-2xl" />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                  <button 
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+                  >
+                    <Upload className="w-5 h-5 text-white" />
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={removeImage}
+                    className="p-2 bg-red-500/20 rounded-full hover:bg-red-500/30 transition-colors"
+                  >
+                    <Trash2 className="w-5 h-5 text-red-500" />
+                  </button>
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="w-full h-32 bg-white/2 border-2 border-dashed border-gray-700 rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-amber-500/50 hover:bg-amber-500/5 transition-all text-gray-600 hover:text-amber-500"
+              >
+                {uploading ? <Loader2 className="w-6 h-6 animate-spin text-amber-500" /> : <ImageIcon className="w-6 h-6" />}
+                <span className="text-xs font-medium">{uploading ? 'Uploading...' : 'Click to upload image'}</span>
+              </button>
+            )}
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImage} />
           </div>
 

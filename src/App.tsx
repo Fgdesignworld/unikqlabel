@@ -8,6 +8,7 @@ import CheckoutPage from '@/app/checkout/page';
 import ContactPage from '@/app/contact/page';
 import PicklesPage from '@/app/pickles/page';
 import ProductsPage from '@/app/products/page';
+import ProductDetailPage from '@/app/products/detail';
 import SnacksPage from '@/app/snacks/page';
 import SpicesPage from '@/app/spices/page';
 
@@ -24,6 +25,7 @@ import AdminSettingsPage from '@/app/admin/settings/page';
 import AdminPopupPage from '@/app/admin/popup/page';
 import AdminDeliveryPage from '@/app/admin/delivery/page';
 import AdminNotificationsPage from '@/app/admin/notifications/page';
+import AdminReviewsPage from '@/app/admin/reviews/page';
 
 export default function App() {
   return (
@@ -35,6 +37,7 @@ export default function App() {
       <Route path="/contact" element={<RootLayout><ContactPage /></RootLayout>} />
       <Route path="/pickles" element={<RootLayout><PicklesPage /></RootLayout>} />
       <Route path="/products" element={<RootLayout><ProductsPage /></RootLayout>} />
+      <Route path="/products/:slug" element={<RootLayout><ProductDetailPage /></RootLayout>} />
       <Route path="/snacks" element={<RootLayout><SnacksPage /></RootLayout>} />
       <Route path="/spices" element={<RootLayout><SpicesPage /></RootLayout>} />
 
@@ -52,6 +55,7 @@ export default function App() {
         <Route path="popup" element={<AdminPopupPage />} />
         <Route path="delivery" element={<AdminDeliveryPage />} />
         <Route path="notifications" element={<AdminNotificationsPage />} />
+        <Route path="reviews" element={<AdminReviewsPage />} />
       </Route>
     </Routes>
   );

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link, Outlet, useLocation } from 'react-router-dom'
 import { authService, type AdminUser } from '@/services/authService'
-import { Package, ShoppingCart, LogOut, LayoutDashboard, Menu, X, Tag, Globe, Settings, Megaphone, Truck, Bell } from 'lucide-react'
+import { Package, ShoppingCart, LogOut, LayoutDashboard, Menu, X, Tag, Globe, Settings, Megaphone, Truck, Bell, Star } from 'lucide-react'
 import { Toaster } from '@/components/ui/toaster'
 import { NotificationBell } from '@/components/admin/NotificationBell'
 import { MobileBottomNav } from '@/components/admin/MobileBottomNav'
@@ -60,6 +60,7 @@ export default function AdminLayout() {
     { path: '/admin/popup', icon: Megaphone, label: 'Popup' },
     { path: '/admin/delivery', icon: Truck, label: 'Delivery' },
     { path: '/admin/notifications', icon: Bell, label: 'Notifications' },
+    { path: '/admin/reviews', icon: Star, label: 'Reviews' },
   ]
 
   const pageTitle = location.pathname.split('/').filter(Boolean).pop() || 'Dashboard'

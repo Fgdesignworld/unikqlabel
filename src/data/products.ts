@@ -7,8 +7,10 @@ export interface Product {
   id: string
   name: string
   price: number
+  discount_price?: number
   weight: string
   image: string
+  gallery?: string[]
   category: "snacks" | "pickles" | "spices" | "sweets"
   description?: string
   rating?: number

@@ -8,11 +8,37 @@ require_once __DIR__ . '/../config/database.php';
 class Product {
 
     /**
-     * Get all active products (public)
+     * Get all active products (public), optionally filtered
      */
-    public static function getActive(): array {
+    public static function getActive(array $filters = []): array {
         $db = getDB();
-        $stmt = $db->query("SELECT * FROM products WHERE status = 'active' ORDER BY sort_order ASC, name ASC");
+
+        $where  = ["status = 'active'"];
+        $params = [];
+
+        if (!empty($filters['category'])) {
+            $where[]            = 'category = :category';
+            $params['category'] = $filters['category'];
+        }
+        if (isset($filters['is_veg']) && $filters['is_veg'] !== '') {
+            $where[]          = 'is_veg = :is_veg';
+            $params['is_veg'] = (int) $filters['is_veg'];
+        }
+        if (isset($filters['min_price'])) {
+            $where[]              = 'price >= :min_price';
+            $params['min_price']  = (float) $filters['min_price'];
+        }
+        if (isset($filters['max_price'])) {
+            $where[]              = 'price <= :max_price';
+            $params['max_price']  = (float) $filters['max_price'];
+        }
+
+        $sql  = 'SELECT * FROM products';
+        $sql .= ' WHERE ' . implode(' AND ', $where);
+        $sql .= ' ORDER BY sort_order ASC, name ASC';
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
@@ -24,6 +50,17 @@ class Product {
         $stmt = $db->query("SELECT * FROM products ORDER BY sort_order ASC, id DESC");
         $products = $stmt->fetchAll();
         return $products;
+    }
+
+    /**
+     * Find product by slug (public)
+     */
+    public static function findBySlug(string $slug): ?array {
+        $db = getDB();
+        $stmt = $db->prepare("SELECT * FROM products WHERE slug = :slug AND status = 'active' LIMIT 1");
+        $stmt->execute(['slug' => $slug]);
+        $product = $stmt->fetch();
+        return $product ?: null;
     }
 
     /**
@@ -43,24 +80,26 @@ class Product {
     public static function create(array $data): int {
         $db = getDB();
         $stmt = $db->prepare("
-            INSERT INTO products (name, slug, description, category, weight, price, image, rating, bestseller, is_veg, is_homemade, variants, status)
-            VALUES (:name, :slug, :description, :category, :weight, :price, :image, :rating, :bestseller, :is_veg, :is_homemade, :variants, :status)
+            INSERT INTO products (name, slug, description, category, weight, price, discount_price, image, gallery_images, rating, bestseller, is_veg, is_homemade, variants, status)
+            VALUES (:name, :slug, :description, :category, :weight, :price, :discount_price, :image, :gallery_images, :rating, :bestseller, :is_veg, :is_homemade, :variants, :status)
         ");
 
         $stmt->execute([
-            'name'        => $data['name'],
-            'slug'        => $data['slug'] ?? self::createSlug($data['name']),
-            'description' => $data['description'] ?? null,
-            'category'    => $data['category'],
-            'weight'      => $data['weight'] ?? '1kg',
-            'price'       => $data['price'],
-            'image'       => $data['image'] ?? null,
-            'rating'      => $data['rating'] ?? 4.5,
-            'bestseller'  => $data['bestseller'] ?? 0,
-            'is_veg'      => $data['is_veg'] ?? 1,
-            'is_homemade' => $data['is_homemade'] ?? 1,
-            'variants'    => isset($data['variants']) ? json_encode($data['variants']) : null,
-            'status'      => $data['status'] ?? 'active',
+            'name'          => $data['name'],
+            'slug'          => $data['slug'] ?? self::createSlug($data['name']),
+            'description'   => $data['description'] ?? null,
+            'category'      => $data['category'],
+            'weight'        => $data['weight'] ?? '1kg',
+            'price'         => $data['price'],
+            'discount_price'=> isset($data['discount_price']) ? (float)$data['discount_price'] : null,
+            'image'         => $data['image'] ?? null,
+            'gallery_images'=> isset($data['gallery_images']) ? json_encode($data['gallery_images']) : null,
+            'rating'        => $data['rating'] ?? 4.5,
+            'bestseller'    => $data['bestseller'] ?? 0,
+            'is_veg'        => $data['is_veg'] ?? 1,
+            'is_homemade'   => $data['is_homemade'] ?? 1,
+            'variants'      => isset($data['variants']) ? json_encode($data['variants']) : null,
+            'status'        => $data['status'] ?? 'active',
         ]);
 
         return (int) $db->lastInsertId();
@@ -75,12 +114,15 @@ class Product {
         $fields = [];
         $params = ['id' => $id];
 
-        $allowedFields = ['name', 'slug', 'description', 'category', 'weight', 'price', 'image', 'rating', 'bestseller', 'is_veg', 'is_homemade', 'variants', 'status'];
+        $allowedFields = ['name', 'slug', 'description', 'category', 'weight', 'price', 'discount_price', 'image', 'gallery_images', 'rating', 'bestseller', 'is_veg', 'is_homemade', 'variants', 'status'];
 
         foreach ($allowedFields as $field) {
             if (array_key_exists($field, $data)) {
                 $value = $data[$field];
                 if ($field === 'variants' && is_array($value)) {
+                    $value = json_encode($value);
+                }
+                if ($field === 'gallery_images' && is_array($value)) {
                     $value = json_encode($value);
                 }
                 $fields[] = "`$field` = :$field";

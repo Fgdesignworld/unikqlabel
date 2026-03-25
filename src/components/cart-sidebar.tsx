@@ -2,9 +2,10 @@
 
 import { motion, AnimatePresence } from "framer-motion"
 import { Link } from 'react-router-dom';
-import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight } from "lucide-react"
+import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight, TrendingUp, Zap } from "lucide-react"
 import { useCart } from "@/context/cart-context"
 import { useSettings } from "@/context/settings-context"
+import { useDelivery } from "@/hooks/use-delivery"
 import { Image } from "@/components/ui/image"
 
 export function CartSidebar() {
@@ -18,6 +19,10 @@ export function CartSidebar() {
     clearCart
   } = useCart()
   const { settings } = useSettings()
+  const { rule: deliveryRule, calculate: calcDelivery } = useDelivery()
+
+  const deliveryInfo = calcDelivery(totalPrice)
+  const amountNeededForFree = deliveryRule.free_delivery_above - totalPrice
 
   return (
     <AnimatePresence>
@@ -129,13 +134,31 @@ export function CartSidebar() {
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-[#fef3e2]/60">Delivery</span>
-                    <span className="text-[#25D366]">Calculated at checkout</span>
+                    {deliveryRule.free_delivery_above > 0 && totalPrice < deliveryRule.free_delivery_above ? (
+                      <span className="text-amber-400 text-xs font-medium flex items-center gap-1">
+                        <Zap className="w-3 h-3" />
+                        {settings?.currency_symbol || '₹'}{deliveryRule.delivery_fee} charge
+                      </span>
+                    ) : (
+                      <span className="text-[#25D366] text-xs font-medium flex items-center gap-1">
+                        <TrendingUp className="w-3 h-3" />
+                        Free!
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center justify-between pt-2 border-t border-[#d97706]/10">
                     <span className="text-[#fef3e2] font-medium">Total</span>
                     <span className="text-2xl font-bold text-[#d97706]">{settings?.currency_symbol || '₹'}{totalPrice}</span>
                   </div>
                 </div>
+
+                {deliveryRule.free_delivery_above > 0 && totalPrice < deliveryRule.free_delivery_above && (
+                  <div className="px-3 py-2.5 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                    <p className="text-xs text-amber-200">
+                      Add <strong>{settings?.currency_symbol || '₹'}{Math.ceil(amountNeededForFree)}</strong> more for free delivery
+                    </p>
+                  </div>
+                )}
                 
                 <Link
                   to="/checkout"
