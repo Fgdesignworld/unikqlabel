@@ -2,11 +2,18 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 
+// Bump this version when cart structure changes
+const CART_VERSION = 2
+
 export interface CartItem {
   id: string
   name: string
   price: number
+  originalPrice?: number  // Price before discount
+  discountPercent?: number // Discount percentage (0-100)
   weight: string
+  size?: string   // Selected size variant label (e.g. M, XL)
+  color?: string  // Selected color variant name (e.g. Navy, Black)
   quantity: number
   image: string
   category: string
@@ -50,10 +57,28 @@ const defaultCustomerDetails: CustomerDetails = {
 
 function loadCart(): CartItem[] {
   try {
+    const version = localStorage.getItem('lakshmi-cart-version')
+    if (version !== String(CART_VERSION)) {
+      // Clear old cart format when version changes
+      localStorage.removeItem('lakshmi-cart')
+      localStorage.setItem('lakshmi-cart-version', String(CART_VERSION))
+      return []
+    }
+    
     const raw = localStorage.getItem('lakshmi-cart')
     return raw ? (JSON.parse(raw) as CartItem[]) : []
   } catch {
     return []
+  }
+}
+
+// Helper to persist cart atomically to localStorage
+function persistCart(items: CartItem[]) {
+  try {
+    localStorage.setItem('lakshmi-cart-version', String(CART_VERSION))
+    localStorage.setItem('lakshmi-cart', JSON.stringify(items))
+  } catch (err) {
+    console.error('Failed to persist cart:', err)
   }
 }
 
@@ -64,10 +89,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
   const [customerDetails, setCustomerDetails] = useState<CustomerDetails>(defaultCustomerDetails)
-
-  // Persist cart to localStorage whenever it changes
+  
+  // Persist cart to localStorage on every change
   useEffect(() => {
-    localStorage.setItem('lakshmi-cart', JSON.stringify(items))
+    persistCart(items)
   }, [items])
 
   const addItem = (newItem: Omit<CartItem, "quantity">) => {
@@ -99,6 +124,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }
 
   const clearCart = () => {
+    persistCart([])
     setItems([])
     setCustomerDetails(defaultCustomerDetails)
   }

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { settingsService } from '@/services/settingsService'
+import { useSettings } from '@/context/settings-context'
 import { useToast } from '@/hooks/use-toast'
 import {
     Save, Upload, Loader2, RefreshCw, Phone, Share2, Palette, Type,
@@ -315,12 +316,12 @@ const FIELD_LABELS: Record<string, string> = {
 }
 
 const FIELD_PLACEHOLDERS: Record<string, string> = {
-    site_name:        'Lakshmi Home Foods',
-    site_tagline:     'Authentic Homemade Goodness',
+    site_name:        'UNIKQ LABEL',
+    site_tagline:     'Premium Fashion • Everyday Royalty',
     currency_symbol:  '₹',
     phone:            '+91 98765 43210',
     whatsapp:         '+91 98765 43210',
-    email:            'hello@laxmihomefoods.com',
+    email:            'hello@unikqlabel.com',
     address:          '123, Main Street, City',
     social_facebook:  'https://facebook.com/...',
     social_instagram: 'https://instagram.com/...',
@@ -341,11 +342,16 @@ function FieldInput({
     onChange: (val: string) => void
 }) {
     if (fieldKey === 'theme_color') {
+        const handleColorChange = (newColor: string) => {
+            onChange(newColor)
+            // Apply theme color live to CSS variable for real-time preview
+            document.documentElement.style.setProperty('--theme-color', newColor || '#f59e0b')
+        }
         return (
             <div className="flex gap-2 items-center">
-                <input type="color" value={value || '#f59e0b'} onChange={e => onChange(e.target.value)}
+                <input type="color" value={value || '#f59e0b'} onChange={e => handleColorChange(e.target.value)}
                     className="w-10 h-10 rounded-lg cursor-pointer border-0 bg-transparent p-0.5" />
-                <input type="text" value={value} onChange={e => onChange(e.target.value)}
+                <input type="text" value={value} onChange={e => handleColorChange(e.target.value)}
                     placeholder="#f59e0b"
                     className="flex-1 bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm font-mono placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
                 />
@@ -380,12 +386,20 @@ function FieldInput({
 
 export default function AdminSettingsPage() {
     const { toast } = useToast()
+    const { refresh: refreshSettings } = useSettings()
 
     const [form, setForm]            = useState<Record<string, string>>({})
     const [loading, setLoading]      = useState(true)
     const [saving, setSaving]        = useState(false)
     const [activeSection, setActive] = useState<string>('general')
     const [dirty, setDirty]          = useState(false)
+
+    // Watch for theme color changes and apply live
+    useEffect(() => {
+        if (form.theme_color && form.theme_color.match(/^#[0-9A-F]{6}$/i)) {
+            document.documentElement.style.setProperty('--theme-color', form.theme_color)
+        }
+    }, [form.theme_color])
 
     const load = async () => {
         try {
@@ -396,6 +410,10 @@ export default function AdminSettingsPage() {
                 Object.entries(group).forEach(([k, v]) => { flat[k] = v ?? '' })
             )
             setForm(flat)
+            // Apply theme color from settings for live preview
+            if (flat.theme_color) {
+                document.documentElement.style.setProperty('--theme-color', flat.theme_color)
+            }
             setDirty(false)
         } catch {
             toast({ title: 'Failed to load settings', variant: 'destructive' })
@@ -420,6 +438,8 @@ export default function AdminSettingsPage() {
             await settingsService.bulkUpdate(payload)
             toast({ title: 'Settings saved!' })
             setDirty(false)
+            // Refresh settings context to apply changes globally (including theme color)
+            await refreshSettings()
         } catch {
             toast({ title: 'Save failed', variant: 'destructive' })
         } finally {
@@ -509,12 +529,35 @@ export default function AdminSettingsPage() {
                             <div className="mt-5 p-4 bg-white/2 rounded-xl border border-gray-800">
                                 <p className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-3">Preview</p>
                                 <p style={{ fontFamily: form.font_heading || 'Playfair Display' }} className="text-white text-xl mb-1">
-                                    {form.site_name || 'Lakshmi Home Foods'}
+                                    {form.site_name || 'UNIKQ LABEL'}
                                 </p>
                                 <p style={{ fontFamily: form.font_body || 'Poppins' }} className="text-gray-400 text-sm">
-                                    {form.site_tagline || 'Authentic Homemade Goodness'}
+                                    {form.site_tagline || 'Premium Fashion • Everyday Royalty'}
                                 </p>
                                 <p className="text-gray-600 text-xs mt-2">Fonts from Google Fonts — applied live on the site</p>
+                            </div>
+                        )}
+
+                        {/* Branding preview with theme color */}
+                        {activeSection === 'branding' && (
+                            <div className="mt-5 p-4 bg-white/2 rounded-xl border border-gray-800">
+                                <p className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-3">Theme Preview</p>
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-lg border-2" style={{ backgroundColor: form.theme_color || '#f59e0b', borderColor: form.theme_color || '#f59e0b' }} />
+                                        <div>
+                                            <p className="text-white text-sm font-bold">Theme Color</p>
+                                            <p className="text-gray-500 text-xs">{form.theme_color || '#f59e0b'}</p>
+                                        </div>
+                                    </div>
+                                    <div className="p-3 rounded-lg" style={{ backgroundColor: (form.theme_color || '#f59e0b') + '10', borderLeft: `3px solid ${form.theme_color || '#f59e0b'}` }}>
+                                        <p className="text-white text-sm font-bold">Sample Button</p>
+                                        <button className="mt-2 px-4 py-2 rounded-lg text-white font-bold text-sm transition-all hover:opacity-80" style={{ backgroundColor: form.theme_color || '#f59e0b' }}>
+                                            Learn More
+                                        </button>
+                                    </div>
+                                </div>
+                                <p className="text-gray-600 text-xs mt-3">Theme color changes apply globally to admin and frontend after save</p>
                             </div>
                         )}
                     </div>

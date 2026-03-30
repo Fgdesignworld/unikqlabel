@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSettings } from '@/context/settings-context'
 
 interface InvoiceTemplateProps {
@@ -15,8 +15,12 @@ interface InvoiceTemplateProps {
   items: Array<{
     name: string;
     weight: string;
+    size?: string;
+    color?: string;
     quantity: number;
     price: number;
+    originalPrice?: number;
+    discountPercent?: number;
     image: string;
   }>;
   subtotal: number;
@@ -43,6 +47,23 @@ export const InvoiceTemplate = ({
   showFooter = true,
 }: InvoiceTemplateProps) => {
   const { settings } = useSettings()
+  const [logoError, setLogoError] = useState(false)
+
+  // Resolve logo URL — follow the same pattern as admin settings and favicon handling
+  // If it's a relative path (starts with /), prepend /api. Otherwise use as-is.
+  const getLogoUrl = () => {
+    const url = settings?.logo_url
+    if (!url) return null
+    // Already absolute URL? Use as-is
+    if (url.startsWith('http')) return url
+    // Relative path? Add /api prefix (backend stores as /uploads/... and serves at /api/uploads/...)
+    if (url.startsWith('/')) return `/api${url}`
+    // Default case - shouldn't happen
+    return url
+  }
+
+  const logoPng = getLogoUrl()
+
   return (
     <div
       id={id}
@@ -76,19 +97,34 @@ export const InvoiceTemplate = ({
         zIndex: 0,
         textTransform: 'uppercase'
       }}>
-        Laxmi Home Foods
+        UNIKQ LABEL
       </div>
 
       {/* Header */}
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '35px', marginTop: '10px' }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '900', color: '#000', letterSpacing: '-1.5px', lineHeight: 1 }}>
-            Laxmi <span style={{ color: '#d97706' }}>Home Foods</span>
-          </h1>
-          <p style={{ margin: '6px 0 0 0', color: '#666', fontSize: '14px', fontWeight: '500' }}>Pure Taste of Tradition • Fresh & Homemade</p>
+        <div style={{ flex: 1 }}>
+          {logoPng && !logoError ? (
+            <img
+              src={logoPng}
+              crossOrigin="anonymous"
+              alt={settings?.site_name || 'UNIKQ LABEL'}
+              onError={() => {
+                console.error('Logo failed to load:', logoPng)
+                setLogoError(true)
+              }}
+              style={{ height: '70px', maxWidth: '250px', objectFit: 'contain', display: 'block', marginBottom: '5px' }}
+            />
+          ) : (
+            <>
+              <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '900', color: '#000', letterSpacing: '-1.5px', lineHeight: 1 }}>
+                {settings?.site_name || 'UNIKQ LABEL'}
+              </h1>
+              <p style={{ margin: '6px 0 0 0', color: '#666', fontSize: '14px', fontWeight: '500' }}>{settings?.site_tagline || 'Premium Fashion \u2022 Everyday Royalty'}</p>
+            </>
+          )}
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '3px', color: '#d97706' }}>Invoice</h2>
+        <div style={{ textAlign: 'right', marginLeft: '20px' }}>
+          <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '3px', color: 'var(--theme-color)' }}>Invoice</h2>
           <div style={{ marginTop: '8px', fontSize: '14px', color: '#333' }}>
             <p style={{ margin: '2px 0' }}><strong>No:</strong> <span style={{ color: '#000' }}>{invoiceNumber}</span></p>
             <p style={{ margin: '2px 0' }}><strong>Date:</strong> <span style={{ color: '#000' }}>{date}</span></p>
@@ -110,9 +146,9 @@ export const InvoiceTemplate = ({
           </div>
           <div style={{ width: '200px', paddingTop: '5px' }}>
             <h3 style={{ textTransform: 'uppercase', fontSize: '10px', fontWeight: '800', color: '#999', letterSpacing: '1.2px', marginBottom: '10px' }}>Store Info</h3>
-            <p style={{ margin: 0, fontSize: '14px', fontWeight: '700', color: '#000' }}>Laxmi Home Foods</p>
-            <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Quality Homemade Products</p>
-            <p style={{ margin: '4px 0', fontSize: '13px', color: '#d97706', fontWeight: '700' }}>WA: +91 8639424039</p>
+            <p style={{ margin: 0, fontSize: '14px', fontWeight: '700', color: '#000' }}>UNIKQ LABEL</p>
+            <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Premium Fashion Collective</p>
+            <p style={{ margin: '4px 0', fontSize: '13px', color: 'var(--theme-color)', fontWeight: '700' }}>WA: {settings?.whatsapp || '+91 8639424039'}</p>
           </div>
         </div>
       )}
@@ -124,29 +160,67 @@ export const InvoiceTemplate = ({
             <tr style={{ borderBottom: '2px solid #1a1a1a' }}>
               <th style={{ textAlign: 'left', padding: '12px 10px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: '#000', letterSpacing: '1px', width: '40px' }}>No.</th>
               <th style={{ textAlign: 'left', padding: '12px 10px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: '#000', letterSpacing: '1px' }}>Item Details</th>
-              <th style={{ textAlign: 'center', padding: '12px 10px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: '#000', letterSpacing: '1px' }}>Weight</th>
+              <th style={{ textAlign: 'center', padding: '12px 10px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: '#000', letterSpacing: '1px' }}>Variant</th>
               <th style={{ textAlign: 'center', padding: '12px 10px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: '#000', letterSpacing: '1px' }}>Qty</th>
-              <th style={{ textAlign: 'right', padding: '12px 10px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: '#000', letterSpacing: '1px' }}>Rate</th>
-              <th style={{ textAlign: 'right', padding: '12px 10px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: '#000', letterSpacing: '1px' }}>Total</th>
+              <th style={{ textAlign: 'center', padding: '12px 10px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: '#000', letterSpacing: '1px' }}>Rate</th>
+              <th style={{ textAlign: 'center', padding: '12px 10px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: '#000', letterSpacing: '1px' }}>Total</th>
             </tr>
           </thead>
           <tbody>
             {items.map((item, index) => (
               <tr key={index}>
-                <td style={{ textAlign: 'left', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', fontSize: '13px', fontWeight: '700', color: '#666' }}>{startIndex + index + 1}</td>
+                <td style={{ textAlign: 'left', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', fontSize: '13px', fontWeight: '700', color: '#000000ff' }}>{startIndex + index + 1}</td>
                 <td style={{ padding: '12px 10px', borderBottom: '1px solid #f0f0f0' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                     <img src={item.image} crossOrigin="anonymous" style={{ width: '45px', height: '45px', borderRadius: '8px', objectFit: 'cover', border: '1px solid #fee2b3', padding: '1px', backgroundColor: '#fff' }} alt="" />
                     <div>
                       <p style={{ margin: 0, fontWeight: '800', fontSize: '14px', color: '#000' }}>{item.name}</p>
-                      <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#999', fontWeight: '600', textTransform: 'uppercase' }}>Authentic • Homemade</p>
                     </div>
                   </div>
                 </td>
-                <td style={{ textAlign: 'center', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', fontSize: '13px', fontWeight: '600' }}>{item.weight}</td>
+                  <td style={{ textAlign: 'center', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', fontSize: '12px', fontWeight: '600' }}>
+                    {item.size && (
+                      <span style={{ display: 'inline-block', backgroundColor: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '6px', padding: '1px 7px', color: '#b45309', fontWeight: '700', fontSize: '11px', marginBottom: item.color ? '3px' : 0 }}>
+                        {item.size}
+                      </span>
+                    )}
+                    {item.size && item.color && <br />}
+                    {item.color && (
+                      <span style={{ display: 'inline-block', backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '1px 7px', color: '#475569', fontWeight: '700', fontSize: '11px' }}>
+                        {item.color}
+                      </span>
+                    )}
+                    {!item.size && !item.color && (
+                      <span style={{ color: '#aaa', fontSize: '12px' }}>{item.weight}</span>
+                    )}
+                  </td>
                 <td style={{ textAlign: 'center', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', fontSize: '13px', fontWeight: '600' }}>{item.quantity}</td>
-                <td style={{ textAlign: 'right', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', fontSize: '13px', fontWeight: '600' }}>{settings?.currency_symbol || '₹'}{item.price}</td>
-                <td style={{ textAlign: 'right', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', fontSize: '14px', fontWeight: '800', color: '#d97706' }}>{settings?.currency_symbol || '₹'}{item.price * item.quantity}</td>
+                <td style={{ textAlign: 'center', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', verticalAlign: 'middle' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                     {item.originalPrice && (
+                      <div style={{ position: 'relative', display: 'inline-block', lineHeight: 1 }}>
+                        <div style={{ fontSize: '10px', color: '#ef4444', fontWeight: '700', position: 'relative', zIndex: 1, padding: '0 2px' }}>
+                          {settings?.currency_symbol || '₹'}{item.originalPrice}
+                        </div>
+                        {/* Forced offset for line to ensure it passes through text in PDF renderers - adjusted slightly lower */}
+                        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, height: '1.2px', backgroundColor: '#ef4444', zIndex: 2 }} />
+                      </div>
+                    )}
+                    <div style={{ fontSize: '15px', fontWeight: '900', color: 'var(--theme-color)', lineHeight: 1 }}>
+                      {settings?.currency_symbol || '₹'}{item.price}
+                    </div>
+                  </div>
+                </td>
+                <td style={{ textAlign: 'center', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', verticalAlign: 'middle' }}>
+                  <div style={{ fontSize: '15px', fontWeight: '900', color: '#000', lineHeight: 1 }}>
+                    {settings?.currency_symbol || '₹'}{item.price * item.quantity}
+                  </div>
+                  {item.originalPrice && (
+                    <div style={{ fontSize: '10px', color: '#10b981', fontWeight: '800', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      Save {settings?.currency_symbol || '₹'}{Math.round((item.originalPrice - item.price) * item.quantity)}
+                    </div>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -155,24 +229,49 @@ export const InvoiceTemplate = ({
 
       {/* Summary Section */}
       {showTotals && (
-        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'flex-end', marginTop: '0px' }}>
           <div style={{ width: '280px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', fontSize: '13px', color: '#666', fontWeight: '500' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 15px', fontSize: '14px', color: '#4b5563', fontWeight: '600' }}>
               <span>Subtotal</span>
-              <span style={{ color: '#000', fontWeight: '700' }}>{settings?.currency_symbol || '₹'}{subtotal}</span>
+              <span style={{ color: '#000', fontWeight: '800' }}>{settings?.currency_symbol || '₹'}{subtotal}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', fontSize: '13px', color: '#666', fontWeight: '500' }}>
+            {(() => {
+              const totalSaved = items.reduce((sum, item) => {
+                if (item.originalPrice) {
+                  return sum + Math.round((item.originalPrice - item.price) * item.quantity)
+                }
+                return sum
+              }, 0)
+              return totalSaved > 0 ? (
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 15px', fontSize: '14px', color: '#10b981', fontWeight: '800' }}>
+                  <span>Discount Saved</span>
+                  <span>-{settings?.currency_symbol || '₹'}{totalSaved}</span>
+                </div>
+              ) : null
+            })()}
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 15px 15px 15px', fontSize: '14px', color: '#4b5563', fontWeight: '600', borderBottom: '1px dashed #e5e7eb', marginBottom: '15px' }}>
               <span>Delivery</span>
               <span style={{ 
-                color: typeof delivery === 'string' && delivery.includes('Free') ? '#10b981' : '#000', 
-                fontWeight: '700' 
+                color: typeof delivery === 'string' && (delivery.includes('Free') || delivery.includes('0')) ? '#10b981' : '#000', 
+                fontWeight: '800' 
               }}>
                 {typeof delivery === 'string' ? delivery : `${settings?.currency_symbol || '₹'}${delivery}`}
               </span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 12px', marginTop: '10px', backgroundColor: '#000', borderRadius: '10px', color: '#fff' }}>
-              <span style={{ fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px', alignSelf: 'center' }}>Total Amount</span>
-              <span style={{ fontSize: '20px', fontWeight: '900', color: '#fbbf24' }}>{settings?.currency_symbol || '₹'}{total}</span>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              padding: '0px 20px', 
+              backgroundColor: '#000', 
+              borderRadius: '12px', 
+              color: '#fff',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+              height: '40px',
+              paddingBottom: '10px'
+            }}>
+              <span style={{ fontSize: '13px', fontWeight: '800', letterSpacing: '2px', marginBottom: '2px' }}>Total Amount</span>
+              <span style={{ fontSize: '22px', fontWeight: '900', color: '#fbbf24', marginBottom: '2px' }}>{settings?.currency_symbol || '₹'}{total}</span>
             </div>
           </div>
         </div>
@@ -182,10 +281,8 @@ export const InvoiceTemplate = ({
       {showFooter && (
         <div style={{ position: 'relative', zIndex: 1, marginTop: '40px', textAlign: 'center' }}>
           <p style={{ margin: '0 0 5px 0', fontSize: '14px', fontWeight: '800', color: '#000' }}>Thank you for your order!</p>
-          <p style={{ margin: 0, fontSize: '12px', color: '#666', fontWeight: '500' }}>Questions? WhatsApp: <span style={{ color: '#d97706', fontWeight: '700' }}>+91 8639424039</span></p>
-          <div style={{ marginTop: '20px', borderTop: '1px dashed #eee', paddingTop: '15px', fontSize: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '2px' }}>
-            • Quality Homemade Traditions •
-          </div>
+          <p style={{ margin: 0, fontSize: '12px', color: '#666', fontWeight: '500' }}>Questions? WhatsApp: <span style={{ color: 'var(--theme-color)', fontWeight: '700' }}>{settings?.whatsapp || '+91 8639424039'}</span></p>
+
         </div>
       )}
     </div>

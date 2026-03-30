@@ -1,16 +1,16 @@
-
-
 import { motion } from "framer-motion"
-import { Phone, Sparkles } from "lucide-react"
-import { WhatsAppIcon } from '@/components/icons/whatsapp'
+import { Crown, Sparkles, ArrowRight } from "lucide-react"
+import { Link } from 'react-router-dom';
 
 export function CTASection() {
   return (
-    <section className="py-20 px-4 bg-[#0f0f0f] relative overflow-hidden">
-      {/* Background Decorations */}
-      <div className="absolute inset-0">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-[#d97706]/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#7f1d1d]/5 rounded-full blur-3xl" />
+    <section className="py-10 px-4 relative overflow-hidden" style={{ background: '#0D0D0D' }}>
+      {/* Background glows */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full blur-3xl opacity-20"
+          style={{ background: 'radial-gradient(circle, var(--theme-color), transparent)' }} />
+        <div className="absolute bottom-0 right-1/4 w-72 h-72 rounded-full blur-3xl opacity-10"
+          style={{ background: 'radial-gradient(circle, var(--theme-color), transparent)' }} />
       </div>
 
       <div className="container mx-auto max-w-4xl relative z-10">
@@ -18,49 +18,70 @@ export function CTASection() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="glass rounded-3xl p-8 md:p-16 text-center border border-[#d97706]/20 relative overflow-hidden"
+          transition={{ duration: 0.7 }}
+          className="relative rounded-3xl p-10 md:p-20 text-center overflow-hidden"
+          style={{
+            background: 'rgba(20,18,14,0.7)',
+            border: '1px solid rgba(212,175,55,0.18)',
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 40px 100px rgba(0,0,0,0.6), inset 0 1px 0 rgba(212,175,55,0.10)',
+          }}
         >
-          {/* Decorative Sparkles */}
-          <Sparkles className="absolute top-6 left-6 w-6 h-6 text-[#f59e0b]/30" />
-          <Sparkles className="absolute top-6 right-6 w-6 h-6 text-[#f59e0b]/30" />
-          <Sparkles className="absolute bottom-6 left-6 w-6 h-6 text-[#f59e0b]/30" />
-          <Sparkles className="absolute bottom-6 right-6 w-6 h-6 text-[#f59e0b]/30" />
+          {/* Sparkle corners */}
+          <Sparkles className="absolute top-6 left-6 w-6 h-6 opacity-20 text-amber-500" />
+          <Sparkles className="absolute top-6 right-6 w-6 h-6 opacity-20 text-amber-500" />
+          <Sparkles className="absolute bottom-6 left-6 w-6 h-6 opacity-20 text-amber-500" />
+          <Sparkles className="absolute bottom-6 right-6 w-6 h-6 opacity-20 text-amber-500" />
 
+          {/* Crown icon */}
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
+            initial={{ scale: 0 }}
+            whileInView={{ scale: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
+            className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-6"
+            style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05))', border: '1px solid rgba(212,175,55,0.3)' }}
           >
-            <span className="text-[#d97706] text-sm font-medium tracking-wider uppercase">Ready to Order?</span>
-            <h2 className="font-serif text-3xl md:text-5xl font-bold text-[#fef3e2] mt-2 mb-4 text-balance">
-              Order Your Favorite <br className="hidden md:block" />
-              <span className="text-gradient-gold">Homemade Foods</span> Today
-            </h2>
-            <p className="text-[#fef3e2]/70 mb-8 max-w-xl mx-auto">
-              Experience the authentic taste of traditional Andhra cuisine, delivered fresh to your doorstep.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a
-                href="https://wa.me/918639424039"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-semibold rounded-full hover:shadow-lg hover:shadow-[#25D366]/30 transition-all duration-300 hover:-translate-y-1"
-              >
-                <WhatsAppIcon className="w-5 h-5" />
-                Order on WhatsApp
-              </a>
-              <a
-                href="tel:+918639424039"
-                className="flex items-center gap-3 px-8 py-4 border-2 border-[#d97706] text-[#d97706] font-semibold rounded-full hover:bg-[#d97706] hover:text-[#0f0f0f] transition-all duration-300"
-              >
-                <Phone className="w-5 h-5" />
-                Call Now
-              </a>
-            </div>
+            <Crown className="w-7 h-7 text-amber-500" />
           </motion.div>
+
+          <span className="section-badge mb-5 inline-block">Limited Edition</span>
+
+          <h2 className="font-heading text-4xl md:text-6xl font-black mt-2 mb-5 leading-tight" style={{ color: '#F5F0E8' }}>
+            Rule Your{" "}
+            <span style={{
+              background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white) 0%, var(--theme-color) 45%, color-mix(in srgb, var(--theme-color) 70%, black) 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              filter: 'drop-shadow(0 0 30px rgba(212,175,55,0.3))',
+            }}>
+              Style
+            </span>
+          </h2>
+
+          <p className="font-body text-lg max-w-xl mx-auto mb-10" style={{ color: 'rgba(245,240,232,0.60)' }}>
+            Join the kingdom. Wear the crown. Limited drops, premium quality — exclusively yours.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              to="/products"
+              className="btn-primary text-sm w-full sm:w-auto justify-center"
+              style={{ minWidth: 200 }}
+            >
+              <Crown size={15} className="mr-2 text-current" />
+              <span>Shop the Kingdom</span>
+            </Link>
+            <Link
+              to="/#collections"
+              className="btn-outline-gold text-sm w-full sm:w-auto justify-center"
+              style={{ minWidth: 200 }}
+            >
+              <span>Explore Collections</span>
+              <ArrowRight size={15} className="ml-2 text-current" />
+            </Link>
+          </div>
         </motion.div>
       </div>
     </section>

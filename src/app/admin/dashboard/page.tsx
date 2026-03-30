@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { orderService, type OrdersAnalytics, type ChartDay } from '@/services/orderService'
 import { productService } from '@/services/productService'
+import { useOrdersRefresh } from '@/context/orders-refresh-context'
 import { Package, ShoppingCart, TrendingUp, IndianRupee, ChevronRight, RefreshCw } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts'
 import { Link } from 'react-router-dom'
@@ -23,6 +24,7 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 export default function AdminDashboard() {
+  const { refreshKey } = useOrdersRefresh()
   const [stats, setStats] = useState({
     totalOrders: 0,
     totalRevenue: 0,
@@ -44,18 +46,16 @@ export default function AdminDashboard() {
         orderService.getChart(14),
       ])
 
-      const allOrdersResult = orderData.orders || []
-
       setStats({
-        totalOrders: orderData.total || 0,
+        totalOrders: orderAnalytics.total.count || 0,
         totalRevenue: orderAnalytics.total.revenue || 0,
         totalProducts: products.length,
-        pendingOrders: allOrdersResult.filter((o: any) => o.status === 'pending').length,
+        pendingOrders: orderAnalytics.by_status?.pending || 0,
       })
 
       setAnalytics(orderAnalytics)
       setChartData(chart)
-      setRecentOrders(allOrdersResult.slice(0, 5))
+      setRecentOrders(orderData.orders?.slice(0, 5) || [])
     } catch (err) {
       console.error('Dashboard error:', err)
     } finally {
@@ -66,7 +66,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     loadData()
-  }, [loadData])
+  }, [loadData, refreshKey])
 
   const handleRefresh = () => {
     setRefreshing(true)

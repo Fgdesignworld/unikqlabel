@@ -4,6 +4,7 @@
  */
 
 require_once __DIR__ . '/../models/Product.php';
+require_once __DIR__ . '/../models/Category.php';
 require_once __DIR__ . '/../middleware/auth.php';
 
 class ProductController {
@@ -75,11 +76,16 @@ class ProductController {
 
         // Safe Defaults
         if (empty($input['weight'])) {
-            $input['weight'] = '1kg';
+            $input['weight'] = '';
         }
         $input['price'] = (float) $input['price'];
 
         $validCategories = ['snacks', 'pickles', 'spices', 'sweets'];
+        // Build valid category list dynamically from the categories table
+        $dbCategories = Category::getActive();
+        if (!empty($dbCategories)) {
+            $validCategories = array_column($dbCategories, 'slug');
+        }
         if (!in_array($input['category'], $validCategories)) {
             http_response_code(400);
             echo json_encode(['error' => 'Invalid category']);
@@ -89,6 +95,7 @@ class ProductController {
         try {
             $id = Product::create($input);
             $product = Product::findById($id);
+            self::normalizeProduct($product);
             echo json_encode(['success' => true, 'product' => $product]);
         } catch (Exception $e) {
             http_response_code(500);
@@ -128,9 +135,22 @@ class ProductController {
 
         $input = json_decode(file_get_contents('php://input'), true);
         
+        // Validate category if provided
+        if (!empty($input['category'])) {
+            $dbCategories = Category::getActive();
+            $validCategories = !empty($dbCategories)
+                ? array_column($dbCategories, 'slug')
+                : ['snacks', 'pickles', 'spices', 'sweets'];
+            if (!in_array($input['category'], $validCategories)) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid category']);
+                return;
+            }
+        }
+
         // Safe Defaults
         if (isset($input['weight']) && empty($input['weight'])) {
-            $input['weight'] = '1kg';
+            $input['weight'] = '';
         }
         if (isset($input['price'])) {
             $input['price'] = (float) $input['price'];
@@ -139,6 +159,7 @@ class ProductController {
         try {
             Product::update($id, $input);
             $updated = Product::findById($id);
+            self::normalizeProduct($updated);
             echo json_encode(['success' => true, 'product' => $updated]);
         } catch (Exception $e) {
             http_response_code(500);
@@ -254,6 +275,14 @@ class ProductController {
         } else {
             $p['gallery_images'] = $p['gallery_images'] ?? null;
         }
+        // Size variants (new)
+        $p['variants_json'] = isset($p['variants_json'])
+            ? (is_string($p['variants_json']) ? json_decode($p['variants_json'], true) : $p['variants_json'])
+            : null;
+        // Color variants (new)
+        $p['color_variants_json'] = isset($p['color_variants_json'])
+            ? (is_string($p['color_variants_json']) ? json_decode($p['color_variants_json'], true) : $p['color_variants_json'])
+            : null;
         $p['bestseller']     = (bool)  $p['bestseller'];
         $p['is_veg']         = (bool)  $p['is_veg'];
         $p['is_homemade']    = (bool)  $p['is_homemade'];

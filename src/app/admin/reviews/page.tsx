@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Star, Trash2, Check, X, Loader2, Filter,
   ShieldCheck, Clock, CheckCircle, XCircle, Plus, Pencil,
+  ChevronLeft, ChevronRight,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
@@ -298,6 +299,60 @@ function ReviewFormModal({ mode, initial, products, onClose, onSaved }: ReviewFo
   )
 }
 
+// ------- Skeleton -------
+function ReviewSkeleton() {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="bg-[#111] border border-gray-800 rounded-2xl p-5 animate-pulse">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-full bg-gray-800 shrink-0" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 w-28 bg-gray-800 rounded" />
+              <div className="h-3 w-44 bg-gray-800/60 rounded" />
+              <div className="h-3 w-full bg-gray-800/40 rounded mt-3" />
+              <div className="h-3 w-3/4 bg-gray-800/30 rounded" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ------- Pagination -------
+function RevPagination({ page, lastPage, total, perPage, onPage }: {
+  page: number; lastPage: number; total: number; perPage: number; onPage: (p: number) => void
+}) {
+  if (lastPage <= 1) return null
+  const from = (page - 1) * perPage + 1
+  const to = Math.min(page * perPage, total)
+  const start = Math.max(0, Math.min(page - 3, lastPage - 5))
+  const pages = Array.from({ length: lastPage }, (_, i) => i + 1).slice(start, start + 5)
+  return (
+    <div className="flex items-center justify-between pt-3 border-t border-gray-800/50">
+      <p className="text-xs text-gray-600">Showing {from}\u2013{to} of {total}</p>
+      <div className="flex items-center gap-1">
+        <button onClick={() => onPage(page - 1)} disabled={page === 1}
+          className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        {pages.map(p => (
+          <button key={p} onClick={() => onPage(p)}
+            className={cn('w-8 h-8 rounded-xl text-xs font-black transition-all',
+              p === page ? 'bg-amber-500 text-black' : 'border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600')}>
+            {p}
+          </button>
+        ))}
+        <button onClick={() => onPage(page + 1)} disabled={page === lastPage}
+          className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ------- Main Page -------
 export default function AdminReviewsPage() {
   const { toast } = useToast()
@@ -308,6 +363,8 @@ export default function AdminReviewsPage() {
   const [processing, setProcessing] = useState<number | null>(null)
   const [modal, setModal] = useState<{ mode: 'create' | 'edit'; review?: AdminReview } | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: number } | null>(null)
+  const [revPage, setRevPage] = useState(1)
+  const REV_PER_PAGE = 8
 
   const load = (status?: string) => {
     setLoading(true)
@@ -381,6 +438,9 @@ export default function AdminReviewsPage() {
     rejected: reviews.filter(r => r.status === 'rejected').length,
   }
 
+  const revLastPage = Math.max(1, Math.ceil(reviews.length / REV_PER_PAGE))
+  const revPaginated = reviews.slice((revPage - 1) * REV_PER_PAGE, revPage * REV_PER_PAGE)
+
   return (
     <div className="p-4 md:p-6 space-y-6">
       {/* Header */}
@@ -410,7 +470,7 @@ export default function AdminReviewsPage() {
         {STATUS_FILTERS.map(s => (
           <button
             key={s}
-            onClick={() => setFilter(s)}
+            onClick={() => { setFilter(s); setRevPage(1) }}
             className={cn(
               'px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all',
               filter === s ? 'bg-amber-500 text-black' : 'text-gray-500 hover:text-white',
@@ -423,18 +483,17 @@ export default function AdminReviewsPage() {
 
       {/* List */}
       {loading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
-        </div>
+        <ReviewSkeleton />
       ) : reviews.length === 0 ? (
         <div className="text-center py-16 text-gray-600">
           <Star className="w-10 h-10 mx-auto mb-3 opacity-20" />
           <p className="text-sm">No reviews for this filter.</p>
         </div>
       ) : (
+        <>
         <div className="space-y-3">
           <AnimatePresence initial={false}>
-            {reviews.map(review => (
+            {revPaginated.map(review => (
               <motion.div
                 key={review.id}
                 initial={{ opacity: 0, y: 4 }}
@@ -512,6 +571,8 @@ export default function AdminReviewsPage() {
             ))}
           </AnimatePresence>
         </div>
+        <RevPagination page={revPage} lastPage={revLastPage} total={reviews.length} perPage={REV_PER_PAGE} onPage={setRevPage} />
+        </>
       )}
 
       {/* Modal */}

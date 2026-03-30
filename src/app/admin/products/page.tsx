@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { productService, type ApiProduct } from '@/services/productService'
+import { categoryService, type Category } from '@/services/categoryService'
 import { useToast } from '@/hooks/use-toast'
 import { Image } from '@/components/ui/image'
 import { Badge } from '@/components/ui/badge'
@@ -131,8 +132,7 @@ function SortableProductRow({
           <div className="flex-1 min-w-0">
             <p className="text-white font-bold text-sm tracking-tight truncate group-hover:text-amber-500 transition-colors leading-tight">{p.name}</p>
             <div className="flex flex-wrap items-center gap-2 mt-1">
-               <span className="text-gray-500 text-[9px] font-black uppercase tracking-tighter bg-gray-800/40 border border-gray-700/50 px-1.5 py-0.5 rounded">SKU: LHF-P{p.id}</span>
-               {p.is_homemade && <span className="text-amber-500/60 text-[8px] font-bold uppercase italic border border-amber-500/10 px-1.5 py-0.5 rounded">Homemade</span>}
+               <span className="text-gray-500 text-[9px] font-black uppercase tracking-tighter bg-gray-800/40 border border-gray-700/50 px-1.5 py-0.5 rounded">SKU: UNI-P{p.id}</span>
             </div>
           </div>
         </div>
@@ -212,6 +212,7 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<ApiProduct[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [categories, setCategories] = useState<Category[]>([])
   
   // Drawer State
   const [selectedProduct, setSelectedProduct] = useState<ApiProduct | null>(null)
@@ -246,6 +247,9 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     loadProducts()
+    categoryService.getAll()
+      .then(cats => setCategories(cats))
+      .catch(() => {})
   }, [])
 
   const loadProducts = async () => {
@@ -453,10 +457,9 @@ export default function AdminProductsPage() {
                 </SelectTrigger>
                 <SelectContent className="bg-[#0c0c0c] border-gray-800 text-white min-w-[140px]">
                   <SelectItem value="all" className="text-xs focus:bg-amber-500 focus:text-black">All Categories</SelectItem>
-                  <SelectItem value="snacks" className="text-xs focus:bg-amber-500 focus:text-black">Snacks</SelectItem>
-                  <SelectItem value="pickles" className="text-xs focus:bg-amber-500 focus:text-black">Pickles</SelectItem>
-                  <SelectItem value="spices" className="text-xs focus:bg-amber-500 focus:text-black">Spices</SelectItem>
-                  <SelectItem value="sweets" className="text-xs focus:bg-amber-500 focus:text-black">Sweets</SelectItem>
+                  {categories.map(cat => (
+                    <SelectItem key={cat.id} value={cat.slug} className="text-xs focus:bg-amber-500 focus:text-black capitalize">{cat.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               
@@ -575,7 +578,7 @@ export default function AdminProductsPage() {
 
         {/* Empty State */}
         {filteredAndSorted.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
+          <div className="flex flex-col items-center justify-center py-5 px-6 text-center">
             <div className="w-20 h-20 bg-[#0a0a0a] border border-gray-800 rounded-[2rem] flex items-center justify-center mb-6 shadow-inner">
               <Layers className="w-10 h-10 text-gray-800" />
             </div>
@@ -681,9 +684,6 @@ export default function AdminProductsPage() {
                       {selectedProduct.bestseller && (
                         <div className="px-3 py-1 bg-amber-500 text-black text-[9px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-amber-500/40">Bestseller</div>
                       )}
-                      {selectedProduct.is_homemade && (
-                        <div className="px-3 py-1 bg-blue-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-blue-500/40">Homemade</div>
-                      )}
                     </div>
                   </div>
 
@@ -704,7 +704,7 @@ export default function AdminProductsPage() {
                     <h2 className="text-3xl font-black tracking-tight text-white leading-[1.1]">{selectedProduct.name}</h2>
                     
                     <div className="flex flex-wrap items-center gap-4 text-[10px] font-bold text-gray-400 border-t border-white/5 pt-4">
-                      <div className="flex items-center gap-2"><Tag className="w-3.5 h-3.5 text-amber-500" /> <span className="uppercase tracking-widest">SKU:</span> LHF-P{selectedProduct.id}</div>
+                      <div className="flex items-center gap-2"><Tag className="w-3.5 h-3.5 text-amber-500" /> <span className="uppercase tracking-widest">SKU:</span> UNI-P{selectedProduct.id}</div>
                       <div className="flex items-center gap-2"><Scale className="w-3.5 h-3.5 text-amber-500" /> <span className="uppercase tracking-widest">Default:</span> {selectedProduct.weight}</div>
                     </div>
 
@@ -719,11 +719,10 @@ export default function AdminProductsPage() {
                 </div>
 
                 {/* Sub-Details Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {[
                     { label: 'Rating', value: `${selectedProduct.rating} ★`, icon: TrendingUp, color: 'text-amber-500' },
-                    { label: 'Type', value: selectedProduct.is_veg ? '100% Veg' : 'Non-Veg', icon: Utensils, color: selectedProduct.is_veg ? 'text-green-500' : 'text-red-500' },
-                    { label: 'Maker', value: selectedProduct.is_homemade ? 'Homemade' : 'Factory', icon: Layers, color: 'text-blue-500' },
+                    { label: 'Category', value: selectedProduct.category, icon: Tag, color: 'text-blue-500' },
                     { label: 'Inventory', value: selectedProduct.status, icon: Package, color: 'text-purple-500' },
                   ].map((item, i) => (
                     <div key={i} className="bg-white/[0.02] border border-white/5 p-3 rounded-2xl flex flex-col items-start justify-between gap-2 hover:bg-white/[0.04] transition-colors">

@@ -6,13 +6,13 @@
  */
 
 // define('DB_HOST', 'localhost');
-// define('DB_NAME', 'cgqyspyd_lakshmihomefoods');
-// define('DB_USER', 'cgqyspyd_lakshmihomefoods');
-// define('DB_PASS', 'xCM~i(1d(#rlBOg}');
+// define('DB_NAME', 'cgqyspyd_unikqlabel');
+// define('DB_USER', 'cgqyspyd_unikqlabel');
+// define('DB_PASS', 'Ni();.M^gBP7=eqN');
 // define('DB_CHARSET', 'utf8mb4');
 
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'laxmihome_db');
+define('DB_NAME', 'unikqlabel');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_CHARSET', 'utf8mb4');

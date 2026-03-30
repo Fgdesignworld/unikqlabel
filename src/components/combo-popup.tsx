@@ -85,7 +85,7 @@ export function ComboPopup() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="flex items-center justify-between py-2 px-3 rounded-lg bg-[#d97706]/10 border border-[#d97706]/20"
+                    className="flex items-center justify-between py-2 px-3 rounded-lg bg-amber-500/10 border border-amber-500/20"
                   >
                     <span className="text-[#fef3e2] font-medium">{item.name}</span>
                     <span className="text-[#f59e0b] text-sm">{item.quantity}</span>
@@ -103,7 +103,7 @@ export function ComboPopup() {
 
               {/* CTA Button */}
               <a
-                href="https://wa.me/918639424039"
+                href={`https://wa.me/${(settings?.whatsapp || settings?.phone || '918639424039').replace(/[^0-9]/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-3 w-full py-4 bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-[#25D366]/30 transition-all duration-300 hover:-translate-y-0.5"

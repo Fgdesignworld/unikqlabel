@@ -56,7 +56,7 @@ export default function CheckoutPage() {
   const [confirmedOrder, setConfirmedOrder] = useState<{
     items: typeof items,
     subtotal: number,
-    delivery: number | 'FREE',
+    delivery: number | string,
     total: number,
     customer: typeof customerDetails
   } | null>(null)
@@ -135,7 +135,7 @@ export default function CheckoutPage() {
     setIsSubmitting(true)
 
     // ─── STEP 1: Save order to database ───
-    let newInvoiceNo = `LHF-${Date.now().toString().slice(-6)}` // fallback
+    let newInvoiceNo = `UNI-${Date.now().toString().slice(-6)}` // fallback
     try {
       const orderPayload = {
         customer_name: customerDetails.name,
@@ -149,8 +149,13 @@ export default function CheckoutPage() {
           product_id: null,
           name: item.name,
           weight: item.weight,
+          size: item.size ?? null,
+          color: item.color ?? null,
+          image: item.image ?? null,
           quantity: item.quantity,
           price: item.price,
+          originalPrice: item.originalPrice,
+          discountPercent: item.discountPercent,
         })),
       }
       const response = await api.post('/checkout', orderPayload)
@@ -174,7 +179,17 @@ export default function CheckoutPage() {
         : deliveryCharge
       
       const invoiceProps = {
-        items: [...items],
+        items: items.map(item => ({
+          name: item.name,
+          weight: item.weight,
+          size: item.size,
+          color: item.color,
+          quantity: item.quantity,
+          price: item.price,
+          originalPrice: item.originalPrice,
+          discountPercent: item.discountPercent,
+          image: item.image,
+        })),
         customerDetails: { ...customerDetails },
         subtotal: totalPrice,
         delivery: deliveryLabel,
@@ -202,8 +217,23 @@ export default function CheckoutPage() {
     // ─── STEP 3: Send WhatsApp message (existing logic) ───
     const currency = settings?.currency_symbol || '₹'
     const itemsList = items
-      .map((item) => ` • ${item.name} (${item.weight}) x ${item.quantity} = ${currency}${item.price * item.quantity}`)
+      .map((item) => {
+        const savedAmount = item.discountPercent && item.originalPrice 
+          ? Math.round((item.originalPrice - item.price) * item.quantity)
+          : 0
+        const discountStr = item.discountPercent ? ` (${item.discountPercent}% off, save ${currency}${savedAmount})` : ''
+        const variantStr = [item.size, item.color].filter(Boolean).join(' / ')
+        const variantDisplay = variantStr ? ` [${variantStr}]` : ''
+        return ` • ${item.name}${variantDisplay} (${item.weight}) x ${item.quantity} = ${currency}${item.price * item.quantity}${discountStr}`
+      })
       .join("\n")
+
+    const totalSaved = items.reduce((sum, item) => {
+      if (item.discountPercent && item.originalPrice) {
+        return sum + Math.round((item.originalPrice - item.price) * item.quantity)
+      }
+      return sum
+    }, 0)
 
     const message = `*New Order from Lakshmi Home Foods*
 
@@ -221,10 +251,12 @@ ${customerDetails.notes ? `Notes: ${customerDetails.notes}` : ""}
 ${itemsList}
 
 Subtotal: ${currency}${totalPrice}
+${totalSaved > 0 ? `Discount Saved: -${currency}${totalSaved}` : ''}
 Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
 *Total: ${currency}${finalTotal}*`.trim()
 
-    const whatsappURL = `https://wa.me/918639424039?text=${encodeURIComponent(message)}`
+    const waNum = (settings?.whatsapp || settings?.phone || '918639424039').replace(/[^0-9]/g, '')
+    const whatsappURL = `https://wa.me/${waNum}?text=${encodeURIComponent(message)}`
 
     // Open WhatsApp directly
     window.open(whatsappURL, "_blank")
@@ -248,10 +280,10 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
   // Show loading while hydrating
   if (!isHydrated) {
     return (
-      <main className="min-h-screen bg-[#0f0f0f] flex items-center justify-center">
+      <main className="min-h-screen flex items-center justify-center" style={{ background: '#0D0D0D' }}>
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-[#d97706] animate-spin mx-auto mb-4" />
-          <p className="text-[#fef3e2]/70">Loading checkout...</p>
+          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-amber-500" />
+          <p className="font-body" style={{ color: 'rgba(245,240,232,0.55)' }}>Loading checkout...</p>
         </div>
       </main>
     )
@@ -262,7 +294,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
   }
 
   return (
-    <main className="min-h-screen bg-[#0f0f0f]">
+    <main className="min-h-screen" style={{ background: '#0D0D0D' }}>
       <Navbar />
 
       <div className="pt-24 pb-20 px-4">
@@ -276,7 +308,8 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
             >
                 <button
                 onClick={() => step === "review" ? setStep("details") : navigate(-1)}
-                className="flex items-center gap-2 text-[#fef3e2]/70 hover:text-[#d97706] transition-colors"
+                className="flex items-center gap-2 transition-colors font-body text-sm hover:text-amber-500"
+                style={{ color: 'rgba(245,240,232,0.55)' }}
               >
                 <ArrowLeft className="w-5 h-5" />
                 {step === "review" ? "Back to Details" : "Continue Shopping"}
@@ -305,18 +338,20 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
 
                 return (
                   <div key={label} className="flex items-center gap-2">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${
-                      isActive 
-                        ? "bg-[#d97706] text-[#0f0f0f]" 
-                        : "bg-[#1a1410] text-[#fef3e2]/50"
-                    } ${isCurrent ? "ring-2 ring-[#d97706] ring-offset-2 ring-offset-[#0f0f0f]" : ""}`}>
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm font-heading transition-all"
+                      style={isActive
+                        ? { background: 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 80%, black))', color: '#0D0D0D', boxShadow: isCurrent ? '0 0 0 2px var(--theme-color), 0 0 0 4px #0D0D0D' : 'none' }
+                        : { background: 'rgba(212,175,55,0.06)', color: 'rgba(245,240,232,0.4)', border: '1px solid rgba(212,175,55,0.12)' }
+                      }
+                    >
                       {stepIndex}
                     </div>
-                    <span className={`hidden sm:block text-sm ${isActive ? "text-[#fef3e2]" : "text-[#fef3e2]/50"}`}>
+                    <span className="hidden sm:block font-body text-sm" style={{ color: isActive ? '#F5F0E8' : 'rgba(245,240,232,0.4)' }}>
                       {label}
                     </span>
                     {index < 2 && (
-                      <div className={`w-12 h-0.5 ${isActive && stepIndex < (step === "review" ? 2 : 1) ? "bg-[#d97706]" : "bg-[#1a1410]"}`} />
+                      <div className="w-12 h-0.5 rounded-full" style={{ background: isActive && stepIndex < (step === 'review' ? 2 : 1) ? 'var(--theme-color)' : 'rgba(212,175,55,0.08)' }} />
                     )}
                   </div>
                 )
@@ -335,18 +370,19 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", delay: 0.2 }}
-                className="w-24 h-24 mx-auto mb-8 bg-green-500/20 rounded-full flex items-center justify-center"
+                className="w-24 h-24 mx-auto mb-8 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)' }}
               >
                 <CheckCircle2 className="w-12 h-12 text-green-500" />
               </motion.div>
-              <h1 className="font-serif text-3xl md:text-4xl font-bold text-[#fef3e2] mb-4">
+              <h1 className="font-heading text-3xl md:text-4xl font-black mb-4" style={{ color: '#F5F0E8' }}>
                 Order Placed Successfully!
               </h1>
-              <p className="text-[#fef3e2]/70 text-lg max-w-md mx-auto mb-10">
+              <p className="font-body text-base max-w-md mx-auto mb-10" style={{ color: 'rgba(245,240,232,0.6)' }}>
                 Your order details have been sent to our WhatsApp. We will process your order shortly.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
+              <div className="flex flex-row items-center justify-center gap-3 mx-auto">
                 <button
                   onClick={() => {
                     if (confirmedOrder) {
@@ -356,14 +392,16 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                       })
                     }
                   }}
-                  className="w-full px-8 py-4 bg-[#1a1410] border border-[#d97706]/50 text-[#d97706] font-extrabold rounded-2xl hover:bg-[#d97706]/10 transition-all flex items-center justify-center gap-2 group"
+                  className="flex items-center gap-2 px-5 py-2.5 text-sm rounded-xl font-bold font-heading transition-all hover:opacity-80"
+                  style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)', color: 'var(--theme-color)' }}
                 >
-                  <FileText className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                  Download Invoice Again
+                  <FileText className="w-4 h-4" />
+                  Download Invoice
                 </button>
                 <Link
                   to="/products"
-                  className="w-full px-8 py-4 bg-[#d97706] text-[#0f0f0f] font-extrabold rounded-2xl hover:bg-[#b45309] transition-all text-center shadow-lg shadow-[#d97706]/20"
+                  className="flex items-center gap-2 px-5 py-2.5 text-sm rounded-xl font-bold font-heading transition-all"
+                  style={{ background: 'var(--theme-color)', color: '#0D0D0D' }}
                 >
                   Continue Shopping
                 </Link>
@@ -380,20 +418,21 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-gradient-to-br from-[#1a1410] to-[#0f0f0f] rounded-3xl border border-[#d97706]/20 p-6 md:p-8"
+                    className="rounded-3xl p-6 md:p-8"
+                    style={{ background: 'rgba(20,18,14,0.85)', border: '1px solid rgba(212,175,55,0.12)', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}
                   >
-                    <h1 className="font-serif text-2xl md:text-3xl font-bold text-[#fef3e2] mb-2">
+                    <h1 className="font-heading text-2xl md:text-3xl font-black mb-2" style={{ color: '#F5F0E8' }}>
                       Delivery Details
                     </h1>
-                    <p className="text-[#fef3e2]/60 mb-8">
+                    <p className="font-body text-sm mb-8" style={{ color: 'rgba(245,240,232,0.5)' }}>
                       Please fill in your delivery information to complete the order.
                     </p>
 
                     <div className="space-y-6">
                       {/* Full Name */}
                       <div>
-                        <label className="flex items-center gap-2 text-[#fef3e2] text-sm font-medium mb-2">
-                          <User className="w-4 h-4 text-[#d97706]" />
+                        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest mb-2 font-body" style={{ color: 'rgba(212,175,55,0.7)' }}>
+                          <User className="w-3.5 h-3.5 text-amber-500" />
                           Full Name *
                         </label>
                         <input
@@ -401,19 +440,18 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                           value={customerDetails.name}
                           onChange={(e) => handleInputChange("name", e.target.value)}
                           placeholder="Enter your full name"
-                          className={`w-full px-4 py-3 bg-[#0f0f0f] border rounded-xl text-[#fef3e2] placeholder-[#fef3e2]/40 focus:outline-none focus:ring-2 focus:ring-[#d97706] transition-all ${
-                            errors.name ? "border-red-500" : "border-[#d97706]/20"
-                          }`}
+                          className="w-full px-4 py-3 rounded-xl font-body text-sm outline-none transition-all"
+                          style={{ background: 'rgba(13,13,13,0.7)', border: `1px solid ${errors.name ? '#ef4444' : 'rgba(212,175,55,0.15)'}`, color: '#F5F0E8' }}
                         />
                         {errors.name && (
-                          <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                          <p className="text-red-400 text-xs mt-1 font-body">{errors.name}</p>
                         )}
                       </div>
 
                       {/* Phone Number */}
                       <div>
-                        <label className="flex items-center gap-2 text-[#fef3e2] text-sm font-medium mb-2">
-                          <Phone className="w-4 h-4 text-[#d97706]" />
+                        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest mb-2 font-body" style={{ color: 'rgba(212,175,55,0.7)' }}>
+                          <Phone className="w-3.5 h-3.5 text-amber-500" />
                           Phone Number *
                         </label>
                         <input
@@ -421,19 +459,18 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                           value={customerDetails.phone}
                           onChange={(e) => handleInputChange("phone", e.target.value.replace(/\D/g, "").slice(0, 10))}
                           placeholder="Enter 10-digit phone number"
-                          className={`w-full px-4 py-3 bg-[#0f0f0f] border rounded-xl text-[#fef3e2] placeholder-[#fef3e2]/40 focus:outline-none focus:ring-2 focus:ring-[#d97706] transition-all ${
-                            errors.phone ? "border-red-500" : "border-[#d97706]/20"
-                          }`}
+                          className="w-full px-4 py-3 rounded-xl font-body text-sm outline-none transition-all"
+                          style={{ background: 'rgba(13,13,13,0.7)', border: `1px solid ${errors.phone ? '#ef4444' : 'rgba(212,175,55,0.15)'}`, color: '#F5F0E8' }}
                         />
                         {errors.phone && (
-                          <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+                          <p className="text-red-400 text-xs mt-1 font-body">{errors.phone}</p>
                         )}
                       </div>
 
                       {/* Delivery Address */}
                       <div>
-                        <label className="flex items-center gap-2 text-[#fef3e2] text-sm font-medium mb-2">
-                          <MapPin className="w-4 h-4 text-[#d97706]" />
+                        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest mb-2 font-body" style={{ color: 'rgba(212,175,55,0.7)' }}>
+                          <MapPin className="w-3.5 h-3.5 text-amber-500" />
                           Delivery Address *
                         </label>
                         <textarea
@@ -441,20 +478,19 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                           onChange={(e) => handleInputChange("address", e.target.value)}
                           placeholder="House/Flat No., Street, Landmark"
                           rows={3}
-                          className={`w-full px-4 py-3 bg-[#0f0f0f] border rounded-xl text-[#fef3e2] placeholder-[#fef3e2]/40 focus:outline-none focus:ring-2 focus:ring-[#d97706] transition-all resize-none ${
-                            errors.address ? "border-red-500" : "border-[#d97706]/20"
-                          }`}
+                          className="w-full px-4 py-3 rounded-xl font-body text-sm outline-none resize-none transition-all"
+                          style={{ background: 'rgba(13,13,13,0.7)', border: `1px solid ${errors.address ? '#ef4444' : 'rgba(212,175,55,0.15)'}`, color: '#F5F0E8' }}
                         />
                         {errors.address && (
-                          <p className="text-red-500 text-sm mt-1">{errors.address}</p>
+                          <p className="text-red-400 text-xs mt-1 font-body">{errors.address}</p>
                         )}
                       </div>
 
                       {/* City & Pincode */}
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="flex items-center gap-2 text-[#fef3e2] text-sm font-medium mb-2">
-                            <Building2 className="w-4 h-4 text-[#d97706]" />
+                          <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest mb-2 font-body" style={{ color: 'rgba(212,175,55,0.7)' }}>
+                            <Building2 className="w-3.5 h-3.5 text-amber-500" />
                             City *
                           </label>
                           <input
@@ -462,17 +498,14 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                             value={customerDetails.city}
                             onChange={(e) => handleInputChange("city", e.target.value)}
                             placeholder="City"
-                            className={`w-full px-4 py-3 bg-[#0f0f0f] border rounded-xl text-[#fef3e2] placeholder-[#fef3e2]/40 focus:outline-none focus:ring-2 focus:ring-[#d97706] transition-all ${
-                              errors.city ? "border-red-500" : "border-[#d97706]/20"
-                            }`}
+                            className="w-full px-4 py-3 rounded-xl font-body text-sm outline-none transition-all"
+                            style={{ background: 'rgba(13,13,13,0.7)', border: `1px solid ${errors.city ? '#ef4444' : 'rgba(212,175,55,0.15)'}`, color: '#F5F0E8' }}
                           />
-                          {errors.city && (
-                            <p className="text-red-500 text-sm mt-1">{errors.city}</p>
-                          )}
+                          {errors.city && <p className="text-red-400 text-xs mt-1 font-body">{errors.city}</p>}
                         </div>
                         <div>
-                          <label className="flex items-center gap-2 text-[#fef3e2] text-sm font-medium mb-2">
-                            <MapPinned className="w-4 h-4 text-[#d97706]" />
+                          <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest mb-2 font-body" style={{ color: 'rgba(212,175,55,0.7)' }}>
+                            <MapPinned className="w-3.5 h-3.5 text-amber-500" />
                             Pincode *
                           </label>
                           <input
@@ -480,20 +513,17 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                             value={customerDetails.pincode}
                             onChange={(e) => handleInputChange("pincode", e.target.value.replace(/\D/g, "").slice(0, 6))}
                             placeholder="6-digit"
-                            className={`w-full px-4 py-3 bg-[#0f0f0f] border rounded-xl text-[#fef3e2] placeholder-[#fef3e2]/40 focus:outline-none focus:ring-2 focus:ring-[#d97706] transition-all ${
-                              errors.pincode ? "border-red-500" : "border-[#d97706]/20"
-                            }`}
+                            className="w-full px-4 py-3 rounded-xl font-body text-sm outline-none transition-all"
+                            style={{ background: 'rgba(13,13,13,0.7)', border: `1px solid ${errors.pincode ? '#ef4444' : 'rgba(212,175,55,0.15)'}`, color: '#F5F0E8' }}
                           />
-                          {errors.pincode && (
-                            <p className="text-red-500 text-sm mt-1">{errors.pincode}</p>
-                          )}
+                          {errors.pincode && <p className="text-red-400 text-xs mt-1 font-body">{errors.pincode}</p>}
                         </div>
                       </div>
 
                       {/* Order Notes */}
                       <div>
-                        <label className="flex items-center gap-2 text-[#fef3e2] text-sm font-medium mb-2">
-                          <FileText className="w-4 h-4 text-[#d97706]" />
+                        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest mb-2 font-body" style={{ color: 'rgba(212,175,55,0.7)' }}>
+                          <FileText className="w-3.5 h-3.5 text-amber-500" />
                           Order Notes (Optional)
                         </label>
                         <textarea
@@ -501,15 +531,16 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                           onChange={(e) => handleInputChange("notes", e.target.value)}
                           placeholder="Any special instructions for your order..."
                           rows={2}
-                          className="w-full px-4 py-3 bg-[#0f0f0f] border border-[#d97706]/20 rounded-xl text-[#fef3e2] placeholder-[#fef3e2]/40 focus:outline-none focus:ring-2 focus:ring-[#d97706] transition-all resize-none"
+                          className="w-full px-4 py-3 rounded-xl font-body text-sm outline-none resize-none transition-all"
+                          style={{ background: 'rgba(13,13,13,0.7)', border: '1px solid rgba(212,175,55,0.15)', color: '#F5F0E8' }}
                         />
                       </div>
 
                       <button
                         onClick={handleProceedToReview}
-                        className="w-full py-4 bg-gradient-to-r from-[#d97706] to-[#b45309] text-[#0f0f0f] font-bold rounded-xl hover:shadow-lg hover:shadow-[#d97706]/30 transition-all"
+                        className="btn-primary w-full justify-center py-4 text-base"
                       >
-                        Continue to Review
+                        <span>Continue to Review</span>
                       </button>
                     </div>
                   </motion.div>
@@ -519,76 +550,74 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="space-y-6"
+                    className="space-y-5"
                   >
                     {/* Delivery Info */}
-                    <div className="bg-gradient-to-br from-[#1a1410] to-[#0f0f0f] rounded-3xl border border-[#d97706]/20 p-6">
+                    <div className="rounded-3xl p-6" style={{ background: 'rgba(20,18,14,0.85)', border: '1px solid rgba(212,175,55,0.12)' }}>
                       <div className="flex items-center justify-between mb-4">
-                        <h2 className="font-serif text-xl font-bold text-[#fef3e2]">
+                        <h2 className="font-heading text-xl font-bold" style={{ color: '#F5F0E8' }}>
                           Delivery Information
                         </h2>
                         <button
                           onClick={() => setStep("details")}
-                          className="text-[#d97706] text-sm hover:underline"
+                          className="font-body text-sm transition-colors text-amber-500"
                         >
                           Edit
                         </button>
                       </div>
-                      <div className="space-y-2 text-[#fef3e2]/80">
-                        <p><span className="text-[#fef3e2]/50">Name:</span> {customerDetails.name}</p>
-                        <p><span className="text-[#fef3e2]/50">Phone:</span> {customerDetails.phone}</p>
-                        <p><span className="text-[#fef3e2]/50">Address:</span> {customerDetails.address}</p>
-                        <p><span className="text-[#fef3e2]/50">City:</span> {customerDetails.city} - {customerDetails.pincode}</p>
+                      <div className="space-y-2 font-body text-sm" style={{ color: 'rgba(245,240,232,0.65)' }}>
+                        <p><span style={{ color: 'rgba(245,240,232,0.4)' }}>Name:</span> {customerDetails.name}</p>
+                        <p><span style={{ color: 'rgba(245,240,232,0.4)' }}>Phone:</span> {customerDetails.phone}</p>
+                        <p><span style={{ color: 'rgba(245,240,232,0.4)' }}>Address:</span> {customerDetails.address}</p>
+                        <p><span style={{ color: 'rgba(245,240,232,0.4)' }}>City:</span> {customerDetails.city} - {customerDetails.pincode}</p>
                         {customerDetails.notes && (
-                          <p><span className="text-[#fef3e2]/50">Notes:</span> {customerDetails.notes}</p>
+                          <p><span style={{ color: 'rgba(245,240,232,0.4)' }}>Notes:</span> {customerDetails.notes}</p>
                         )}
                       </div>
                     </div>
 
                     {/* Order Items */}
-                    <div className="bg-gradient-to-br from-[#1a1410] to-[#0f0f0f] rounded-3xl border border-[#d97706]/20 p-6">
-                      <h2 className="font-serif text-xl font-bold text-[#fef3e2] mb-4">
+                    <div className="rounded-3xl p-6" style={{ background: 'rgba(20,18,14,0.85)', border: '1px solid rgba(212,175,55,0.12)' }}>
+                      <h2 className="font-heading text-xl font-bold mb-4" style={{ color: '#F5F0E8' }}>
                         Order Items ({items.length})
                       </h2>
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         {items.map((item) => (
-                          <div
-                            key={item.id}
-                            className="flex gap-4 p-4 bg-[#0f0f0f]/50 rounded-xl border border-[#d97706]/10"
-                          >
-                            <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
-                              <Image
-                                src={item.image}
-                                alt={item.name}
-                                fill
-                                className="object-cover"
-                              />
+                          <div key={item.id} className="flex gap-3 p-3 rounded-xl" style={{ background: 'rgba(13,13,13,0.5)', border: '1px solid rgba(212,175,55,0.07)' }}>
+                            <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                              <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-medium text-[#fef3e2] truncate">{item.name}</h3>
-                              <p className="text-[#fef3e2]/60 text-sm">{item.weight}</p>
-                              <p className="text-[#d97706] font-bold mt-1">{settings?.currency_symbol || '₹'}{item.price * item.quantity}</p>
+                              <h3 className="font-heading font-semibold text-sm truncate" style={{ color: '#F5F0E8' }}>{item.name}</h3>
+                              <p className="font-body text-xs" style={{ color: 'rgba(245,240,232,0.45)' }}>{item.weight}</p>
+                              {(item.size || item.color) && (
+                                <div className="flex flex-wrap gap-1 mt-0.5">
+                                  {item.size && (
+                                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(217,119,6,0.15)', color: '#fbbf24' }}>Size: {item.size}</span>
+                                  )}
+                                  {item.color && (
+                                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(148,163,184,0.1)', color: '#94a3b8' }}>Color: {item.color}</span>
+                                  )}
+                                </div>
+                              )}
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <p className="font-heading font-bold text-sm text-amber-500">{settings?.currency_symbol || '₹'}{item.price * item.quantity}</p>
+                                {item.originalPrice && (
+                                  <p className="font-body text-xs line-through" style={{ color: 'rgba(245,240,232,0.3)' }}>{settings?.currency_symbol || '₹'}{item.originalPrice * item.quantity}</p>
+                                )}
+                              </div>
                             </div>
                             <div className="flex flex-col items-end justify-between">
-                              <button
-                                onClick={() => removeItem(item.id)}
-                                className="p-1 hover:bg-red-500/10 rounded transition-colors"
-                              >
-                                <Trash2 className="w-4 h-4 text-red-500" />
+                              <button onClick={() => removeItem(item.id)} className="p-1 rounded transition-colors hover:bg-red-500/10">
+                                <Trash2 className="w-3.5 h-3.5 text-red-500" />
                               </button>
-                              <div className="flex items-center gap-2 bg-[#d97706]/10 rounded-full">
-                                <button
-                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                  className="p-1 hover:bg-[#d97706]/20 rounded-full transition-colors"
-                                >
-                                  <Minus className="w-4 h-4 text-[#d97706]" />
+                              <div className="flex items-center gap-1 rounded-full px-1" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.15)' }}>
+                                <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="p-1 rounded-full transition-colors">
+                                  <Minus className="w-3 h-3 text-amber-500" />
                                 </button>
-                                <span className="text-[#fef3e2] font-medium w-6 text-center">{item.quantity}</span>
-                                <button
-                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                  className="p-1 hover:bg-[#d97706]/20 rounded-full transition-colors"
-                                >
-                                  <Plus className="w-4 h-4 text-[#d97706]" />
+                                <span className="font-heading font-bold text-xs w-5 text-center" style={{ color: '#F5F0E8' }}>{item.quantity}</span>
+                                <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-1 rounded-full transition-colors">
+                                  <Plus className="w-3 h-3 text-amber-500" />
                                 </button>
                               </div>
                             </div>
@@ -626,57 +655,89 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="bg-gradient-to-br from-[#1a1410] to-[#0f0f0f] rounded-3xl border border-[#d97706]/20 p-6"
+                    className="rounded-3xl p-6"
+                    style={{ background: 'rgba(20,18,14,0.85)', border: '1px solid rgba(212,175,55,0.12)', boxShadow: '0 20px 50px rgba(0,0,0,0.4)' }}
                   >
-                    <h2 className="font-serif text-xl font-bold text-[#fef3e2] mb-4 flex items-center gap-2">
-                      <ShoppingBag className="w-5 h-5 text-[#d97706]" />
+                    <h2 className="font-heading text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#F5F0E8' }}>
+                      <ShoppingBag className="w-5 h-5 text-amber-500" />
                       Order Summary
                     </h2>
 
-                    {/* Items List with Images */}
-                    <div className="space-y-2.5 mb-6 max-h-[400px] overflow-y-auto pr-1 scrollbar-hide">
-                      {items.map((item) => (
-                        <div key={item.id} className="flex gap-3 items-center p-2 bg-[#1a1410]/30 rounded-xl border border-[#d97706]/10 group hover:border-[#d97706]/20 transition-all">
-                          <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border border-[#d97706]/5">
-                            <Image
-                              src={item.image}
-                              alt={item.name}
-                              fill
-                              className="object-cover group-hover:scale-110 transition-transform duration-500"
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-[13px] font-medium text-[#fef3e2] truncate">{item.name}</h3>
-                            <div className="flex items-center justify-between mt-0.5">
-                              <span className="text-[11px] text-[#fef3e2]/50">{item.weight} x {item.quantity}</span>
-                              <span className="text-xs font-bold text-[#d97706]">{settings?.currency_symbol || '₹'}{item.price * item.quantity}</span>
+                    <div className="space-y-2 mb-5 max-h-[360px] overflow-y-auto pr-1 scrollbar-hide">
+                      {items.map((item) => {
+                        const savedAmount = item.discountPercent && item.originalPrice 
+                          ? Math.round((item.originalPrice - item.price) * item.quantity)
+                          : 0
+                        return (
+                          <div key={item.id} className="flex gap-3 items-center p-2 rounded-xl" style={{ background: 'rgba(13,13,13,0.4)', border: '1px solid rgba(212,175,55,0.06)' }}>
+                            <div className="relative w-11 h-11 rounded-lg overflow-hidden flex-shrink-0">
+                              <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-heading text-xs font-semibold truncate" style={{ color: '#F5F0E8' }}>{item.name}</h3>
+                              <div className="flex items-center justify-between mt-0.5">
+                                <span className="font-body text-[10px]" style={{ color: 'rgba(245,240,232,0.4)' }}>{item.weight} x {item.quantity}</span>
+                                <div className="flex flex-col items-end gap-0.5">
+                                  <div className="flex items-center gap-1">
+                                    <span className="font-heading text-xs font-bold text-amber-500">{settings?.currency_symbol || '₹'}{item.price * item.quantity}</span>
+                                    {item.discountPercent && (
+                                      <span className="text-[8px] bg-red-600 text-white px-1 py-0 rounded font-bold">-{item.discountPercent}%</span>
+                                    )}
+                                  </div>
+                                  {item.discountPercent && item.originalPrice && (
+                                    <span className="font-body text-[9px] line-through" style={{ color: 'rgba(245,240,232,0.3)' }}>{settings?.currency_symbol || '₹'}{item.originalPrice * item.quantity}</span>
+                                  )}
+                                </div>
+                              </div>
+                              {savedAmount > 0 && (
+                                <p className="font-body text-[10px] text-green-400 mt-0.5">Saved: {settings?.currency_symbol || '₹'}{savedAmount}</p>
+                              )}
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      })}
                     </div>
 
-                    <div className="border-t border-[#d97706]/20 pt-4 space-y-3">
+                    <div className="pt-4 space-y-3" style={{ borderTop: '1px solid rgba(212,175,55,0.10)' }}>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-[#fef3e2]/60">Subtotal</span>
-                        <span className="text-[#fef3e2]">{settings?.currency_symbol || '₹'}{totalPrice}</span>
+                        <span className="font-body" style={{ color: 'rgba(245,240,232,0.5)' }}>Subtotal</span>
+                        <span className="font-body" style={{ color: '#F5F0E8' }}>{settings?.currency_symbol || '₹'}{totalPrice}</span>
                       </div>
+                      {(() => {
+                        const totalSaved = items.reduce((sum, item) => {
+                          if (item.discountPercent && item.originalPrice) {
+                            return sum + Math.round((item.originalPrice - item.price) * item.quantity)
+                          }
+                          return sum
+                        }, 0)
+                        return totalSaved > 0 ? (
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="font-body" style={{ color: 'rgba(76, 175, 80, 0.8)' }}>Discount Saved</span>
+                            <span className="font-body font-semibold text-green-400">-{settings?.currency_symbol || '₹'}{totalSaved}</span>
+                          </div>
+                        ) : null
+                      })()}
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-[#fef3e2]/60">Delivery</span>
+                        <span className="font-body" style={{ color: 'rgba(245,240,232,0.5)' }}>Delivery</span>
                         {deliveryCharge === 0 && deliveryRule.free_delivery_above > 0 ? (
-                          <span className="text-green-500 font-medium">Free (Order above {settings?.currency_symbol || '₹'}{deliveryRule.free_delivery_above})</span>
+                          <span className="font-body text-green-400 font-medium">Free (above {settings?.currency_symbol || '₹'}{deliveryRule.free_delivery_above})</span>
                         ) : (
-                          <span className="text-[#fef3e2]">{settings?.currency_symbol || '₹'}{deliveryCharge}</span>
+                          <span className="font-body" style={{ color: '#F5F0E8' }}>{settings?.currency_symbol || '₹'}{deliveryCharge}</span>
                         )}
                       </div>
                       {totalPrice < deliveryRule.free_delivery_above && deliveryRule.free_delivery_above > 0 && (
-                        <p className="text-xs text-[#fef3e2]/50">
+                        <p className="font-body text-xs" style={{ color: 'rgba(245,240,232,0.4)' }}>
                           Add {settings?.currency_symbol || '₹'}{deliveryRule.free_delivery_above - totalPrice} more for free delivery
                         </p>
                       )}
-                      <div className="flex items-center justify-between pt-3 border-t border-[#d97706]/20">
-                        <span className="text-[#fef3e2] font-medium">Total</span>
-                        <span className="text-2xl font-bold text-[#d97706]">{settings?.currency_symbol || '₹'}{finalTotal}</span>
+                      <div className="flex items-center justify-between pt-3" style={{ borderTop: '1px solid rgba(212,175,55,0.10)' }}>
+                        <span className="font-heading font-semibold" style={{ color: '#F5F0E8' }}>Total</span>
+                        <span className="font-heading text-2xl font-black" style={{
+                          background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white), var(--theme-color))',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          backgroundClip: 'text',
+                        }}>{settings?.currency_symbol || '₹'}{finalTotal}</span>
                       </div>
                     </div>
                   </motion.div>
@@ -686,20 +747,18 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="mt-6 space-y-4"
+                    className="mt-5 space-y-3"
                   >
-                    <div className="flex items-center gap-3 text-[#fef3e2]/70">
-                      <Truck className="w-5 h-5 text-[#d97706]" />
-                      <span className="text-sm">Free delivery on orders above {settings?.currency_symbol || '₹'}{deliveryRule.free_delivery_above}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-[#fef3e2]/70">
-                      <Shield className="w-5 h-5 text-[#d97706]" />
-                      <span className="text-sm">100% Authentic homemade products</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-[#fef3e2]/70">
-                      <Clock className="w-5 h-5 text-[#d97706]" />
-                      <span className="text-sm">Delivery within 2-3 business days</span>
-                    </div>
+                    {[
+                      { icon: Truck,   text: `Free delivery on orders above ${settings?.currency_symbol || '₹'}${deliveryRule.free_delivery_above}` },
+                      { icon: Shield,  text: '100% Premium quality guaranteed' },
+                      { icon: Clock,   text: 'Delivery within 2-3 business days' },
+                    ].map(({ icon: Icon, text }) => (
+                      <div key={text} className="flex items-center gap-3 font-body text-sm" style={{ color: 'rgba(245,240,232,0.55)' }}>
+                        <Icon className="w-4 h-4 flex-shrink-0 text-amber-500" />
+                        <span>{text}</span>
+                      </div>
+                    ))}
                   </motion.div>
                 </div>
               </div>

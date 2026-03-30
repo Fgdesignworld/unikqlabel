@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { notificationService, type AdminNotification } from '@/services/notificationService'
-import { Bell, CheckCheck, ShoppingBag, RefreshCw, Inbox } from 'lucide-react'
+import { Bell, CheckCheck, ShoppingBag, RefreshCw, Inbox, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 // ─── Format time helper ────────────────────────────────────────────────────────
@@ -19,6 +19,58 @@ function formatTime(dateStr: string) {
   const diffDays = Math.floor(diffHours / 24)
   if (diffDays < 7) return `${diffDays}d ago`
   return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+function NotifSkeleton() {
+  return (
+    <div className="space-y-2">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="bg-[#0c0c0c] border border-gray-800/50 rounded-2xl p-4 pl-5 animate-pulse">
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-gray-800 shrink-0 mt-0.5" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 w-3/4 bg-gray-800 rounded" />
+              <div className="h-3 w-1/3 bg-gray-800/60 rounded" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─── Pagination ───────────────────────────────────────────────────────────────
+function NotifPagination({ page, lastPage, total, perPage, onPage }: {
+  page: number; lastPage: number; total: number; perPage: number; onPage: (p: number) => void
+}) {
+  if (lastPage <= 1) return null
+  const from = (page - 1) * perPage + 1
+  const to = Math.min(page * perPage, total)
+  const start = Math.max(0, Math.min(page - 3, lastPage - 5))
+  const pages = Array.from({ length: lastPage }, (_, i) => i + 1).slice(start, start + 5)
+  return (
+    <div className="flex items-center justify-between pt-3 border-t border-gray-800/50">
+      <p className="text-xs text-gray-600">Showing {from}–{to} of {total}</p>
+      <div className="flex items-center gap-1">
+        <button onClick={() => onPage(page - 1)} disabled={page === 1}
+          className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        {pages.map(p => (
+          <button key={p} onClick={() => onPage(p)}
+            className={cn('w-8 h-8 rounded-xl text-xs font-black transition-all',
+              p === page ? 'bg-amber-500 text-black' : 'border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600')}>
+            {p}
+          </button>
+        ))}
+        <button onClick={() => onPage(page + 1)} disabled={page === lastPage}
+          className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  )
 }
 
 // ─── Notification Card ─────────────────────────────────────────────────────────
@@ -102,6 +154,8 @@ export default function AdminNotificationsPage() {
   const [loading, setLoading]             = useState(true)
   const [refreshing, setRefreshing]       = useState(false)
   const [filter, setFilter]               = useState<'all' | 'unread'>('all')
+  const [notifPage, setNotifPage]         = useState(1)
+  const NOTIF_PER_PAGE = 15
 
   const load = useCallback(async () => {
     try {
@@ -153,10 +207,13 @@ export default function AdminNotificationsPage() {
     ? notifications.filter(n => !n.is_read)
     : notifications
 
+  const notifLastPage = Math.max(1, Math.ceil(displayed.length / NOTIF_PER_PAGE))
+  const notifDisplayed = displayed.slice((notifPage - 1) * NOTIF_PER_PAGE, notifPage * NOTIF_PER_PAGE)
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full" />
+      <div className="space-y-5 pb-24 lg:pb-6">
+        <NotifSkeleton />
       </div>
     )
   }
@@ -221,7 +278,7 @@ export default function AdminNotificationsPage() {
         {(['all', 'unread'] as const).map(f => (
           <button
             key={f}
-            onClick={() => setFilter(f)}
+            onClick={() => { setFilter(f); setNotifPage(1) }}
             className={cn(
               'px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all',
               filter === f
@@ -254,8 +311,9 @@ export default function AdminNotificationsPage() {
           )}
         </div>
       ) : (
+        <>
         <div className="space-y-2">
-          {displayed.map(n => (
+          {notifDisplayed.map(n => (
             <NotificationCard
               key={n.id}
               notification={n}
@@ -264,6 +322,8 @@ export default function AdminNotificationsPage() {
             />
           ))}
         </div>
+        <NotifPagination page={notifPage} lastPage={notifLastPage} total={displayed.length} perPage={NOTIF_PER_PAGE} onPage={setNotifPage} />
+        </>
       )}
     </div>
   )

@@ -95,7 +95,7 @@ export const generateInvoice = async (
         }
 
         if (showDownload) {
-            pdf.save(`Invoice_LHF_${invoiceNumber}.pdf`);
+            pdf.save(`Invoice_UNI_${invoiceNumber}.pdf`);
         }
 
         return pdf.output('blob');

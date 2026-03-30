@@ -12,7 +12,7 @@ import { Footer } from "@/components/footer"
 import { useSeo } from "@/hooks/use-seo"
 
 export default function Home() {
-  useSeo({ pageType: 'home', pageSlug: 'home', fallbackTitle: 'Lakshmi Home Foods — Authentic Homemade Goodness' })
+  useSeo({ pageType: 'home', pageSlug: 'home', fallbackTitle: 'UNIKQ LABEL — Premium Fashion • Everyday Royalty' })
   return (
     <main className="min-h-screen bg-[#0f0f0f]">
       <Navbar />

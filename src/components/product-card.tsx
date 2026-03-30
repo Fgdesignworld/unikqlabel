@@ -2,12 +2,13 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Star, ShoppingBag, Check, Leaf, Circle, Eye } from "lucide-react"
+import { Star, ShoppingBag, Check, Eye, Share2 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useCart } from "@/context/cart-context"
 import { useSettings } from "@/context/settings-context"
 import { Image } from "@/components/ui/image"
-import type { Product } from "@/data/products"
+import type { Product, SizeVariant, ColorVariant } from "@/data/products"
+import { cn } from "@/lib/utils"
 
 interface ProductCardProps {
   product: Product
@@ -17,32 +18,79 @@ interface ProductCardProps {
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { addItem } = useCart()
   const { settings } = useSettings()
-  const [selectedVariant, setSelectedVariant] = useState(0)
+  const [selectedSizeIdx, setSelectedSizeIdx] = useState<number | null>(null)
+  const [selectedColor, setSelectedColor] = useState<ColorVariant | null>(null)
   const [isAdded, setIsAdded] = useState(false)
   const [imgHovered, setImgHovered] = useState(false)
+  const [sizeError, setSizeError] = useState(false)
 
-  const variants = product.variants || [{ weight: product.weight, price: product.price }]
-  const currentVariant = variants[selectedVariant]
+  const sizeVariants: SizeVariant[] = product.sizeVariants || []
   const currency = settings?.currency_symbol || '₹'
 
-  // Hover image: use first gallery image (if available) as the swap target
-  const secondaryImage = product.gallery?.[0]
-  const showDiscount = product.discount_price && product.discount_price < product.price
-  const discountPct = showDiscount
-    ? Math.round(((product.price - product.discount_price!) / product.price) * 100)
-    : 0
+  // Price logic: selected size price → base product price, then apply discount
+  const basePrice = (selectedSizeIdx !== null && sizeVariants[selectedSizeIdx]?.price != null)
+    ? sizeVariants[selectedSizeIdx].price!
+    : product.price
+  const discountPct = product.discount_price && product.discount_price > 0 && product.discount_price <= 100
+    ? Math.round(product.discount_price) : 0
+  const showDiscount = discountPct > 0
+  const effectivePrice = showDiscount ? Math.round(basePrice * (100 - discountPct) / 100) : basePrice
+
+  // Active image: color variant image if selected and has images, else product.image
+  const resolveImg = (p?: string | null) => {
+    if (!p) return '/images/placeholder.jpg'
+    if (p.startsWith('http')) return p
+    if (p.startsWith('/')) return p
+    return `/api${p}`
+  }
+  const colorImage = selectedColor?.images?.[0] ? resolveImg(selectedColor.images[0]) : null
+  const activeImage = colorImage ?? product.image
+  // Hover image: when color is active → show product.image; else show first gallery image
+  const hoverImage = colorImage ? product.image : (product.gallery?.[0] ?? null)
 
   const handleAddToCart = () => {
+    // Require size selection if size variants exist
+    if (sizeVariants.length > 0 && selectedSizeIdx === null) {
+      setSizeError(true)
+      setTimeout(() => setSizeError(false), 1500)
+      return
+    }
+    const salePrice = discountPct > 0 ? Math.round(basePrice * (100 - discountPct) / 100) : basePrice
+    const sizeLabel = selectedSizeIdx !== null ? (sizeVariants[selectedSizeIdx]?.label ?? '') : ''
+    const colorLabel = selectedColor?.color ?? ''
+    const variantKey = [sizeLabel, colorLabel].filter(Boolean).join('/')
+    const cartImg = selectedColor?.images?.[0]
+      ? (selectedColor.images[0].startsWith('/api') ? selectedColor.images[0] : `/api${selectedColor.images[0]}`)
+      : product.image
+
     addItem({
-      id: `${product.id}-${currentVariant.weight}`,
+      id: `${product.id}-${variantKey || 'default'}`,
       name: product.name,
-      price: currentVariant.price,
-      weight: currentVariant.weight,
-      image: product.image,
+      price: salePrice,
+      originalPrice: discountPct > 0 ? basePrice : undefined,
+      discountPercent: discountPct > 0 ? discountPct : undefined,
+      weight: variantKey || product.weight,
+      image: cartImg,
       category: product.category,
     })
     setIsAdded(true)
     setTimeout(() => setIsAdded(false), 1500)
+  }
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const url = `${window.location.origin}/products/${product.id}`
+    const shareData = {
+      title: product.name,
+      text: product.description || `Check out ${product.name} from UNIKQ LABEL!`,
+      url,
+    }
+    if (navigator.share) {
+      try { await navigator.share(shareData) } catch { /* cancelled */ }
+    } else {
+      try { await navigator.clipboard.writeText(url) } catch { /* ignore */ }
+    }
   }
 
   return (
@@ -54,22 +102,22 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
     >
       {/* Image */}
       <div
-        className="relative aspect-[16/11] overflow-hidden cursor-pointer"
-        onMouseEnter={() => secondaryImage && setImgHovered(true)}
+        className="relative aspect-[3/4] overflow-hidden cursor-pointer"
+        onMouseEnter={() => hoverImage && setImgHovered(true)}
         onMouseLeave={() => setImgHovered(false)}
       >
-        {/* Primary image */}
+        {/* Active image (default or color-selected) */}
         <Image
-          src={product.image}
+          src={activeImage}
           alt={product.name}
           fill
-          className={`object-cover transition-all duration-500 ${imgHovered && secondaryImage ? 'opacity-0 scale-105' : 'opacity-100 scale-100 group-hover:scale-110'}`}
+          className={`object-cover transition-all duration-500 ${imgHovered && hoverImage ? 'opacity-0 scale-105' : 'opacity-100 scale-100 group-hover:scale-110'}`}
         />
         {/* Secondary hover image */}
-        {secondaryImage && (
+        {hoverImage && (
           <Image
-            src={secondaryImage.startsWith('http') ? secondaryImage : secondaryImage.startsWith('/api/') ? secondaryImage : `/api${secondaryImage}`}
-            alt={`${product.name} - view 2`}
+            src={hoverImage.startsWith('http') ? hoverImage : hoverImage.startsWith('/api') ? hoverImage : `/api${hoverImage}`}
+            alt={`${product.name} - alternate`}
             fill
             className={`object-cover transition-all duration-500 ${imgHovered ? 'opacity-100 scale-105' : 'opacity-0 scale-100'}`}
           />
@@ -77,55 +125,36 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] via-transparent to-transparent opacity-60" />
 
         {/* Hover overlay: "View Details" */}
-        <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${imgHovered || !secondaryImage ? 'opacity-0 group-hover:opacity-100' : 'opacity-0'}`}>
+        <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${imgHovered || !hoverImage ? 'opacity-0 group-hover:opacity-100' : 'opacity-0'}`}>
           <Link
             to={`/products/${product.id}`}
             onClick={e => e.stopPropagation()}
-            className="flex items-center gap-2 px-4 py-2 bg-black/70 backdrop-blur-sm text-white text-xs font-bold rounded-full border border-white/20 hover:bg-[#d97706] hover:border-[#d97706] transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-black/70 backdrop-blur-sm text-white text-xs font-bold rounded-full border border-white/20 hover:bg-amber-500 hover:border-amber-500 transition-all"
           >
             <Eye className="w-3.5 h-3.5" /> View Details
           </Link>
         </div>
 
-        {/* Top Left: Dietary Badge */}
-        {product.isVeg !== undefined && (
-          <div className={`absolute top-2 left-2 z-10 flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-wider ${
-            product.isVeg 
-              ? "bg-[#064e3b]/90 text-[#10b981] border border-[#10b981]/20 backdrop-blur-sm" 
-              : "bg-red-900/90 text-red-400 border border-red-400/20 backdrop-blur-sm"
-          }`}>
-            {product.isVeg ? (
-              <>
-                <Leaf className="w-2.5 h-2.5 md:w-3 md:h-3 fill-current" />
-                <span className="hidden xs:inline">Pure Veg</span>
-                <span className="xs:hidden">Veg</span>
-              </>
-            ) : (
-              <>
-                <Circle className="w-2 h-2 md:w-2.5 md:h-2.5 fill-current" />
-                <span className="hidden xs:inline">Non Veg</span>
-                <span className="xs:hidden">Non-V</span>
-              </>
-            )}
+        {/* Top Left: Discount Badge */}
+        {showDiscount && (
+          <div className="absolute top-3 left-3 z-10 flex items-center gap-1 px-3 py-1 bg-red-600/90 backdrop-blur-md text-white rounded-full text-[10px] font-black uppercase tracking-wider shadow-xl border border-white/10">
+            -{discountPct}%
           </div>
         )}
 
-        {/* Top Right: Discount badge (takes priority over Homemade) */}
-        {showDiscount ? (
-          <div className="absolute top-2 right-2 z-10 flex items-center gap-1 px-2 py-0.5 bg-red-600 text-white rounded-full text-[8px] md:text-[10px] font-black uppercase tracking-wider shadow-lg">
-            -{discountPct}%
-          </div>
-        ) : product.isHomemade ? (
-          <div className="absolute top-2 right-2 z-10 flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-0.5 md:py-1 bg-[#451a03]/90 text-[#d97706] border border-[#d97706]/20 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm">
-            <span className="hidden xs:inline">Homemade</span>
-            <span className="xs:hidden">Home</span>
-          </div>
-        ) : null}
+        {/* Top Right: Share button — always visible */}
+        <button
+          onClick={handleShare}
+          aria-label="Share product"
+          className="absolute top-2 right-2 z-10 w-7 h-7 md:w-8 md:h-8 flex items-center justify-center bg-black/50 hover:bg-amber-500 text-white backdrop-blur-sm rounded-full border border-white/10 hover:border-amber-500 transition-all duration-200 shadow-lg"
+        >
+          <Share2 className="w-3 h-3 md:w-3.5 md:h-3.5" />
+        </button>
 
         {/* Bottom Right: Bestseller Badge */}
         {product.bestseller && (
-          <div className="absolute bottom-2 right-2 z-10 px-2 md:px-3 py-0.5 md:py-1 bg-[#d97706] text-[#0f0f0f] text-[8px] md:text-[10px] font-bold uppercase tracking-wider rounded-full shadow-lg">
-            Best
+          <div className="absolute bottom-3 right-3 z-10 px-3 py-1 bg-amber-500/90 backdrop-blur-md text-[#0f0f0f] text-[10px] font-bold uppercase tracking-wider rounded-full shadow-xl border border-amber-500/20">
+            Trending
           </div>
         )}
       </div>
@@ -134,7 +163,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       <div className="p-3 md:p-4 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-1 md:gap-2 mb-1 md:mb-2">
           <Link to={`/products/${product.id}`} className="flex-1 min-w-0">
-            <h3 className="font-serif text-sm md:text-lg font-bold text-[#fef3e2] group-hover:text-[#d97706] transition-colors line-clamp-1">
+            <h3 className="font-serif text-sm md:text-lg font-bold text-[#fef3e2] group-hover:text-amber-500 transition-colors line-clamp-1">
               {product.name}
             </h3>
           </Link>
@@ -150,40 +179,85 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
           <p className="text-[#fef3e2]/60 text-sm mb-3 line-clamp-2">{product.description}</p>
         )}
 
-        {/* Weight Variants */}
-        {variants.length > 1 && (
-          <div className="mb-3 md:mb-4">
-            <p className="text-[#fef3e2]/50 text-[10px] md:text-xs mb-1.5 md:mb-2 text-center xs:text-left">Select Size:</p>
-            <div className="flex flex-nowrap items-center justify-center xs:justify-start gap-1.5 md:gap-2">
-              {variants.map((variant, idx) => (
+        {/* Color Variants */}
+        {product.colorVariants && product.colorVariants.length > 0 && (
+          <div className="mb-2.5">
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide pb-0.5">
+              {/* Default / Transparent swatch - clears color selection and shows default image */}
+              <button
+                key="__default"
+                title="Default"
+                onClick={() => setSelectedColor(null)}
+                className={cn(
+                  'shrink-0 w-5 h-5 rounded-full border-1.5 transition-all ring-offset-1.5 ring-offset-[#0f0f0f] flex items-center justify-center',
+                  selectedColor === null
+                    ? 'border-amber-500 ring-1.5 ring-amber-500/50 shadow-md shadow-amber-500/25'
+                    : 'border-white/20 hover:border-amber-500/50 hover:shadow-md hover:shadow-amber-500/15'
+                )}
+                style={{ background: 'transparent' }}
+              >
+                <span className="w-2 h-2 rounded-full bg-white/5 border border-white/25" />
+              </button>
+
+              {product.colorVariants.map(cv => {
+                const isSelected = selectedColor?.color === cv.color
+                return (
+                  <button
+                    key={cv.color}
+                    title={cv.color}
+                    onClick={() => setSelectedColor(cv)}
+                    className={cn(
+                      'shrink-0 w-5 h-5 rounded-full border-1.5 transition-all ring-offset-1.5 ring-offset-[#0f0f0f]',
+                      isSelected
+                        ? 'border-amber-500 ring-1.5 ring-amber-500/50 shadow-md shadow-amber-500/25 scale-105'
+                        : 'border-white/20 hover:border-amber-500/50 hover:shadow-md hover:shadow-amber-500/15'
+                    )}
+                    style={{ background: cv.hex }}
+                  />
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Size Variants */}
+        {sizeVariants.length > 0 && (
+          <div className="mb-2">
+            <div className="flex flex-nowrap items-center gap-1.5 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-0">
+              {sizeVariants.map((sv, idx) => (
                 <button
-                  key={variant.weight}
-                  onClick={() => setSelectedVariant(idx)}
-                  className={`flex-1 xs:flex-none min-w-0 px-1 md:px-3 py-1.5 md:py-2 rounded-lg text-[9px] md:text-sm font-medium transition-all truncate ${
-                    selectedVariant === idx
-                      ? "bg-[#d97706] text-[#0f0f0f] shadow-lg shadow-[#d97706]/20"
-                      : "bg-[#1a1410] text-[#fef3e2]/70 border border-[#d97706]/20 hover:border-[#d97706]/50"
-                  }`}
+                  key={sv.label}
+                  onClick={() => { setSelectedSizeIdx(idx); setSizeError(false) }}
+                  className={cn(
+                    'shrink-0 snap-center w-12 px-0 py-1.5 rounded-md text-[7px] md:text-xs font-bold uppercase tracking-wide transition-all whitespace-nowrap',
+                    selectedSizeIdx === idx
+                      ? 'bg-amber-500 text-[#0f0f0f] shadow-md shadow-amber-500/20 scale-100'
+                      : sizeError
+                        ? 'bg-red-500/10 text-red-400 border border-red-500/60 animate-pulse'
+                        : 'bg-[#1a1410] text-[#fef3e2]/70 border border-[#d97706]/20 hover:border-[#d97706]/60 hover:text-[#fef3e2]'
+                  )}
                 >
-                  {variant.weight}
+                  {sv.label}
                 </button>
               ))}
             </div>
+            {sizeError && (
+              <p className="text-red-400 text-[10px] mt-1 font-medium">Please select a size</p>
+            )}
           </div>
         )}
 
         <div className="mt-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <div>
             <div className="flex items-baseline gap-2">
-              <p className="text-[#d97706] text-base md:text-xl font-bold">{currency}{currentVariant.price}</p>
-              {/* Show original price strikethrough only on single-variant products with a discount_price set */}
-              {showDiscount && variants.length === 1 && (
-                <p className="text-[#fef3e2]/40 text-xs md:text-sm line-through">{currency}{product.price}</p>
+              <p className="text-amber-500 text-base md:text-xl font-bold">{currency}{effectivePrice.toLocaleString('en-IN')}</p>
+              {showDiscount && (
+                <p className="text-[#fef3e2]/40 text-xs md:text-sm line-through">{currency}{basePrice.toLocaleString('en-IN')}</p>
               )}
             </div>
-            {variants.length === 1 && (
-              <p className="text-[#fef3e2]/50 text-[10px] md:text-xs">{currentVariant.weight}</p>
-            )}
+            <p className="text-[#fef3e2]/50 text-[10px] md:text-xs">
+              {selectedColor ? selectedColor.color : (sizeVariants.length === 0 ? product.weight : '')}
+            </p>
           </div>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -193,7 +267,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             className={`w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 md:px-4 py-2 font-medium rounded-full transition-all text-[10px] md:text-sm ${
               isAdded
                 ? "bg-green-600 text-white"
-                : "bg-[#d97706] text-[#0f0f0f] hover:bg-[#f59e0b]"
+                : "bg-amber-500 text-[#0f0f0f] hover:bg-amber-400"
             }`}
           >
             {isAdded ? (

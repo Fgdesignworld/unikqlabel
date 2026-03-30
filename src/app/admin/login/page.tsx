@@ -34,7 +34,7 @@ export default function AdminLoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-black text-white tracking-tight">
-            Laxmi <span className="text-amber-500">Home Foods</span>
+            UNIKQ <span className="text-amber-500">LABEL</span>
           </h1>
           <p className="text-amber-500/60 text-sm mt-1 font-medium">Admin Panel</p>
         </div>
@@ -65,7 +65,7 @@ export default function AdminLoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-[#0a0a0a] border border-gray-800 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-colors"
-                  placeholder="admin@laxmihomefoods.com"
+                  placeholder="admin@unikqlabel.com"
                   required
                 />
               </div>
@@ -104,7 +104,7 @@ export default function AdminLoginPage() {
         </div>
 
         <p className="text-center text-gray-600 text-xs mt-6">
-          © {new Date().getFullYear()} Laxmi Home Foods. All rights reserved.
+          © {new Date().getFullYear()} UNIKQ LABEL. All rights reserved.
         </p>
       </div>
     </div>

@@ -11,12 +11,24 @@ interface SettingsContextValue {
     refresh: () => Promise<void>;
 }
 
+const THEME_COLOR_KEY = 'unikq_theme_color';
+
 const DEFAULT: SiteSettings = {
-    site_name: 'Lakshmi Home Foods',
+    site_name: 'UNIKQ LABEL',
     currency_symbol: '₹',
+    theme_color: '#f59e0b',
     font_heading: 'Playfair Display',
     font_body: 'Poppins',
 };
+
+/** Read the last-known theme color from localStorage (set before API loads) */
+function getStoredThemeColor(): string {
+    try {
+        return localStorage.getItem(THEME_COLOR_KEY) || DEFAULT.theme_color!;
+    } catch {
+        return DEFAULT.theme_color!;
+    }
+}
 
 const SettingsContext = createContext<SettingsContextValue>({
     settings: DEFAULT,
@@ -25,7 +37,11 @@ const SettingsContext = createContext<SettingsContextValue>({
 });
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
-    const [settings, setSettings] = useState<SiteSettings>(DEFAULT);
+    // Seed state with the localStorage color so components never see a wrong value
+    const [settings, setSettings] = useState<SiteSettings>({
+        ...DEFAULT,
+        theme_color: getStoredThemeColor(),
+    });
     const [loading, setLoading]   = useState(true);
 
     const apply = (s: SiteSettings) => {
@@ -49,10 +65,10 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         document.documentElement.style.setProperty('--font-heading', `'${headingFont}', serif`);
         document.documentElement.style.setProperty('--font-body',    `'${bodyFont}', sans-serif`);
 
-        // Apply CSS variables for theme color
-        if (s.theme_color) {
-            document.documentElement.style.setProperty('--theme-color', s.theme_color);
-        }
+        // Apply CSS variable for theme color and persist it for next page load
+        const themeColor = s.theme_color || DEFAULT.theme_color || '#f59e0b';
+        document.documentElement.style.setProperty('--theme-color', themeColor);
+        try { localStorage.setItem(THEME_COLOR_KEY, themeColor); } catch { /* ignore */ }
 
         // Update favicon
         if (s.favicon_url) {
@@ -65,6 +81,11 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
             fav.href = s.favicon_url.startsWith('/') ? `/api${s.favicon_url}` : s.favicon_url;
         }
     };
+
+    // Apply the stored/default color immediately on mount — before API responds
+    useEffect(() => {
+        document.documentElement.style.setProperty('--theme-color', getStoredThemeColor());
+    }, []);
 
     const load = async () => {
         try {

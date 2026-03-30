@@ -1,92 +1,142 @@
-
-
 import { motion } from "framer-motion"
-import { Check, Heart, Leaf, Sparkles, Utensils } from "lucide-react"
+import { Leaf, Award, Users, ArrowRight } from "lucide-react"
 import { Image } from "@/components/ui/image"
+import { Link } from 'react-router-dom';
 
-const features = [
-  { icon: Heart, text: "100% Homemade" },
-  { icon: Leaf, text: "No Preservatives" },
-  { icon: Sparkles, text: "Traditional Andhra Flavors" },
-  { icon: Utensils, text: "Fresh Ingredients" },
+const pillars = [
+  {
+    icon: Leaf,
+    title: "Sustainable Fabric",
+    desc: "Eco-conscious materials that feel premium",
+  },
+  {
+    icon: Award,
+    title: "Premium Quality",
+    desc: "Every stitch crafted to meet royal standards",
+  },
+  {
+    icon: Users,
+    title: "Inclusive Sizing",
+    desc: "Made for every body, every king & queen",
+  },
 ]
 
 export function TraditionSection() {
   return (
-    <section className="py-20 px-4 bg-gradient-to-b from-[#1a1410] to-[#0f0f0f]">
+    <section className="py-10 px-4" style={{ background: 'linear-gradient(180deg, #111110 0%, #0D0D0D 100%)' }}>
       <div className="container mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Image Side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
+
+          {/* ── Left: Lifestyle Image ── */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.9 }}
             className="relative"
           >
-            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+            {/* Corner accents */}
+            <div className="absolute -top-5 -left-5 w-20 h-20 pointer-events-none"
+              style={{ borderTop: '2px solid rgba(212,175,55,0.35)', borderLeft: '2px solid rgba(212,175,55,0.35)', borderRadius: '6px 0 0 0' }} />
+            <div className="absolute -bottom-5 -right-5 w-20 h-20 pointer-events-none"
+              style={{ borderBottom: '2px solid rgba(212,175,55,0.35)', borderRight: '2px solid rgba(212,175,55,0.35)', borderRadius: '0 0 6px 0' }} />
+
+            <div className="relative aspect-[4/5] rounded-2xl overflow-hidden"
+              style={{ border: '1px solid rgba(212,175,55,0.12)', boxShadow: '0 30px 80px rgba(0,0,0,0.7)' }}>
               <Image
-                src="/images/tradition.jpg"
-                alt="Traditional food preparation"
+                src="/images/about-lifestyle.jpg"
+                alt="UNIKQ LABEL fashion lifestyle"
                 fill
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-tr from-[#0f0f0f]/60 to-transparent" />
+              <div className="absolute inset-0" style={{
+                background: 'linear-gradient(135deg, rgba(13,13,13,0.55) 0%, transparent 60%)',
+              }} />
             </div>
-            
-            {/* Decorative Elements */}
-            <div className="absolute -top-4 -left-4 w-24 h-24 border-t-4 border-l-4 border-[#d97706]/30 rounded-tl-2xl" />
-            <div className="absolute -bottom-4 -right-4 w-24 h-24 border-b-4 border-r-4 border-[#d97706]/30 rounded-br-2xl" />
-            
-            {/* Floating Badge */}
+
+            {/* Floating accent badge */}
             <motion.div
               initial={{ scale: 0 }}
               whileInView={{ scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="absolute -right-4 md:-right-8 bottom-8 glass px-6 py-4 rounded-xl border border-[#d97706]/30"
+              transition={{ duration: 0.5, delay: 0.4, type: 'spring' }}
+              className="absolute -right-4 md:-right-10 bottom-10 px-6 py-4 rounded-2xl"
+              style={{
+                background: 'rgba(13,13,13,0.92)',
+                border: '1px solid rgba(212,175,55,0.35)',
+                backdropFilter: 'blur(16px)',
+                boxShadow: '0 20px 50px rgba(0,0,0,0.6)',
+              }}
             >
-              <p className="text-[#f59e0b] font-serif text-3xl font-bold">25+</p>
-              <p className="text-[#fef3e2]/80 text-sm">Years of Tradition</p>
+              <p className="font-heading text-3xl font-black text-amber-500">2024</p>
+              <p className="font-body text-xs mt-0.5 uppercase tracking-widest" style={{ color: 'rgba(245,240,232,0.6)' }}>Est. Year</p>
             </motion.div>
           </motion.div>
 
-          {/* Content Side */}
+          {/* ── Right: Content ── */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.9 }}
           >
-            <span className="text-[#d97706] text-sm font-medium tracking-wider uppercase">Our Story</span>
-            <h2 className="font-serif text-4xl md:text-5xl font-bold text-[#fef3e2] mt-2 mb-6">
-              Our Tradition
+            <span className="section-badge">Our Story</span>
+            <h2 className="font-heading text-4xl md:text-5xl font-black mt-5 mb-6 leading-tight" style={{ color: '#F5F0E8' }}>
+              Our{" "}
+              <span style={{
+                background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white) 0%, var(--theme-color) 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>
+                Identity
+              </span>
             </h2>
-            
-            <p className="text-lg text-[#fef3e2]/80 leading-relaxed mb-8">
-              At <span className="text-[#f59e0b] font-semibold">Lakshmi Home Foods</span>, we prepare every product with 
-              authentic homemade recipes passed through generations. Our commitment to quality and tradition ensures 
-              that every bite takes you back to the warmth of a traditional Andhra kitchen.
+
+            <p className="font-body text-lg leading-relaxed mb-5" style={{ color: 'rgba(245,240,232,0.72)' }}>
+              At <span className="text-amber-500" style={{ fontWeight: 600 }}>UNIKQ LABEL</span>, we believe fashion is a crown you
+              wear every day. Born from the spirit of royalty and the energy of the streets, we craft garments that speak power,
+              confidence, and unapologetic self-expression.
+            </p>
+            <p className="font-body text-base leading-relaxed mb-10" style={{ color: 'rgba(245,240,232,0.55)' }}>
+              Our unisex collections break boundaries — designed for kings, queens, and everyone who dares to rule their own narrative.
             </p>
 
-            {/* Features Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {features.map((feature, index) => (
+            {/* Pillars */}
+            <div className="space-y-4 mb-10">
+              {pillars.map((pillar, index) => (
                 <motion.div
-                  key={feature.text}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  key={pillar.title}
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="flex items-center gap-4 p-4 glass rounded-xl border border-[#d97706]/20"
+                  className="flex items-center gap-4 p-4 rounded-xl"
+                  style={{
+                    background: 'rgba(212,175,55,0.04)',
+                    border: '1px solid rgba(212,175,55,0.10)',
+                  }}
                 >
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#d97706]/10 flex items-center justify-center">
-                    <feature.icon className="w-6 h-6 text-[#d97706]" />
+                  <div className="flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center"
+                    style={{ background: 'rgba(212,175,55,0.10)', border: '1px solid rgba(212,175,55,0.20)' }}>
+                    <pillar.icon className="w-5 h-5 text-amber-500" />
                   </div>
-                  <span className="text-[#fef3e2] font-medium">{feature.text}</span>
+                  <div>
+                    <p className="font-body font-semibold text-sm" style={{ color: '#F5F0E8' }}>{pillar.title}</p>
+                    <p className="font-body text-xs mt-0.5" style={{ color: 'rgba(245,240,232,0.5)' }}>{pillar.desc}</p>
+                  </div>
                 </motion.div>
               ))}
             </div>
+
+            <Link
+              to="/about"
+              className="inline-flex items-center gap-2 font-body font-semibold text-sm uppercase tracking-wider transition-all duration-300 group hover:gap-3"
+              style={{ color: 'var(--theme-color)' }}
+            >
+              Discover the Brand
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </motion.div>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { orderService, type OrdersAnalytics, type ChartDay, type OrderFilters } from '@/services/orderService'
 import { useSettings } from '@/context/settings-context'
+import { useOrdersRefresh } from '@/context/orders-refresh-context'
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts'
@@ -301,7 +302,7 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
                 <div className="space-y-1">
                   <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">Shipping Address</p>
                   <p className="text-white font-medium text-sm">{detail.address}</p>
-                  <p className="text-gray-400 text-xs">{detail.city} â€” {detail.pincode}</p>
+                  <p className="text-gray-400 text-xs">{detail.city} – {detail.pincode}</p>
                   {detail.notes && <p className="text-gray-600 text-xs italic">"{detail.notes}"</p>}
                 </div>
 
@@ -350,7 +351,7 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
                     <thead>
                       <tr className="border-b border-gray-800 bg-[#0a0a0a]">
                         <th className="text-left p-3 text-gray-500 font-black uppercase tracking-widest">Item</th>
-                        <th className="text-center p-3 text-gray-500 font-black uppercase tracking-widest">Wt.</th>
+                        <th className="text-center p-3 text-gray-500 font-black uppercase tracking-widest">Variant</th>
                         <th className="text-center p-3 text-gray-500 font-black uppercase tracking-widest">Qty</th>
                         <th className="text-right p-3 text-gray-500 font-black uppercase tracking-widest">Total</th>
                       </tr>
@@ -358,8 +359,39 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
                     <tbody>
                       {(detail.items || []).map((item: any, i: number) => (
                         <tr key={i} className="border-b border-gray-800/50 last:border-0">
-                          <td className="p-3 text-white font-medium">{item.product_name}</td>
-                          <td className="p-3 text-center text-gray-400">{item.weight}</td>
+                          <td className="p-3">
+                            <div className="flex items-center gap-2.5">
+                              {item.image_url ? (
+                                <img
+                                  src={item.image_url}
+                                  alt={item.product_name}
+                                  className="w-10 h-10 rounded-lg object-cover border border-gray-700 shrink-0 bg-[#0a0a0a]"
+                                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded-lg border border-gray-800 bg-[#0a0a0a] flex items-center justify-center shrink-0">
+                                  <Package className="w-4 h-4 text-gray-700" />
+                                </div>
+                              )}
+                              <p className="text-white font-medium">{item.product_name}</p>
+                            </div>
+                          </td>
+                          <td className="p-3 text-center">
+                            {(item.size_label || item.color_name) ? (
+                              <div className="flex flex-wrap gap-1 justify-center">
+                                {item.size_label && (
+                                  <span className="px-2 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-md font-bold">{item.size_label}</span>
+                                )}
+                                {item.color_name && (
+                                  <span className="px-2 py-0.5 bg-gray-800 text-gray-300 border border-gray-700 rounded-md font-bold">{item.color_name}</span>
+                                )}
+                              </div>
+                            ) : item.weight ? (
+                              <span className="text-gray-400 font-medium">{item.weight}</span>
+                            ) : (
+                              <span className="text-gray-700">—</span>
+                            )}
+                          </td>
                           <td className="p-3 text-center text-gray-400">{item.qty}</td>
                           <td className="p-3 text-right text-amber-400 font-bold">{settings?.currency_symbol || '₹'}{Number(item.total).toLocaleString('en-IN')}</td>
                         </tr>
@@ -437,6 +469,7 @@ function DateRangePicker({ from, to, onChange, onClear }: {
 export default function AdminOrdersPage() {
   const [searchParams] = useSearchParams()
   const { settings } = useSettings()
+  const { triggerRefresh } = useOrdersRefresh()
   const highlightId = searchParams.get('highlight') ? Number(searchParams.get('highlight')) : null
   const highlightRef = useRef<HTMLDivElement>(null)
 
@@ -545,6 +578,7 @@ export default function AdminOrdersPage() {
     try {
       await orderService.updateStatus(id, status)
       setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o))
+      triggerRefresh()
     } catch { alert('Failed to update status') }
   }
 
@@ -554,6 +588,7 @@ export default function AdminOrdersPage() {
       await orderService.updatePayment(id, method)
       setOrders(prev => prev.map(o => o.id === id ? { ...o, payment_method: method } : o))
       loadAnalytics()
+      triggerRefresh()
     } catch { alert('Failed to update payment') }
   }
 
@@ -570,10 +605,12 @@ export default function AdminOrdersPage() {
         setOrders(prev => prev.filter(o => o.id !== id))
         setTotal(t => t - 1)
         loadAnalytics()
+        triggerRefresh()
       } else {
         await orderService.forceDelete(id)
         setOrders(prev => prev.filter(o => o.id !== id))
         setTotal(t => t - 1)
+        triggerRefresh()
       }
     } catch { alert('Action failed') }
   }
@@ -584,6 +621,7 @@ export default function AdminOrdersPage() {
       setOrders(prev => prev.filter(o => o.id !== id))
       setTotal(t => t - 1)
       loadAnalytics()
+      triggerRefresh()
     } catch { alert('Restore failed') }
   }
 
@@ -607,7 +645,7 @@ export default function AdminOrdersPage() {
         <div>
           <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-0.5">Admin Panel</p>
           <h1 className="text-xl md:text-2xl font-black text-white">
-            {isTrash ? 'Trash â€” Orders' : 'Orders'}
+            {isTrash ? 'Trash – Orders' : 'Orders'}
           </h1>
           <p className="text-gray-500 text-xs mt-0.5">
             {total} {isTrash ? 'trashed' : 'total'} records
@@ -656,7 +694,7 @@ export default function AdminOrdersPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search name, phone, invoiceâ€¦"
+              placeholder="Search name, phone, invoice…"
               value={searchInput}
               onChange={e => setSearchInput(e.target.value)}
               className="w-full pl-9 pr-4 py-2 bg-[#111] border border-gray-700 rounded-xl text-white text-xs placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-colors"
@@ -832,7 +870,7 @@ export default function AdminOrdersPage() {
             const showEllipsis = prev && p - prev > 1
             return (
               <span key={p} className="flex items-center gap-1.5">
-                {showEllipsis && <span className="text-gray-600 text-xs px-1">â€¦</span>}
+                {showEllipsis && <span className="text-gray-600 text-xs px-1">…</span>}
                 <button onClick={() => setPage(p)}
                   className={cn("w-8 h-8 flex items-center justify-center rounded-xl text-xs font-black transition-all",
                     p === page ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20" : "bg-[#0c0c0c] border border-gray-800 text-gray-400 hover:text-white hover:border-gray-700"

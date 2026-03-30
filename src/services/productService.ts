@@ -1,5 +1,5 @@
 import api from '@/lib/axios';
-import type { Product } from '@/data/products';
+import type { Product, SizeVariant, ColorVariant } from '@/data/products';
 
 export interface ProductVariant {
   weight: string;
@@ -11,7 +11,7 @@ export interface ApiProduct {
   name: string;
   slug: string;
   description: string | null;
-  category: 'snacks' | 'pickles' | 'spices' | 'sweets';
+  category: string;
   weight: string;
   price: number;
   discount_price: number | null;
@@ -19,9 +19,9 @@ export interface ApiProduct {
   gallery_images: string[] | null;
   rating: number;
   bestseller: boolean;
-  is_veg: boolean;
-  is_homemade: boolean;
   variants: ProductVariant[] | null;
+  variants_json: SizeVariant[] | null;       // NEW
+  color_variants_json: ColorVariant[] | null; // NEW
   status: 'active' | 'inactive';
   sort_order: number;
 }
@@ -43,9 +43,9 @@ function mapToProduct(p: ApiProduct): Product {
     description: p.description || undefined,
     rating: p.rating,
     bestseller: p.bestseller,
-    isVeg: p.is_veg,
-    isHomemade: p.is_homemade,
     variants: p.variants || undefined,
+    sizeVariants: p.variants_json || undefined,
+    colorVariants: p.color_variants_json || undefined,
     sortOrder: p.sort_order ?? 0,
   };
 }
@@ -173,16 +173,12 @@ export const productService = {
    */
   async getFiltered(params: {
     category?: string;
-    isVeg?: boolean | null;
     minPrice?: number;
     maxPrice?: number;
   }): Promise<Product[]> {
     let products = await this.getPublicProducts();
     if (params.category && params.category !== 'all') {
       products = products.filter(p => p.category === params.category);
-    }
-    if (params.isVeg !== undefined && params.isVeg !== null) {
-      products = products.filter(p => p.isVeg === params.isVeg);
     }
     if (params.minPrice !== undefined) {
       products = products.filter(p => p.price >= params.minPrice!);

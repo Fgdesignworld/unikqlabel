@@ -19,7 +19,7 @@ class Order {
             $db->beginTransaction();
 
             // Generate invoice number
-            $invoiceNumber = 'LHF-' . substr(time(), -6);
+            $invoiceNumber = 'UNI-' . substr(time(), -6);
 
             // Calculate totals
             $subtotal = 0;
@@ -63,16 +63,22 @@ class Order {
 
             // Insert order items
             $itemStmt = $db->prepare("
-                INSERT INTO order_items (order_id, product_id, product_name, weight, qty, price, total)
-                VALUES (:order_id, :product_id, :product_name, :weight, :qty, :price, :total)
+                INSERT INTO order_items (order_id, product_id, product_name, weight, size_label, color_name, image_url, qty, price, total)
+                VALUES (:order_id, :product_id, :product_name, :weight, :size_label, :color_name, :image_url, :qty, :price, :total)
             ");
 
             foreach ($items as $item) {
+                $sizeLabel  = isset($item['size_label'])  && $item['size_label']  !== '' ? htmlspecialchars($item['size_label'],  ENT_QUOTES, 'UTF-8') : null;
+                $colorName  = isset($item['color_name'])  && $item['color_name']  !== '' ? htmlspecialchars($item['color_name'],  ENT_QUOTES, 'UTF-8') : null;
+                $imageUrl   = isset($item['image_url'])   && $item['image_url']   !== '' ? filter_var($item['image_url'], FILTER_SANITIZE_URL) : null;
                 $itemStmt->execute([
                     'order_id'     => $orderId,
                     'product_id'   => $item['product_id'] ?? null,
                     'product_name' => htmlspecialchars($item['product_name'], ENT_QUOTES, 'UTF-8'),
                     'weight'       => htmlspecialchars($item['weight'], ENT_QUOTES, 'UTF-8'),
+                    'size_label'   => $sizeLabel,
+                    'color_name'   => $colorName,
+                    'image_url'    => $imageUrl,
                     'qty'          => (int) $item['qty'],
                     'price'        => (float) $item['price'],
                     'total'        => (float) ($item['price'] * $item['qty']),
@@ -260,6 +266,66 @@ class Order {
         $db = getDB();
         $stmt = $db->prepare("DELETE FROM orders WHERE id = :id");
         return $stmt->execute(['id' => $id]);
+    }
+
+    /**
+     * PUBLIC TRACKING — by phone number (max 20 recent orders)
+     */
+    public static function trackByPhone(string $phone): array {
+        $db = getDB();
+        $stmt = $db->prepare("
+            SELECT id, invoice_number, customer_name, created_at, status,
+                   subtotal, delivery, total, payment_method, city
+            FROM orders
+            WHERE phone = :phone AND deleted_at IS NULL
+            ORDER BY created_at DESC
+            LIMIT 20
+        ");
+        $stmt->execute(['phone' => $phone]);
+        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($orders as &$order) {
+            $itemStmt = $db->prepare("
+                SELECT product_name, qty, price, total, size_label, color_name, weight, image_url
+                FROM order_items WHERE order_id = :oid ORDER BY id
+            ");
+            $itemStmt->execute(['oid' => $order['id']]);
+            $order['items']    = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+            $order['id']       = (int)   $order['id'];
+            $order['total']    = (float) $order['total'];
+            $order['subtotal'] = (float) $order['subtotal'];
+            $order['delivery'] = (float) $order['delivery'];
+        }
+        return $orders;
+    }
+
+    /**
+     * PUBLIC TRACKING — by invoice number
+     */
+    public static function trackByInvoice(string $invoiceNumber): ?array {
+        $db = getDB();
+        $stmt = $db->prepare("
+            SELECT id, invoice_number, customer_name, created_at, status,
+                   subtotal, delivery, total, payment_method, city
+            FROM orders
+            WHERE invoice_number = :inv AND deleted_at IS NULL
+            LIMIT 1
+        ");
+        $stmt->execute(['inv' => $invoiceNumber]);
+        $order = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$order) return null;
+
+        $itemStmt = $db->prepare("
+            SELECT product_name, qty, price, total, size_label, color_name, weight, image_url
+            FROM order_items WHERE order_id = :oid ORDER BY id
+        ");
+        $itemStmt->execute(['oid' => $order['id']]);
+        $order['items']    = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+        $order['id']       = (int)   $order['id'];
+        $order['total']    = (float) $order['total'];
+        $order['subtotal'] = (float) $order['subtotal'];
+        $order['delivery'] = (float) $order['delivery'];
+        return $order;
     }
 
     /**

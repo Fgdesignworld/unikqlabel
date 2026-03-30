@@ -89,7 +89,7 @@ class Product {
             'slug'          => $data['slug'] ?? self::createSlug($data['name']),
             'description'   => $data['description'] ?? null,
             'category'      => $data['category'],
-            'weight'        => $data['weight'] ?? '1kg',
+            'weight'        => $data['weight'] ?? '',
             'price'         => $data['price'],
             'discount_price'=> isset($data['discount_price']) ? (float)$data['discount_price'] : null,
             'image'         => $data['image'] ?? null,
@@ -102,7 +102,24 @@ class Product {
             'status'        => $data['status'] ?? 'active',
         ]);
 
-        return (int) $db->lastInsertId();
+        // Set new variant columns immediately after insert
+        $id = (int) $db->lastInsertId();
+        if (array_key_exists('variants_json', $data) || array_key_exists('color_variants_json', $data)) {
+            $cols   = [];
+            $params = ['id' => $id];
+            if (array_key_exists('variants_json', $data)) {
+                $cols[] = 'variants_json = :variants_json';
+                $params['variants_json'] = is_array($data['variants_json']) ? json_encode($data['variants_json']) : null;
+            }
+            if (array_key_exists('color_variants_json', $data)) {
+                $cols[] = 'color_variants_json = :color_variants_json';
+                $params['color_variants_json'] = is_array($data['color_variants_json']) ? json_encode($data['color_variants_json']) : null;
+            }
+            if (!empty($cols)) {
+                $db->prepare('UPDATE products SET ' . implode(', ', $cols) . ' WHERE id = :id')->execute($params);
+            }
+        }
+        return $id;
     }
 
     /**
@@ -114,12 +131,18 @@ class Product {
         $fields = [];
         $params = ['id' => $id];
 
-        $allowedFields = ['name', 'slug', 'description', 'category', 'weight', 'price', 'discount_price', 'image', 'gallery_images', 'rating', 'bestseller', 'is_veg', 'is_homemade', 'variants', 'status'];
+        $allowedFields = ['name', 'slug', 'description', 'category', 'weight', 'price', 'discount_price', 'image', 'gallery_images', 'rating', 'bestseller', 'is_veg', 'is_homemade', 'variants', 'variants_json', 'color_variants_json', 'status'];
 
         foreach ($allowedFields as $field) {
             if (array_key_exists($field, $data)) {
                 $value = $data[$field];
                 if ($field === 'variants' && is_array($value)) {
+                    $value = json_encode($value);
+                }
+                if ($field === 'variants_json' && is_array($value)) {
+                    $value = json_encode($value);
+                }
+                if ($field === 'color_variants_json' && is_array($value)) {
                     $value = json_encode($value);
                 }
                 if ($field === 'gallery_images' && is_array($value)) {

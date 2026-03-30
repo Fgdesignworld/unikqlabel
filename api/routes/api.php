@@ -4,6 +4,7 @@
  */
 
 require_once __DIR__ . '/../controllers/AuthController.php';
+require_once __DIR__ . '/../controllers/HeroSlideController.php';
 require_once __DIR__ . '/../controllers/ProductController.php';
 require_once __DIR__ . '/../controllers/OrderController.php';
 require_once __DIR__ . '/../controllers/NotificationController.php';
@@ -13,6 +14,9 @@ require_once __DIR__ . '/../controllers/SettingsController.php';
 require_once __DIR__ . '/../controllers/PopupController.php';
 require_once __DIR__ . '/../controllers/DeliveryController.php';
 require_once __DIR__ . '/../controllers/ReviewController.php';
+require_once __DIR__ . '/../controllers/SizeVariantController.php';
+require_once __DIR__ . '/../controllers/ColorLibraryController.php';
+require_once __DIR__ . '/../controllers/ContactController.php';
 
 function handleRequest(): void {
     $method = $_SERVER['REQUEST_METHOD'];
@@ -75,6 +79,12 @@ function handleRequest(): void {
         return;
     }
 
+    // GET /hero-slides — Public active slides for hero carousel
+    if ($method === 'GET' && $uri === '/hero-slides') {
+        HeroSlideController::publicIndex();
+        return;
+    }
+
     // GET /popup — Public active popup
     if ($method === 'GET' && $uri === '/popup') {
         PopupController::getActive();
@@ -105,6 +115,12 @@ function handleRequest(): void {
         return;
     }
 
+    // GET /orders/track — Public order tracking by phone or invoice
+    if ($method === 'GET' && $uri === '/orders/track') {
+        OrderController::track();
+        return;
+    }
+
     // ========================================
     // PUBLIC REVIEW ROUTES
     // ========================================
@@ -124,6 +140,20 @@ function handleRequest(): void {
     // POST /reviews
     if ($method === 'POST' && $uri === '/reviews') {
         ReviewController::store();
+        return;
+    }
+
+    // GET /variant-sets  (public — active sets with variants for product form)
+    if ($method === 'GET' && $uri === '/variant-sets') {
+        $ctrl = new SizeVariantController();
+        $ctrl->publicIndex();
+        return;
+    }
+
+    // GET /colors  (public — active colors for product form)
+    if ($method === 'GET' && $uri === '/colors') {
+        $ctrl = new ColorLibraryController();
+        $ctrl->publicIndex();
         return;
     }
 
@@ -256,6 +286,22 @@ function handleRequest(): void {
     // DELETE /admin/orders/{id}
     if ($method === 'DELETE' && preg_match('#^/admin/orders/(\d+)$#', $uri, $matches)) {
         OrderController::adminDelete((int) $matches[1]);
+        return;
+    }
+
+    // ========================================
+    // ADMIN CUSTOMER ROUTES
+    // ========================================
+
+    // GET /admin/customers — list customers (grouped by phone)
+    if ($method === 'GET' && $uri === '/admin/customers') {
+        OrderController::adminCustomers();
+        return;
+    }
+
+    // GET /admin/customers/{phone}/orders — orders for a customer
+    if ($method === 'GET' && preg_match('#^/admin/customers/([0-9]+)/orders$#', $uri, $matches)) {
+        OrderController::adminCustomerOrders($matches[1]);
         return;
     }
 
@@ -476,6 +522,218 @@ function handleRequest(): void {
     // PUT /admin/reviews/{id}  (admin edit)
     if ($method === 'PUT' && preg_match('#^/admin/reviews/(\d+)$#', $uri, $matches)) {
         ReviewController::adminUpdate((int) $matches[1]);
+        return;
+    }
+
+    // ========================================
+    // ADMIN HERO SLIDE ROUTES
+    // ========================================
+
+    // GET /admin/hero-slides
+    if ($method === 'GET' && $uri === '/admin/hero-slides') {
+        HeroSlideController::index();
+        return;
+    }
+
+    // POST /admin/hero-slides/upload-image
+    if ($method === 'POST' && $uri === '/admin/hero-slides/upload-image') {
+        HeroSlideController::uploadImage();
+        return;
+    }
+
+    // POST /admin/hero-slides/reorder
+    if ($method === 'POST' && $uri === '/admin/hero-slides/reorder') {
+        HeroSlideController::reorder();
+        return;
+    }
+
+    // GET /admin/hero-slides/{id}
+    if ($method === 'GET' && preg_match('#^/admin/hero-slides/(\d+)$#', $uri, $matches)) {
+        HeroSlideController::show((int) $matches[1]);
+        return;
+    }
+
+    // POST /admin/hero-slides
+    if ($method === 'POST' && $uri === '/admin/hero-slides') {
+        HeroSlideController::store();
+        return;
+    }
+
+    // PUT /admin/hero-slides/{id}/toggle
+    if ($method === 'PUT' && preg_match('#^/admin/hero-slides/(\d+)/toggle$#', $uri, $matches)) {
+        HeroSlideController::toggleStatus((int) $matches[1]);
+        return;
+    }
+
+    // PUT /admin/hero-slides/{id}
+    if ($method === 'PUT' && preg_match('#^/admin/hero-slides/(\d+)$#', $uri, $matches)) {
+        HeroSlideController::update((int) $matches[1]);
+        return;
+    }
+
+    // DELETE /admin/hero-slides/{id}
+    if ($method === 'DELETE' && preg_match('#^/admin/hero-slides/(\d+)$#', $uri, $matches)) {
+        HeroSlideController::destroy((int) $matches[1]);
+        return;
+    }
+
+    // ========================================
+    // ADMIN VARIANT SET ROUTES
+    // ========================================
+
+    // GET /admin/variant-sets
+    if ($method === 'GET' && $uri === '/admin/variant-sets') {
+        $ctrl = new SizeVariantController();
+        $ctrl->index();
+        return;
+    }
+
+    // POST /admin/variant-sets
+    if ($method === 'POST' && $uri === '/admin/variant-sets') {
+        $ctrl = new SizeVariantController();
+        $ctrl->store();
+        return;
+    }
+
+    // GET /admin/variant-sets/{id}/variants
+    if ($method === 'GET' && preg_match('#^/admin/variant-sets/(\d+)/variants$#', $uri, $m)) {
+        $ctrl = new SizeVariantController();
+        $ctrl->variants((int)$m[1]);
+        return;
+    }
+
+    // POST /admin/variant-sets/{id}/variants  (bulk save)
+    if ($method === 'POST' && preg_match('#^/admin/variant-sets/(\d+)/variants$#', $uri, $m)) {
+        $ctrl = new SizeVariantController();
+        $ctrl->saveVariants((int)$m[1]);
+        return;
+    }
+
+    // PUT /admin/variant-sets/{id}
+    if ($method === 'PUT' && preg_match('#^/admin/variant-sets/(\d+)$#', $uri, $m)) {
+        $ctrl = new SizeVariantController();
+        $ctrl->update((int)$m[1]);
+        return;
+    }
+
+    // DELETE /admin/variant-sets/{id}
+    if ($method === 'DELETE' && preg_match('#^/admin/variant-sets/(\d+)$#', $uri, $m)) {
+        $ctrl = new SizeVariantController();
+        $ctrl->destroy((int)$m[1]);
+        return;
+    }
+
+    // ========================================
+    // ADMIN COLOR LIBRARY ROUTES
+    // ========================================
+
+    // GET /admin/colors
+    if ($method === 'GET' && $uri === '/admin/colors') {
+        $ctrl = new ColorLibraryController();
+        $ctrl->index();
+        return;
+    }
+
+    // POST /admin/colors
+    if ($method === 'POST' && $uri === '/admin/colors') {
+        $ctrl = new ColorLibraryController();
+        $ctrl->store();
+        return;
+    }
+
+    // PUT /admin/colors/{id}
+    if ($method === 'PUT' && preg_match('#^/admin/colors/(\d+)$#', $uri, $m)) {
+        $ctrl = new ColorLibraryController();
+        $ctrl->update((int)$m[1]);
+        return;
+    }
+
+    // DELETE /admin/colors/{id}
+    if ($method === 'DELETE' && preg_match('#^/admin/colors/(\d+)$#', $uri, $m)) {
+        $ctrl = new ColorLibraryController();
+        $ctrl->destroy((int)$m[1]);
+        return;
+    }
+
+    // GET /admin/products/{id}/color-images
+    if ($method === 'GET' && preg_match('#^/admin/products/(\d+)/color-images$#', $uri, $m)) {
+        $ctrl = new ColorLibraryController();
+        $ctrl->getProductColors((int)$m[1]);
+        return;
+    }
+
+    // POST /admin/products/{id}/color-images
+    if ($method === 'POST' && preg_match('#^/admin/products/(\d+)/color-images$#', $uri, $m)) {
+        $ctrl = new ColorLibraryController();
+        $ctrl->saveProductColors((int)$m[1]);
+        return;
+    }
+
+    // ========================================
+    // PUBLIC CONTACT / LEAD ROUTES
+    // ========================================
+
+    // POST /contact/submit
+    if ($method === 'POST' && $uri === '/contact/submit') {
+        ContactController::submit();
+        return;
+    }
+
+    // ========================================
+    // ADMIN LEADS ROUTES
+    // ========================================
+
+    // GET /admin/leads/upcoming
+    if ($method === 'GET' && $uri === '/admin/leads/upcoming') {
+        ContactController::upcoming();
+        return;
+    }
+
+    // GET /admin/leads/daily-stats
+    if ($method === 'GET' && $uri === '/admin/leads/daily-stats') {
+        ContactController::dailyStats();
+        return;
+    }
+
+    // GET /admin/leads/stats
+    if ($method === 'GET' && $uri === '/admin/leads/stats') {
+        ContactController::stats();
+        return;
+    }
+
+    // GET /admin/leads/export
+    if ($method === 'GET' && $uri === '/admin/leads/export') {
+        ContactController::export();
+        return;
+    }
+
+    // GET /admin/leads
+    if ($method === 'GET' && $uri === '/admin/leads') {
+        ContactController::index();
+        return;
+    }
+
+    // GET /admin/leads/{id}
+    if ($method === 'GET' && preg_match('#^/admin/leads/(\d+)$#', $uri, $matches)) {
+        ContactController::show((int) $matches[1]);
+        return;
+    }
+
+    // PATCH /admin/leads/{id}/status
+    if ($method === 'PATCH' && preg_match('#^/admin/leads/(\d+)/status$#', $uri, $matches)) {
+        ContactController::updateStatus((int) $matches[1]);
+        return;
+    }
+
+    // POST /admin/leads/{id}/followup
+    if ($method === 'POST' && preg_match('#^/admin/leads/(\d+)/followup$#', $uri, $matches)) {
+        ContactController::addFollowup((int) $matches[1]);
+        return;
+    }
+
+    // DELETE /admin/leads/{id}
+    if ($method === 'DELETE' && preg_match('#^/admin/leads/(\d+)$#', $uri, $matches)) {
+        ContactController::destroy((int) $matches[1]);
         return;
     }
 

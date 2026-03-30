@@ -3,6 +3,17 @@ export interface WeightVariant {
   price: number
 }
 
+export interface SizeVariant {
+  label: string    // e.g. "XS", "SM", "MD"
+  price?: number | null  // null = fall back to basePrice
+}
+
+export interface ColorVariant {
+  color: string    // e.g. "Black"
+  hex: string      // e.g. "#000000"
+  images: string[] // upload paths
+}
+
 export interface Product {
   id: string
   name: string
@@ -11,13 +22,13 @@ export interface Product {
   weight: string
   image: string
   gallery?: string[]
-  category: "snacks" | "pickles" | "spices" | "sweets"
+  category: string
   description?: string
   rating?: number
   bestseller?: boolean
-  isVeg?: boolean
-  isHomemade?: boolean
   variants?: WeightVariant[]
+  sizeVariants?: SizeVariant[]   // NEW: size-based pricing
+  colorVariants?: ColorVariant[] // NEW: color-based image switching
   sortOrder?: number
 }
 
@@ -29,12 +40,10 @@ export const products: Product[] = [
     price: 1000,
     weight: "1kg",
     image: "/images/nethi-sunnunda.jpg",
-    category: "sweets",
+    category: "limited",
     description: "Traditional urad dal sweet with pure ghee",
     rating: 4.9,
     bestseller: true,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 300 },
       { weight: "500g", price: 550 },
@@ -47,11 +56,9 @@ export const products: Product[] = [
     price: 1100,
     weight: "1kg",
     image: "/images/badam-sunnunda.jpg",
-    category: "sweets",
+    category: "limited",
     description: "Premium sunnunda enriched with almond pieces",
     rating: 4.9,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 350 },
       { weight: "500g", price: 600 },
@@ -64,11 +71,9 @@ export const products: Product[] = [
     price: 1200,
     weight: "1kg",
     image: "/images/dry-fruit-bite.jpg",
-    category: "sweets",
+    category: "limited",
     description: "Healthy energy bars made with seeds and dry fruits",
     rating: 4.8,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 400 },
       { weight: "500g", price: 700 },
@@ -81,12 +86,10 @@ export const products: Product[] = [
     price: 1200,
     weight: "1kg",
     image: "/images/dry-fruit-laddu.jpg",
-    category: "sweets",
+    category: "limited",
     description: "Power-packed laddu with mixed dry fruits",
     rating: 4.9,
     bestseller: true,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 400 },
       { weight: "500g", price: 700 },
@@ -99,11 +102,9 @@ export const products: Product[] = [
     price: 900,
     weight: "1kg",
     image: "/images/ragi-nethi-laddu.jpg",
-    category: "sweets",
+    category: "limited",
     description: "Healthy finger millet laddu with pure ghee",
     rating: 4.7,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 300 },
       { weight: "500g", price: 500 },
@@ -116,11 +117,9 @@ export const products: Product[] = [
     price: 600,
     weight: "1kg",
     image: "/images/nuvvula-chikki.jpg",
-    category: "sweets",
+    category: "limited",
     description: "Nutritious sesame seed chikki",
     rating: 4.6,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 400 },
@@ -133,11 +132,9 @@ export const products: Product[] = [
     price: 750,
     weight: "1kg",
     image: "/images/nuvvula-laddu.jpg",
-    category: "sweets",
+    category: "limited",
     description: "Health-conscious sesame balls",
     rating: 4.6,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 250 },
       { weight: "500g", price: 450 },
@@ -150,11 +147,9 @@ export const products: Product[] = [
     price: 600,
     weight: "1kg",
     image: "/images/palli-chikki.jpg",
-    category: "sweets",
+    category: "limited",
     description: "Classic peanut brittle",
     rating: 4.8,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 400 },
@@ -167,11 +162,9 @@ export const products: Product[] = [
     price: 600,
     weight: "1kg",
     image: "/images/boondhi-chikki.jpg",
-    category: "sweets",
+    category: "limited",
     description: "Crispy sweet boondhi bars",
     rating: 4.7,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 400 },
@@ -184,11 +177,9 @@ export const products: Product[] = [
     price: 600,
     weight: "1kg",
     image: "/images/gavalu-v3.jpg",
-    category: "snacks",
+    category: "men",
     description: "Sweet shell-shaped traditional treats",
     rating: 4.6,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 400 },
@@ -201,11 +192,9 @@ export const products: Product[] = [
     price: 800,
     weight: "1kg",
     image: "/images/kajji-kayalu.jpg",
-    category: "sweets",
+    category: "limited",
     description: "Crispy fried sweet dumplings with coconut filling",
     rating: 4.8,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 250 },
       { weight: "500g", price: 450 },
@@ -218,11 +207,9 @@ export const products: Product[] = [
     price: 500,
     weight: "1kg",
     image: "/images/ribbon-pakodi.jpg",
-    category: "snacks",
+    category: "men",
     description: "Crispy, ribbon-shaped savory snack",
     rating: 4.7,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 350 },
@@ -235,11 +222,9 @@ export const products: Product[] = [
     price: 500,
     weight: "1kg",
     image: "/images/chakralu.jpg",
-    category: "snacks",
+    category: "men",
     description: "Traditional crunch spiral snacks",
     rating: 4.7,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 350 },
@@ -252,11 +237,9 @@ export const products: Product[] = [
     price: 500,
     weight: "1kg",
     image: "/images/kaju-bundhi.jpg",
-    category: "snacks",
+    category: "men",
     description: "Spicy and crispy boondhi",
     rating: 4.6,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 350 },
@@ -269,11 +252,9 @@ export const products: Product[] = [
     price: 600,
     weight: "1kg",
     image: "/images/sanna-karam-pusa.jpg",
-    category: "snacks",
+    category: "men",
     description: "Thin, spicy gram flour sev",
     rating: 4.8,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 400 },
@@ -286,11 +267,9 @@ export const products: Product[] = [
     price: 500,
     weight: "1kg",
     image: "/images/minapa-chakralu.jpg",
-    category: "snacks",
+    category: "men",
     description: "Crispy urad dal spirals",
     rating: 4.7,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 350 },
@@ -303,11 +282,9 @@ export const products: Product[] = [
     price: 600,
     weight: "1kg",
     image: "/images/palli-pakodi-v2.jpg",
-    category: "snacks",
+    category: "men",
     description: "Spicy peanut pakodi",
     rating: 4.8,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 400 },
@@ -322,11 +299,9 @@ export const products: Product[] = [
     price: 596,
     weight: "1kg",
     image: "/images/kakaragaya-pickle.jpg",
-    category: "pickles",
+    category: "women",
     description: "Traditional bitter gourd pickle",
     rating: 4.5,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 400 },
@@ -339,11 +314,9 @@ export const products: Product[] = [
     price: 596,
     weight: "1kg",
     image: "/images/kotimera-pickle.jpg",
-    category: "pickles",
+    category: "women",
     description: "Flavorful coriander leaves pickle",
     rating: 4.7,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 400 },
@@ -356,11 +329,9 @@ export const products: Product[] = [
     price: 596,
     weight: "1kg",
     image: "/images/pandu-mirchi.jpg",
-    category: "pickles",
+    category: "women",
     description: "Fiery red chili pickle",
     rating: 4.8,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 400 },
@@ -373,11 +344,9 @@ export const products: Product[] = [
     price: 596,
     weight: "1kg",
     image: "/images/tamota-pickle.jpg",
-    category: "pickles",
+    category: "women",
     description: "Tangy and spicy tomato pickle",
     rating: 4.6,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 400 },
@@ -390,11 +359,9 @@ export const products: Product[] = [
     price: 596,
     weight: "1kg",
     image: "/images/gongura-pickle.jpg",
-    category: "pickles",
+    category: "women",
     description: "Classic Andhra sorrel leaves pickle",
     rating: 4.8,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 400 },
@@ -407,11 +374,9 @@ export const products: Product[] = [
     price: 596,
     weight: "1kg",
     image: "/images/vankaya-pickle.jpg",
-    category: "pickles",
+    category: "women",
     description: "Unique and spicy brinjal (eggplant) pickle",
     rating: 4.5,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 400 },
@@ -424,11 +389,9 @@ export const products: Product[] = [
     price: 596,
     weight: "1kg",
     image: "/images/mango-pickle.jpg",
-    category: "pickles",
+    category: "women",
     description: "Zesty raw mango pickle",
     rating: 4.9,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 400 },
@@ -441,11 +404,9 @@ export const products: Product[] = [
     price: 596,
     weight: "1kg",
     image: "/images/ginger-pickle.jpg",
-    category: "pickles",
+    category: "women",
     description: "Mango-ginger blend pickle",
     rating: 4.7,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 400 },
@@ -458,11 +419,9 @@ export const products: Product[] = [
     price: 596,
     weight: "1kg",
     image: "/images/ginger-pickle.jpg",
-    category: "pickles",
+    category: "women",
     description: "Zesty ginger pickle",
     rating: 4.6,
-    isVeg: true,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 200 },
       { weight: "500g", price: 400 },
@@ -475,12 +434,10 @@ export const products: Product[] = [
     price: 1040,
     weight: "1kg",
     image: "/images/chicken-pickle.jpg",
-    category: "pickles",
+    category: "women",
     description: "Spicy chicken pickle with bone pieces",
     rating: 4.9,
     bestseller: true,
-    isVeg: false,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 300 },
       { weight: "500g", price: 550 },
@@ -493,12 +450,10 @@ export const products: Product[] = [
     price: 1200,
     weight: "1kg",
     image: "/images/chicken-pickle.jpg",
-    category: "pickles",
+    category: "women",
     description: "Premium boneless chicken pickle",
     rating: 5.0,
     bestseller: true,
-    isVeg: false,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 350 },
       { weight: "500g", price: 650 },
@@ -511,11 +466,9 @@ export const products: Product[] = [
     price: 1396,
     weight: "1kg",
     image: "/images/chicken-pickle.jpg",
-    category: "pickles",
+    category: "women",
     description: "Combo of spicy chicken and tangy gongura",
     rating: 4.9,
-    isVeg: false,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 400 },
       { weight: "500g", price: 750 },
@@ -528,11 +481,9 @@ export const products: Product[] = [
     price: 1960,
     weight: "1kg",
     image: "/images/non-veg-pickles.jpg",
-    category: "pickles",
+    category: "women",
     description: "Exotic prawn pickle with gongura flavor",
     rating: 4.9,
-    isVeg: false,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 550 },
       { weight: "500g", price: 1000 },
@@ -545,11 +496,9 @@ export const products: Product[] = [
     price: 1800,
     weight: "1kg",
     image: "/images/non-veg-pickles.jpg",
-    category: "pickles",
+    category: "women",
     description: "Delicious and spicy prawn pickle",
     rating: 4.8,
-    isVeg: false,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 500 },
       { weight: "500g", price: 950 },
@@ -562,11 +511,9 @@ export const products: Product[] = [
     price: 2076,
     weight: "1kg",
     image: "/images/non-veg-pickles.jpg",
-    category: "pickles",
+    category: "women",
     description: "Premium mutton pickle with rich spices",
     rating: 5.0,
-    isVeg: false,
-    isHomemade: true,
     variants: [
       { weight: "250g", price: 600 },
       { weight: "500g", price: 1100 },
@@ -581,11 +528,9 @@ export const products: Product[] = [
     price: 219,
     weight: "250g",
     image: "/images/kobbari-karam.jpg",
-    category: "spices",
+    category: "unisex",
     description: "Coconut spice powder",
     rating: 4.8,
-    isVeg: true,
-    isHomemade: true,
     variants: [{ weight: "250g", price: 219 }],
   },
   {
@@ -594,11 +539,9 @@ export const products: Product[] = [
     price: 219,
     weight: "250g",
     image: "/images/nalla-karam.jpg",
-    category: "spices",
+    category: "unisex",
     description: "Black spice powder with secret ingredients",
     rating: 4.7,
-    isVeg: true,
-    isHomemade: true,
     variants: [{ weight: "250g", price: 219 }],
   },
   {
@@ -607,11 +550,9 @@ export const products: Product[] = [
     price: 219,
     weight: "250g",
     image: "/images/karivepaku-karam.jpg",
-    category: "spices",
+    category: "unisex",
     description: "Nutritious curry leaves spice powder",
     rating: 4.8,
-    isVeg: true,
-    isHomemade: true,
     variants: [{ weight: "250g", price: 219 }],
   },
   {
@@ -620,11 +561,9 @@ export const products: Product[] = [
     price: 219,
     weight: "250g",
     image: "/images/guntur-karam.jpg",
-    category: "spices",
+    category: "unisex",
     description: "Rich blended spice powder",
     rating: 4.8,
-    isVeg: true,
-    isHomemade: true,
     variants: [{ weight: "250g", price: 219 }],
   },
   {
@@ -633,11 +572,9 @@ export const products: Product[] = [
     price: 219,
     weight: "250g",
     image: "/images/munagaku-karam.jpg",
-    category: "spices",
+    category: "unisex",
     description: "Healthy drumstick leaves spice powder",
     rating: 4.7,
-    isVeg: true,
-    isHomemade: true,
     variants: [{ weight: "250g", price: 219 }],
   },
   {
@@ -646,11 +583,9 @@ export const products: Product[] = [
     price: 219,
     weight: "250g",
     image: "/images/velluli-karam.jpg",
-    category: "spices",
+    category: "unisex",
     description: "Flavorful garlic spice powder",
     rating: 4.8,
-    isVeg: true,
-    isHomemade: true,
     variants: [{ weight: "250g", price: 219 }],
   },
   {
@@ -659,11 +594,9 @@ export const products: Product[] = [
     price: 140,
     weight: "250g",
     image: "/images/turmeric-pasupu.jpg",
-    category: "spices",
+    category: "unisex",
     description: "Pure and traditional turmeric powder",
     rating: 4.9,
-    isVeg: true,
-    isHomemade: true,
     variants: [{ weight: "250g", price: 140 }],
   },
   {
@@ -672,20 +605,18 @@ export const products: Product[] = [
     price: 189,
     weight: "250g",
     image: "/images/guntur-karam.jpg",
-    category: "spices",
+    category: "unisex",
     description: "High-quality spice chilly powder",
     rating: 4.9,
-    isVeg: true,
-    isHomemade: true,
     variants: [{ weight: "250g", price: 189 }],
   },
 ]
 
 export const categories = [
-  { id: "snacks", name: "Snacks", description: "Crispy traditional snacks" },
-  { id: "pickles", name: "Pickles", description: "Authentic homemade pickles" },
-  { id: "spices", name: "Spices", description: "Fresh ground spice powders" },
-  { id: "sweets", name: "Sweets", description: "Traditional homemade sweets" },
+  { id: "men", name: "Men Collection",        description: "Premium menswear" },
+  { id: "women", name: "Women Collection",    description: "Elegant womenswear" },
+  { id: "unisex", name: "Unisex Collection",  description: "Unisex streetwear" },
+  { id: "limited", name: "Limited Drops",     description: "Exclusive editions" },
 ]
 
 export function getProductsByCategory(category: string): Product[] {

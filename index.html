@@ -4,7 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <title>Lakshmi Home Foods - Pure Taste of Tradition</title>
+    <title>UNIKQ LABEL</title>
+    <!-- Apply saved theme color before React loads to prevent color flash on refresh -->
+    <script>
+      (function () {
+        try {
+          var c = localStorage.getItem('unikq_theme_color');
+          if (c) document.documentElement.style.setProperty('--theme-color', c);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

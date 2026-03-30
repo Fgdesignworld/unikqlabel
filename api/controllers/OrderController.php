@@ -68,7 +68,10 @@ class OrderController {
             $items[] = [
                 'product_id'   => $cartItem['product_id'] ?? null,
                 'product_name' => $cartItem['name'],
-                'weight'       => $cartItem['weight'] ?? '1kg',
+                'weight'       => $cartItem['weight'] ?? '',
+                'size_label'   => isset($cartItem['size'])  ? trim($cartItem['size'])  : null,
+                'color_name'   => isset($cartItem['color']) ? trim($cartItem['color']) : null,
+                'image_url'    => isset($cartItem['image']) ? trim($cartItem['image']) : null,
                 'qty'          => (int) $cartItem['quantity'],
                 'price'        => (float) $cartItem['price'],
             ];
@@ -243,5 +246,145 @@ class OrderController {
 
         Order::updatePayment($id, $method, $ref);
         echo json_encode(['success' => true]);
+    }
+
+    /**
+     * GET /api/admin/customers — Admin: customer list (grouped by phone)
+     * Query: search=name|phone  sort=orders|spent|recent  page=N
+     */
+    public static function adminCustomers(): void {
+        requireAuth();
+
+        $search = trim($_GET['search'] ?? '');
+        $sort   = in_array($_GET['sort'] ?? '', ['orders', 'spent', 'recent', 'name']) ? $_GET['sort'] : 'recent';
+        $page   = max(1, (int) ($_GET['page'] ?? 1));
+        $limit  = 20;
+        $offset = ($page - 1) * $limit;
+
+        $db = getDB();
+
+        $where = "o.deleted_at IS NULL";
+        $params = [];
+
+        if ($search !== '') {
+            $where .= " AND (o.customer_name LIKE :s OR o.phone LIKE :s2)";
+            $params['s']  = '%' . $search . '%';
+            $params['s2'] = '%' . $search . '%';
+        }
+
+        $orderBy = match($sort) {
+            'orders' => 'order_count DESC',
+            'spent'  => 'total_spent DESC',
+            'name'   => 'customer_name ASC',
+            default  => 'last_order DESC',
+        };
+
+        $countSql = "SELECT COUNT(DISTINCT o.phone) FROM orders o WHERE {$where}";
+        $countStmt = $db->prepare($countSql);
+        $countStmt->execute($params);
+        $total = (int) $countStmt->fetchColumn();
+
+        $sql = "
+            SELECT
+                o.phone,
+                MAX(o.customer_name) AS customer_name,
+                MAX(o.city)          AS city,
+                MAX(o.address)       AS address,
+                MAX(o.pincode)       AS pincode,
+                COUNT(o.id)          AS order_count,
+                COALESCE(SUM(o.total), 0) AS total_spent,
+                MAX(o.created_at)    AS last_order,
+                MIN(o.created_at)    AS first_order
+            FROM orders o
+            WHERE {$where}
+            GROUP BY o.phone
+            ORDER BY {$orderBy}
+            LIMIT :limit OFFSET :offset
+        ";
+
+        $stmt = $db->prepare($sql);
+        foreach ($params as $k => $v) $stmt->bindValue(":$k", $v);
+        $stmt->bindValue(':limit',  $limit,  PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($customers as &$c) {
+            $c['order_count'] = (int)   $c['order_count'];
+            $c['total_spent'] = (float) $c['total_spent'];
+        }
+
+        echo json_encode([
+            'customers' => $customers,
+            'total'     => $total,
+            'page'      => $page,
+            'last_page' => max(1, (int) ceil($total / $limit)),
+        ]);
+    }
+
+    /**
+     * GET /api/admin/customers/{phone}/orders — Orders for one customer (admin)
+     */
+    public static function adminCustomerOrders(string $phone): void {
+        requireAuth();
+        $db = getDB();
+        $stmt = $db->prepare("
+            SELECT id, invoice_number, created_at, status, total, payment_method, city
+            FROM orders
+            WHERE phone = :phone AND deleted_at IS NULL
+            ORDER BY created_at DESC
+            LIMIT 50
+        ");
+        $stmt->execute(['phone' => $phone]);
+        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($orders as &$o) {
+            $o['id']    = (int)   $o['id'];
+            $o['total'] = (float) $o['total'];
+        }
+        echo json_encode(['orders' => $orders]);
+    }
+
+    /**
+     * GET /api/orders/track — PUBLIC order tracking
+     * ?phone=9876543210  → returns all orders for that phone (max 20)
+     * ?invoice=UNI-XXXX  → returns single order by invoice number
+     */
+    public static function track(): void {        require_once __DIR__ . '/../middleware/rate_limit.php';
+        checkRateLimit('order_track');
+
+        $phone   = trim($_GET['phone']   ?? '');
+        $invoice = trim($_GET['invoice'] ?? '');
+
+        if ($phone) {
+            $phone = preg_replace('/\D/', '', $phone);
+            if (!preg_match('/^\d{10}$/', $phone)) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Phone must be a 10-digit number']);
+                return;
+            }
+            $orders = Order::trackByPhone($phone);
+            echo json_encode(['success' => true, 'orders' => $orders, 'count' => count($orders)]);
+            return;
+        }
+
+        if ($invoice) {
+            $invoice = strtoupper(preg_replace('/[^A-Z0-9\-]/', '', strtoupper($invoice)));
+            if (strlen($invoice) < 3 || strlen($invoice) > 30) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid invoice number format']);
+                return;
+            }
+            $order = Order::trackByInvoice($invoice);
+            if (!$order) {
+                http_response_code(404);
+                echo json_encode(['error' => 'Order not found. Please check the invoice number.']);
+                return;
+            }
+            echo json_encode(['success' => true, 'orders' => [$order], 'count' => 1]);
+            return;
+        }
+
+        http_response_code(400);
+        echo json_encode(['error' => 'Provide a phone number or invoice number to search.']);
     }
 }

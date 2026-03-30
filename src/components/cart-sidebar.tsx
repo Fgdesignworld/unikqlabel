@@ -1,7 +1,9 @@
 
 
 import { motion, AnimatePresence } from "framer-motion"
+import { useEffect } from "react"
 import { Link } from 'react-router-dom';
+import { lockScroll, unlockScroll } from "@/lib/scroll-lock"
 import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight, TrendingUp, Zap } from "lucide-react"
 import { useCart } from "@/context/cart-context"
 import { useSettings } from "@/context/settings-context"
@@ -9,13 +11,13 @@ import { useDelivery } from "@/hooks/use-delivery"
 import { Image } from "@/components/ui/image"
 
 export function CartSidebar() {
-  const { 
-    items, 
-    isCartOpen, 
-    setIsCartOpen, 
-    removeItem, 
-    updateQuantity, 
-    totalPrice, 
+  const {
+    items,
+    isCartOpen,
+    setIsCartOpen,
+    removeItem,
+    updateQuantity,
+    totalPrice,
     clearCart
   } = useCart()
   const { settings } = useSettings()
@@ -23,6 +25,16 @@ export function CartSidebar() {
 
   const deliveryInfo = calcDelivery(totalPrice)
   const amountNeededForFree = deliveryRule.free_delivery_above - totalPrice
+
+  // Lock body scroll when cart is open
+  useEffect(() => {
+    if (isCartOpen) {
+      lockScroll('cart')
+    } else {
+      unlockScroll('cart')
+    }
+    return () => { unlockScroll('cart') }
+  }, [isCartOpen])
 
   return (
     <AnimatePresence>
@@ -34,7 +46,7 @@ export function CartSidebar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsCartOpen(false)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/70 z-40"
           />
 
           {/* Sidebar */}
@@ -48,15 +60,16 @@ export function CartSidebar() {
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-[#d97706]/20">
               <div className="flex items-center gap-3">
-                <ShoppingBag className="w-6 h-6 text-[#d97706]" />
+                <ShoppingBag className="w-6 h-6 text-amber-500" />
                 <h2 className="font-serif text-xl font-bold text-[#fef3e2]">Your Cart</h2>
-                <span className="px-2 py-0.5 bg-[#d97706] text-[#0f0f0f] text-sm font-bold rounded-full">
+                <span className="px-2 py-0.5 bg-amber-500 text-[#0f0f0f] text-sm font-bold rounded-full">
                   {items.length}
                 </span>
               </div>
               <button
+                type="button"
                 onClick={() => setIsCartOpen(false)}
-                className="p-2 hover:bg-[#d97706]/10 rounded-full transition-colors"
+                className="p-2 hover:bg-amber-500/10 rounded-full transition-colors"
               >
                 <X className="w-5 h-5 text-[#fef3e2]" />
               </button>
@@ -66,59 +79,70 @@ export function CartSidebar() {
             <div className="flex-1 overflow-y-auto p-4">
               {items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center">
-                  <ShoppingBag className="w-16 h-16 text-[#d97706]/30 mb-4" />
+                  <ShoppingBag className="w-16 h-16 text-amber-500/30 mb-4" />
                   <p className="text-[#fef3e2]/60 text-lg">Your cart is empty</p>
-                  <p className="text-[#fef3e2]/40 text-sm mt-2">Add some delicious items to get started!</p>
+                  <p className="text-[#fef3e2]/40 text-sm mt-2">Add some items to get started!</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {items.map((item) => (
-                    <motion.div
-                      key={item.id}
-                      layout
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, x: -100 }}
-                      className="flex gap-4 p-3 bg-[#0f0f0f]/50 rounded-xl border border-[#d97706]/10"
-                    >
-                      <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
-                        <Image
-                          src={item.image}
-                          alt={item.name}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-[#fef3e2] truncate">{item.name}</h3>
-                        <p className="text-[#fef3e2]/60 text-sm">{item.weight}</p>
-                        <p className="text-[#d97706] font-bold mt-1">{settings?.currency_symbol || '₹'}{item.price * item.quantity}</p>
-                      </div>
-                      <div className="flex flex-col items-end justify-between">
-                        <button
-                          onClick={() => removeItem(item.id)}
-                          className="p-1 hover:bg-red-500/10 rounded transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </button>
-                        <div className="flex items-center gap-2 bg-[#d97706]/10 rounded-full">
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="p-1 hover:bg-[#d97706]/20 rounded-full transition-colors"
-                          >
-                            <Minus className="w-4 h-4 text-[#d97706]" />
-                          </button>
-                          <span className="text-[#fef3e2] font-medium w-6 text-center">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="p-1 hover:bg-[#d97706]/20 rounded-full transition-colors"
-                          >
-                            <Plus className="w-4 h-4 text-[#d97706]" />
-                          </button>
+                  <AnimatePresence initial={false}>
+                    {items.map((item) => (
+                      <motion.div
+                        key={item.id}
+                        layout
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, x: -100, height: 0, marginBottom: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex gap-4 p-3 bg-[#0f0f0f]/50 rounded-xl border border-[#d97706]/10"
+                      >
+                        <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0">
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            fill
+                            className="object-cover"
+                          />
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-[#fef3e2] truncate">{item.name}</h3>
+                          <p className="text-[#fef3e2]/60 text-sm">{item.size || item.weight}</p>
+                          <div className="flex items-baseline gap-2 mt-1">
+                            <p className="text-amber-500 font-bold">{settings?.currency_symbol || '₹'}{item.price * item.quantity}</p>
+                            {item.originalPrice && (
+                              <p className="text-[#fef3e2]/40 text-xs line-through">{settings?.currency_symbol || '₹'}{item.originalPrice * item.quantity}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end justify-between">
+                          <button
+                            type="button"
+                            onClick={() => removeItem(item.id)}
+                            className="p-1 hover:bg-red-500/10 rounded transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </button>
+                          <div className="flex items-center gap-2 bg-amber-500/10 rounded-full">
+                            <button
+                              type="button"
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              className="p-1 hover:bg-amber-500/20 rounded-full transition-colors"
+                            >
+                              <Minus className="w-4 h-4 text-amber-500" />
+                            </button>
+                            <span className="text-[#fef3e2] font-medium w-6 text-center">{item.quantity}</span>
+                            <button
+                              type="button"
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              className="p-1 hover:bg-amber-500/20 rounded-full transition-colors"
+                            >
+                              <Plus className="w-4 h-4 text-amber-500" />
+                            </button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
                 </div>
               )}
             </div>
@@ -147,8 +171,8 @@ export function CartSidebar() {
                     )}
                   </div>
                   <div className="flex items-center justify-between pt-2 border-t border-[#d97706]/10">
-                    <span className="text-[#fef3e2] font-medium">Total</span>
-                    <span className="text-2xl font-bold text-[#d97706]">{settings?.currency_symbol || '₹'}{totalPrice}</span>
+                    <span className="text-[#fef3e2] font-medium" style={{ color: 'var(--theme-color)' }}>Total</span>
+                    <span className="text-2xl font-bold" style={{ color: 'var(--theme-color)' }}>{settings?.currency_symbol || '₹'}{totalPrice}</span>
                   </div>
                 </div>
 
@@ -159,22 +183,26 @@ export function CartSidebar() {
                     </p>
                   </div>
                 )}
-                
-                <Link
-                  to="/checkout"
-                  onClick={() => setIsCartOpen(false)}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-[#d97706] to-[#b45309] text-[#0f0f0f] font-bold rounded-xl hover:shadow-lg hover:shadow-[#d97706]/30 transition-all"
-                >
-                  Proceed to Checkout
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
 
-                <button
-                  onClick={clearCart}
-                  className="w-full text-center text-[#fef3e2]/50 hover:text-red-500 text-sm transition-colors"
-                >
-                  Clear Cart
-                </button>
+                <div className="flex gap-2">
+                  <Link
+                    to="/checkout"
+                    onClick={() => setIsCartOpen(false)}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 text-[#0f0f0f] font-bold rounded-xl hover:shadow-lg hover:shadow-amber-500/20 transition-all text-sm"
+                    style={{ background: 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 70%, black))', color: '#0D0D0D' }}
+                  >
+                    Proceed to Checkout
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => { clearCart(); setIsCartOpen(false) }}
+                    className="px-4 py-3.5 border border-red-500/30 text-red-400 hover:bg-red-500/10 rounded-xl text-sm font-medium transition-all shrink-0"
+                    title="Clear cart"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             )}
           </motion.div>
@@ -183,3 +211,4 @@ export function CartSidebar() {
     </AnimatePresence>
   )
 }
+

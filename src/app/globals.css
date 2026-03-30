@@ -1,66 +1,77 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Cinzel:wght@400;600;700;900&family=Poppins:wght@300;400;500;600;700&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
-/* Lakshmi Home Foods - Traditional Indian Food Brand Theme */
+/* UNIKQ LABEL — Premium Fashion Brand Theme */
 :root {
-  /* Charcoal black background - premium dark theme */
-  --background: #0f0f0f;
-  --foreground: #fef3e2;
+  /* Deep black background - luxury dark theme */
+  --background: #0D0D0D;
+  --foreground: #F5F0E8;
   
   /* Cards with glassmorphism effect */
-  --card: rgba(30, 20, 15, 0.8);
-  --card-foreground: #fef3e2;
+  --card: rgba(20, 18, 14, 0.85);
+  --card-foreground: #F5F0E8;
   
-  --popover: #1a1410;
-  --popover-foreground: #fef3e2;
+  --popover: #1A1A1A;
+  --popover-foreground: #F5F0E8;
   
-  /* Deep turmeric yellow primary */
-  --primary: #d97706;
-  --primary-foreground: #0f0f0f;
+  /* Gold primary */
+  --primary: #D4AF37;
+  --primary-foreground: #0D0D0D;
   
-  /* Rich maroon secondary */
-  --secondary: #7f1d1d;
-  --secondary-foreground: #fef3e2;
+  /* Charcoal secondary */
+  --secondary: #2C2C2C;
+  --secondary-foreground: #F5F0E8;
   
-  --muted: #2a2018;
-  --muted-foreground: #a89080;
+  --muted: #1A1A1A;
+  --muted-foreground: #888880;
   
-  /* Warm gold accent */
-  --accent: #f59e0b;
-  --accent-foreground: #0f0f0f;
+  /* Bright gold accent */
+  --accent: #F0D060;
+  --accent-foreground: #0D0D0D;
   
   --destructive: #dc2626;
-  --destructive-foreground: #fef3e2;
+  --destructive-foreground: #F5F0E8;
   
-  --border: rgba(217, 119, 6, 0.2);
-  --input: rgba(217, 119, 6, 0.1);
-  --ring: #f59e0b;
+  --border: rgba(212, 175, 55, 0.18);
+  --input: rgba(212, 175, 55, 0.08);
+  --ring: #D4AF37;
   
-  --chart-1: #d97706;
-  --chart-2: #7f1d1d;
-  --chart-3: #f59e0b;
+  --chart-1: #D4AF37;
+  --chart-2: #B8960A;
+  --chart-3: #F0D060;
   --chart-4: #92400e;
   --chart-5: #b45309;
   
   --radius: 0.75rem;
   
-  /* Custom brand colors */
-  --turmeric: #d97706;
-  --maroon: #7f1d1d;
-  --gold: #f59e0b;
-  --cream: #fef3e2;
+  /* UNIKQ LABEL Brand Colors */
+  --unikq-black: #0D0D0D;
+  --unikq-gold: #D4AF37;
+  --unikq-gold-light: #F0D060;
+  --unikq-gold-dark: #B8960A;
+  --unikq-charcoal: #1A1A1A;
+  --unikq-slate: #2C2C2C;
+  
+  /* Legacy aliases (keep for cart/admin compatibility) */
+  --turmeric: #D4AF37;
+  --maroon: #3D2B1A;
+  --gold: #D4AF37;
+  --cream: #F5F0E8;
   --olive: #4a5d23;
 
-  /* Dynamic font CSS vars — set by SettingsProvider at runtime */
-  --font-heading: 'Playfair Display', serif;
-  --font-body: 'Poppins', sans-serif;
+  /* Dynamic font CSS vars */
+  --font-heading: 'Playfair Display', 'Cinzel', serif;
+  --font-body: 'Poppins', 'Inter', sans-serif;
+  
+  /* Dynamic theme color - defaults to amber #f59e0b, can be overridden via settings */
   --theme-color: #f59e0b;
 }
 
 @theme inline {
-  --font-sans: var(--font-body, 'Inter', sans-serif);
+  --font-sans: var(--font-body, 'Poppins', sans-serif);
   --font-serif: var(--font-heading, 'Playfair Display', serif);
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';
   --color-background: var(--background);
@@ -91,11 +102,20 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --color-unikq-black: var(--unikq-black);
+  --color-unikq-gold: var(--unikq-gold);
+  --color-unikq-charcoal: var(--unikq-charcoal);
   --color-turmeric: var(--turmeric);
   --color-maroon: var(--maroon);
   --color-gold: var(--gold);
   --color-cream: var(--cream);
   --color-olive: var(--olive);
+  
+  /* Dynamic theme color - overrides amber palette */
+  --color-theme: var(--theme-color);
+  --color-amber-400: var(--theme-color);
+  --color-amber-500: var(--theme-color);
+  --color-amber-600: var(--theme-color);
 }
 
 @layer base {
@@ -105,201 +125,300 @@
   html, body {
     @apply bg-background text-foreground;
     overflow-x: hidden;
+    scroll-behavior: smooth;
   }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #0f0f0f;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #d97706;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #f59e0b;
-}
+/* ─── Custom scrollbar ─── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0D0D0D; }
+::-webkit-scrollbar-thumb { background: var(--theme-color); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { opacity: 0.8; }
 
 /* Hide scrollbar utility */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Glassmorphism effect */
+/* ─── Glassmorphism ─── */
 .glass {
-  background: rgba(30, 20, 15, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(217, 119, 6, 0.15);
+  background: rgba(20, 18, 14, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.12);
 }
 
-/* Gold gradient text */
+.glass-gold {
+  background: color-mix(in srgb, var(--theme-color) 6%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid color-mix(in srgb, var(--theme-color) 25%, transparent);
+}
+
+/* ─── Gold gradient text ─── */
 .text-gradient-gold {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white) 0%, var(--theme-color) 45%, color-mix(in srgb, var(--theme-color) 70%, black) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Smooth animations */
-.animate-fade-up {
-  animation: fadeUp 0.8s ease-out forwards;
+.text-gradient-royal {
+  background: linear-gradient(135deg, #ffffff 0%, color-mix(in srgb, var(--theme-color) 90%, white) 40%, var(--theme-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-scale-in {
-  animation: scaleIn 0.5s ease-out forwards;
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-/* Float animation for hero section */
+/* ─── Animations ─── */
 @keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-16px); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px color-mix(in srgb, var(--theme-color) 20%, transparent), 0 0 40px color-mix(in srgb, var(--theme-color) 5%, transparent); }
+  50%       { box-shadow: 0 0 40px color-mix(in srgb, var(--theme-color) 40%, transparent), 0 0 80px color-mix(in srgb, var(--theme-color) 15%, transparent); }
+}
+@keyframes ripple {
+  0%   { transform: scale(0); opacity: 0.6; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
 }
 
-.float {
-  animation: float 6s ease-in-out infinite;
+.float            { animation: float 5s ease-in-out infinite; }
+.animate-fade-up  { animation: fadeUp 0.8s ease-out forwards; }
+.animate-scale-in { animation: scaleIn 0.5s ease-out forwards; }
+.animate-shimmer  { 
+  background: linear-gradient(90deg, var(--theme-color) 0%, color-mix(in srgb, var(--theme-color) 90%, white) 50%, var(--theme-color) 100%);
+  background-size: 200% auto;
+  animation: shimmer 2.5s linear infinite;
 }
+.animate-glow-pulse { animation: glow-pulse 3s ease-in-out infinite; }
+.animate-marquee    { animation: marquee 30s linear infinite; }
 
-/* Font families */
+/* ─── Font utilities ─── */
 .font-heading {
   font-family: var(--font-heading);
   font-weight: 700;
 }
-
 .font-body {
   font-family: var(--font-body);
   font-weight: 400;
 }
-
-/* Section badge styling */
-.section-badge {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  background: linear-gradient(90deg, rgba(217, 119, 6, 0.2), rgba(245, 158, 11, 0.2));
-  border: 1px solid rgba(217, 119, 6, 0.4);
-  border-radius: 9999px;
-  color: #f59e0b;
-  font-size: 0.875rem;
-  font-weight: 500;
-  backdrop-filter: blur(10px);
+.font-cinzel {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.12em;
 }
 
-/* Primary button styling */
+/* ─── Section badge ─── */
+.section-badge {
+  display: inline-block;
+  padding: 0.4rem 1.2rem;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--theme-color) 12%, transparent), color-mix(in srgb, var(--theme-color) 12%, transparent));
+  border: 1px solid color-mix(in srgb, var(--theme-color) 35%, transparent);
+  border-radius: 9999px;
+  color: var(--theme-color);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+}
+
+/* ─── Primary (Gold) button ─── */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 1rem 2rem;
-  background: linear-gradient(to right, #d97706, #b45309);
-  color: #0f0f0f;
+  padding: 0.9rem 2rem;
+  background: linear-gradient(135deg, var(--theme-color) 0%, color-mix(in srgb, var(--theme-color) 70%, black) 100%);
+  color: #0D0D0D;
   font-weight: 700;
+  font-family: var(--font-body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
   border-radius: 9999px;
   transition: all 0.3s ease;
   cursor: pointer;
   border: none;
   text-decoration: none;
-  box-shadow: 0 10px 25px rgba(217, 119, 6, 0.2);
+  box-shadow: 0 8px 30px color-mix(in srgb, var(--theme-color) 25%, transparent);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white) 0%, var(--theme-color) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 40px color-mix(in srgb, var(--theme-color) 40%, transparent); }
+.btn-primary:hover::after { opacity: 1; }
+.btn-primary > * { position: relative; z-index: 1; color: #0D0D0D; }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  color: #0D0D0D;
 }
 
-.btn-primary:hover {
-  background: linear-gradient(to right, #f59e0b, #d97706);
+/* ─── Outline (ghost) button ─── */
+.btn-outline-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 2rem;
+  background: transparent;
+  color: var(--theme-color);
+  font-weight: 700;
+  font-family: var(--font-body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1.5px solid color-mix(in srgb, var(--theme-color) 60%, transparent);
+  text-decoration: none;
+  position: relative;
+  z-index: 1;
+}
+.btn-outline-gold > * { position: relative; z-index: 1; color: var(--theme-color); }
+.btn-outline-gold:hover {
+  background: color-mix(in srgb, var(--theme-color) 8%, transparent);
+  border-color: var(--theme-color);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--theme-color) 20%, transparent);
   transform: translateY(-2px);
-  box-shadow: 0 20px 40px rgba(217, 119, 6, 0.4);
+}
+.btn-outline-gold:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.btn-primary:active {
-  transform: translateY(0px);
-}
-
-/* WhatsApp button styling */
+/* ─── WhatsApp button ─── */
 .btn-whatsapp {
-  --whatsapp-start: #25D366;
-  --whatsapp-end: #128C7E;
-
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.85rem 1.5rem;
-  background: linear-gradient(90deg, var(--whatsapp-start), var(--whatsapp-end));
+  background: linear-gradient(90deg, #25D366, #128C7E);
   border: 1px solid rgba(255,255,255,0.06);
   color: #ffffff;
   font-weight: 700;
   border-radius: 9999px;
-  transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
   cursor: pointer;
   text-decoration: none;
-  box-shadow: 0 8px 24px rgba(18,140,126,0.18), inset 0 -6px 18px rgba(0,0,0,0.12);
-  backdrop-filter: blur(6px);
+  box-shadow: 0 8px 24px rgba(18,140,126,0.18);
+  position: relative;
+  z-index: 1;
+}
+.btn-whatsapp > * { position: relative; z-index: 1; color: #ffffff; }
+.btn-whatsapp:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(18,140,126,0.25); }
+.btn-whatsapp:active { transform: translateY(0) scale(0.995); }
+.btn-whatsapp:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.btn-whatsapp:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 20px 40px rgba(18,140,126,0.25);
-  opacity: 0.98;
+/* Contact card styles */
+.contact-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.contact-card:focus {
+  outline: none;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.6), 0 0 0 4px color-mix(in srgb, var(--theme-color) 12%, transparent);
+  transform: translateY(-6px);
+}
+.contact-card.group:hover,
+.contact-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.7), 0 6px 18px color-mix(in srgb, var(--theme-color) 10%, transparent);
 }
 
-.btn-whatsapp:active {
-  transform: translateY(0px) scale(0.995);
+.contact-icon {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
 }
+.contact-icon svg { width: 20px; height: 20px; }
 
-/* Hero-specific WhatsApp button (red gradient) */
+/* Small spacing for CTA text children */
+.btn-whatsapp > span,
+.btn-primary > span { margin-left: 0.5rem; }
+
+/* ─── Hero WhatsApp alias ─── */
 .btn-whatsapp-hero {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.85rem 1.5rem;
-  background: linear-gradient(135deg, rgb(185, 28, 28), rgb(153, 27, 27));
-  color: rgb(255, 255, 255);
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  padding: 0.9rem 2rem;
+  background: transparent;
+  color: #F5F0E8;
+  border: 1.5px solid rgba(245,240,232,0.25);
   border-radius: 9999px;
-  font-weight: 700;
-  box-shadow: rgba(153, 27, 27, 0.35) 0px 4px 20px;
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  font-weight: 600;
+  font-family: var(--font-body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
   cursor: pointer;
   text-decoration: none;
+  position: relative;
+  z-index: 1;
 }
-
+.btn-whatsapp-hero > * { position: relative; z-index: 1; color: #F5F0E8; }
 .btn-whatsapp-hero:hover {
-  transform: translateY(-3px);
-  box-shadow: rgba(153, 27, 27, 0.45) 0px 10px 30px;
+  background: rgba(245,240,232,0.07);
+  border-color: rgba(245,240,232,0.5);
+  transform: translateY(-2px);
+}
+.btn-whatsapp-hero:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.btn-whatsapp-hero:active {
-  transform: translateY(0px) scale(0.995);
+/* ─── Gold divider ─── */
+.gold-divider {
+  width: 80px; height: 2px;
+  background: linear-gradient(90deg, transparent, #D4AF37, transparent);
+}
+
+/* ─── Grain texture overlay ─── */
+.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.35;
 }

@@ -6,11 +6,12 @@ import HomePage from '@/app/page';
 import AboutPage from '@/app/about/page';
 import CheckoutPage from '@/app/checkout/page';
 import ContactPage from '@/app/contact/page';
-import PicklesPage from '@/app/pickles/page';
 import ProductsPage from '@/app/products/page';
 import ProductDetailPage from '@/app/products/detail';
-import SnacksPage from '@/app/snacks/page';
-import SpicesPage from '@/app/spices/page';
+import MenPage from '@/app/men/page';
+import WomenPage from '@/app/women/page';
+import UnisexPage from '@/app/unisex/page';
+import TrackOrderPage from '@/app/track/page';
 
 // Admin pages
 import AdminLoginPage from '@/app/admin/login/page';
@@ -25,7 +26,12 @@ import AdminSettingsPage from '@/app/admin/settings/page';
 import AdminPopupPage from '@/app/admin/popup/page';
 import AdminDeliveryPage from '@/app/admin/delivery/page';
 import AdminNotificationsPage from '@/app/admin/notifications/page';
-import AdminReviewsPage from '@/app/admin/reviews/page';
+import AdminReviewsPage from '@/app/admin/reviews/page'
+import AdminCustomersPage from '@/app/admin/customers/page'
+import AdminHeroPage from '@/app/admin/hero/page';
+import AdminVariantsPage from '@/app/admin/variants/page';
+import AdminColorsPage from '@/app/admin/colors/page';
+import AdminLeadsPage from '@/app/admin/leads/page';
 
 export default function App() {
   return (
@@ -35,11 +41,12 @@ export default function App() {
       <Route path="/about" element={<RootLayout><AboutPage /></RootLayout>} />
       <Route path="/checkout" element={<RootLayout><CheckoutPage /></RootLayout>} />
       <Route path="/contact" element={<RootLayout><ContactPage /></RootLayout>} />
-      <Route path="/pickles" element={<RootLayout><PicklesPage /></RootLayout>} />
+      <Route path="/men" element={<RootLayout><MenPage /></RootLayout>} />
+      <Route path="/women" element={<RootLayout><WomenPage /></RootLayout>} />
+      <Route path="/unisex" element={<RootLayout><UnisexPage /></RootLayout>} />
+      <Route path="/track" element={<RootLayout><TrackOrderPage /></RootLayout>} />
       <Route path="/products" element={<RootLayout><ProductsPage /></RootLayout>} />
       <Route path="/products/:slug" element={<RootLayout><ProductDetailPage /></RootLayout>} />
-      <Route path="/snacks" element={<RootLayout><SnacksPage /></RootLayout>} />
-      <Route path="/spices" element={<RootLayout><SpicesPage /></RootLayout>} />
 
       {/* Admin routes */}
       <Route path="/admin/login" element={<AdminLoginPage />} />
@@ -56,6 +63,11 @@ export default function App() {
         <Route path="delivery" element={<AdminDeliveryPage />} />
         <Route path="notifications" element={<AdminNotificationsPage />} />
         <Route path="reviews" element={<AdminReviewsPage />} />
+        <Route path="customers" element={<AdminCustomersPage />} />
+        <Route path="hero" element={<AdminHeroPage />} />
+        <Route path="variants" element={<AdminVariantsPage />} />
+        <Route path="colors" element={<AdminColorsPage />} />
+        <Route path="leads" element={<AdminLeadsPage />} />
       </Route>
     </Routes>
   );

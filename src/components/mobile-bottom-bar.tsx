@@ -1,20 +1,27 @@
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
-import { Home, UtensilsCrossed, ShoppingBag } from "lucide-react"
+import { Home, LayoutGrid, ShoppingBag } from "lucide-react"
 import { WhatsAppIcon } from '@/components/icons/whatsapp'
 import { useCart } from "@/context/cart-context"
+import { useSettings } from '@/context/settings-context'
 import { motion } from "framer-motion"
-
-const navItems = [
-  { name: "Home", href: "/", icon: Home },
-  { name: "Menu", href: "/products", icon: UtensilsCrossed },
-  { name: "Cart", href: "#cart", icon: ShoppingBag },
-  { name: "WhatsApp", href: "https://wa.me/918639424039", icon: WhatsAppIcon, external: true },
-]
 
 export function MobileBottomBar() {
   const pathname = useLocation().pathname
   const { totalItems, setIsCartOpen } = useCart()
+  const { settings } = useSettings()
+
+  const isProductDetailPage = pathname.startsWith('/products/') && pathname !== '/products'
+  if (isProductDetailPage) return null
+
+  const waNum = (settings?.whatsapp || settings?.phone || '918639424039').replace(/[^0-9]/g, '')
+
+  const navItems = [
+    { name: "Home", href: "/", icon: Home },
+    { name: "Collections", href: "/products", icon: LayoutGrid },
+    { name: "Cart", href: "#cart", icon: ShoppingBag },
+    { name: "WhatsApp", href: `https://wa.me/${waNum}`, icon: WhatsAppIcon, external: true },
+  ]
 
   return (
     <motion.nav
@@ -60,7 +67,7 @@ export function MobileBottomBar() {
                 key={item.name}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                href={item.href}
+                href={`https://wa.me/${(settings?.whatsapp || settings?.phone || '918639424039').replace(/[^0-9]/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex flex-col items-center justify-center flex-1 h-full rounded-lg hover:bg-[#25D366]/10 transition-colors"

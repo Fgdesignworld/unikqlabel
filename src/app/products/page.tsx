@@ -1,272 +1,233 @@
-
-
-
 import { useState, useEffect, useMemo, useCallback } from "react"
 import { useSearchParams } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { Loader2, SlidersHorizontal, X, Leaf, Circle, ChevronDown, ChevronUp } from "lucide-react"
+import { Loader2, Search, X, Crown } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { PageHeader } from "@/components/page-header"
 import { ProductCard } from "@/components/product-card"
 import { useSeo } from "@/hooks/use-seo"
 import { productService } from "@/services/productService"
-import { categories } from "@/data/products"
+import { categoryService } from "@/services/categoryService"
+import type { Category as ApiCategory } from "@/services/categoryService"
+import { categories as staticCategories } from "@/data/products"
 import type { Product } from "@/data/products"
 
-// ─── helpers ───────────────────────────────────────────────────
 function clamp(val: number, min: number, max: number) {
   return Math.min(Math.max(val, min), max)
 }
 
+function DualRangeSlider({ min, max, lo, hi, onChange }: {
+  min: number; max: number; lo: number; hi: number
+  onChange: (lo: number, hi: number) => void
+}) {
+  const range = max - min || 1
+  const loP   = ((lo - min) / range) * 100
+  const hiP   = ((hi - min) / range) * 100
+  return (
+    <div className="relative h-6 flex items-center select-none">
+      <div className="absolute inset-x-0 h-1.5 rounded-full" style={{ background: 'rgba(212,175,55,0.1)' }}>
+        <div className="absolute h-full rounded-full" style={{
+          left: `${loP}%`, right: `${100 - hiP}%`,
+          background: 'linear-gradient(90deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 90%, white))',
+        }} />
+      </div>
+      <div className="absolute w-4 h-4 rounded-full border-2 shadow-lg pointer-events-none"
+        style={{ left: `calc(${loP}% - 8px)`, background: 'var(--theme-color)', borderColor: '#0D0D0D', boxShadow: '0 0 10px color-mix(in srgb, var(--theme-color) 40%, transparent)' }} />
+      <div className="absolute w-4 h-4 rounded-full border-2 shadow-lg pointer-events-none"
+        style={{ left: `calc(${hiP}% - 8px)`, background: 'var(--theme-color)', borderColor: '#0D0D0D', boxShadow: '0 0 10px color-mix(in srgb, var(--theme-color) 40%, transparent)' }} />
+      <input type="range" min={min} max={max} value={lo} step={1}
+        onChange={e => onChange(Math.min(+e.target.value, hi - 1), hi)}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        style={{ zIndex: loP > 90 ? 5 : 3 }} />
+      <input type="range" min={min} max={max} value={hi} step={1}
+        onChange={e => onChange(lo, Math.max(+e.target.value, lo + 1))}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        style={{ zIndex: 4 }} />
+    </div>
+  )
+}
+
 export default function ProductsPage() {
-  useSeo({ pageType: 'page', pageSlug: 'products', fallbackTitle: 'All Products — Lakshmi Home Foods' })
+  useSeo({ pageType: 'page', pageSlug: 'products', fallbackTitle: 'All Collections — UNIKQ LABEL' })
 
   const [searchParams, setSearchParams] = useSearchParams()
-
-  // ── All products (fetched once) ──────────────────────────────
   const [allProducts, setAllProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [filtersOpen, setFiltersOpen] = useState(false)
-
-  // ── Price bounds (computed from loaded data) ─────────────────
+  const [loading, setLoading]         = useState(true)
   const [priceBounds, setPriceBounds] = useState<[number, number]>([0, 5000])
-
-  // ── Filter state — read initially from URL ───────────────────
-  const [category, setCategory]     = useState(searchParams.get('category') || 'all')
-  const [vegFilter, setVegFilter]   = useState<'all' | 'veg' | 'non-veg'>(
-    (searchParams.get('veg') as 'all' | 'veg' | 'non-veg') || 'all'
-  )
+  const [search,    setSearch]    = useState(searchParams.get('q') || '')
+  const [category,  setCategory]  = useState(searchParams.get('category') || 'all')
   const [minPrice, setMinPrice] = useState<number>(Number(searchParams.get('min_price')) || 0)
   const [maxPrice, setMaxPrice] = useState<number>(Number(searchParams.get('max_price')) || 9999)
+  const [dynamicCategories, setDynamicCategories] = useState<ApiCategory[]>([])
 
-  // ── Load products ─────────────────────────────────────────────
+  // Load categories from API, fallback to static list
   useEffect(() => {
-    productService.getPublicProducts()
+    categoryService.getActive()
+      .then(cats => {
+        if (cats && cats.length > 0) setDynamicCategories(cats)
+        else setDynamicCategories(staticCategories.map((c, i) => ({ id: i + 1, name: c.name, slug: c.id, image: null, status: 'active' as const, sort_order: i })))
+      })
+      .catch(() => {
+        setDynamicCategories(staticCategories.map((c, i) => ({ id: i + 1, name: c.name, slug: c.id, image: null, status: 'active' as const, sort_order: i })))
+      })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    const t = new Promise<never>((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
+    Promise.race([productService.getPublicProducts(), t])
       .then(data => {
-        setAllProducts(data)
-        const prices = data.map(p => p.price)
-        const lo = Math.floor(Math.min(...prices))
-        const hi = Math.ceil(Math.max(...prices))
-        setPriceBounds([lo, hi])
-        // Only initialise price range from URL or full range
-        setMinPrice(prev => prev === 0 && !searchParams.get('min_price') ? lo : prev)
-        setMaxPrice(prev => prev === 9999 && !searchParams.get('max_price') ? hi : prev)
+        const d = data as Product[]
+        setAllProducts(d)
+        if (d.length > 0) {
+          const prices = d.map(p => p.price)
+          const lo = Math.floor(Math.min(...prices))
+          const hi = Math.ceil(Math.max(...prices))
+          setPriceBounds([lo, hi])
+          setMinPrice(prev => prev === 0 && !searchParams.get('min_price') ? lo : prev)
+          setMaxPrice(prev => prev === 9999 && !searchParams.get('max_price') ? hi : prev)
+        }
       })
       .catch(() => import("@/data/products").then(m => setAllProducts(m.products)))
       .finally(() => setLoading(false))
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // ── Sync filters → URL ────────────────────────────────────────
   useEffect(() => {
     const params: Record<string, string> = {}
+    if (search)               params.q         = search
     if (category !== 'all')   params.category  = category
-    if (vegFilter !== 'all')  params.veg       = vegFilter
     if (minPrice > priceBounds[0]) params.min_price = String(minPrice)
     if (maxPrice < priceBounds[1]) params.max_price = String(maxPrice)
     setSearchParams(params, { replace: true })
-  }, [category, vegFilter, minPrice, maxPrice, priceBounds, setSearchParams])
+  }, [search, category, minPrice, maxPrice, priceBounds, setSearchParams])
 
-  // ── Derived: filtered list ────────────────────────────────────
   const filtered = useMemo(() => {
+    const q = search.toLowerCase().trim()
     return allProducts.filter(p => {
+      if (q && !p.name.toLowerCase().includes(q))        return false
       if (category !== 'all' && p.category !== category) return false
-      if (vegFilter === 'veg' && !p.isVeg)               return false
-      if (vegFilter === 'non-veg' && p.isVeg !== false)  return false
       if (p.price < minPrice || p.price > maxPrice)      return false
       return true
     })
-  }, [allProducts, category, vegFilter, minPrice, maxPrice])
+  }, [allProducts, search, category, minPrice, maxPrice])
 
-  const hasActiveFilters =
-    category !== 'all' || vegFilter !== 'all' ||
-    minPrice > priceBounds[0] || maxPrice < priceBounds[1]
-
+  const hasActiveFilters = !!search || category !== 'all' || minPrice > priceBounds[0] || maxPrice < priceBounds[1]
   const clearFilters = useCallback(() => {
+    setSearch('')
     setCategory('all')
-    setVegFilter('all')
     setMinPrice(priceBounds[0])
     setMaxPrice(priceBounds[1])
   }, [priceBounds])
 
   return (
-    <main className="min-h-screen bg-[#0f0f0f]">
+    <main className="min-h-screen" style={{ background: '#0D0D0D' }}>
       <Navbar />
       <PageHeader
-        title="Our Products"
-        subtitle="Authentic homemade traditional foods made with love and care"
+        title="All Collections"
+        subtitle="Shop the full UNIKQ LABEL universe — King, Queen, and Essentials"
         backgroundImage="/images/hero-bg.jpg"
       />
 
-      <div className="container mx-auto max-w-7xl px-4 pb-20">
-        {/* ── Category Tabs ── */}
-        <section className="py-8">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="flex flex-wrap items-center justify-center gap-3"
-          >
-            <button
-              onClick={() => setCategory('all')}
-              className={`px-6 py-2.5 rounded-full font-medium text-sm transition-all ${
-                category === 'all' ? "bg-[#d97706] text-[#0f0f0f]" : "bg-[#d97706]/10 text-[#fef3e2] hover:bg-[#d97706]/20"
-              }`}
+      <div className="container mx-auto max-w-7xl px-4 pb-24">
+
+        {/* ── Search ── */}
+        <section className="pt-8 pb-5">
+          <div className="relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none transition-colors"
+              style={{ color: 'rgba(212,175,55,0.4)' }} />
+            <input
+              type="text"
+              placeholder="Search styles, collections…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full pl-11 pr-10 py-3.5 rounded-2xl text-sm transition-all outline-none"
+              style={{
+                background: 'rgba(212,175,55,0.04)',
+                border: '1px solid rgba(212,175,55,0.12)',
+                color: '#F5F0E8',
+              }}
+            />
+            {search && (
+              <button onClick={() => setSearch('')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors"
+                style={{ color: 'rgba(245,240,232,0.4)' }}>
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </section>
+
+        {/* ── Collection Filter Tabs ── */}
+        <section className="pb-5">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
+            <button onClick={() => setCategory('all')}
+              className="shrink-0 flex items-center gap-1.5 px-5 py-2.5 rounded-full font-semibold text-sm transition-all"
+              style={category === 'all'
+                ? { background: 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 70%, black))', color: '#0D0D0D' }
+                : { background: 'color-mix(in srgb, var(--theme-color) 8%, transparent)', color: 'rgba(245,240,232,0.6)', border: '1px solid color-mix(in srgb, var(--theme-color) 15%, transparent)' }
+              }
             >
-              All Products
+              <Crown className="w-3 h-3" /> All
             </button>
-            {categories.map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => setCategory(cat.id)}
-                className={`px-6 py-2.5 rounded-full font-medium text-sm transition-all capitalize ${
-                  category === cat.id ? "bg-[#d97706] text-[#0f0f0f]" : "bg-[#d97706]/10 text-[#fef3e2] hover:bg-[#d97706]/20"
-                }`}
+            {dynamicCategories.map(cat => (
+              <button key={cat.slug}
+                onClick={() => setCategory(cat.slug)}
+                className="shrink-0 px-5 py-2.5 rounded-full font-semibold text-sm transition-all"
+                style={category === cat.slug
+                  ? { background: 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 70%, black))', color: '#0D0D0D' }
+                  : { background: 'color-mix(in srgb, var(--theme-color) 8%, transparent)', color: 'rgba(245,240,232,0.6)', border: '1px solid color-mix(in srgb, var(--theme-color) 15%, transparent)' }
+                }
               >
                 {cat.name}
               </button>
             ))}
-          </motion.div>
-        </section>
-
-        {/* ── Filter Bar ── */}
-        <section className="mb-8">
-          <div className="flex items-center gap-3 flex-wrap">
-            {/* Toggle filter panel */}
-            <button
-              onClick={() => setFiltersOpen(o => !o)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border ${
-                filtersOpen || hasActiveFilters
-                  ? "bg-[#d97706] text-[#0f0f0f] border-[#d97706]"
-                  : "border-[#d97706]/20 text-[#fef3e2]/70 hover:border-[#d97706]/50"
-              }`}
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-              Filters
-              {hasActiveFilters && (
-                <span className="bg-black/20 text-[10px] font-black px-1.5 py-0.5 rounded-full">ON</span>
-              )}
-              {filtersOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            </button>
-
-            {/* Active filter chips */}
-            {vegFilter !== 'all' && (
-              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-[#d97706]/10 border border-[#d97706]/20 text-[#d97706] rounded-xl text-xs font-semibold">
-                {vegFilter === 'veg' ? <Leaf className="w-3 h-3" /> : <Circle className="w-3 h-3" />}
-                {vegFilter === 'veg' ? 'Pure Veg' : 'Non-Veg'}
-                <button onClick={() => setVegFilter('all')} className="ml-1 hover:text-white"><X className="w-3 h-3" /></button>
-              </span>
-            )}
-            {(minPrice > priceBounds[0] || maxPrice < priceBounds[1]) && (
-              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-[#d97706]/10 border border-[#d97706]/20 text-[#d97706] rounded-xl text-xs font-semibold">
-                ₹{minPrice} – ₹{maxPrice}
-                <button onClick={() => { setMinPrice(priceBounds[0]); setMaxPrice(priceBounds[1]) }} className="ml-1 hover:text-white"><X className="w-3 h-3" /></button>
-              </span>
-            )}
-
-            {hasActiveFilters && (
-              <button
-                onClick={clearFilters}
-                className="text-xs text-[#fef3e2]/40 hover:text-[#fef3e2]/80 underline underline-offset-2 transition-colors"
-              >
-                Clear all
-              </button>
-            )}
-
-            {/* Result count */}
-            {!loading && (
-              <span className="ml-auto text-xs text-[#fef3e2]/40 font-medium">
-                {filtered.length} product{filtered.length !== 1 ? 's' : ''}
-              </span>
-            )}
           </div>
-
-          {/* ── Expanded Filter Panel ── */}
-          <AnimatePresence>
-            {filtersOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2, ease: 'easeOut' }}
-                className="overflow-hidden"
-              >
-                <div className="mt-4 p-6 bg-[#111] border border-[#d97706]/10 rounded-2xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {/* Veg / Non-Veg Toggle */}
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-[#fef3e2]/40 mb-3">Dietary</p>
-                    <div className="flex gap-2">
-                      {(['all', 'veg', 'non-veg'] as const).map(v => (
-                        <button
-                          key={v}
-                          onClick={() => setVegFilter(v)}
-                          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all ${
-                            vegFilter === v
-                              ? v === 'veg' ? 'bg-emerald-900/60 border-emerald-500/50 text-emerald-400'
-                                : v === 'non-veg' ? 'bg-red-900/60 border-red-500/50 text-red-400'
-                                : 'bg-[#d97706]/20 border-[#d97706]/40 text-[#d97706]'
-                              : 'border-white/10 text-[#fef3e2]/50 hover:border-white/20'
-                          }`}
-                        >
-                          {v === 'veg' && <Leaf className="w-3 h-3" />}
-                          {v === 'non-veg' && <Circle className="w-3 h-3" />}
-                          {v === 'all' ? 'All' : v === 'veg' ? 'Pure Veg' : 'Non-Veg'}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Price Range */}
-                  <div className="sm:col-span-2 lg:col-span-2">
-                    <p className="text-xs font-bold uppercase tracking-widest text-[#fef3e2]/40 mb-3">
-                      Price Range &nbsp;<span className="text-[#d97706] normal-case font-semibold tracking-normal">₹{minPrice} – ₹{maxPrice}</span>
-                    </p>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-[10px] text-[#fef3e2]/30 mb-1 block">Min price (₹)</label>
-                        <input
-                          type="number"
-                          min={priceBounds[0]}
-                          max={maxPrice}
-                          value={minPrice}
-                          onChange={e => setMinPrice(clamp(Number(e.target.value), priceBounds[0], maxPrice))}
-                          className="w-full px-3 py-2 bg-[#0a0a0a] border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-[#d97706]/50"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] text-[#fef3e2]/30 mb-1 block">Max price (₹)</label>
-                        <input
-                          type="number"
-                          min={minPrice}
-                          max={priceBounds[1]}
-                          value={maxPrice}
-                          onChange={e => setMaxPrice(clamp(Number(e.target.value), minPrice, priceBounds[1]))}
-                          className="w-full px-3 py-2 bg-[#0a0a0a] border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-[#d97706]/50"
-                        />
-                      </div>
-                    </div>
-                    {/* Visual range track */}
-                    <div className="mt-3 relative h-1.5 bg-white/10 rounded-full overflow-hidden">
-                      <div
-                        className="absolute top-0 h-full bg-[#d97706] rounded-full transition-all"
-                        style={{
-                          left:  `${((minPrice - priceBounds[0]) / (priceBounds[1] - priceBounds[0])) * 100}%`,
-                          right: `${100 - ((maxPrice - priceBounds[0]) / (priceBounds[1] - priceBounds[0])) * 100}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </section>
 
-        {/* ── Products Grid ── */}
+        {/* ── Price Filter ── */}
+        <section className="mb-5">
+          <div className="p-5 rounded-2xl" style={{ background: 'rgba(20,18,14,0.7)', border: '1px solid rgba(212,175,55,0.08)' }}>
+            <div className="flex items-center justify-between mb-3">
+              <p className="font-body text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(212,175,55,0.6)' }}>Price Range</p>
+              <span className="font-body text-xs font-bold text-amber-500">₹{minPrice} – ₹{maxPrice}</span>
+            </div>
+            <DualRangeSlider min={priceBounds[0]} max={priceBounds[1]} lo={minPrice} hi={maxPrice}
+              onChange={(lo, hi) => { setMinPrice(lo); setMaxPrice(hi) }} />
+            <div className="flex justify-between mt-2">
+              <span className="font-body text-[10px]" style={{ color: 'rgba(245,240,232,0.25)' }}>₹{priceBounds[0]}</span>
+              <span className="font-body text-[10px]" style={{ color: 'rgba(245,240,232,0.25)' }}>₹{priceBounds[1]}</span>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Results Meta ── */}
+        <div className="flex items-center gap-3 mb-6 min-h-6">
+          {!loading && (
+            <span className="font-body text-xs" style={{ color: 'rgba(245,240,232,0.35)' }}>
+              {filtered.length} style{filtered.length !== 1 ? 's' : ''} found
+            </span>
+          )}
+          {hasActiveFilters && (
+            <button onClick={clearFilters}
+              className="ml-auto flex items-center gap-1.5 text-xs transition-colors hover:opacity-100"
+              style={{ color: 'rgba(212,175,55,0.6)' }}>
+              <X className="w-3 h-3" /> Clear all
+            </button>
+          )}
+        </div>
+
+        {/* ── Grid ── */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-10 h-10 text-[#d97706] animate-spin" />
+            <Loader2 className="w-10 h-10 animate-spin text-amber-500" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-20">
+            <Crown className="w-12 h-12 mx-auto mb-4" style={{ color: 'rgba(212,175,55,0.3)' }} />
+            <p className="font-body text-lg mb-4" style={{ color: 'rgba(245,240,232,0.4)' }}>No styles match your filters.</p>
+            <button onClick={clearFilters} className="btn-primary text-sm"><span>Clear Filters</span></button>
           </div>
         ) : (
           <motion.div layout className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
@@ -278,16 +239,7 @@ export default function ProductsPage() {
           </motion.div>
         )}
 
-        {!loading && filtered.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-[#fef3e2]/60 text-lg mb-4">No products match your filters.</p>
-            <button onClick={clearFilters} className="px-6 py-2.5 bg-[#d97706] text-[#0f0f0f] font-semibold rounded-full hover:bg-[#f59e0b] transition-colors">
-              Clear Filters
-            </button>
-          </div>
-        )}
       </div>
-
       <Footer />
     </main>
   )

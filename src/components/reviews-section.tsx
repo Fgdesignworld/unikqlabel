@@ -1,33 +1,39 @@
-
-
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Quote, Star, ChevronLeft, ChevronRight } from "lucide-react"
 
 const reviews = [
   {
-    name: "Priya Reddy",
-    location: "Hyderabad",
-    text: "Best homemade pickles I tasted in years! The authentic Andhra flavors remind me of my grandmother's cooking. Absolutely delicious!",
+    name: "Arjun Mehta",
+    handle: "@arjun.style",
+    location: "Mumbai",
+    text: "UNIKQ LABEL changed how I dress. The quality is absolutely fire — premium stitching, perfect fit. Feels like I'm wearing luxury without the crazy price tag.",
     rating: 5,
+    avatar: "AM",
   },
   {
-    name: "Ravi Kumar",
+    name: "Priya Sharma",
+    handle: "@priya.royale",
+    location: "Delhi",
+    text: "Finally a brand that gets unisex fashion RIGHT. The Queen Collection is stunning — I get compliments every single time I wear it.",
+    rating: 5,
+    avatar: "PS",
+  },
+  {
+    name: "Karan Nair",
+    handle: "@k.nair_official",
     location: "Bangalore",
-    text: "Authentic Andhra snacks that are crispy and flavorful. The Palli Pakodi is simply amazing. Will definitely order again!",
+    text: "The King Collection hoodie is my go-to. Fabric quality is insane, the gold embroidery adds that royal touch. 100% buying again.",
     rating: 5,
+    avatar: "KN",
   },
   {
-    name: "Lakshmi Devi",
-    location: "Chennai",
-    text: "Perfect spice balance in every product. The Kobbari Karam with hot rice is heavenly. True traditional taste!",
+    name: "Neha Reddy",
+    handle: "@neh.streetstyle",
+    location: "Hyderabad",
+    text: "Ordered 3 pieces in one go. Super fast delivery, packaging was premium, and the clothes feel like they're worth 3x the price. Love UNIKQ!",
     rating: 5,
-  },
-  {
-    name: "Srinivas Rao",
-    location: "Vijayawada",
-    text: "Finally found authentic homemade sweets online. The Nethi Sunnunda melts in your mouth. Outstanding quality!",
-    rating: 5,
+    avatar: "NR",
   },
 ]
 
@@ -39,7 +45,7 @@ export function ReviewsSection() {
     const timer = setInterval(() => {
       setDirection(1)
       setCurrentIndex((prev) => (prev + 1) % reviews.length)
-    }, 5000)
+    }, 5500)
     return () => clearInterval(timer)
   }, [])
 
@@ -54,41 +60,53 @@ export function ReviewsSection() {
   }
 
   const variants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 100 : -100,
-      opacity: 0,
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-    },
-    exit: (direction: number) => ({
-      x: direction < 0 ? 100 : -100,
-      opacity: 0,
-    }),
+    enter: (dir: number) => ({ x: dir > 0 ? 80 : -80, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir: number) => ({ x: dir < 0 ? 80 : -80, opacity: 0 }),
   }
 
+  const review = reviews[currentIndex]
+
   return (
-    <section className="py-20 px-4 bg-[#0f0f0f]">
+    <section className="py-10 px-4" style={{ background: '#0D0D0D' }}>
       <div className="container mx-auto max-w-4xl">
-        {/* Section Header */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.7 }}
+          className="text-center mb-14"
         >
-          <span className="text-[#d97706] text-sm font-medium tracking-wider uppercase">Testimonials</span>
-          <h2 className="font-serif text-4xl md:text-5xl font-bold text-[#fef3e2] mt-2">
-            Customer Reviews
+          <span className="section-badge mb-4 inline-block">Community</span>
+          <h2 className="font-heading text-4xl md:text-5xl font-black mt-3" style={{ color: '#F5F0E8' }}>
+            What{" "}
+            <span style={{
+              background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white) 0%, var(--theme-color) 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>They Say</span>
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#d97706] to-transparent mx-auto mt-4" />
+          <div className="w-20 h-0.5 mx-auto mt-5" style={{ background: 'linear-gradient(90deg, transparent, var(--theme-color), transparent)' }} />
         </motion.div>
 
-        {/* Reviews Carousel */}
+        {/* Carousel */}
         <div className="relative">
-          <div className="glass rounded-2xl p-8 md:p-12 min-h-[300px] flex items-center justify-center overflow-hidden">
+          <div className="rounded-3xl p-8 md:p-14 min-h-[280px] flex items-center justify-center overflow-hidden relative"
+            style={{
+              background: 'rgba(20,18,14,0.8)',
+              border: '1px solid rgba(212,175,55,0.12)',
+              backdropFilter: 'blur(20px)',
+              boxShadow: '0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(212,175,55,0.08)',
+            }}>
+
+            {/* Background quote glow */}
+            <Quote
+              className="absolute top-6 left-8 opacity-[0.06]"
+              style={{ color: 'var(--theme-color)', width: 80, height: 80 }}
+            />
+
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
                 key={currentIndex}
@@ -97,56 +115,65 @@ export function ReviewsSection() {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.4 }}
-                className="text-center"
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                className="text-center w-full"
               >
-                <Quote className="w-12 h-12 text-[#d97706]/30 mx-auto mb-6" />
-                
-                {/* Rating */}
-                <div className="flex items-center justify-center gap-1 mb-4">
-                  {[...Array(reviews[currentIndex].rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-[#f59e0b] text-[#f59e0b]" />
+                {/* Stars - animated */}
+                <div className="flex items-center justify-center gap-1 mb-5">
+                  {[...Array(review.rating)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: i * 0.06 }}
+                    >
+                      <Star className="w-5 h-5 fill-amber-500 text-amber-500" />
+                    </motion.div>
                   ))}
                 </div>
 
-                <p className="font-serif text-xl md:text-2xl text-[#fef3e2] italic mb-6 leading-relaxed">
-                  &ldquo;{reviews[currentIndex].text}&rdquo;
+                <p className="font-heading text-lg md:text-2xl italic mb-7 leading-relaxed" style={{ color: 'rgba(245,240,232,0.88)' }}>
+                  &ldquo;{review.text}&rdquo;
                 </p>
 
-                <div>
-                  <p className="text-[#f59e0b] font-semibold">{reviews[currentIndex].name}</p>
-                  <p className="text-[#fef3e2]/60 text-sm">{reviews[currentIndex].location}</p>
+                {/* Avatar + Info */}
+                <div className="flex items-center justify-center gap-3">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
+                    style={{ background: 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 80%, black))', color: '#0D0D0D' }}>
+                    {review.avatar}
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-sm" style={{ color: '#F5F0E8' }}>{review.name}</p>
+                    <p className="text-xs" style={{ color: 'rgba(212,175,55,0.7)' }}>{review.handle} · {review.location}</p>
+                  </div>
                 </div>
               </motion.div>
             </AnimatePresence>
           </div>
 
-          {/* Navigation Buttons */}
-          <button
-            onClick={goToPrevious}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-6 w-12 h-12 rounded-full bg-[#d97706]/20 hover:bg-[#d97706]/40 flex items-center justify-center transition-colors"
-          >
-            <ChevronLeft className="w-6 h-6 text-[#fef3e2]" />
+          {/* Navigation */}
+          <button onClick={goToPrevious}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-6 w-11 h-11 rounded-full flex items-center justify-center transition-all hover:-translate-x-5 md:hover:-translate-x-7"
+            style={{ background: 'rgba(212,175,55,0.10)', border: '1px solid rgba(212,175,55,0.20)' }}>
+            <ChevronLeft className="w-5 h-5 text-amber-500" />
           </button>
-          <button
-            onClick={goToNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-6 w-12 h-12 rounded-full bg-[#d97706]/20 hover:bg-[#d97706]/40 flex items-center justify-center transition-colors"
-          >
-            <ChevronRight className="w-6 h-6 text-[#fef3e2]" />
+          <button onClick={goToNext}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-6 w-11 h-11 rounded-full flex items-center justify-center transition-all hover:translate-x-5 md:hover:translate-x-7"
+            style={{ background: 'rgba(212,175,55,0.10)', border: '1px solid rgba(212,175,55,0.20)' }}>
+            <ChevronRight className="w-5 h-5 text-amber-500" />
           </button>
 
           {/* Dots */}
-          <div className="flex items-center justify-center gap-2 mt-6">
+          <div className="flex items-center justify-center gap-2 mt-7">
             {reviews.map((_, index) => (
               <button
                 key={index}
-                onClick={() => {
-                  setDirection(index > currentIndex ? 1 : -1)
-                  setCurrentIndex(index)
+                onClick={() => { setDirection(index > currentIndex ? 1 : -1); setCurrentIndex(index); }}
+                className="h-1.5 rounded-full transition-all duration-400"
+                style={{
+                  width: index === currentIndex ? 28 : 6,
+                  background: index === currentIndex ? 'var(--theme-color)' : 'rgba(212,175,55,0.25)',
                 }}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  index === currentIndex ? "w-8 bg-[#d97706]" : "bg-[#d97706]/30"
-                }`}
               />
             ))}
           </div>

@@ -15,7 +15,7 @@ header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 header('X-XSS-Protection: 1; mode=block');
 header('Referrer-Policy: strict-origin-when-cross-origin');
-header('Content-Security-Policy: default-src \'none\'; script-src \'self\'; connect-src \'self\'; img-src \'self\' data:; style-src \'self\' \'unsafe-inline\';');
+header('Content-Security-Policy: default-src \'none\'; script-src \'self\'; connect-src \'self\'; img-src \'self\' data:; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com; font-src https://fonts.gstatic.com;');
 
 // Session config (secure)
 ini_set('session.cookie_httponly', '1');

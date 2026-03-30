@@ -10,7 +10,7 @@ import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import api from '@/lib/axios'
 
-const PERM_KEY = 'lhf_popup_dismiss'
+const PERM_KEY = 'uni_popup_dismiss'
 
 function trackEvent(id: number, event: 'view' | 'click') {
   api.post('/popup/track', { id, event }).catch(() => {})

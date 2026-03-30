@@ -8,16 +8,17 @@ import { authService } from '@/services/authService'
 interface MobileBottomNavProps {
   adminName?: string
   unreadCount?: number
+  pendingOrderCount?: number
 }
 
-export function MobileBottomNav({ adminName, unreadCount = 0 }: MobileBottomNavProps) {
+export function MobileBottomNav({ adminName, unreadCount = 0, pendingOrderCount = 0 }: MobileBottomNavProps) {
   const location = useLocation()
   const navigate = useNavigate()
 
   const items = [
     { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/admin/products', icon: Package, label: 'Products' },
-    { path: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
+    { path: '/admin/orders', icon: ShoppingCart, label: 'Orders', badge: pendingOrderCount },
     { path: '/admin/notifications', icon: Bell, label: 'Alerts', badge: unreadCount },
   ]
 

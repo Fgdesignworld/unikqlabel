@@ -3,7 +3,8 @@ import { categoryService, type Category, type CategoryPayload } from '@/services
 import { useToast } from '@/hooks/use-toast'
 import {
   Plus, Edit2, Trash2, Search, Tag, ToggleLeft, ToggleRight,
-  Upload, X, Check, Loader2, Image as ImageIcon, RefreshCw
+  Upload, X, Check, Loader2, Image as ImageIcon, RefreshCw,
+  ChevronLeft, ChevronRight,
 } from 'lucide-react'
 import {
   AlertDialog,
@@ -17,12 +18,12 @@ import {
 } from '@/components/ui/alert-dialog'
 import { cn } from '@/lib/utils'
 
-// â”€â”€â”€ Slug generator â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- Slug generator ---â”€â”€
 function toSlug(val: string) {
   return val.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/[\s-]+/g, '-').replace(/^-|-$/g, '')
 }
 
-// â”€â”€â”€ CategoryForm (inline slide-over) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- CategoryForm (inline slide-over) ---â”€â”€
 function CategoryForm({
   category,
   onSave,
@@ -247,7 +248,62 @@ function CategoryForm({
   )
 }
 
-// â”€â”€â”€ Main Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- Skeleton ---
+function CategorySkeleton() {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="bg-[#0e0e0e] border border-gray-800/50 rounded-2xl p-4 flex items-center gap-4 animate-pulse">
+          <div className="w-12 h-12 rounded-xl bg-gray-800 shrink-0" />
+          <div className="flex-1 space-y-2">
+            <div className="h-4 w-36 bg-gray-800 rounded-lg" />
+            <div className="h-3 w-52 bg-gray-800/60 rounded-lg" />
+          </div>
+          <div className="flex gap-2">
+            <div className="w-8 h-8 rounded-xl bg-gray-800" />
+            <div className="w-8 h-8 rounded-xl bg-gray-800" />
+            <div className="w-8 h-8 rounded-xl bg-gray-800" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// --- Pagination ---
+function CatPagination({ page, lastPage, total, perPage, onPage }: {
+  page: number; lastPage: number; total: number; perPage: number; onPage: (p: number) => void
+}) {
+  if (lastPage <= 1) return null
+  const from = (page - 1) * perPage + 1
+  const to = Math.min(page * perPage, total)
+  const pages = Array.from({ length: lastPage }, (_, i) => i + 1)
+  const start = Math.max(0, Math.min(page - 3, lastPage - 5))
+  const visible = pages.slice(start, start + 5)
+  return (
+    <div className="flex items-center justify-between mt-4 flex-wrap gap-2">
+      <p className="text-xs text-gray-600">Showing {from}&ndash;{to} of {total}</p>
+      <div className="flex items-center gap-1">
+        <button onClick={() => onPage(page - 1)} disabled={page === 1}
+          className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        {visible.map(p => (
+          <button key={p} onClick={() => onPage(p)}
+            className={cn('w-8 h-8 rounded-xl text-xs font-black transition-all',
+              p === page ? 'bg-amber-500 text-black' : 'border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600'
+            )}>{p}</button>
+        ))}
+        <button onClick={() => onPage(page + 1)} disabled={page === lastPage}
+          className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// --- Main Page ---
 export default function AdminCategoriesPage() {
   const { toast } = useToast()
   const [categories, setCategories] = useState<Category[]>([])
@@ -257,6 +313,8 @@ export default function AdminCategoriesPage() {
   const [editTarget, setEditTarget] = useState<Category | undefined>(undefined)
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null)
   const [toggling, setToggling] = useState<number | null>(null)
+  const [catPage, setCatPage] = useState(1)
+  const CAT_PER_PAGE = 10
 
   const load = async () => {
     try {
@@ -275,6 +333,8 @@ export default function AdminCategoriesPage() {
     c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.slug.toLowerCase().includes(search.toLowerCase())
   )
+  const catLastPage = Math.max(1, Math.ceil(filtered.length / CAT_PER_PAGE))
+  const paginated = filtered.slice((catPage - 1) * CAT_PER_PAGE, catPage * CAT_PER_PAGE)
 
   const handleToggle = async (cat: Category) => {
     setToggling(cat.id)
@@ -344,16 +404,14 @@ export default function AdminCategoriesPage() {
           type="text"
           placeholder="Search categories..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={e => { setSearch(e.target.value); setCatPage(1) }}
           className="w-full bg-[#0e0e0e] border border-gray-800 rounded-xl pl-11 pr-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/30 transition-all"
         />
       </div>
 
       {/* Content */}
       {loading ? (
-        <div className="flex justify-center py-20">
-          <div className="animate-spin w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full" />
-        </div>
+        <CategorySkeleton />
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <Tag className="w-12 h-12 text-gray-700 mb-4" />
@@ -366,8 +424,9 @@ export default function AdminCategoriesPage() {
           )}
         </div>
       ) : (
-        <div className="space-y-3">
-          {filtered.map(cat => (
+        <>
+          <div className="space-y-3">
+            {paginated.map(cat => (
             <div key={cat.id} className="bg-[#0e0e0e] border border-gray-800 rounded-2xl p-4 flex items-center gap-4 hover:border-gray-700 transition-all group">
               {/* Image */}
               <div className="w-12 h-12 rounded-xl bg-white/4 border border-gray-800 flex items-center justify-center overflow-hidden shrink-0">
@@ -432,8 +491,10 @@ export default function AdminCategoriesPage() {
                 </button>
               </div>
             </div>
-          ))}
-        </div>
+            ))}
+          </div>
+          <CatPagination page={catPage} lastPage={catLastPage} total={filtered.length} perPage={CAT_PER_PAGE} onPage={setCatPage} />
+        </>
       )}
 
       {/* Form slide-over */}
