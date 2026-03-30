@@ -6,13 +6,14 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/Notification.php';
 require_once __DIR__ . '/../models/DeliveryRule.php';
+require_once __DIR__ . '/../models/Coupon.php';
 
 class Order {
 
     /**
      * Create an order with items (atomic transaction)
      */
-    public static function create(array $orderData, array $items, ?float $proposedDelivery = null): array {
+    public static function create(array $orderData, array $items, ?float $proposedDelivery = null, ?string $couponCode = null, float $proposedDiscount = 0): array {
         $db = getDB();
         
         try {
@@ -37,34 +38,53 @@ class Order {
             if ($proposedDelivery !== null && abs($delivery - $proposedDelivery) > 0.01) {
                 throw new Exception('Delivery fee mismatch. Please refresh and try again.');
             }
-            
-            $total = $subtotal + $delivery;
+
+            // ── Coupon re-validation (server-side, never trust client) ────────
+            $discountAmount  = 0.0;
+            $appliedCouponCode = null;
+
+            if (!empty($couponCode)) {
+                $coupon = Coupon::findByCode($couponCode);
+                if (!$coupon) {
+                    throw new Exception('Invalid coupon code.');
+                }
+                $validation = Coupon::validate($coupon, $subtotal);
+                if (!$validation['valid']) {
+                    throw new Exception($validation['message']);
+                }
+                $discountAmount    = $validation['discount_amount'];
+                $appliedCouponCode = strtoupper(trim($couponCode));
+            }
+
+            $total = max(0, $subtotal + $delivery - $discountAmount);
 
             // Insert order
             $stmt = $db->prepare("
-                INSERT INTO orders (invoice_number, customer_name, phone, address, city, pincode, notes, subtotal, delivery, total)
-                VALUES (:invoice, :name, :phone, :address, :city, :pincode, :notes, :subtotal, :delivery, :total)
+                INSERT INTO orders (invoice_number, customer_name, phone, address, city, pincode, notes, subtotal, delivery, discount_amount, coupon_code, total)
+                VALUES (:invoice, :name, :phone, :address, :city, :pincode, :notes, :subtotal, :delivery, :discount_amount, :coupon_code, :total)
             ");
 
             $stmt->execute([
-                'invoice'  => $invoiceNumber,
-                'name'     => htmlspecialchars($orderData['customer_name'], ENT_QUOTES, 'UTF-8'),
-                'phone'    => htmlspecialchars($orderData['phone'], ENT_QUOTES, 'UTF-8'),
-                'address'  => htmlspecialchars($orderData['address'], ENT_QUOTES, 'UTF-8'),
-                'city'     => htmlspecialchars($orderData['city'], ENT_QUOTES, 'UTF-8'),
-                'pincode'  => htmlspecialchars($orderData['pincode'], ENT_QUOTES, 'UTF-8'),
-                'notes'    => htmlspecialchars($orderData['notes'] ?? '', ENT_QUOTES, 'UTF-8'),
-                'subtotal' => $subtotal,
-                'delivery' => $delivery,
-                'total'    => $total,
+                'invoice'         => $invoiceNumber,
+                'name'            => htmlspecialchars($orderData['customer_name'], ENT_QUOTES, 'UTF-8'),
+                'phone'           => htmlspecialchars($orderData['phone'], ENT_QUOTES, 'UTF-8'),
+                'address'         => htmlspecialchars($orderData['address'], ENT_QUOTES, 'UTF-8'),
+                'city'            => htmlspecialchars($orderData['city'], ENT_QUOTES, 'UTF-8'),
+                'pincode'         => htmlspecialchars($orderData['pincode'], ENT_QUOTES, 'UTF-8'),
+                'notes'           => htmlspecialchars($orderData['notes'] ?? '', ENT_QUOTES, 'UTF-8'),
+                'subtotal'        => $subtotal,
+                'delivery'        => $delivery,
+                'discount_amount' => $discountAmount,
+                'coupon_code'     => $appliedCouponCode,
+                'total'           => $total,
             ]);
 
             $orderId = (int) $db->lastInsertId();
 
             // Insert order items
             $itemStmt = $db->prepare("
-                INSERT INTO order_items (order_id, product_id, product_name, weight, size_label, color_name, image_url, qty, price, total)
-                VALUES (:order_id, :product_id, :product_name, :weight, :size_label, :color_name, :image_url, :qty, :price, :total)
+                INSERT INTO order_items (order_id, product_id, product_name, weight, size_label, color_name, image_url, qty, price, original_price, discount_percent, total)
+                VALUES (:order_id, :product_id, :product_name, :weight, :size_label, :color_name, :image_url, :qty, :price, :original_price, :discount_percent, :total)
             ");
 
             foreach ($items as $item) {
@@ -72,20 +92,33 @@ class Order {
                 $colorName  = isset($item['color_name'])  && $item['color_name']  !== '' ? htmlspecialchars($item['color_name'],  ENT_QUOTES, 'UTF-8') : null;
                 $imageUrl   = isset($item['image_url'])   && $item['image_url']   !== '' ? filter_var($item['image_url'], FILTER_SANITIZE_URL) : null;
                 $itemStmt->execute([
-                    'order_id'     => $orderId,
-                    'product_id'   => $item['product_id'] ?? null,
-                    'product_name' => htmlspecialchars($item['product_name'], ENT_QUOTES, 'UTF-8'),
-                    'weight'       => htmlspecialchars($item['weight'], ENT_QUOTES, 'UTF-8'),
-                    'size_label'   => $sizeLabel,
-                    'color_name'   => $colorName,
-                    'image_url'    => $imageUrl,
-                    'qty'          => (int) $item['qty'],
-                    'price'        => (float) $item['price'],
-                    'total'        => (float) ($item['price'] * $item['qty']),
+                    'order_id'         => $orderId,
+                    'product_id'       => $item['product_id'] ?? null,
+                    'product_name'     => htmlspecialchars($item['product_name'], ENT_QUOTES, 'UTF-8'),
+                    'weight'           => htmlspecialchars($item['weight'], ENT_QUOTES, 'UTF-8'),
+                    'size_label'       => $sizeLabel,
+                    'color_name'       => $colorName,
+                    'image_url'        => $imageUrl,
+                    'qty'              => (int) $item['qty'],
+                    'price'            => (float) $item['price'],
+                    'original_price'   => isset($item['original_price']) && $item['original_price'] > $item['price']
+                                            ? (float) $item['original_price'] : null,
+                    'discount_percent' => isset($item['discount_percent']) && $item['discount_percent'] > 0
+                                            ? (float) $item['discount_percent'] : null,
+                    'total'            => (float) ($item['price'] * $item['qty']),
                 ]);
             }
 
             $db->commit();
+
+            // Increment coupon usage after successful order commit
+            if ($appliedCouponCode) {
+                try {
+                    Coupon::incrementUsage($appliedCouponCode);
+                } catch (Exception $ce) {
+                    error_log('Coupon usage increment failed: ' . $ce->getMessage());
+                }
+            }
 
             // Trigger notification for admin (non-critical)
             try {
@@ -101,11 +134,13 @@ class Order {
             }
 
             return [
-                'id'             => $orderId,
-                'invoice_number' => $invoiceNumber,
-                'subtotal'       => $subtotal,
-                'delivery'       => $delivery,
-                'total'          => $total,
+                'id'              => $orderId,
+                'invoice_number'  => $invoiceNumber,
+                'subtotal'        => $subtotal,
+                'delivery'        => $delivery,
+                'discount_amount' => $discountAmount,
+                'coupon_code'     => $appliedCouponCode,
+                'total'           => $total,
             ];
 
         } catch (Exception $e) {
@@ -275,7 +310,7 @@ class Order {
         $db = getDB();
         $stmt = $db->prepare("
             SELECT id, invoice_number, customer_name, created_at, status,
-                   subtotal, delivery, total, payment_method, city
+                   subtotal, delivery, discount_amount, coupon_code, total, payment_method, city
             FROM orders
             WHERE phone = :phone AND deleted_at IS NULL
             ORDER BY created_at DESC
@@ -286,15 +321,26 @@ class Order {
 
         foreach ($orders as &$order) {
             $itemStmt = $db->prepare("
-                SELECT product_name, qty, price, total, size_label, color_name, weight, image_url
+                SELECT product_name, qty, price, original_price, discount_percent, total,
+                       size_label, color_name, weight, image_url
                 FROM order_items WHERE order_id = :oid ORDER BY id
             ");
             $itemStmt->execute(['oid' => $order['id']]);
-            $order['items']    = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
-            $order['id']       = (int)   $order['id'];
-            $order['total']    = (float) $order['total'];
-            $order['subtotal'] = (float) $order['subtotal'];
-            $order['delivery'] = (float) $order['delivery'];
+            $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($items as &$it) {
+                $it['price']            = (float) $it['price'];
+                $it['total']            = (float) $it['total'];
+                $it['qty']              = (int)   $it['qty'];
+                $it['original_price']   = isset($it['original_price'])   ? (float) $it['original_price']   : null;
+                $it['discount_percent'] = isset($it['discount_percent']) ? (float) $it['discount_percent'] : null;
+            }
+            $order['items']            = $items;
+            $order['id']               = (int)   $order['id'];
+            $order['total']            = (float) $order['total'];
+            $order['subtotal']         = (float) $order['subtotal'];
+            $order['delivery']         = (float) $order['delivery'];
+            $order['discount_amount']  = (float) ($order['discount_amount'] ?? 0);
+            $order['coupon_code']      = $order['coupon_code'] ?? null;
         }
         return $orders;
     }
@@ -306,7 +352,7 @@ class Order {
         $db = getDB();
         $stmt = $db->prepare("
             SELECT id, invoice_number, customer_name, created_at, status,
-                   subtotal, delivery, total, payment_method, city
+                   subtotal, delivery, discount_amount, coupon_code, total, payment_method, city
             FROM orders
             WHERE invoice_number = :inv AND deleted_at IS NULL
             LIMIT 1
@@ -316,15 +362,26 @@ class Order {
         if (!$order) return null;
 
         $itemStmt = $db->prepare("
-            SELECT product_name, qty, price, total, size_label, color_name, weight, image_url
+            SELECT product_name, qty, price, original_price, discount_percent, total,
+                   size_label, color_name, weight, image_url
             FROM order_items WHERE order_id = :oid ORDER BY id
         ");
         $itemStmt->execute(['oid' => $order['id']]);
-        $order['items']    = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
-        $order['id']       = (int)   $order['id'];
-        $order['total']    = (float) $order['total'];
-        $order['subtotal'] = (float) $order['subtotal'];
-        $order['delivery'] = (float) $order['delivery'];
+        $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($items as &$it) {
+            $it['price']            = (float) $it['price'];
+            $it['total']            = (float) $it['total'];
+            $it['qty']              = (int)   $it['qty'];
+            $it['original_price']   = isset($it['original_price'])   ? (float) $it['original_price']   : null;
+            $it['discount_percent'] = isset($it['discount_percent']) ? (float) $it['discount_percent'] : null;
+        }
+        $order['items']            = $items;
+        $order['id']               = (int)   $order['id'];
+        $order['total']            = (float) $order['total'];
+        $order['subtotal']         = (float) $order['subtotal'];
+        $order['delivery']         = (float) $order['delivery'];
+        $order['discount_amount']  = (float) ($order['discount_amount'] ?? 0);
+        $order['coupon_code']      = $order['coupon_code'] ?? null;
         return $order;
     }
 

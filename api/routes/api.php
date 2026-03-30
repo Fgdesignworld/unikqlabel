@@ -17,6 +17,7 @@ require_once __DIR__ . '/../controllers/ReviewController.php';
 require_once __DIR__ . '/../controllers/SizeVariantController.php';
 require_once __DIR__ . '/../controllers/ColorLibraryController.php';
 require_once __DIR__ . '/../controllers/ContactController.php';
+require_once __DIR__ . '/../controllers/CouponController.php';
 
 function handleRequest(): void {
     $method = $_SERVER['REQUEST_METHOD'];
@@ -112,6 +113,12 @@ function handleRequest(): void {
     // POST /checkout
     if ($method === 'POST' && $uri === '/checkout') {
         OrderController::store();
+        return;
+    }
+
+    // POST /coupons/validate — Public coupon validation
+    if ($method === 'POST' && $uri === '/coupons/validate') {
+        CouponController::validateCoupon();
         return;
     }
 
@@ -734,6 +741,46 @@ function handleRequest(): void {
     // DELETE /admin/leads/{id}
     if ($method === 'DELETE' && preg_match('#^/admin/leads/(\d+)$#', $uri, $matches)) {
         ContactController::destroy((int) $matches[1]);
+        return;
+    }
+
+    // ========================================
+    // ADMIN COUPON ROUTES
+    // ========================================
+
+    // GET /admin/coupons
+    if ($method === 'GET' && $uri === '/admin/coupons') {
+        CouponController::adminIndex();
+        return;
+    }
+
+    // GET /admin/coupons/{id}
+    if ($method === 'GET' && preg_match('#^/admin/coupons/(\d+)$#', $uri, $matches)) {
+        CouponController::adminShow((int) $matches[1]);
+        return;
+    }
+
+    // POST /admin/coupons
+    if ($method === 'POST' && $uri === '/admin/coupons') {
+        CouponController::adminStore();
+        return;
+    }
+
+    // PUT /admin/coupons/{id}/toggle
+    if ($method === 'PUT' && preg_match('#^/admin/coupons/(\d+)/toggle$#', $uri, $matches)) {
+        CouponController::adminToggle((int) $matches[1]);
+        return;
+    }
+
+    // PUT /admin/coupons/{id}
+    if ($method === 'PUT' && preg_match('#^/admin/coupons/(\d+)$#', $uri, $matches)) {
+        CouponController::adminUpdate((int) $matches[1]);
+        return;
+    }
+
+    // DELETE /admin/coupons/{id}
+    if ($method === 'DELETE' && preg_match('#^/admin/coupons/(\d+)$#', $uri, $matches)) {
+        CouponController::adminDestroy((int) $matches[1]);
         return;
     }
 

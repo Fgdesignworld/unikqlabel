@@ -32,6 +32,7 @@ import AdminHeroPage from '@/app/admin/hero/page';
 import AdminVariantsPage from '@/app/admin/variants/page';
 import AdminColorsPage from '@/app/admin/colors/page';
 import AdminLeadsPage from '@/app/admin/leads/page';
+import AdminCouponsPage from '@/app/admin/coupons/page';
 
 export default function App() {
   return (
@@ -68,6 +69,7 @@ export default function App() {
         <Route path="variants" element={<AdminVariantsPage />} />
         <Route path="colors" element={<AdminColorsPage />} />
         <Route path="leads" element={<AdminLeadsPage />} />
+        <Route path="coupons" element={<AdminCouponsPage />} />
       </Route>
     </Routes>
   );

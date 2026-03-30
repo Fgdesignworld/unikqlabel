@@ -5,7 +5,7 @@ import { ImgHTMLAttributes } from 'react';
 const Image = ({ priority, fill, quality, ...rest }: ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean, fill?: boolean, quality?: number }) => <img {...rest} />;
 import { Link } from 'react-router-dom';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import api from '@/lib/axios'
 import { 
   ArrowLeft, 
@@ -23,7 +23,10 @@ import {
   Truck,
   Shield,
   Clock,
-  Loader2
+  Loader2,
+  Tag,
+  X,
+  Check,
 } from "lucide-react"
 import { WhatsAppIcon } from '@/components/icons/whatsapp'
 import { Navbar } from "@/components/navbar"
@@ -57,9 +60,18 @@ export default function CheckoutPage() {
     items: typeof items,
     subtotal: number,
     delivery: number | string,
+    discount: number,
+    couponCode: string | null,
     total: number,
     customer: typeof customerDetails
   } | null>(null)
+
+  // ── Coupon state ───────────────────────────────────────────────
+  const [couponInput, setCouponInput]       = useState('')
+  const [appliedCoupon, setAppliedCoupon]   = useState<{ code: string; discount: number } | null>(null)
+  const [couponLoading, setCouponLoading]   = useState(false)
+  const [couponError, setCouponError]       = useState<string | null>(null)
+  const [couponSuccess, setCouponSuccess]   = useState<string | null>(null)
 
   // Paging state for the hidden generator template
   const [pagingState, setPagingState] = useState({
@@ -91,7 +103,8 @@ export default function CheckoutPage() {
 
   const deliveryInfo = calcDelivery(totalPrice)
   const deliveryCharge = Number(deliveryInfo.fee) || 0
-  const finalTotal = Number(totalPrice) + Number(deliveryCharge)
+  const couponDiscount = appliedCoupon?.discount ?? 0
+  const finalTotal = Math.max(0, Number(totalPrice) + Number(deliveryCharge) - couponDiscount)
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -145,6 +158,8 @@ export default function CheckoutPage() {
         pincode: customerDetails.pincode,
         notes: customerDetails.notes || '',
         delivery: deliveryCharge,
+        coupon_code: appliedCoupon?.code ?? null,
+        discount_amount: couponDiscount,
         cart_items: items.map(item => ({
           product_id: null,
           name: item.name,
@@ -193,6 +208,8 @@ export default function CheckoutPage() {
         customerDetails: { ...customerDetails },
         subtotal: totalPrice,
         delivery: deliveryLabel,
+        discount: couponDiscount,
+        couponCode: appliedCoupon?.code ?? null,
         total: finalTotal,
         date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
       }
@@ -210,6 +227,8 @@ export default function CheckoutPage() {
       items: [...items],
       subtotal: totalPrice,
       delivery: deliveryLabel,
+      discount: couponDiscount,
+      couponCode: appliedCoupon?.code ?? null,
       total: finalTotal,
       customer: { ...customerDetails }
     })
@@ -251,7 +270,8 @@ ${customerDetails.notes ? `Notes: ${customerDetails.notes}` : ""}
 ${itemsList}
 
 Subtotal: ${currency}${totalPrice}
-${totalSaved > 0 ? `Discount Saved: -${currency}${totalSaved}` : ''}
+${totalSaved > 0 ? `Product Discount Saved: -${currency}${totalSaved}` : ''}
+${couponDiscount > 0 ? `Coupon Discount (${appliedCoupon?.code}): -${currency}${couponDiscount}` : ''}
 Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
 *Total: ${currency}${finalTotal}*`.trim()
 
@@ -277,7 +297,35 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
     }
   }
 
-  // Show loading while hydrating
+  // ─── Coupon handlers ─────────────────────────────────────────────────────
+  const handleApplyCoupon = async () => {
+    const code = couponInput.trim().toUpperCase()
+    if (!code) return
+    setCouponError(null)
+    setCouponSuccess(null)
+    setCouponLoading(true)
+    try {
+      const res = await api.post('/coupons/validate', { code, cart_total: totalPrice })
+      const data = res.data?.data
+      setAppliedCoupon({ code, discount: data.discount_amount })
+      setCouponSuccess(`Coupon applied! You save ${settings?.currency_symbol || '₹'}${data.discount_amount}`)
+      setCouponInput('')
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || 'Invalid coupon code'
+      setCouponError(msg)
+    } finally {
+      setCouponLoading(false)
+    }
+  }
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponError(null)
+    setCouponSuccess(null)
+    setCouponInput('')
+  }
+
+
   if (!isHydrated) {
     return (
       <main className="min-h-screen flex items-center justify-center" style={{ background: '#0D0D0D' }}>
@@ -699,6 +747,85 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                     </div>
 
                     <div className="pt-4 space-y-3" style={{ borderTop: '1px solid rgba(212,175,55,0.10)' }}>
+
+                      {/* ─── Coupon Section ─────────────────────────────── */}
+                      <div>
+                        <AnimatePresence mode="wait">
+                          {!appliedCoupon ? (
+                            <motion.div
+                              key="input"
+                              initial={{ opacity: 0, y: -6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -6 }}
+                              className="space-y-2"
+                            >
+                              <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                  <Tag className="absolute left-3 top-3 w-3.5 h-3.5 text-amber-500/60" />
+                                  <input
+                                    type="text"
+                                    value={couponInput}
+                                    onChange={e => {
+                                      setCouponInput(e.target.value.toUpperCase())
+                                      setCouponError(null)
+                                    }}
+                                    onKeyDown={e => e.key === 'Enter' && handleApplyCoupon()}
+                                    placeholder="Coupon code"
+                                    maxLength={30}
+                                    className="w-full pl-8 pr-3 py-2.5 rounded-xl font-mono text-xs font-bold outline-none transition-all"
+                                    style={{
+                                      background: 'rgba(13,13,13,0.7)',
+                                      border: `1px solid ${couponError ? '#ef4444' : 'rgba(212,175,55,0.15)'}`,
+                                      color: '#F5F0E8',
+                                    }}
+                                  />
+                                </div>
+                                <button
+                                  onClick={handleApplyCoupon}
+                                  disabled={couponLoading || !couponInput.trim()}
+                                  className="px-4 py-2.5 rounded-xl text-xs font-black transition-all disabled:opacity-50 flex items-center gap-1.5 shrink-0"
+                                  style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)', color: 'var(--theme-color)' }}
+                                >
+                                  {couponLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Apply'}
+                                </button>
+                              </div>
+                              {couponError && (
+                                <p className="text-red-400 text-xs font-body flex items-center gap-1">
+                                  <X className="w-3 h-3" />
+                                  {couponError}
+                                </p>
+                              )}
+                            </motion.div>
+                          ) : (
+                            <motion.div
+                              key="applied"
+                              initial={{ opacity: 0, scale: 0.97 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.97 }}
+                              className="flex items-center justify-between p-3 rounded-xl"
+                              style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)' }}
+                            >
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
+                                  <Check className="w-3.5 h-3.5 text-green-400" />
+                                </div>
+                                <div>
+                                  <p className="font-mono text-xs font-black text-green-400">{appliedCoupon.code}</p>
+                                  <p className="text-[10px] text-green-500/70 font-body">You save {settings?.currency_symbol || '₹'}{appliedCoupon.discount}</p>
+                                </div>
+                              </div>
+                              <button
+                                onClick={handleRemoveCoupon}
+                                className="p-1 rounded-lg hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-colors"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+
+                      {/* ─── Totals ─────────────────────────────────────── */}
                       <div className="flex items-center justify-between text-sm">
                         <span className="font-body" style={{ color: 'rgba(245,240,232,0.5)' }}>Subtotal</span>
                         <span className="font-body" style={{ color: '#F5F0E8' }}>{settings?.currency_symbol || '₹'}{totalPrice}</span>
@@ -717,6 +844,12 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                           </div>
                         ) : null
                       })()}
+                      {couponDiscount > 0 && (
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="font-body text-green-400">Coupon ({appliedCoupon?.code})</span>
+                          <span className="font-body font-bold text-green-400">-{settings?.currency_symbol || '₹'}{couponDiscount}</span>
+                        </div>
+                      )}
                       <div className="flex items-center justify-between text-sm">
                         <span className="font-body" style={{ color: 'rgba(245,240,232,0.5)' }}>Delivery</span>
                         {deliveryCharge === 0 && deliveryRule.free_delivery_above > 0 ? (
@@ -781,6 +914,8 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
           delivery={confirmedOrder?.delivery ?? (deliveryCharge === 0 && deliveryRule.free_delivery_above > 0 
             ? `Free (Order above ${settings?.currency_symbol || '₹'}${deliveryRule.free_delivery_above})`
             : deliveryCharge)}
+          discount={confirmedOrder?.discount ?? couponDiscount}
+          couponCode={confirmedOrder?.couponCode ?? (appliedCoupon?.code ?? null)}
           total={confirmedOrder?.total || finalTotal}
           startIndex={pagingState.startIndex} // For sequential numbering
           showTotals={pagingState.showTotals} // Only on final page

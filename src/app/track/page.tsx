@@ -21,6 +21,8 @@ interface TrackItem {
   qty: number
   price: number
   total: number
+  original_price?: number | null
+  discount_percent?: number | null
   size_label?: string | null
   color_name?: string | null
   weight?: string | null
@@ -35,6 +37,8 @@ interface TrackedOrder {
   status: string
   subtotal: number
   delivery: number
+  discount_amount: number
+  coupon_code: string | null
   total: number
   payment_method?: string | null
   city?: string | null
@@ -220,8 +224,24 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="text-amber-400 font-bold text-sm">{currency}{Number(item.total).toLocaleString('en-IN')}</p>
-                      <p className="text-[10px]" style={{ color: 'rgba(245,240,232,0.35)' }}>×{item.qty} @ {currency}{Number(item.price).toLocaleString('en-IN')}</p>
+                      {item.original_price && Number(item.original_price) > Number(item.price) ? (
+                        <>
+                          <p className="text-[10px] line-through" style={{ color: 'rgba(245,240,232,0.3)' }}>
+                            {currency}{Number(item.original_price * item.qty).toLocaleString('en-IN')}
+                          </p>
+                          <p className="text-amber-400 font-bold text-sm">{currency}{Number(item.total).toLocaleString('en-IN')}</p>
+                          <p className="text-[10px] font-bold" style={{ color: '#4ade80' }}>
+                            SAVE {currency}{(Number(item.original_price) - Number(item.price)) * Number(item.qty) < 1
+                              ? ((Number(item.original_price) - Number(item.price)) * Number(item.qty)).toFixed(2)
+                              : Math.round((Number(item.original_price) - Number(item.price)) * Number(item.qty))}
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-amber-400 font-bold text-sm">{currency}{Number(item.total).toLocaleString('en-IN')}</p>
+                          <p className="text-[10px]" style={{ color: 'rgba(245,240,232,0.35)' }}>×{item.qty} @ {currency}{Number(item.price).toLocaleString('en-IN')}</p>
+                        </>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -239,6 +259,16 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
                     {Number(order.delivery) === 0 ? 'FREE' : `${currency}${Number(order.delivery).toLocaleString('en-IN')}`}
                   </span>
                 </div>
+                {Number(order.discount_amount) > 0 && (
+                  <div className="flex justify-between text-[12px]">
+                    <span style={{ color: 'rgba(245,240,232,0.5)' }}>
+                      Coupon{order.coupon_code ? <span style={{ color: '#fbbf24' }}> ({order.coupon_code})</span> : ''}
+                    </span>
+                    <span className="font-semibold" style={{ color: '#4ade80' }}>
+                      -{currency}{Number(order.discount_amount).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                )}
                 {order.payment_method && (
                   <div className="flex justify-between text-[12px]">
                     <span style={{ color: 'rgba(245,240,232,0.5)' }}>Payment</span>

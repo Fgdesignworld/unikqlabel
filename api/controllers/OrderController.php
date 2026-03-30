@@ -66,14 +66,16 @@ class OrderController {
             }
 
             $items[] = [
-                'product_id'   => $cartItem['product_id'] ?? null,
-                'product_name' => $cartItem['name'],
-                'weight'       => $cartItem['weight'] ?? '',
-                'size_label'   => isset($cartItem['size'])  ? trim($cartItem['size'])  : null,
-                'color_name'   => isset($cartItem['color']) ? trim($cartItem['color']) : null,
-                'image_url'    => isset($cartItem['image']) ? trim($cartItem['image']) : null,
-                'qty'          => (int) $cartItem['quantity'],
-                'price'        => (float) $cartItem['price'],
+                'product_id'       => $cartItem['product_id'] ?? null,
+                'product_name'     => $cartItem['name'],
+                'weight'           => $cartItem['weight'] ?? '',
+                'size_label'       => isset($cartItem['size'])  ? trim($cartItem['size'])  : null,
+                'color_name'       => isset($cartItem['color']) ? trim($cartItem['color']) : null,
+                'image_url'        => isset($cartItem['image']) ? trim($cartItem['image']) : null,
+                'qty'              => (int) $cartItem['quantity'],
+                'price'            => (float) $cartItem['price'],
+                'original_price'   => isset($cartItem['originalPrice']) ? (float) $cartItem['originalPrice'] : null,
+                'discount_percent' => isset($cartItem['discountPercent']) ? (float) $cartItem['discountPercent'] : null,
             ];
         }
 
@@ -86,17 +88,23 @@ class OrderController {
             'notes'         => $input['notes'] ?? '',
         ];
 
+        // Optional coupon fields (backend re-validates everything)
+        $couponCode       = !empty($input['coupon_code']) ? trim($input['coupon_code']) : null;
+        $proposedDiscount = isset($input['discount_amount']) ? (float) $input['discount_amount'] : 0.0;
+
         try {
-            $result = Order::create($orderData, $items, $proposedDelivery);
+            $result = Order::create($orderData, $items, $proposedDelivery, $couponCode, $proposedDiscount);
             http_response_code(201);
             echo json_encode([
-                'success'        => true,
-                'message'        => 'Order placed successfully',
-                'order_id'       => $result['id'],
-                'invoice_number' => $result['invoice_number'],
-                'subtotal'       => $result['subtotal'],
-                'delivery'       => $result['delivery'],
-                'total'          => $result['total'],
+                'success'         => true,
+                'message'         => 'Order placed successfully',
+                'order_id'        => $result['id'],
+                'invoice_number'  => $result['invoice_number'],
+                'subtotal'        => $result['subtotal'],
+                'delivery'        => $result['delivery'],
+                'discount_amount' => $result['discount_amount'],
+                'coupon_code'     => $result['coupon_code'],
+                'total'           => $result['total'],
             ]);
         } catch (Exception $e) {
             http_response_code(400);

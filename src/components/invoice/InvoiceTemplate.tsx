@@ -25,6 +25,8 @@ interface InvoiceTemplateProps {
   }>;
   subtotal: number;
   delivery: number | string;
+  discount?: number;
+  couponCode?: string | null;
   total: number;
   startIndex?: number; // Added to support sequential numbering
   showTotals?: boolean; // Controlled by the generator
@@ -40,6 +42,8 @@ export const InvoiceTemplate = ({
   items,
   subtotal,
   delivery,
+  discount = 0,
+  couponCode = null,
   total,
   startIndex = 0,
   showTotals = true,
@@ -249,6 +253,12 @@ export const InvoiceTemplate = ({
                 </div>
               ) : null
             })()}
+            {discount > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 15px', fontSize: '14px', color: '#10b981', fontWeight: '800' }}>
+                <span>Coupon{couponCode ? ` (${couponCode})` : ''}</span>
+                <span>-{settings?.currency_symbol || '₹'}{discount}</span>
+              </div>
+            )}
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 15px 15px 15px', fontSize: '14px', color: '#4b5563', fontWeight: '600', borderBottom: '1px dashed #e5e7eb', marginBottom: '15px' }}>
               <span>Delivery</span>
               <span style={{ 

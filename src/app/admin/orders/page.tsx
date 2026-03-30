@@ -393,7 +393,23 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
                             )}
                           </td>
                           <td className="p-3 text-center text-gray-400">{item.qty}</td>
-                          <td className="p-3 text-right text-amber-400 font-bold">{settings?.currency_symbol || '₹'}{Number(item.total).toLocaleString('en-IN')}</td>
+                          <td className="p-3 text-right">
+                            {item.original_price && Number(item.original_price) > Number(item.price) ? (
+                              <div>
+                                <p className="text-[10px] line-through text-gray-600">
+                                  {settings?.currency_symbol || '₹'}{Number(item.original_price * item.qty).toLocaleString('en-IN')}
+                                </p>
+                                <p className="text-amber-400 font-bold">{settings?.currency_symbol || '₹'}{Number(item.total).toLocaleString('en-IN')}</p>
+                                <p className="text-[10px] text-green-400 font-bold">
+                                  SAVE {settings?.currency_symbol || '₹'}{(Number(item.original_price) - Number(item.price)) * Number(item.qty) < 1
+                                    ? ((Number(item.original_price) - Number(item.price)) * Number(item.qty)).toFixed(2)
+                                    : Math.round((Number(item.original_price) - Number(item.price)) * Number(item.qty))}
+                                </p>
+                              </div>
+                            ) : (
+                              <p className="text-amber-400 font-bold">{settings?.currency_symbol || '₹'}{Number(item.total).toLocaleString('en-IN')}</p>
+                            )}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -401,6 +417,13 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
                 </div>
                 <div className="flex justify-end gap-5 mt-3 text-xs flex-wrap">
                   <span className="text-gray-500">Subtotal: <span className="text-white font-bold">{settings?.currency_symbol || '₹'}{Number(detail.subtotal).toLocaleString('en-IN')}</span></span>
+                  {Number(detail.discount_amount) > 0 && (
+                    <span className="text-gray-500">
+                      Coupon
+                      {detail.coupon_code && <span className="text-amber-400 font-mono ml-1">({detail.coupon_code})</span>}:
+                      <span className="text-green-400 font-bold ml-1">-{settings?.currency_symbol || '₹'}{Number(detail.discount_amount).toLocaleString('en-IN')}</span>
+                    </span>
+                  )}
                   <span className="text-gray-500">Delivery: <span className="text-white font-bold">{Number(detail.delivery) === 0 ? 'FREE' : `${settings?.currency_symbol || '₹'}${Number(detail.delivery).toLocaleString('en-IN')}`}</span></span>
                   <span className="text-gray-500">Total: <span className="text-amber-400 font-black">{settings?.currency_symbol || '₹'}{Number(detail.total).toLocaleString('en-IN')}</span></span>
                 </div>
