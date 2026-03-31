@@ -55,10 +55,10 @@ function AdminLayoutContent() {
       if (result.authenticated && result.admin) {
         setAdmin(result.admin)
       } else {
-        navigate('/admin/login')
+        navigate('/admin/login', { replace: true })
       }
     } catch {
-      navigate('/admin/login')
+      navigate('/admin/login', { replace: true })
     } finally {
       setLoading(false)
     }
@@ -68,7 +68,7 @@ function AdminLayoutContent() {
     try {
       await authService.logout()
     } catch {}
-    navigate('/admin/login')
+    navigate('/admin/login', { replace: true })
   }
 
   if (loading) {

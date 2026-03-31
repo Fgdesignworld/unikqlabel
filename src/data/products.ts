@@ -31,6 +31,7 @@ export interface Product {
   colorVariants?: ColorVariant[] // NEW: color-based image switching
   sortOrder?: number
   totalStock?: number | null     // from API: null = no inventory configured
+  variantInventory?: Array<{ size: string | null; color: string | null; stock: number }> | null
   numericId?: number             // raw DB id (slug is used as id above)
 }
 

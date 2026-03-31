@@ -53,7 +53,26 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const colorLabel = selectedColor?.color ?? ''
   const cartId = `${product.id}|${product.weight}|${sizeLabel}|${colorLabel}`
   const cartQty = cartItems.find(i => i.id === cartId)?.quantity ?? 0
-  const maxStock = typeof product.totalStock === 'number' ? product.totalStock : null
+
+  // If we have per-variant inventory and a specific variant is selected, use that
+  // row's stock so OOS is checked per-variant and not against the total across all variants.
+  const variantRows = product.variantInventory
+  const specificVariantStock = (variantRows && (sizeLabel || colorLabel))
+    ? (() => {
+        const sl = sizeLabel.toLowerCase() || null
+        const cl = colorLabel.toLowerCase() || null
+        // Try exact match first, then size-only, then color-only, then fallback
+        const exact     = variantRows.find(r => (r.size?.toLowerCase() ?? null) === sl && (r.color?.toLowerCase() ?? null) === cl)
+        const sizeOnly  = cl !== null ? variantRows.find(r => (r.size?.toLowerCase() ?? null) === sl && r.color === null) : null
+        const colorOnly = sl !== null ? variantRows.find(r => r.size === null && (r.color?.toLowerCase() ?? null) === cl) : null
+        const fallback  = variantRows.find(r => r.size === null && r.color === null)
+        return (exact ?? sizeOnly ?? colorOnly ?? fallback)?.stock ?? null
+      })()
+    : null
+
+  const maxStock = specificVariantStock !== null
+    ? specificVariantStock
+    : (typeof product.totalStock === 'number' ? product.totalStock : null)
   const remainingStock = maxStock !== null ? Math.max(0, maxStock - cartQty) : null
   const isOOS = remainingStock !== null && remainingStock === 0
 

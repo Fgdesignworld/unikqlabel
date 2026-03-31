@@ -409,16 +409,16 @@ export function HeroSection() {
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <span className="font-cinzel text-[10px] tracking-[0.28em] uppercase text-amber-500">{slide.category}</span>
                     </div>
-                    <p className="font-heading text-xl font-black text-white mb-3 leading-tight">
+                    {/* <p className="font-heading text-xl font-black text-white mb-3 leading-tight">
                       {slide.lines.join(' ')}
-                    </p>
-                    <Link
+                    </p> */}
+                    {/* <Link
                       to={slide.href}
                       className="inline-flex items-center gap-2 btn-primary text-[11px] py-2 px-4"
                     >
                       <span>{slide.cta}</span>
                       <ArrowRight size={11} className="text-current" />
-                    </Link>
+                    </Link> */}
                   </div>
                 </motion.div>
               </AnimatePresence>

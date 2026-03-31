@@ -26,6 +26,11 @@ export async function fetchCsrfToken(): Promise<string> {
     return csrfToken!;
 }
 
+/** Call this on logout so the next mutating request fetches a fresh token. */
+export function clearCsrfToken(): void {
+    csrfToken = null;
+}
+
 // Attach CSRF token to mutating requests
 api.interceptors.request.use(async (config) => {
     const method = (config.method || '').toLowerCase();
@@ -39,8 +44,19 @@ api.interceptors.request.use(async (config) => {
 // Response error handler
 api.interceptors.response.use(
     (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
+    async (error) => {
+        const status = error.response?.status;
+
+        // CSRF token stale (session was destroyed) — clear cached token and retry once
+        if (status === 403 && error.response?.data?.error?.includes('CSRF') && !error.config._csrfRetry) {
+            csrfToken = null;
+            error.config._csrfRetry = true;
+            const freshToken = await fetchCsrfToken();
+            error.config.headers['X-CSRF-Token'] = freshToken;
+            return api.request(error.config);
+        }
+
+        if (status === 401) {
             // Redirect to login if unauthorized
             if (window.location.pathname.startsWith('/admin') &&
                 window.location.pathname !== '/admin/login') {

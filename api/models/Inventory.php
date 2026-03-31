@@ -47,8 +47,9 @@ class Inventory {
      */
     public static function checkStock(int $productId, ?string $size, ?string $color): ?int {
         $db   = getDB();
-        $size  = ($size  && trim($size)  !== '') ? trim($size)  : null;
-        $color = ($color && trim($color) !== '') ? trim($color) : null;
+        // Normalise: empty string → null, and lowercase for case-insensitive matching
+        $size  = ($size  && trim($size)  !== '') ? strtolower(trim($size))  : null;
+        $color = ($color && trim($color) !== '') ? strtolower(trim($color)) : null;
 
         // All rows for this product loaded in one query
         $stmt = $db->prepare("
@@ -64,8 +65,9 @@ class Inventory {
         $exact = $sizeOnly = $colorOnly = $fallback = null;
 
         foreach ($rows as $r) {
-            $rs = ($r['size']  && trim($r['size'])  !== '') ? trim($r['size'])  : null;
-            $rc = ($r['color'] && trim($r['color']) !== '') ? trim($r['color']) : null;
+            // Normalise DB values the same way — lowercase + null for empty
+            $rs = ($r['size']  && trim($r['size'])  !== '') ? strtolower(trim($r['size']))  : null;
+            $rc = ($r['color'] && trim($r['color']) !== '') ? strtolower(trim($r['color'])) : null;
 
             if ($rs === $size && $rc === $color) {
                 $exact = (int) $r['stock'];
@@ -138,8 +140,8 @@ class Inventory {
      */
     public static function increment(int $productId, ?string $size, ?string $color, int $qty): void {
         $db    = getDB();
-        $size  = ($size  && trim($size)  !== '') ? trim($size)  : null;
-        $color = ($color && trim($color) !== '') ? trim($color) : null;
+        $size  = ($size  && trim($size)  !== '') ? strtolower(trim($size))  : null;
+        $color = ($color && trim($color) !== '') ? strtolower(trim($color)) : null;
 
         $stmt = $db->prepare("SELECT id, size, color FROM product_variant_inventory WHERE product_id = :pid");
         $stmt->execute(['pid' => $productId]);
@@ -150,8 +152,8 @@ class Inventory {
         $exactId = $sizeOnlyId = $colorOnlyId = $fallbackId = null;
 
         foreach ($rows as $r) {
-            $rs = ($r['size']  && trim($r['size'])  !== '') ? trim($r['size'])  : null;
-            $rc = ($r['color'] && trim($r['color']) !== '') ? trim($r['color']) : null;
+            $rs = ($r['size']  && trim($r['size'])  !== '') ? strtolower(trim($r['size']))  : null;
+            $rc = ($r['color'] && trim($r['color']) !== '') ? strtolower(trim($r['color'])) : null;
 
             if ($rs === $size && $rc === $color)                    $exactId     = (int)$r['id'];
             elseif ($rs === $size && $rc===null && $color!==null)   $sizeOnlyId  = (int)$r['id'];
@@ -175,8 +177,8 @@ class Inventory {
      */
     public static function decrement(int $productId, ?string $size, ?string $color, int $qty): bool {
         $db    = getDB();
-        $size  = ($size  && trim($size)  !== '') ? trim($size)  : null;
-        $color = ($color && trim($color) !== '') ? trim($color) : null;
+        $size  = ($size  && trim($size)  !== '') ? strtolower(trim($size))  : null;
+        $color = ($color && trim($color) !== '') ? strtolower(trim($color)) : null;
 
         // Build the same priority query to find which row to decrement
         $stmt = $db->prepare("
@@ -193,8 +195,8 @@ class Inventory {
         $exactId = $sizeOnlyId = $colorOnlyId = $fallbackId = null;
 
         foreach ($rows as $r) {
-            $rs = ($r['size']  && trim($r['size'])  !== '') ? trim($r['size'])  : null;
-            $rc = ($r['color'] && trim($r['color']) !== '') ? trim($r['color']) : null;
+            $rs = ($r['size']  && trim($r['size'])  !== '') ? strtolower(trim($r['size']))  : null;
+            $rc = ($r['color'] && trim($r['color']) !== '') ? strtolower(trim($r['color'])) : null;
 
             if ($rs === $size && $rc === $color)            $exactId     = (int)$r['id'];
             elseif ($rs === $size && $rc===null&&$color!==null) $sizeOnlyId  = (int)$r['id'];
@@ -236,6 +238,31 @@ class Inventory {
                 'total_stock' => (int) $r['total_stock'],
                 'oos_count'   => (int) $r['oos_count'],
                 'low_count'   => (int) $r['low_count'],
+            ];
+        }
+        return $result;
+    }
+
+    /**
+     * Fetch all inventory rows for every product in ONE query.
+     * Returns [ product_id => [ ['size'=>..., 'color'=>..., 'stock'=>...], ... ] ]
+     * Used by the public product listing so the frontend can check per-variant OOS.
+     */
+    public static function getAllInventoryRows(): array {
+        $db   = getDB();
+        $stmt = $db->query("
+            SELECT product_id, size, color, stock
+            FROM product_variant_inventory
+            ORDER BY product_id, COALESCE(size,''), COALESCE(color,'')
+        ");
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = [];
+        foreach ($rows as $r) {
+            $pid = (int) $r['product_id'];
+            $result[$pid][] = [
+                'size'  => $r['size']  !== null && $r['size']  !== '' ? $r['size']  : null,
+                'color' => $r['color'] !== null && $r['color'] !== '' ? $r['color'] : null,
+                'stock' => (int) $r['stock'],
             ];
         }
         return $result;

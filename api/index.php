@@ -33,6 +33,8 @@ if (session_status() === PHP_SESSION_NONE) {
 // Load middleware
 require_once __DIR__ . '/middleware/cors.php';
 require_once __DIR__ . '/middleware/csrf.php';
+require_once __DIR__ . '/helpers/security.php';
+require_once __DIR__ . '/helpers/upload.php';
 
 // Handle CORS
 handleCors();

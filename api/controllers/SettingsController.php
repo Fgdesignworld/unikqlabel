@@ -6,6 +6,8 @@
 
 require_once __DIR__ . '/../models/Settings.php';
 require_once __DIR__ . '/../middleware/auth.php';
+require_once __DIR__ . '/../helpers/upload.php';
+require_once __DIR__ . '/../helpers/security.php';
 
 class SettingsController {
 
@@ -90,34 +92,19 @@ class SettingsController {
             return;
         }
 
-        $file      = $_FILES['logo'];
-        $allowedMt = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'image/gif'];
-        $mime      = mime_content_type($file['tmp_name']);
+        // SVG is deliberately excluded — it can carry inline JavaScript (XSS vector)
+        $result = secureUploadImage(
+            $_FILES['logo'],
+            __DIR__ . '/../uploads/branding/',
+            'logo_',
+            2 * 1024 * 1024  // 2 MB limit for logos
+        );
 
-        if (!in_array($mime, $allowedMt)) {
-            self::error('Invalid file type.');
-            return;
-        }
-        if ($file['size'] > 2 * 1024 * 1024) {
-            self::error('File too large. Max 2 MB.');
-            return;
-        }
-
-        $ext      = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $safeName = 'logo_' . uniqid() . '.' . strtolower($ext);
-        $destDir  = __DIR__ . '/../uploads/branding/';
-
-        if (!is_dir($destDir)) {
-            mkdir($destDir, 0755, true);
-        }
-
-        $dest = $destDir . $safeName;
-        if (!move_uploaded_file($file['tmp_name'], $dest)) {
-            self::error('Failed to save file', 500);
+        if (!$result['ok']) {
+            self::error($result['error']);
             return;
         }
 
-        $url = '/uploads/branding/' . $safeName;
-        self::ok(['url' => $url], 'Logo uploaded');
+        self::ok(['url' => '/api' . $result['path']], 'Logo uploaded');
     }
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '@/services/authService'
 import { Lock, Mail, Eye, EyeOff, AlertCircle } from 'lucide-react'
@@ -13,6 +13,15 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // If already authenticated, skip login page entirely (replaces history entry)
+  useEffect(() => {
+    authService.getStatus().then(result => {
+      if (result.authenticated) {
+        navigate('/admin/dashboard', { replace: true })
+      }
+    }).catch(() => {})
+  }, [navigate])
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -20,7 +29,8 @@ export default function AdminLoginPage() {
 
     try {
       await authService.login({ email, password })
-      navigate('/admin/dashboard')
+      // replace: true removes /admin/login from history so back button never returns here
+      navigate('/admin/dashboard', { replace: true })
     } catch (err: any) {
       setError(err.response?.data?.error || 'Login failed. Please try again.')
     } finally {

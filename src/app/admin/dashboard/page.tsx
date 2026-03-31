@@ -40,7 +40,7 @@ export default function AdminDashboard() {
   const loadData = useCallback(async () => {
     try {
       const [orderData, products, orderAnalytics, chart] = await Promise.all([
-        orderService.getAll('all', 1), // Get first page of all orders
+        orderService.getAll({ filter: 'all', page: 1 }), // Get first page of all orders
         productService.adminGetAll(),
         orderService.getAnalytics(),
         orderService.getChart(14),

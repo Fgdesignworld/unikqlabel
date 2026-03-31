@@ -5,6 +5,7 @@
 
 require_once __DIR__ . '/../models/Lead.php';
 require_once __DIR__ . '/../middleware/auth.php';
+require_once __DIR__ . '/../helpers/security.php';
 
 class ContactController {
 
@@ -51,11 +52,11 @@ class ContactController {
         }
 
         $result = Lead::create([
-            'name'              => $input['name'],
-            'phone'             => $input['phone'],
-            'email'             => $input['email'] ?? null,
+            'name'              => sanitizeInput($input['name'],    200),
+            'phone'             => sanitizeInput($input['phone'],    20),
+            'email'             => !empty($input['email']) ? sanitizeInput($input['email'], 254) : null,
             'inquiry_type'      => $input['inquiry_type']      ?? 'other',
-            'message'           => $input['message'],
+            'message'           => sanitizeInput($input['message'], 2000),
             'preferred_contact' => $input['preferred_contact'] ?? 'whatsapp',
             'source'            => 'website',
             'honeypot'          => $input['honeypot'] ?? null,

@@ -190,12 +190,12 @@ export const InvoiceTemplate = ({
                         </span>
                       )}
                       {item.color && (
-                        <span style={{ display: 'inline-block', backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '2px 7px', color: '#475569', fontWeight: '700', fontSize: '11px', lineHeight: '1.4' }}>
+                        <span style={{ display: 'inline-block', backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '2px 7px', color: '#475569', fontWeight: '700', fontSize: '11px', marginBottom: '4px' }}>
                           {item.color}
                         </span>
                       )}
                       {!item.size && !item.color && (
-                        <span style={{ color: '#aaa', fontSize: '12px' }}>—</span>
+                        <span style={{ color: '#aaa', fontSize: '12px', marginBottom: '4px'  }}>—</span>
                       )}
                     </div>
                   </td>

@@ -6,6 +6,8 @@
 
 require_once __DIR__ . '/../models/Popup.php';
 require_once __DIR__ . '/../middleware/auth.php';
+require_once __DIR__ . '/../helpers/upload.php';
+require_once __DIR__ . '/../helpers/security.php';
 
 class PopupController {
 
@@ -174,26 +176,22 @@ class PopupController {
     public static function uploadImage(): void {
         requireAuth();
 
-        if (empty($_FILES['image'])) { self::error('No file provided'); return; }
-
-        $file = $_FILES['image'];
-        $mime = mime_content_type($file['tmp_name']);
-        if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif'])) {
-            self::error('Invalid file type');
-            return;
-        }
-        if ($file['size'] > 5 * 1024 * 1024) { self::error('Max 5 MB'); return; }
-
-        $ext     = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $name    = 'popup_' . uniqid() . '.' . strtolower($ext);
-        $destDir = __DIR__ . '/../uploads/popups/';
-        if (!is_dir($destDir)) mkdir($destDir, 0755, true);
-
-        if (!move_uploaded_file($file['tmp_name'], $destDir . $name)) {
-            self::error('Failed to save file', 500);
+        if (empty($_FILES['image'])) {
+            self::error('No file provided');
             return;
         }
 
-        self::ok(['url' => '/uploads/popups/' . $name], 'Image uploaded');
+        $result = secureUploadImage(
+            $_FILES['image'],
+            __DIR__ . '/../uploads/popups/',
+            'popup_'
+        );
+
+        if (!$result['ok']) {
+            self::error($result['error']);
+            return;
+        }
+
+        self::ok(['url' => '/api' . $result['path']], 'Image uploaded');
     }
 }

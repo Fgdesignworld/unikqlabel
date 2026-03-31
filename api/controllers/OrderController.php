@@ -6,6 +6,7 @@
 require_once __DIR__ . '/../models/Order.php';
 require_once __DIR__ . '/../models/Inventory.php';
 require_once __DIR__ . '/../middleware/auth.php';
+require_once __DIR__ . '/../helpers/security.php';
 
 class OrderController {
 
@@ -89,12 +90,12 @@ class OrderController {
         }
 
         $orderData = [
-            'customer_name' => $input['customer_name'],
+            'customer_name' => sanitizeInput($input['customer_name'], 200),
             'phone'         => $input['phone'],
-            'address'       => $input['address'],
-            'city'          => $input['city'],
+            'address'       => sanitizeInput($input['address'], 500),
+            'city'          => sanitizeInput($input['city'], 100),
             'pincode'       => $input['pincode'],
-            'notes'         => $input['notes'] ?? '',
+            'notes'         => sanitizeInput($input['notes'] ?? '', 1000),
         ];
 
         // Optional coupon fields (backend re-validates everything)

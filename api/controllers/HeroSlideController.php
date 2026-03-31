@@ -5,6 +5,8 @@
 
 require_once __DIR__ . '/../models/HeroSlide.php';
 require_once __DIR__ . '/../middleware/auth.php';
+require_once __DIR__ . '/../helpers/upload.php';
+require_once __DIR__ . '/../helpers/security.php';
 
 class HeroSlideController {
 
@@ -167,34 +169,18 @@ class HeroSlideController {
             return;
         }
 
-        $file      = $_FILES['image'];
-        $allowedMt = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-        $mime      = mime_content_type($file['tmp_name']);
+        $result = secureUploadImage(
+            $_FILES['image'],
+            __DIR__ . '/../uploads/hero/',
+            'hero_',
+            8 * 1024 * 1024  // 8 MB limit for hero banners
+        );
 
-        if (!in_array($mime, $allowedMt)) {
-            self::error('Invalid file type. Only JPEG, PNG, WebP, GIF allowed.');
+        if (!$result['ok']) {
+            self::error($result['error']);
             return;
         }
 
-        if ($file['size'] > 8 * 1024 * 1024) {
-            self::error('File too large. Max size is 8 MB.');
-            return;
-        }
-
-        $ext      = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $safeName = 'hero_' . uniqid() . '.' . $ext;
-        $destDir  = __DIR__ . '/../uploads/hero/';
-
-        if (!is_dir($destDir)) {
-            mkdir($destDir, 0755, true);
-        }
-
-        $dest = $destDir . $safeName;
-        if (!move_uploaded_file($file['tmp_name'], $dest)) {
-            self::error('Failed to save image', 500);
-            return;
-        }
-
-        self::ok(['url' => '/uploads/hero/' . $safeName], 'Image uploaded successfully');
+        self::ok(['url' => '/api' . $result['path']], 'Image uploaded successfully');
     }
 }

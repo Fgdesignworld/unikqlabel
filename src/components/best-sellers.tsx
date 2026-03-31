@@ -45,7 +45,21 @@ function BestSellerCard({ product, index }: { product: Product; index: number })
   const colorLabel = '' // best-sellers has no color picker; color defaults to empty
   const cartId = `${product.id}|${currentVariant.weight}|${sizeLabel}|${colorLabel}`
   const cartQty = cartItems.find(i => i.id === cartId)?.quantity ?? 0
-  const maxStock = typeof product.totalStock === 'number' ? product.totalStock : null
+
+  // Per-variant stock check — avoids showing in-stock when only THIS specific variant is OOS
+  const variantRows = product.variantInventory
+  const specificVariantStock = (variantRows && sizeLabel)
+    ? (() => {
+        const sl = sizeLabel.toLowerCase()
+        const exact    = variantRows.find(r => (r.size?.toLowerCase() ?? null) === sl && r.color === null)
+        const fallback = variantRows.find(r => r.size === null && r.color === null)
+        return (exact ?? fallback)?.stock ?? null
+      })()
+    : null
+
+  const maxStock = specificVariantStock !== null
+    ? specificVariantStock
+    : (typeof product.totalStock === 'number' ? product.totalStock : null)
   const remainingStock = maxStock !== null ? Math.max(0, maxStock - cartQty) : null
   const isOOS = remainingStock !== null && remainingStock === 0
 
@@ -53,7 +67,7 @@ function BestSellerCard({ product, index }: { product: Product; index: number })
     // Require size selection if size variants exist
     if (sizeVariants.length > 0 && selectedSizeIdx === null) {
       setSizeError(true)
-      setTimeout(() => setSizeError(false), 1500)
+      setTimeout(() => setSizeError(false), 2000)
       return
     }
     if (isOOS) return
@@ -79,96 +93,98 @@ function BestSellerCard({ product, index }: { product: Product; index: number })
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
-      whileHover={{ y: -6 }}
+      transition={{ duration: 0.5, delay: index * 0.08 }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className="group relative rounded-2xl overflow-hidden"
+      className="group relative rounded-xl overflow-hidden flex flex-col"
       style={{
-        background: 'rgba(20,18,14,0.7)',
-        border: '1px solid rgba(212,175,55,0.08)',
-        backdropFilter: 'blur(8px)',
-        boxShadow: isHovered
-          ? '0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(212,175,55,0.08)'
-          : '0 8px 30px rgba(0,0,0,0.3)',
-        transition: 'box-shadow 0.4s ease',
+        background: '#111',
+        border: isHovered ? '1px solid rgba(212,175,55,0.2)' : '1px solid rgba(255,255,255,0.06)',
+        transition: 'border-color 0.3s ease',
       }}
     >
-      {/* Image */}
-      <div className="relative aspect-[3/4] overflow-hidden">
+      {/* Image — compact square */}
+      <Link to={`/products/${product.id}`} className="relative block aspect-square overflow-hidden bg-[#0a0a0a] shrink-0">
         <Image
           src={product.image}
           alt={product.name}
           fill
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+          className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
         />
-        {/* Gradient overlay */}
-        <div className="absolute inset-0" style={{
-          background: 'linear-gradient(to top, rgba(13,13,13,0.85) 0%, rgba(13,13,13,0.2) 50%, transparent 100%)',
-        }} />
 
-        {/* Badge top-left */}
-        {badge && (
-          <div className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full"
-            style={{ background: badge.bg, border: '1px solid rgba(212,175,55,0.3)', backdropFilter: 'blur(8px)' }}>
-            {badge.text === 'Trending' ? <Flame size={9} style={{ color: badge.color }} /> : <Sparkles size={9} className="text-amber-500" />}
-            <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: badge.color }}>{badge.text}</span>
-          </div>
-        )}
-
-        {/* Rating top-right */}
-        {product.rating && (
-          <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full"
-            style={{ background: 'rgba(13,13,13,0.85)', border: '1px solid rgba(212,175,55,0.2)', backdropFilter: 'blur(8px)' }}>
-            <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
-            <span className="text-[10px] font-semibold" style={{ color: '#F5F0E8' }}>{product.rating}</span>
-          </div>
-        )}
-
-        {/* Quick Add – appears on hover at bottom of image */}
-        <div className="absolute bottom-0 left-0 right-0 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 p-3">
-          <button
-            onClick={handleAddToCart}
-            disabled={isAdded || isOOS}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full font-bold text-xs uppercase tracking-wider transition-all duration-300"
-            style={{
-              background: isOOS ? 'rgba(100,100,100,0.7)' : isAdded ? 'rgba(34,197,94,0.9)' : 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 70%, black))',
-              color: '#0D0D0D',
-              cursor: isOOS ? 'not-allowed' : 'pointer',
-            }}
-          >
-            {isOOS ? 'Out of Stock' : isAdded ? <><Check size={12} /> Added!</> : <><ShoppingBag size={12} /> Quick Add</>}
-          </button>
+        {/* Badges */}
+        <div className="absolute top-2 left-2 flex flex-col gap-1">
+          {badge && (
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full"
+              style={{ background: badge.bg, border: '1px solid rgba(212,175,55,0.25)', backdropFilter: 'blur(6px)' }}>
+              {badge.text === 'Trending' ? <Flame size={8} style={{ color: badge.color }} /> : <Sparkles size={8} className="text-amber-500" />}
+              <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: badge.color }}>{badge.text}</span>
+            </div>
+          )}
+          {discountPct > 0 && (
+            <span className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[9px] font-black w-fit">
+              -{discountPct}%
+            </span>
+          )}
         </div>
+
+        {/* Rating */}
+        {product.rating && (
+          <div className="absolute top-2 right-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full"
+            style={{ background: 'rgba(0,0,0,0.75)', border: '1px solid rgba(212,175,55,0.15)', backdropFilter: 'blur(6px)' }}>
+            <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+            <span className="text-[9px] font-semibold text-white/80">{product.rating}</span>
+          </div>
+        )}
 
         {/* OOS overlay */}
         {isOOS && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="px-3 py-1 bg-red-600/90 text-white text-[10px] font-black uppercase tracking-wider rounded-full">Out of Stock</span>
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <span className="px-2.5 py-1 bg-red-600/90 text-white text-[9px] font-black uppercase tracking-wider rounded-full">Out of Stock</span>
           </div>
         )}
-      </div>
 
-      {/* Content */}
-      <div className="p-4">
-        <h3 className="font-heading text-sm md:text-base font-bold mb-1 line-clamp-1" style={{ color: '#F5F0E8' }}>
-          {product.name}
-        </h3>
+        {/* Quick add on hover */}
+        {!isOOS && (
+          <div className="absolute inset-x-0 bottom-0 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-250 p-2">
+            <button
+              onClick={handleAddToCart}
+              disabled={isAdded}
+              className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg font-bold text-[11px] uppercase tracking-wide transition-all"
+              style={{
+                background: isAdded ? 'rgba(34,197,94,0.9)' : 'rgba(212,175,55,0.92)',
+                color: '#0D0D0D',
+                backdropFilter: 'blur(4px)',
+              }}
+            >
+              {isAdded ? <><Check size={11} /> Added</> : <><ShoppingBag size={11} /> Quick Add</>}
+            </button>
+          </div>
+        )}
+      </Link>
+
+      {/* Info */}
+      <div className="p-3 flex flex-col gap-2 flex-1">
+        <Link to={`/products/${product.id}`}>
+          <h3 className="text-xs font-semibold line-clamp-1 text-white/80 hover:text-white transition-colors">
+            {product.name}
+          </h3>
+        </Link>
 
         {/* Variant selectors */}
         {variants.length > 1 && (
-          <div className="flex flex-wrap gap-1 mb-3">
+          <div className="flex flex-wrap gap-1">
             {variants.map((variant, idx) => (
               <button
                 key={variant.weight}
                 onClick={() => setSelectedVariant(idx)}
-                className="px-2 py-0.5 rounded-md text-[10px] font-medium transition-all"
+                className="px-1.5 py-0.5 rounded text-[9px] font-medium transition-all"
                 style={selectedVariant === idx
                   ? { background: 'var(--theme-color)', color: '#0D0D0D' }
-                  : { background: 'rgba(212,175,55,0.08)', color: 'rgba(245,240,232,0.6)', border: '1px solid rgba(212,175,55,0.15)' }
+                  : { background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.45)', border: '1px solid rgba(255,255,255,0.08)' }
                 }
               >
                 {variant.weight}
@@ -179,59 +195,60 @@ function BestSellerCard({ product, index }: { product: Product; index: number })
 
         {/* Size Variants */}
         {sizeVariants.length > 0 && (
-          <div className="mb-2">
-            <div className="flex flex-nowrap items-center gap-1.5 overflow-x-auto scrollbar-hide pb-0">
+          <div>
+            <div className="flex flex-wrap gap-1">
               {sizeVariants.map((sv, idx) => (
                 <button
                   key={sv.label}
                   onClick={() => { setSelectedSizeIdx(idx); setSizeError(false) }}
                   className={cn(
-                    'shrink-0 w-12 px-0 py-1.5 rounded-md text-[7px] md:text-xs font-bold uppercase tracking-wide transition-all whitespace-nowrap',
+                    'px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide transition-all',
                     selectedSizeIdx === idx
-                      ? 'bg-amber-500 text-[#0D0D0D] shadow-md shadow-amber-500/20'
+                      ? 'bg-amber-500 text-[#0D0D0D]'
                       : sizeError
-                        ? 'bg-red-500/10 text-red-400 border border-red-500/60 animate-pulse'
-                        : 'text-[rgba(245,240,232,0.6)] border border-[rgba(212,175,55,0.15)] hover:border-[rgba(212,175,55,0.5)]'
+                        ? 'bg-red-500/10 text-red-400 border border-red-500/50 animate-pulse'
+                        : 'text-white/40 border border-white/8 hover:border-white/20 hover:text-white/70'
                   )}
-                  style={selectedSizeIdx !== idx && !sizeError ? { background: 'rgba(212,175,55,0.08)' } : {}}
+                  style={selectedSizeIdx !== idx && !sizeError ? { background: 'rgba(255,255,255,0.04)' } : {}}
                 >
                   {sv.label}
                 </button>
               ))}
             </div>
             {sizeError && (
-              <p className="text-red-400 text-[10px] mt-1 font-medium">Please select a size</p>
+              <div className="mt-1.5 px-2.5 py-1.5 bg-red-500/8 border border-red-500/20 rounded-lg flex items-center gap-1.5 text-[10px] text-red-400 font-semibold">
+                <span className="inline-block w-1 h-1 bg-red-400 rounded-full"></span>
+                Size: Not selected
+              </div>
             )}
           </div>
         )}
 
-        <div className="flex items-center justify-between">
-          <div>
-            {remainingStock !== null && remainingStock > 0 && remainingStock <= 10 && (
-              <div className="text-[9px] font-black text-amber-400 mb-0.5">Only {remainingStock} left</div>
+        {/* Price + Add button row */}
+        <div className="flex items-center justify-between mt-auto pt-1">
+          <div className="flex items-baseline gap-1.5">
+            {remainingStock !== null && remainingStock > 0 && remainingStock <= 5 && (
+              <span className="block text-[8px] font-black text-amber-400 mb-0.5">Only {remainingStock} left</span>
             )}
-            <span className="text-lg font-black" style={{
-              background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white), var(--theme-color))',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}>
+            <span className="text-sm font-black" style={{ color: 'var(--theme-color)' }}>
               {currency}{salePrice.toLocaleString('en-IN')}
             </span>
+            {discountPct > 0 && (
+              <span className="text-[9px] text-white/25 line-through">{currency}{basePrice.toLocaleString('en-IN')}</span>
+            )}
           </div>
           <button
             onClick={handleAddToCart}
             disabled={isAdded || isOOS}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 md:hidden"
+            className="flex items-center justify-center w-7 h-7 rounded-lg transition-all"
             style={isOOS
-              ? { background: 'rgba(100,100,100,0.15)', color: 'rgba(245,240,232,0.3)', border: '1px solid rgba(100,100,100,0.2)', cursor: 'not-allowed' }
+              ? { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.2)', cursor: 'not-allowed' }
               : isAdded
-              ? { background: 'rgba(34,197,94,0.2)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.3)' }
-              : { background: 'color-mix(in srgb, var(--theme-color) 12%, transparent)', color: 'var(--theme-color)', border: '1px solid color-mix(in srgb, var(--theme-color) 25%, transparent)', backdropFilter: 'blur(4px)' }
+                ? { background: 'rgba(34,197,94,0.15)', color: '#22c55e' }
+                : { background: 'rgba(212,175,55,0.1)', color: 'var(--theme-color)', border: '1px solid rgba(212,175,55,0.2)' }
             }
           >
-            {isOOS ? 'OOS' : isAdded ? <Check size={12} /> : <ShoppingBag size={12} />}
-            {isOOS ? '' : isAdded ? 'Added' : 'Add'}
+            {isAdded ? <Check size={13} /> : <ShoppingBag size={13} />}
           </button>
         </div>
       </div>

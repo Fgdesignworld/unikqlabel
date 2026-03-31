@@ -6,6 +6,8 @@
 
 require_once __DIR__ . '/../models/Category.php';
 require_once __DIR__ . '/../middleware/auth.php';
+require_once __DIR__ . '/../helpers/upload.php';
+require_once __DIR__ . '/../helpers/security.php';
 
 class CategoryController {
 
@@ -172,34 +174,17 @@ class CategoryController {
             return;
         }
 
-        $file      = $_FILES['image'];
-        $allowedMt = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-        $mime      = mime_content_type($file['tmp_name']);
+        $result = secureUploadImage(
+            $_FILES['image'],
+            __DIR__ . '/../uploads/categories/',
+            'cat_'
+        );
 
-        if (!in_array($mime, $allowedMt)) {
-            self::error('Invalid file type. Only JPEG, PNG, WebP, GIF allowed.');
+        if (!$result['ok']) {
+            self::error($result['error']);
             return;
         }
 
-        if ($file['size'] > 5 * 1024 * 1024) {
-            self::error('File too large. Max size is 5 MB.');
-            return;
-        }
-
-        $ext      = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $safeName = 'cat_' . uniqid() . '.' . strtolower($ext);
-        $destDir  = __DIR__ . '/../uploads/categories/';
-
-        if (!is_dir($destDir)) {
-            mkdir($destDir, 0755, true);
-        }
-
-        $dest = $destDir . $safeName;
-        if (!move_uploaded_file($file['tmp_name'], $dest)) {
-            self::error('Failed to save image', 500);
-            return;
-        }
-
-        self::ok(['url' => '/uploads/categories/' . $safeName], 'Image uploaded successfully');
+        self::ok(['url' => '/api' . $result['path']], 'Image uploaded successfully');
     }
 }

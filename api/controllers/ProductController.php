@@ -7,6 +7,8 @@ require_once __DIR__ . '/../models/Product.php';
 require_once __DIR__ . '/../models/Category.php';
 require_once __DIR__ . '/../models/Inventory.php';
 require_once __DIR__ . '/../middleware/auth.php';
+require_once __DIR__ . '/../helpers/upload.php';
+require_once __DIR__ . '/../helpers/security.php';
 
 class ProductController {
 
@@ -15,13 +17,15 @@ class ProductController {
      */
     public static function index(): void {
         $filters = [];
-        if (!empty($_GET['category']))  $filters['category']  = $_GET['category'];
+        // Sanitize/validate every query parameter — never pass raw GET values to the model
+        if (!empty($_GET['category']))  $filters['category']  = sanitizeInput($_GET['category'], 50);
         if (isset($_GET['veg']))        $filters['is_veg']    = $_GET['veg'] === 'true' ? 1 : 0;
-        if (isset($_GET['min_price'])) $filters['min_price'] = $_GET['min_price'];
-        if (isset($_GET['max_price'])) $filters['max_price'] = $_GET['max_price'];
+        if (isset($_GET['min_price']))  $filters['min_price'] = validateFloat($_GET['min_price'], 0, 1000000) ?? 0;
+        if (isset($_GET['max_price']))  $filters['max_price'] = validateFloat($_GET['max_price'], 0, 1000000) ?? 1000000;
 
-        $products     = Product::getActive($filters);
-        $stockSummary = Inventory::getAllStockSummary();
+        $products        = Product::getActive($filters);
+        $stockSummary    = Inventory::getAllStockSummary();
+        $allVariantRows  = Inventory::getAllInventoryRows();
 
         foreach ($products as &$p) {
             self::normalizeProduct($p);
@@ -32,6 +36,8 @@ class ProductController {
             } else {
                 $p['total_stock'] = null;
             }
+            // Per-variant stock so the frontend can check OOS for specific size/color combos
+            $p['variant_inventory'] = $allVariantRows[$pid] ?? null;
         }
 
         echo json_encode(['products' => $products]);
@@ -237,41 +243,23 @@ class ProductController {
             return;
         }
 
-        $file = $_FILES['image'];
-        $allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-        $maxSize = 5 * 1024 * 1024; // 5MB
+        $result = secureUploadImage(
+            $_FILES['image'],
+            __DIR__ . '/../uploads/products/',
+            'product_'
+        );
 
-        if (!in_array($file['type'], $allowedTypes)) {
+        if (!$result['ok']) {
             http_response_code(400);
-            echo json_encode(['error' => 'Only JPEG, PNG, and WebP images are allowed']);
+            echo json_encode(['error' => $result['error']]);
             return;
         }
 
-        if ($file['size'] > $maxSize) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Image must be less than 5MB']);
-            return;
-        }
-
-        $uploadDir = __DIR__ . '/../uploads/products/';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
-
-        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $filename = uniqid('product_') . '.' . $ext;
-        $destination = $uploadDir . $filename;
-
-        if (move_uploaded_file($file['tmp_name'], $destination)) {
-            echo json_encode([
-                'success'  => true,
-                'filename' => $filename,
-                'path'     => '/api/uploads/products/' . $filename,
-            ]);
-        } else {
-            http_response_code(500);
-            echo json_encode(['error' => 'Failed to upload image']);
-        }
+        echo json_encode([
+            'success'  => true,
+            'filename' => basename($result['path']),
+            'path'     => '/api' . $result['path'],
+        ]);
     }
 
     /**
