@@ -17,6 +17,8 @@ export interface CartItem {
   quantity: number
   image: string
   category: string
+  productId?: number  // Numeric DB product id for inventory validation
+  maxStock?: number   // Known stock at time of adding; undefined = unlimited
 }
 
 export interface CustomerDetails {
@@ -99,9 +101,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => {
       const existingItem = prev.find((item) => item.id === newItem.id)
       if (existingItem) {
+        const cap = newItem.maxStock ?? existingItem.maxStock ?? 10
+        const newQty = Math.min(cap, existingItem.quantity + 1)
+        if (newQty === existingItem.quantity) return prev // already at max
         return prev.map((item) =>
           item.id === newItem.id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: newQty, maxStock: newItem.maxStock ?? item.maxStock }
             : item
         )
       }
@@ -119,7 +124,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return
     }
     setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
+      prev.map((item) => {
+        if (item.id !== id) return item
+        const cap = item.maxStock ?? 10
+        return { ...item, quantity: Math.min(cap, quantity) }
+      })
     )
   }
 

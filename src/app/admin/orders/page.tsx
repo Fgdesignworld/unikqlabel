@@ -386,8 +386,6 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
                                   <span className="px-2 py-0.5 bg-gray-800 text-gray-300 border border-gray-700 rounded-md font-bold">{item.color_name}</span>
                                 )}
                               </div>
-                            ) : item.weight ? (
-                              <span className="text-gray-400 font-medium">{item.weight}</span>
                             ) : (
                               <span className="text-gray-700">—</span>
                             )}

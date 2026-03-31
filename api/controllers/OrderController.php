@@ -4,6 +4,7 @@
  */
 
 require_once __DIR__ . '/../models/Order.php';
+require_once __DIR__ . '/../models/Inventory.php';
 require_once __DIR__ . '/../middleware/auth.php';
 
 class OrderController {
@@ -31,17 +32,25 @@ class OrderController {
             }
         }
 
-        if (!preg_match('/^\d{10}$/', $input['phone'])) {
+        $phone = trim($input['phone']);
+        // Strip country code prefix only when number is longer than 10 digits
+        if (strlen($phone) > 10) {
+            $phone = preg_replace('/^(\+91|91)/', '', $phone);
+        }
+        if (!preg_match('/^\d{10}$/', $phone)) {
             http_response_code(400);
             echo json_encode(['error' => 'Phone must be a 10-digit number']);
             return;
         }
+        $input['phone'] = $phone;
 
-        if (!preg_match('/^\d{6}$/', $input['pincode'])) {
+        if (!preg_match('/^\d{6}$/', trim($input['pincode']))) {
             http_response_code(400);
             echo json_encode(['error' => 'Pincode must be a 6-digit number']);
             return;
         }
+
+        $input['pincode'] = trim($input['pincode']);
 
         if (!is_array($input['cart_items']) || count($input['cart_items']) === 0) {
             http_response_code(400);
@@ -186,21 +195,70 @@ class OrderController {
 
     /**
      * PUT /api/admin/orders/{id}/status — Admin: update order status
+     * Restores stock if transitioning TO cancelled.
+     * Re-decrements stock if transitioning FROM cancelled to an active status.
      */
     public static function updateStatus(int $id): void {
         requireAuth();
 
         $input = json_decode(file_get_contents('php://input'), true);
-        $status = $input['status'] ?? '';
+        $newStatus = $input['status'] ?? '';
 
         $validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
-        if (!in_array($status, $validStatuses)) {
+        if (!in_array($newStatus, $validStatuses)) {
             http_response_code(400);
             echo json_encode(['error' => 'Invalid status']);
             return;
         }
 
-        Order::updateStatus($id, $status);
+        // Fetch current order + items before mutating
+        $order = Order::getWithItems($id);
+        if (!$order) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Order not found']);
+            return;
+        }
+        $oldStatus = $order['status'];
+
+        // Update status in DB
+        Order::updateStatus($id, $newStatus);
+
+        // ---------------------------------------------------------------------------
+        // Inventory sync: only act when transitioning between cancelled and active
+        // ---------------------------------------------------------------------------
+        $wasCancelled  = ($oldStatus  === 'cancelled');
+        $nowCancelled  = ($newStatus  === 'cancelled');
+
+        if (!$wasCancelled && $nowCancelled) {
+            // Order is being cancelled → restore (increment) stock
+            $items = $order['items'] ?? [];
+            foreach ($items as $item) {
+                $pid = isset($item['product_id']) ? (int)$item['product_id'] : null;
+                if (!$pid) continue;
+                if (!Inventory::hasInventory($pid)) continue;
+                Inventory::increment(
+                    $pid,
+                    $item['size_label'] ?? null,
+                    $item['color_name']  ?? null,
+                    (int)($item['qty']  ?? $item['quantity'] ?? 1)
+                );
+            }
+        } elseif ($wasCancelled && !$nowCancelled) {
+            // Order un-cancelled → re-decrement stock
+            $items = $order['items'] ?? [];
+            foreach ($items as $item) {
+                $pid = isset($item['product_id']) ? (int)$item['product_id'] : null;
+                if (!$pid) continue;
+                if (!Inventory::hasInventory($pid)) continue;
+                Inventory::decrement(
+                    $pid,
+                    $item['size_label'] ?? null,
+                    $item['color_name']  ?? null,
+                    (int)($item['qty']  ?? $item['quantity'] ?? 1)
+                );
+            }
+        }
+
         echo json_encode(['success' => true, 'message' => 'Status updated']);
     }
 

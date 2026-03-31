@@ -17,7 +17,7 @@ function getBadge(product: Product): { text: string; color: string; bg: string }
 }
 
 function BestSellerCard({ product, index }: { product: Product; index: number }) {
-  const { addItem } = useCart()
+  const { addItem, items: cartItems } = useCart()
   const { settings } = useSettings()
   const [selectedVariant, setSelectedVariant] = useState(0)
   const [selectedSizeIdx, setSelectedSizeIdx] = useState<number | null>(null)
@@ -40,6 +40,15 @@ function BestSellerCard({ product, index }: { product: Product; index: number })
   const discountPct = product.discount_price && product.discount_price > 0 && product.discount_price <= 100 ? Math.round(product.discount_price) : 0
   const salePrice = discountPct > 0 ? Math.round(basePrice * (100 - discountPct) / 100) : basePrice
 
+  // ── Real-time stock: totalStock minus what's already in the cart for this variant ──
+  const sizeLabel = selectedSizeIdx !== null ? (sizeVariants[selectedSizeIdx]?.label ?? '') : ''
+  const colorLabel = '' // best-sellers has no color picker; color defaults to empty
+  const cartId = `${product.id}|${currentVariant.weight}|${sizeLabel}|${colorLabel}`
+  const cartQty = cartItems.find(i => i.id === cartId)?.quantity ?? 0
+  const maxStock = typeof product.totalStock === 'number' ? product.totalStock : null
+  const remainingStock = maxStock !== null ? Math.max(0, maxStock - cartQty) : null
+  const isOOS = remainingStock !== null && remainingStock === 0
+
   const handleAddToCart = () => {
     // Require size selection if size variants exist
     if (sizeVariants.length > 0 && selectedSizeIdx === null) {
@@ -47,18 +56,20 @@ function BestSellerCard({ product, index }: { product: Product; index: number })
       setTimeout(() => setSizeError(false), 1500)
       return
     }
-    const sizeLabel = selectedSizeIdx !== null ? (sizeVariants[selectedSizeIdx]?.label ?? '') : ''
-    const variantKey = [currentVariant.weight, sizeLabel].filter(Boolean).join('-')
+    if (isOOS) return
     addItem({
-      id: `${product.id}-${variantKey || currentVariant.weight}`,
+      id: cartId,
+      productId: product.numericId,
       name: product.name,
       price: salePrice,
       originalPrice: discountPct > 0 ? basePrice : undefined,
       discountPercent: discountPct > 0 ? discountPct : undefined,
       weight: currentVariant.weight,
       size: sizeLabel || undefined,
+      color: colorLabel || undefined,
       image: product.image,
       category: product.category,
+      maxStock: maxStock !== null && maxStock > 0 ? maxStock : undefined,
     })
     setIsAdded(true)
     setTimeout(() => setIsAdded(false), 1500)
@@ -121,16 +132,24 @@ function BestSellerCard({ product, index }: { product: Product; index: number })
         <div className="absolute bottom-0 left-0 right-0 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 p-3">
           <button
             onClick={handleAddToCart}
-            disabled={isAdded}
+            disabled={isAdded || isOOS}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full font-bold text-xs uppercase tracking-wider transition-all duration-300"
             style={{
-              background: isAdded ? 'rgba(34,197,94,0.9)' : 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 70%, black))',
+              background: isOOS ? 'rgba(100,100,100,0.7)' : isAdded ? 'rgba(34,197,94,0.9)' : 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 70%, black))',
               color: '#0D0D0D',
+              cursor: isOOS ? 'not-allowed' : 'pointer',
             }}
           >
-            {isAdded ? <><Check size={12} /> Added!</> : <><ShoppingBag size={12} /> Quick Add</>}
+            {isOOS ? 'Out of Stock' : isAdded ? <><Check size={12} /> Added!</> : <><ShoppingBag size={12} /> Quick Add</>}
           </button>
         </div>
+
+        {/* OOS overlay */}
+        {isOOS && (
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <span className="px-3 py-1 bg-red-600/90 text-white text-[10px] font-black uppercase tracking-wider rounded-full">Out of Stock</span>
+          </div>
+        )}
       </div>
 
       {/* Content */}
@@ -187,25 +206,32 @@ function BestSellerCard({ product, index }: { product: Product; index: number })
         )}
 
         <div className="flex items-center justify-between">
-          <span className="text-lg font-black" style={{
-            background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white), var(--theme-color))',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}>
-            {currency}{salePrice.toLocaleString('en-IN')}
-          </span>
+          <div>
+            {remainingStock !== null && remainingStock > 0 && remainingStock <= 10 && (
+              <div className="text-[9px] font-black text-amber-400 mb-0.5">Only {remainingStock} left</div>
+            )}
+            <span className="text-lg font-black" style={{
+              background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white), var(--theme-color))',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>
+              {currency}{salePrice.toLocaleString('en-IN')}
+            </span>
+          </div>
           <button
             onClick={handleAddToCart}
-            disabled={isAdded}
+            disabled={isAdded || isOOS}
             className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 md:hidden"
-            style={isAdded
+            style={isOOS
+              ? { background: 'rgba(100,100,100,0.15)', color: 'rgba(245,240,232,0.3)', border: '1px solid rgba(100,100,100,0.2)', cursor: 'not-allowed' }
+              : isAdded
               ? { background: 'rgba(34,197,94,0.2)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.3)' }
               : { background: 'color-mix(in srgb, var(--theme-color) 12%, transparent)', color: 'var(--theme-color)', border: '1px solid color-mix(in srgb, var(--theme-color) 25%, transparent)', backdropFilter: 'blur(4px)' }
             }
           >
-            {isAdded ? <Check size={12} /> : <ShoppingBag size={12} />}
-            {isAdded ? 'Added' : 'Add'}
+            {isOOS ? 'OOS' : isAdded ? <Check size={12} /> : <ShoppingBag size={12} />}
+            {isOOS ? '' : isAdded ? 'Added' : 'Add'}
           </button>
         </div>
       </div>

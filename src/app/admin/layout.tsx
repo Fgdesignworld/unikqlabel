@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link, Outlet, useLocation } from 'react-router-dom'
 import { authService, type AdminUser } from '@/services/authService'
 import { orderService } from '@/services/orderService'
-import { Package, ShoppingCart, LogOut, LayoutDashboard, Menu, X, Tag, Globe, Settings, Megaphone, Truck, Bell, Star, Layers, Ruler, Palette, Users, MessageSquare, Ticket } from 'lucide-react'
+import { Package, ShoppingCart, LogOut, LayoutDashboard, Menu, X, Tag, Globe, Settings, Megaphone, Truck, Bell, Star, Layers, Ruler, Palette, Users, MessageSquare, Ticket, Boxes } from 'lucide-react'
 import { Toaster } from '@/components/ui/toaster'
 import { NotificationBell } from '@/components/admin/NotificationBell'
 import { MobileBottomNav } from '@/components/admin/MobileBottomNav'
@@ -90,6 +90,7 @@ function AdminLayoutContent() {
     { path: '/admin/popup', icon: Megaphone, label: 'Popup' },
     { path: '/admin/delivery', icon: Truck, label: 'Delivery' },
     { path: '/admin/coupons', icon: Ticket, label: 'Coupons' },
+    { path: '/admin/inventory', icon: Boxes, label: 'Inventory' },
     { path: '/admin/reviews', icon: Star, label: 'Reviews' },
     { path: '/admin/notifications', icon: Bell, label: 'Notifications' },
     { path: '/admin/variants', icon: Ruler, label: 'Variant Master' },

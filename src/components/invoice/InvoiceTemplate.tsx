@@ -183,20 +183,21 @@ export const InvoiceTemplate = ({
                   </div>
                 </td>
                   <td style={{ textAlign: 'center', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', fontSize: '12px', fontWeight: '600' }}>
-                    {item.size && (
-                      <span style={{ display: 'inline-block', backgroundColor: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '6px', padding: '1px 7px', color: '#b45309', fontWeight: '700', fontSize: '11px', marginBottom: item.color ? '3px' : 0 }}>
-                        {item.size}
-                      </span>
-                    )}
-                    {item.size && item.color && <br />}
-                    {item.color && (
-                      <span style={{ display: 'inline-block', backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '1px 7px', color: '#475569', fontWeight: '700', fontSize: '11px' }}>
-                        {item.color}
-                      </span>
-                    )}
-                    {!item.size && !item.color && (
-                      <span style={{ color: '#aaa', fontSize: '12px' }}>{item.weight}</span>
-                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', flexWrap: 'wrap' }}>
+                      {item.size && (
+                        <span style={{ display: 'inline-block', backgroundColor: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '6px', padding: '2px 7px', color: '#b45309', fontWeight: '700', fontSize: '11px', lineHeight: '1.4' }}>
+                          {item.size}
+                        </span>
+                      )}
+                      {item.color && (
+                        <span style={{ display: 'inline-block', backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '2px 7px', color: '#475569', fontWeight: '700', fontSize: '11px', lineHeight: '1.4' }}>
+                          {item.color}
+                        </span>
+                      )}
+                      {!item.size && !item.color && (
+                        <span style={{ color: '#aaa', fontSize: '12px' }}>—</span>
+                      )}
+                    </div>
                   </td>
                 <td style={{ textAlign: 'center', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', fontSize: '13px', fontWeight: '600' }}>{item.quantity}</td>
                 <td style={{ textAlign: 'center', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', verticalAlign: 'middle' }}>
@@ -247,7 +248,7 @@ export const InvoiceTemplate = ({
                 return sum
               }, 0)
               return totalSaved > 0 ? (
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 15px', fontSize: '14px', color: '#10b981', fontWeight: '800' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 15px', fontSize: '14px', color: '#dc2626', fontWeight: '800' }}>
                   <span>Discount Saved</span>
                   <span>-{settings?.currency_symbol || '₹'}{totalSaved}</span>
                 </div>

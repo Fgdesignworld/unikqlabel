@@ -218,8 +218,8 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
                             {item.color_name}
                           </span>
                         )}
-                        {!item.size_label && !item.color_name && item.weight && (
-                          <span className="text-[10px]" style={{ color: 'rgba(245,240,232,0.35)' }}>{item.weight}</span>
+                        {!item.size_label && !item.color_name && (
+                          <span className="text-[10px]" style={{ color: 'rgba(245,240,232,0.35)' }}>—</span>
                         )}
                       </div>
                     </div>

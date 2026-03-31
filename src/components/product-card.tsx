@@ -16,7 +16,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
-  const { addItem } = useCart()
+  const { addItem, items: cartItems } = useCart()
   const { settings } = useSettings()
   const [selectedSizeIdx, setSelectedSizeIdx] = useState<number | null>(null)
   const [selectedColor, setSelectedColor] = useState<ColorVariant | null>(null)
@@ -48,6 +48,15 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   // Hover image: when color is active → show product.image; else show first gallery image
   const hoverImage = colorImage ? product.image : (product.gallery?.[0] ?? null)
 
+  // ── Real-time stock: totalStock minus what's already in cart for this exact variant ──
+  const sizeLabel = selectedSizeIdx !== null ? (sizeVariants[selectedSizeIdx]?.label ?? '') : ''
+  const colorLabel = selectedColor?.color ?? ''
+  const cartId = `${product.id}|${product.weight}|${sizeLabel}|${colorLabel}`
+  const cartQty = cartItems.find(i => i.id === cartId)?.quantity ?? 0
+  const maxStock = typeof product.totalStock === 'number' ? product.totalStock : null
+  const remainingStock = maxStock !== null ? Math.max(0, maxStock - cartQty) : null
+  const isOOS = remainingStock !== null && remainingStock === 0
+
   const handleAddToCart = () => {
     // Require size selection if size variants exist
     if (sizeVariants.length > 0 && selectedSizeIdx === null) {
@@ -55,23 +64,25 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       setTimeout(() => setSizeError(false), 1500)
       return
     }
+    if (isOOS) return
     const salePrice = discountPct > 0 ? Math.round(basePrice * (100 - discountPct) / 100) : basePrice
-    const sizeLabel = selectedSizeIdx !== null ? (sizeVariants[selectedSizeIdx]?.label ?? '') : ''
-    const colorLabel = selectedColor?.color ?? ''
-    const variantKey = [sizeLabel, colorLabel].filter(Boolean).join('/')
     const cartImg = selectedColor?.images?.[0]
       ? (selectedColor.images[0].startsWith('/api') ? selectedColor.images[0] : `/api${selectedColor.images[0]}`)
       : product.image
 
     addItem({
-      id: `${product.id}-${variantKey || 'default'}`,
+      id: cartId,
+      productId: product.numericId,
       name: product.name,
       price: salePrice,
       originalPrice: discountPct > 0 ? basePrice : undefined,
       discountPercent: discountPct > 0 ? discountPct : undefined,
-      weight: variantKey || product.weight,
+      weight: product.weight,
+      size: sizeLabel || undefined,
+      color: colorLabel || undefined,
       image: cartImg,
       category: product.category,
+      maxStock: maxStock !== null && maxStock > 0 ? maxStock : undefined,
     })
     setIsAdded(true)
     setTimeout(() => setIsAdded(false), 1500)
@@ -102,7 +113,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
     >
       {/* Image */}
       <div
-        className="relative aspect-[3/4] overflow-hidden cursor-pointer"
+        className="relative aspect-[3/4] max-h-[260px] overflow-hidden cursor-pointer"
         onMouseEnter={() => hoverImage && setImgHovered(true)}
         onMouseLeave={() => setImgHovered(false)}
       >
@@ -155,6 +166,13 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
         {product.bestseller && (
           <div className="absolute bottom-3 right-3 z-10 px-3 py-1 bg-amber-500/90 backdrop-blur-md text-[#0f0f0f] text-[10px] font-bold uppercase tracking-wider rounded-full shadow-xl border border-amber-500/20">
             Trending
+          </div>
+        )}
+
+        {/* Bottom Left: Out of Stock overlay badge */}
+        {isOOS && (
+          <div className="absolute bottom-3 left-3 z-10 px-3 py-1 bg-red-600/90 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-wider rounded-full shadow-xl border border-white/10">
+            Out of Stock
           </div>
         )}
       </div>
@@ -249,6 +267,12 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
         <div className="mt-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <div>
+            {/* Low stock label — real-time: subtracts qty already in cart */}
+            {!isOOS && remainingStock !== null && remainingStock <= 10 && (
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-1.5">
+                Only {remainingStock} left
+              </div>
+            )}
             <div className="flex items-baseline gap-2">
               <p className="text-amber-500 text-base md:text-xl font-bold">{currency}{effectivePrice.toLocaleString('en-IN')}</p>
               {showDiscount && (
@@ -263,11 +287,13 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleAddToCart}
-            disabled={isAdded}
+            disabled={isAdded || isOOS}
             className={`w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 md:px-4 py-2 font-medium rounded-full transition-all text-[10px] md:text-sm ${
-              isAdded
-                ? "bg-green-600 text-white"
-                : "bg-amber-500 text-[#0f0f0f] hover:bg-amber-400"
+              isOOS
+                ? 'bg-gray-700/50 text-gray-500 cursor-not-allowed'
+                : isAdded
+                ? 'bg-green-600 text-white'
+                : 'bg-amber-500 text-[#0f0f0f] hover:bg-amber-400'
             }`}
           >
             {isAdded ? (
@@ -275,6 +301,8 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                 <Check className="w-3 h-3 md:w-4 md:h-4" />
                 Added
               </>
+            ) : isOOS ? (
+              'Out of Stock'
             ) : (
               <>
                 <ShoppingBag className="w-3 h-3 md:w-4 md:h-4" />

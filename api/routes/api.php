@@ -18,6 +18,7 @@ require_once __DIR__ . '/../controllers/SizeVariantController.php';
 require_once __DIR__ . '/../controllers/ColorLibraryController.php';
 require_once __DIR__ . '/../controllers/ContactController.php';
 require_once __DIR__ . '/../controllers/CouponController.php';
+require_once __DIR__ . '/../controllers/InventoryController.php';
 
 function handleRequest(): void {
     $method = $_SERVER['REQUEST_METHOD'];
@@ -235,6 +236,28 @@ function handleRequest(): void {
     // DELETE /admin/products/{id}
     if ($method === 'DELETE' && preg_match('#^/admin/products/(\d+)$#', $uri, $matches)) {
         ProductController::destroy((int) $matches[1]);
+        return;
+    }
+
+    // ========================================
+    // ADMIN INVENTORY ROUTES
+    // ========================================
+
+    // GET /admin/inventory/all — every row across all products
+    if ($method === 'GET' && $uri === '/admin/inventory/all') {
+        InventoryController::showAll();
+        return;
+    }
+
+    // GET /admin/inventory/{product_id}
+    if ($method === 'GET' && preg_match('#^/admin/inventory/(\d+)$#', $uri, $matches)) {
+        InventoryController::show((int) $matches[1]);
+        return;
+    }
+
+    // PUT /admin/inventory/{product_id}
+    if ($method === 'PUT' && preg_match('#^/admin/inventory/(\d+)$#', $uri, $matches)) {
+        InventoryController::update((int) $matches[1]);
         return;
     }
 

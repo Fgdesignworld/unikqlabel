@@ -106,7 +106,9 @@ export function CartSidebar() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-medium text-[#fef3e2] truncate">{item.name}</h3>
-                          <p className="text-[#fef3e2]/60 text-sm">{item.size || item.weight}</p>
+                          <p className="text-[#fef3e2]/60 text-sm">
+                            {[item.size, item.color].filter(Boolean).join(' / ')}
+                          </p>
                           <div className="flex items-baseline gap-2 mt-1">
                             <p className="text-amber-500 font-bold">{settings?.currency_symbol || '₹'}{item.price * item.quantity}</p>
                             {item.originalPrice && (
@@ -114,7 +116,7 @@ export function CartSidebar() {
                             )}
                           </div>
                         </div>
-                        <div className="flex flex-col items-end justify-between">
+                          <div className="flex flex-col items-end justify-between">
                           <button
                             type="button"
                             onClick={() => removeItem(item.id)}
@@ -134,7 +136,8 @@ export function CartSidebar() {
                             <button
                               type="button"
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="p-1 hover:bg-amber-500/20 rounded-full transition-colors"
+                              disabled={item.maxStock !== undefined && item.quantity >= item.maxStock}
+                              className="p-1 hover:bg-amber-500/20 rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                             >
                               <Plus className="w-4 h-4 text-amber-500" />
                             </button>

@@ -33,6 +33,7 @@ import AdminVariantsPage from '@/app/admin/variants/page';
 import AdminColorsPage from '@/app/admin/colors/page';
 import AdminLeadsPage from '@/app/admin/leads/page';
 import AdminCouponsPage from '@/app/admin/coupons/page';
+import AdminInventoryPage from '@/app/admin/inventory/page';
 
 export default function App() {
   return (
@@ -70,6 +71,7 @@ export default function App() {
         <Route path="colors" element={<AdminColorsPage />} />
         <Route path="leads" element={<AdminLeadsPage />} />
         <Route path="coupons" element={<AdminCouponsPage />} />
+        <Route path="inventory" element={<AdminInventoryPage />} />
       </Route>
     </Routes>
   );

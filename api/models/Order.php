@@ -7,6 +7,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/Notification.php';
 require_once __DIR__ . '/../models/DeliveryRule.php';
 require_once __DIR__ . '/../models/Coupon.php';
+require_once __DIR__ . '/../models/Inventory.php';
 
 class Order {
 
@@ -34,10 +35,7 @@ class Order {
             // Calculate delivery fee based on rule
             $delivery = self::calculateDelivery($subtotal, $activeRule);
             
-            // Validate proposed delivery matches calculated (security check)
-            if ($proposedDelivery !== null && abs($delivery - $proposedDelivery) > 0.01) {
-                throw new Exception('Delivery fee mismatch. Please refresh and try again.');
-            }
+            // Note: backend always uses its own calculated $delivery — proposed value is ignored.
 
             // ── Coupon re-validation (server-side, never trust client) ────────
             $discountAmount  = 0.0;
@@ -57,6 +55,26 @@ class Order {
             }
 
             $total = max(0, $subtotal + $delivery - $discountAmount);
+
+            // ── Stock validation (server-side, before INSERT) ─────────────────
+            foreach ($items as $item) {
+                if (!empty($item['product_id'])) {
+                    $pid = (int) $item['product_id'];
+                    if (Inventory::hasInventory($pid)) {
+                        $available = Inventory::checkStock($pid, $item['size_label'] ?? null, $item['color_name'] ?? null);
+                        if ($available !== null && $available < (int)$item['qty']) {
+                            $name = $item['product_name'];
+                            $variant = trim(implode(' / ', array_filter([$item['size_label'] ?? '', $item['color_name'] ?? ''])));
+                            $label = $variant ? "$name ($variant)" : $name;
+                            if ($available === 0) {
+                                throw new Exception("\"$label\" is out of stock.");
+                            } else {
+                                throw new Exception("Only $available unit(s) of \"$label\" available.");
+                            }
+                        }
+                    }
+                }
+            }
 
             // Insert order
             $stmt = $db->prepare("
@@ -107,6 +125,23 @@ class Order {
                                             ? (float) $item['discount_percent'] : null,
                     'total'            => (float) ($item['price'] * $item['qty']),
                 ]);
+            }
+
+            // ── Decrement stock INSIDE transaction (atomic with order INSERT) ──
+            // Running this before commit means: if decrement fails the whole
+            // order is rolled back; and stock can never go negative from races.
+            foreach ($items as $item) {
+                if (!empty($item['product_id'])) {
+                    $pid = (int) $item['product_id'];
+                    if (Inventory::hasInventory($pid)) {
+                        Inventory::decrement(
+                            $pid,
+                            $item['size_label'] ?? null,
+                            $item['color_name'] ?? null,
+                            (int) $item['qty']
+                        );
+                    }
+                }
             }
 
             $db->commit();

@@ -24,6 +24,7 @@ export interface ApiProduct {
   color_variants_json: ColorVariant[] | null; // NEW
   status: 'active' | 'inactive';
   sort_order: number;
+  total_stock?: number | null;               // stock sum from inventory
 }
 
 /**
@@ -47,6 +48,8 @@ function mapToProduct(p: ApiProduct): Product {
     sizeVariants: p.variants_json || undefined,
     colorVariants: p.color_variants_json || undefined,
     sortOrder: p.sort_order ?? 0,
+    totalStock: p.total_stock ?? undefined,
+    numericId: p.id,
   };
 }
 

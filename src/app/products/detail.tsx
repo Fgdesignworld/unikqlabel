@@ -19,6 +19,7 @@ import { useCart } from "@/context/cart-context"
 import { useSettings } from "@/context/settings-context"
 import { productService } from "@/services/productService"
 import type { Product, SizeVariant, ColorVariant } from '@/data/products'
+import { resolveStock, getStockStatus, type InventoryRow } from '@/services/inventoryService'
 
 /* ──────────────────────────────────────────────────────────────── */
 /*  Helpers                                                          */
@@ -301,6 +302,8 @@ export default function ProductDetailPage() {
   const [zoomed, setZoomed] = useState(false)
   const [activeTab, setActiveTab] = useState<'description' | 'reviews'>('description')
   const [reviewStats, setReviewStats] = useState<ReviewStats | null>(null)
+  const [numericProductId, setNumericProductId] = useState<number | null>(null)
+  const [inventory, setInventory] = useState<InventoryRow[]>([])
 
   const currency = settings?.currency_symbol || '\u20b9'
 
@@ -315,6 +318,8 @@ export default function ProductDetailPage() {
     setQuantity(1)
     setActiveTab('description')
     setProductIdForReviews(null)
+    setNumericProductId(null)
+    setInventory([])
     setProduct(null)
     setNotFound(false)
     setReviewStats(null)
@@ -324,6 +329,10 @@ export default function ProductDetailPage() {
         if (cancelled) return
         if (!raw) { setNotFound(true); return }
         setProductIdForReviews(raw.id)
+        setNumericProductId(raw.id)
+        if (Array.isArray((raw as any).inventory)) {
+          setInventory((raw as any).inventory)
+        }
         const mapped = productService.mapApiProduct ? productService.mapApiProduct(raw) : {
           id: raw.slug || String(raw.id), name: raw.name, price: raw.price,
           discount_price: raw.discount_price ?? undefined, weight: raw.weight,
@@ -366,6 +375,29 @@ export default function ProductDetailPage() {
       .catch(() => {})
     return () => { cancelled = true }
   }, [productIdForReviews])
+
+  // Auto-clamp quantity whenever the selected variant changes and the known
+  // stock drops below the current quantity (e.g. user switches from a well-
+  // stocked colour to one with only 1 unit left).
+  // NOTE: we use a plain effect that depends on inventory rows + selections.
+  // currentStock is computed below the guard returns so we replicate the
+  // resolution inline here to avoid the "used before declaration" error.
+  useEffect(() => {
+    if (!inventory.length) return
+    const norm = (v: string | null | undefined) => (v && v.trim() !== '' ? v.trim() : null)
+    const s = selectedSizeVariant !== null ? norm((product?.sizeVariants ?? [])[selectedSizeVariant]?.label) : null
+    const c = norm(selectedColor?.color)
+    let stock: number | null = null
+    for (const r of inventory) {
+      const rs = norm(r.size), rc = norm(r.color)
+      if (rs === s && rc === c) { stock = r.stock; break }
+      if (rs === s && rc === null && c !== null && stock === null) stock = r.stock
+      if (rc === c && rs === null && s !== null && stock === null) stock = r.stock
+      if (rs === null && rc === null && stock === null) stock = r.stock
+    }
+    if (stock !== null && stock > 0 && quantity > stock) setQuantity(stock)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inventory, selectedSizeVariant, selectedColor])
 
   if (loading) {
     return (
@@ -412,6 +444,26 @@ export default function ProductDetailPage() {
   const variants     = product.variants || [{ weight: product.weight, price: product.price }]
   const sizeVariants = product.sizeVariants || []
 
+  // Inventory stock resolution
+  const _sizeLabel = selectedSizeVariant !== null ? sizeVariants[selectedSizeVariant]?.label ?? null : null
+  const _colorLabel = selectedColor?.color ?? null
+  const currentStock = resolveStock(inventory, _sizeLabel, _colorLabel)
+  const stockStatus = getStockStatus(currentStock)
+
+  // True when the product has colour variants with inventory configured but
+  // the user has not yet picked a colour — we must require a selection so we
+  // always know which variant's stock to enforce.
+  const colorRequired = !!(
+    product.colorVariants && product.colorVariants.length > 0 &&
+    selectedColor === null &&
+    inventory.length > 0
+  )
+
+  // Maximum order quantity: capped by known stock (and hard limit of 10)
+  const maxQty = currentStock !== null && currentStock > 0
+    ? Math.min(10, currentStock)
+    : 10
+
   // Price resolution: size variant price > base weight-variant price > product.price
   const weightBasePrice = variants[selectedVariant]?.price ?? product.price
   const sizePriceOverride = selectedSizeVariant !== null && sizeVariants[selectedSizeVariant]?.price != null
@@ -435,17 +487,19 @@ export default function ProductDetailPage() {
     const bp = sizePriceOverride ?? weightBasePrice
     const salePrice = discountPct > 0 ? Math.round(bp * (100 - discountPct) / 100) : bp
 
-    // Cart item ID encodes weight + size + color for uniqueness
+    // Cart item ID: productSlug|weight|size|color — same format as product-card so
+    // adding from either surface merges into one cart entry instead of duplicating
     const sizeLabel = selectedSizeVariant !== null ? sizeVariants[selectedSizeVariant]?.label ?? '' : ''
     const colorLabel = selectedColor?.color ?? ''
-    const variantKey = [variants[selectedVariant].weight, sizeLabel, colorLabel].filter(Boolean).join('-')
+    const cartId = `${product.id}|${variants[selectedVariant].weight}|${sizeLabel}|${colorLabel}`
     const cartImg = (selectedColor && selectedColor.images[0])
       ? (selectedColor.images[0].startsWith('/api') ? selectedColor.images[0] : resolveImg(selectedColor.images[0]))
       : (product.image || '')
 
     for (let i = 0; i < qty; i++) {
       addItem({
-        id: `${product.id}-${variantKey}`,
+        id: cartId,
+        productId: numericProductId ?? undefined,
         name: product.name,
         price: salePrice,
         originalPrice: discountPct > 0 ? bp : undefined,
@@ -455,12 +509,39 @@ export default function ProductDetailPage() {
         color: colorLabel || undefined,
         image: cartImg,
         category: product.category,
+        // Pass known stock cap so cart sidebar / checkout can enforce it
+        maxStock: currentStock !== null && currentStock > 0 ? currentStock : undefined,
       })
     }
+    // Optimistically update local inventory so the badge is immediately accurate
+    localDecrementInventory(_sizeLabel, _colorLabel, qty)
+    // Reset quantity to 1 after adding
+    setQuantity(1)
   }
 
   const handleAddToCart = () => { doAddToCart(); setIsAdded(true); setTimeout(() => setIsAdded(false), 2000) }
   const handleBuyNow    = () => { doAddToCart(); navigate('/checkout') }
+
+  // After adding to cart, optimistically decrement the local inventory so the
+  // stock badge and quantity cap update instantly without a page reload.
+  const localDecrementInventory = (sizeLabel: string | null, colorLabel: string | null, qty: number) => {
+    if (!inventory.length) return
+    const norm = (v: string | null | undefined) => (v && v.trim() !== '' ? v.trim() : null)
+    const s = norm(sizeLabel), c = norm(colorLabel)
+    let targetIdx = -1, priority = 99
+    inventory.forEach((r, idx) => {
+      const rs = norm(r.size), rc = norm(r.color)
+      if (rs === s && rc === c             && priority > 1) { targetIdx = idx; priority = 1 }
+      else if (rs === s && rc === null && c !== null && priority > 2) { targetIdx = idx; priority = 2 }
+      else if (rc === c && rs === null && s !== null && priority > 3) { targetIdx = idx; priority = 3 }
+      else if (rs === null && rc === null              && priority > 4) { targetIdx = idx; priority = 4 }
+    })
+    if (targetIdx >= 0) {
+      setInventory(prev => prev.map((r, i) =>
+        i === targetIdx ? { ...r, stock: Math.max(0, r.stock - qty) } : r
+      ))
+    }
+  }
 
   const handleShare = async () => {
     const url = window.location.href
@@ -485,7 +566,7 @@ export default function ProductDetailPage() {
     <main className="min-h-screen bg-[#0f0f0f]">
       <Navbar />
 
-      <div className="container mx-auto max-w-7xl px-4 pt-24 pb-10">
+      <div className="container mx-auto max-w-7xl px-4 pt-20 pb-8">
 
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-xs text-white/40 mb-8">
@@ -506,12 +587,30 @@ export default function ProductDetailPage() {
         </nav>
 
         {/* ── Main Grid ─────────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[72px_1fr_1fr] gap-3 lg:gap-8 lg:items-start">
 
-          {/* Image Gallery */}
-          <div className="space-y-4 lg:sticky lg:top-28 lg:self-start">
+          {/* Left: Vertical Thumbnail Strip — desktop only */}
+          <div className="hidden lg:flex flex-col gap-2 lg:sticky lg:top-28 lg:self-start max-h-[580px] overflow-y-auto scrollbar-hide py-1">
+            {galleryImages.map((img, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveImg(idx)}
+                className={cn(
+                  'relative w-full aspect-[2/3] rounded-xl overflow-hidden border-2 transition-all shrink-0',
+                  activeImg === idx
+                    ? 'border-amber-500 shadow-md shadow-amber-500/20'
+                    : 'border-white/10 opacity-50 hover:opacity-90 hover:border-white/30',
+                )}
+              >
+                <img src={resolveImg(img)} alt="" className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+
+          {/* Center: Main Image */}
+          <div className="lg:sticky lg:top-28 lg:self-start space-y-3">
             <div
-              className="relative aspect-[3/4] rounded-3xl overflow-hidden bg-[#111] border border-amber-500/10 cursor-zoom-in group"
+              className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-[#111] border border-amber-500/10 cursor-zoom-in group"
               onClick={() => setZoomed(true)}
             >
               <AnimatePresence mode="wait">
@@ -528,12 +627,12 @@ export default function ProductDetailPage() {
               {galleryImages.length > 1 && (
                 <>
                   <button onClick={e => { e.stopPropagation(); prevImg() }}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-all opacity-0 group-hover:opacity-100">
-                    <ChevronLeft className="w-5 h-5" />
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-all opacity-0 group-hover:opacity-100">
+                    <ChevronLeft className="w-4 h-4" />
                   </button>
                   <button onClick={e => { e.stopPropagation(); nextImg() }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-all opacity-0 group-hover:opacity-100">
-                    <ChevronRight className="w-5 h-5" />
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-all opacity-0 group-hover:opacity-100">
+                    <ChevronRight className="w-4 h-4" />
                   </button>
                 </>
               )}
@@ -541,24 +640,33 @@ export default function ProductDetailPage() {
                 <ZoomIn className="w-4 h-4" />
               </div>
               {showDiscount && (
-                <div className="absolute top-4 left-4 bg-red-600 text-white text-xs font-black px-3 py-1.5 rounded-full shadow-lg">
+                <div className="absolute top-3 left-3 bg-red-600 text-white text-xs font-black px-2.5 py-1 rounded-full shadow-lg">
                   -{discountPct}% OFF
                 </div>
               )}
               {product.bestseller && (
-                <div className="absolute top-4 right-4 bg-amber-500 text-black text-xs font-black px-3 py-1.5 rounded-full shadow-lg">
+                <div className="absolute top-3 right-3 bg-amber-500 text-black text-xs font-black px-2.5 py-1 rounded-full shadow-lg">
                   ⭐ Bestseller
+                </div>
+              )}
+              {/* Out-of-stock overlay */}
+              {currentStock === 0 && (
+                <div className="absolute inset-0 bg-black/55 backdrop-blur-[2px] flex items-center justify-center">
+                  <span className="px-5 py-2.5 bg-red-600/90 backdrop-blur-sm text-white font-black text-sm rounded-full border border-white/20 shadow-xl tracking-wide">
+                    Out of Stock
+                  </span>
                 </div>
               )}
             </div>
 
+            {/* Mobile: horizontal thumbnails */}
             {galleryImages.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-1">
+              <div className="flex lg:hidden gap-2 overflow-x-auto scrollbar-hide">
                 {galleryImages.map((img, idx) => (
                   <button key={idx} onClick={() => setActiveImg(idx)}
                     className={cn(
-                      'relative shrink-0 w-20 aspect-[3/4] rounded-xl overflow-hidden border-2 transition-all',
-                      activeImg === idx ? 'border-amber-500 shadow-lg shadow-amber-500/20' : 'border-white/10 opacity-60 hover:opacity-100'
+                      'relative shrink-0 w-14 aspect-[2/3] rounded-xl overflow-hidden border-2 transition-all',
+                      activeImg === idx ? 'border-amber-500 shadow-md shadow-amber-500/20' : 'border-white/10 opacity-60 hover:opacity-100',
                     )}>
                     <img src={resolveImg(img)} alt="" className="w-full h-full object-cover" />
                   </button>
@@ -568,7 +676,7 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Product Info */}
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
 
             {/* Name + Rating */}
             <div>
@@ -640,20 +748,27 @@ export default function ProductDetailPage() {
                     <span className="w-4 h-4 rounded-full bg-white/6 border border-white/20" />
                   </button>
 
-                  {product.colorVariants.map((cv) => (
+                  {product.colorVariants.map((cv) => {
+                    const cStock = inventory.length > 0 ? resolveStock(inventory, _sizeLabel, cv.color) : null
+                    const cDisabled = cStock !== null && cStock === 0
+                    return (
                     <button
                       key={cv.color}
-                      title={cv.color}
-                      onClick={() => { setSelectedColor(cv); setActiveImg(0) }}
+                      title={cDisabled ? `${cv.color} — Out of Stock` : cv.color}
+                      onClick={() => { if (!cDisabled) { setSelectedColor(cv); setActiveImg(0) } }}
+                      disabled={cDisabled}
                       className={cn(
                         'w-10 h-10 rounded-full border-2 transition-all ring-offset-1.5 ring-offset-[#0f0f0f] focus:outline-none hover:shadow-md',
-                        selectedColor?.color === cv.color
-                          ? 'border-amber-500 ring-1.5 ring-amber-500/50 shadow-md shadow-amber-500/25 scale-105'
-                          : 'border-white/20 hover:border-amber-500/40 hover:shadow-amber-500/15 hover:ring-1 hover:ring-amber-500/20'
+                        cDisabled
+                          ? 'opacity-30 cursor-not-allowed border-gray-700'
+                          : selectedColor?.color === cv.color
+                            ? 'border-amber-500 ring-1.5 ring-amber-500/50 shadow-md shadow-amber-500/25 scale-105'
+                            : 'border-white/20 hover:border-amber-500/40 hover:shadow-amber-500/15 hover:ring-1 hover:ring-amber-500/20'
                       )}
                       style={{ background: cv.hex }}
                     />
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}
@@ -682,21 +797,28 @@ export default function ProductDetailPage() {
                     <span className="w-4 h-4 rounded-full bg-white/6 border border-white/20" />
                   </button>
 
-                  {sizeVariants.map((sv, idx) => (
+                  {sizeVariants.map((sv, idx) => {
+                    const sStock = inventory.length > 0 ? resolveStock(inventory, sv.label, _colorLabel) : null
+                    const sDisabled = sStock !== null && sStock === 0
+                    return (
                     <button
                       key={sv.label}
-                      title={sv.price != null ? `${sv.label} — ${currency}${sv.price.toLocaleString('en-IN')}` : sv.label}
-                      onClick={() => setSelectedSizeVariant(idx)}
+                      title={sDisabled ? `${sv.label} — Out of Stock` : sv.price != null ? `${sv.label} — ${currency}${sv.price.toLocaleString('en-IN')}` : sv.label}
+                      onClick={() => { if (!sDisabled) setSelectedSizeVariant(idx) }}
+                      disabled={sDisabled}
                       className={cn(
                         'h-10 min-w-10 px-3 rounded-full border-2 transition-all ring-offset-[#0f0f0f] focus:outline-none text-xs font-bold uppercase tracking-wide',
-                        selectedSizeVariant === idx
-                          ? 'border-amber-500 ring-[1.5px] ring-amber-500/50 shadow-md shadow-amber-500/25 text-amber-400 scale-105'
-                          : 'border-white/20 text-white/70 hover:border-amber-500/40 hover:text-white hover:shadow-md hover:shadow-amber-500/15 hover:ring-[1px] hover:ring-amber-500/20'
+                        sDisabled
+                          ? 'opacity-30 cursor-not-allowed border-gray-700 text-gray-600'
+                          : selectedSizeVariant === idx
+                            ? 'border-amber-500 ring-[1.5px] ring-amber-500/50 shadow-md shadow-amber-500/25 text-amber-400 scale-105'
+                            : 'border-white/20 text-white/70 hover:border-amber-500/40 hover:text-white hover:shadow-md hover:shadow-amber-500/15 hover:ring-[1px] hover:ring-amber-500/20'
                       )}
                     >
                       {sv.label}
                     </button>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}
@@ -728,24 +850,47 @@ export default function ProductDetailPage() {
                   <button onClick={() => setQuantity(q => Math.max(1, q - 1))}
                     className="w-11 h-11 flex items-center justify-center text-[#fef3e2] hover:bg-[#d97706]/10 transition-colors text-xl font-bold">–</button>
                   <span className="w-12 text-center font-bold text-[#fef3e2] text-lg select-none">{quantity}</span>
-                  <button onClick={() => setQuantity(q => Math.min(10, q + 1))}
-                    className="w-11 h-11 flex items-center justify-center text-[#fef3e2] hover:bg-[#d97706]/10 transition-colors text-xl font-bold">+</button>
+                  <button
+                    onClick={() => setQuantity(q => Math.min(maxQty, q + 1))}
+                    disabled={currentStock !== null && quantity >= maxQty}
+                    className="w-11 h-11 flex items-center justify-center text-[#fef3e2] hover:bg-[#d97706]/10 transition-colors text-xl font-bold disabled:opacity-30 disabled:cursor-not-allowed">+</button>
                 </div>
-                <p className="text-sm text-[#fef3e2]/40">Max 10 per order</p>
+                <p className="text-sm text-[#fef3e2]/40">
+                  {currentStock !== null && currentStock > 0
+                    ? `Max ${maxQty} (stock: ${currentStock})`
+                    : 'Max 10 per order'}
+                </p>
               </div>
             </div>
 
+            {/* Stock Status Badge — or color-selection prompt */}
+            {colorRequired ? (
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black border bg-amber-500/10 border-amber-500/30 text-amber-400">
+                <AlertCircle className="w-4 h-4" /> Select a colour to check stock
+              </div>
+            ) : currentStock !== null && (
+              <div className={cn(
+                'inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black border',
+                stockStatus.bg, stockStatus.border, stockStatus.color,
+              )}>
+                {currentStock === 0 && <AlertCircle className="w-4 h-4" />}
+                {stockStatus.label}
+              </div>
+            )}
+
             {/* CTA Buttons */}
             <div className="flex gap-3">
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                onClick={handleAddToCart} disabled={isAdded}
+              <motion.button whileHover={{ scale: (stockStatus.disabled || colorRequired) ? 1 : 1.02 }} whileTap={{ scale: (stockStatus.disabled || colorRequired) ? 1 : 0.98 }}
+                onClick={handleAddToCart} disabled={isAdded || stockStatus.disabled || colorRequired}
                 className={cn('flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl font-black text-base transition-all',
+                  (stockStatus.disabled || colorRequired) ? 'bg-gray-800 text-gray-500 cursor-not-allowed' :
                   isAdded ? 'bg-green-600 text-white' : 'bg-[#d97706] text-[#0f0f0f] hover:bg-[#f59e0b] shadow-xl shadow-[#d97706]/20')}>
-                {isAdded ? <><Check className="w-5 h-5" /> Added!</> : <><ShoppingBag className="w-5 h-5" /> Add {quantity > 1 ? `${quantity} ` : ''}to Cart</>}
+                {stockStatus.disabled ? 'Out of Stock' : colorRequired ? 'Select a Colour' : isAdded ? <><Check className="w-5 h-5" /> Added!</> : <><ShoppingBag className="w-5 h-5" /> Add {quantity > 1 ? `${quantity} ` : ''}to Cart</>}
               </motion.button>
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                onClick={handleBuyNow}
-                className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-base border border-[#d97706]/40 text-[#d97706] hover:bg-[#d97706]/10 transition-all">
+              <motion.button whileHover={{ scale: (stockStatus.disabled || colorRequired) ? 1 : 1.02 }} whileTap={{ scale: (stockStatus.disabled || colorRequired) ? 1 : 0.98 }}
+                onClick={handleBuyNow} disabled={stockStatus.disabled || colorRequired}
+                className={cn('flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-base border transition-all',
+                  (stockStatus.disabled || colorRequired) ? 'border-gray-700 text-gray-600 cursor-not-allowed' : 'border-[#d97706]/40 text-[#d97706] hover:bg-[#d97706]/10')}>
                 <Zap className="w-5 h-5" /> Buy Now
               </motion.button>
             </div>
@@ -760,7 +905,7 @@ export default function ProductDetailPage() {
         </div>
 
         {/* ── Product Features Strip ──────────────────────────────── */}
-        <div className="mt-14 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {FEATURES.map(f => (
             <div key={f.label} className={cn('flex flex-col items-center gap-2 p-4 rounded-2xl border text-center', f.bg)}>
               <f.icon className={cn('w-6 h-6', f.color)} />
@@ -770,7 +915,7 @@ export default function ProductDetailPage() {
         </div>
 
         {/* ── Tabbed Section ─────────────────────────────────────── */}
-        <section className="mt-14">
+        <section className="mt-10">
           <div className="flex border-b border-gray-800 mb-8 gap-1">
             {tabs.map(tab => (
               <button key={tab.key} onClick={() => setActiveTab(tab.key)}
@@ -862,7 +1007,7 @@ export default function ProductDetailPage() {
 
         {/* ── Related Products ───────────────────────────────────── */}
         {related.length > 0 && (
-          <section className="mt-20">
+          <section className="mt-14">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-2xl font-black text-[#fef3e2]">
                 More from <span className="text-[#d97706] capitalize">{product.category}</span>
@@ -907,14 +1052,15 @@ export default function ProductDetailPage() {
           <div className="flex gap-2">
             <button
               onClick={handleAddToCart}
-              disabled={isAdded}
+              disabled={isAdded || stockStatus.disabled || colorRequired}
               className={cn(
                 'flex items-center justify-center gap-2 h-12 px-5 rounded-xl font-black text-sm transition-all',
+                (stockStatus.disabled || colorRequired) ? 'bg-gray-700 text-gray-500 cursor-not-allowed' :
                 isAdded ? 'bg-green-600 text-white' : 'bg-[#d97706] text-black active:scale-95'
               )}
             >
               {isAdded ? <Check size={18} /> : <ShoppingBag size={18} />}
-              {isAdded ? 'Added' : 'Add'}
+              {isAdded ? 'Added' : stockStatus.disabled ? 'OOS' : colorRequired ? 'Pick colour' : 'Add'}
             </button>
             <button
               onClick={handleBuyNow}

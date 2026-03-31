@@ -30,6 +30,8 @@ export interface Product {
   sizeVariants?: SizeVariant[]   // NEW: size-based pricing
   colorVariants?: ColorVariant[] // NEW: color-based image switching
   sortOrder?: number
+  totalStock?: number | null     // from API: null = no inventory configured
+  numericId?: number             // raw DB id (slug is used as id above)
 }
 
 export const products: Product[] = [

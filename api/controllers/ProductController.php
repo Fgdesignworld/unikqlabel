@@ -5,6 +5,7 @@
 
 require_once __DIR__ . '/../models/Product.php';
 require_once __DIR__ . '/../models/Category.php';
+require_once __DIR__ . '/../models/Inventory.php';
 require_once __DIR__ . '/../middleware/auth.php';
 
 class ProductController {
@@ -19,10 +20,18 @@ class ProductController {
         if (isset($_GET['min_price'])) $filters['min_price'] = $_GET['min_price'];
         if (isset($_GET['max_price'])) $filters['max_price'] = $_GET['max_price'];
 
-        $products = Product::getActive($filters);
+        $products     = Product::getActive($filters);
+        $stockSummary = Inventory::getAllStockSummary();
 
         foreach ($products as &$p) {
             self::normalizeProduct($p);
+            $pid   = (int) $p['id'];
+            $stats = $stockSummary[$pid] ?? null;
+            if ($stats !== null) {
+                $p['total_stock'] = $stats['total_stock'];
+            } else {
+                $p['total_stock'] = null;
+            }
         }
 
         echo json_encode(['products' => $products]);
@@ -39,6 +48,8 @@ class ProductController {
             return;
         }
         self::normalizeProduct($product);
+        // Include inventory so frontend can show stock status
+        $product['inventory'] = Inventory::getForProduct((int) $product['id']);
         echo json_encode(['product' => $product]);
     }
 

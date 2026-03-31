@@ -54,6 +54,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState<"details" | "review" | "success">("details")
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [orderError, setOrderError] = useState<string | null>(null)
   const [isHydrated, setIsHydrated] = useState(false)
   const [invoiceNumber, setInvoiceNumber] = useState("")
   const [confirmedOrder, setConfirmedOrder] = useState<{
@@ -146,9 +147,10 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = async () => {
     setIsSubmitting(true)
+    setOrderError(null)
 
     // ─── STEP 1: Save order to database ───
-    let newInvoiceNo = `UNI-${Date.now().toString().slice(-6)}` // fallback
+    let newInvoiceNo: string
     try {
       const orderPayload = {
         customer_name: customerDetails.name,
@@ -161,7 +163,7 @@ export default function CheckoutPage() {
         coupon_code: appliedCoupon?.code ?? null,
         discount_amount: couponDiscount,
         cart_items: items.map(item => ({
-          product_id: null,
+          product_id: item.productId ?? null,
           name: item.name,
           weight: item.weight,
           size: item.size ?? null,
@@ -176,10 +178,14 @@ export default function CheckoutPage() {
       const response = await api.post('/checkout', orderPayload)
       if (response.data?.success && response.data?.invoice_number) {
         newInvoiceNo = response.data.invoice_number
+      } else {
+        throw new Error('Order failed. Please try again.')
       }
-    } catch (e) {
-      console.error('Order storage error (continuing with invoice):', e)
-      // Graceful degradation: continue with client-generated invoice number
+    } catch (e: any) {
+      const msg = e?.response?.data?.error || e?.message || 'Failed to place order. Please try again.'
+      setOrderError(msg)
+      setIsSubmitting(false)
+      return
     }
 
     setInvoiceNumber(newInvoiceNo)
@@ -243,7 +249,7 @@ export default function CheckoutPage() {
         const discountStr = item.discountPercent ? ` (${item.discountPercent}% off, save ${currency}${savedAmount})` : ''
         const variantStr = [item.size, item.color].filter(Boolean).join(' / ')
         const variantDisplay = variantStr ? ` [${variantStr}]` : ''
-        return ` • ${item.name}${variantDisplay} (${item.weight}) x ${item.quantity} = ${currency}${item.price * item.quantity}${discountStr}`
+        return ` • ${item.name}${variantDisplay} x ${item.quantity} = ${currency}${item.price * item.quantity}${discountStr}`
       })
       .join("\n")
 
@@ -637,7 +643,6 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                             </div>
                             <div className="flex-1 min-w-0">
                               <h3 className="font-heading font-semibold text-sm truncate" style={{ color: '#F5F0E8' }}>{item.name}</h3>
-                              <p className="font-body text-xs" style={{ color: 'rgba(245,240,232,0.45)' }}>{item.weight}</p>
                               {(item.size || item.color) && (
                                 <div className="flex flex-wrap gap-1 mt-0.5">
                                   {item.size && (
@@ -664,7 +669,11 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                                   <Minus className="w-3 h-3 text-amber-500" />
                                 </button>
                                 <span className="font-heading font-bold text-xs w-5 text-center" style={{ color: '#F5F0E8' }}>{item.quantity}</span>
-                                <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-1 rounded-full transition-colors">
+                                <button
+                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                  disabled={item.maxStock !== undefined && item.quantity >= item.maxStock}
+                                  className="p-1 rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                >
                                   <Plus className="w-3 h-3 text-amber-500" />
                                 </button>
                               </div>
@@ -673,6 +682,14 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                         ))}
                       </div>
                     </div>
+
+                    {/* Order Error Banner */}
+                    {orderError && (
+                      <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+                        <svg className="w-5 h-5 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/></svg>
+                        <span>{orderError}</span>
+                      </div>
+                    )}
 
                     {/* Place Order Button */}
                     <button
@@ -722,9 +739,15 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                               <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-heading text-xs font-semibold truncate" style={{ color: '#F5F0E8' }}>{item.name}</h3>
-                              <div className="flex items-center justify-between mt-0.5">
-                                <span className="font-body text-[10px]" style={{ color: 'rgba(245,240,232,0.4)' }}>{item.weight} x {item.quantity}</span>
+                              <h3 className="font-heading text-xs font-semibold truncate" style={{ color: '#F5F0E8' }}>{item.name}</h3>                              {(item.size || item.color) && (
+                                <div className="flex flex-wrap gap-1 mt-0.5">
+                                  {item.size  && <span className="text-[9px] font-bold px-1.5 py-0 rounded" style={{ background: 'rgba(217,119,6,0.15)', color: '#fbbf24' }}>{item.size}</span>}
+                                  {item.color && <span className="text-[9px] font-bold px-1.5 py-0 rounded" style={{ background: 'rgba(148,163,184,0.1)', color: '#94a3b8' }}>{item.color}</span>}
+                                </div>
+                              )}                              <div className="flex items-center justify-between mt-0.5">
+                                <span className="font-body text-[10px]" style={{ color: 'rgba(245,240,232,0.4)' }}>
+                                  × {item.quantity}
+                                </span>
                                 <div className="flex flex-col items-end gap-0.5">
                                   <div className="flex items-center gap-1">
                                     <span className="font-heading text-xs font-bold text-amber-500">{settings?.currency_symbol || '₹'}{item.price * item.quantity}</span>

@@ -23,7 +23,9 @@ import {
   Ruler,
   Palette,
   BookOpen,
+  Boxes,
 } from 'lucide-react'
+import { inventoryService, inventoryKey, type InventoryRow } from '@/services/inventoryService'
 
 export default function AdminProductFormPage() {
   const { id } = useParams()
@@ -53,6 +55,11 @@ export default function AdminProductFormPage() {
   const [gallery, setGallery] = useState<string[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [variantTab, setVariantTab] = useState<'size' | 'color'>('size')
+
+  // ── Inventory ──────────────────────────────────────────────────
+  const [inventoryMap, setInventoryMap]     = useState<Record<string, number>>({})
+  const [inventorySaving, setInventorySaving] = useState(false)
+  const [inventoryMsg, setInventoryMsg]     = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
 
   // Library data for "load from library" pickers
   const [variantSets, setVariantSets] = useState<SizeVariantSet[]>([])
@@ -112,6 +119,15 @@ export default function AdminProductFormPage() {
           if (Array.isArray(product.gallery_images)) {
             setGallery(product.gallery_images)
           }
+          // Load inventory
+          inventoryService.getForProduct(Number(id))
+            .then(rows => {
+              if (cancelled) return
+              const map: Record<string, number> = {}
+              rows.forEach(r => { map[inventoryKey(r.size, r.color)] = r.stock })
+              setInventoryMap(map)
+            })
+            .catch(() => {})
         })
         .catch(() => {
           if (!cancelled) setError('Failed to load product details')
@@ -177,8 +193,26 @@ export default function AdminProductFormPage() {
     }
   }
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+  const handleSaveInventory = async () => {
+    if (!id) return
+    setInventorySaving(true)
+    setInventoryMsg(null)
+    try {
+      const rows: InventoryRow[] = Object.entries(inventoryMap).map(([key, stock]) => {
+        const [size, color] = key.split('|')
+        return { size: size || null, color: color || null, stock }
+      })
+      await inventoryService.bulkSave(Number(id), rows)
+      setInventoryMsg({ type: 'ok', text: 'Inventory saved!' })
+      setTimeout(() => setInventoryMsg(null), 3000)
+    } catch {
+      setInventoryMsg({ type: 'err', text: 'Failed to save inventory' })
+    } finally {
+      setInventorySaving(false)
+    }
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {    const file = e.target.files?.[0]
     if (!file) return
 
     try {
@@ -619,6 +653,148 @@ export default function AdminProductFormPage() {
               )}
             </div>
           </section>
+
+          {/* ── Inventory Management (edit mode only) ── */}
+          {isEdit && (() => {
+            const sizes   = sizeVariantRows.filter(r => r.label.trim()).map(r => r.label.trim())
+            const colors  = colorVariantRows.filter(r => r.color.trim()).map(r => r.color.trim())
+            // Build combinations
+            const combos: Array<{ size: string | null; color: string | null; key: string }> = []
+            if (sizes.length > 0 && colors.length > 0) {
+              sizes.forEach(s => colors.forEach(c => combos.push({ size: s, color: c, key: inventoryKey(s, c) })))
+            } else if (sizes.length > 0) {
+              sizes.forEach(s => combos.push({ size: s, color: null, key: inventoryKey(s, null) }))
+            } else if (colors.length > 0) {
+              colors.forEach(c => combos.push({ size: null, color: c, key: inventoryKey(null, c) }))
+            } else {
+              combos.push({ size: null, color: null, key: inventoryKey(null, null) })
+            }
+
+            const totalStock = combos.reduce((sum, c) => sum + (inventoryMap[c.key] ?? 0), 0)
+            const outOfStock = combos.filter(c => (inventoryMap[c.key] ?? 0) === 0).length
+
+            return (
+              <section className="bg-[#111] border border-gray-800 rounded-3xl overflow-hidden group relative">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl -mr-16 -mt-16 group-hover:bg-amber-500/10 transition-colors" />
+
+                {/* Header */}
+                <div className="flex items-center justify-between px-8 py-5 border-b border-gray-800 bg-[#0a0a0a]">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-center">
+                      <Boxes className="w-4 h-4 text-amber-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-black text-white">Inventory Management</h2>
+                      <p className="text-[10px] text-gray-600 mt-0.5">
+                        {combos.length} variant{combos.length !== 1 ? 's' : ''} &nbsp;·&nbsp;
+                        <span className="text-amber-400">{totalStock} total stock</span>
+                        {outOfStock > 0 && <span className="text-red-400 ml-2">· {outOfStock} out of stock</span>}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {inventoryMsg && (
+                      <span className={`text-xs font-bold px-3 py-1.5 rounded-xl border ${inventoryMsg.type === 'ok' ? 'text-green-400 bg-green-500/10 border-green-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20'}`}>
+                        {inventoryMsg.text}
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleSaveInventory}
+                      disabled={inventorySaving}
+                      className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-black text-xs font-black rounded-xl transition-all"
+                    >
+                      {inventorySaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                      Save Stock
+                    </button>
+                  </div>
+                </div>
+
+                {/* Matrix Table */}
+                <div className="p-6 overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-gray-800">
+                        {sizes.length > 0 && <th className="text-left pb-3 pr-4 text-[10px] font-black uppercase tracking-widest text-gray-600">Size</th>}
+                        {colors.length > 0 && <th className="text-left pb-3 pr-4 text-[10px] font-black uppercase tracking-widest text-gray-600">Color</th>}
+                        <th className="text-left pb-3 pr-4 text-[10px] font-black uppercase tracking-widest text-gray-600">Stock</th>
+                        <th className="text-left pb-3 text-[10px] font-black uppercase tracking-widest text-gray-600">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-800/50">
+                      {combos.map(combo => {
+                        const stock = inventoryMap[combo.key] ?? 0
+                        const isOos  = stock === 0
+                        const isLow  = stock > 0 && stock <= 5
+                        return (
+                          <tr key={combo.key} className={`transition-colors ${isOos ? 'bg-red-500/5' : ''}`}>
+                            {sizes.length > 0 && (
+                              <td className="py-3 pr-4">
+                                {combo.size ? (
+                                  <span className="px-2.5 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-lg text-xs font-black font-mono">
+                                    {combo.size}
+                                  </span>
+                                ) : <span className="text-gray-600 text-xs">—</span>}
+                              </td>
+                            )}
+                            {colors.length > 0 && (
+                              <td className="py-3 pr-4">
+                                {combo.color ? (
+                                  <div className="flex items-center gap-2">
+                                    {(() => {
+                                      const cv = colorVariantRows.find(r => r.color === combo.color)
+                                      return cv ? <span className="w-3.5 h-3.5 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: cv.hex }} /> : null
+                                    })()}
+                                    <span className="text-white text-xs font-semibold">{combo.color}</span>
+                                  </div>
+                                ) : <span className="text-gray-600 text-xs">—</span>}
+                              </td>
+                            )}
+                            <td className="py-3 pr-6">
+                              <input
+                                type="number"
+                                min={0}
+                                value={stock}
+                                onChange={e => {
+                                  const v = Math.max(0, parseInt(e.target.value) || 0)
+                                  setInventoryMap(prev => ({ ...prev, [combo.key]: v }))
+                                }}
+                                className={`w-24 px-3 py-1.5 rounded-xl text-sm font-bold text-center outline-none transition-all ${
+                                  isOos
+                                    ? 'bg-red-500/10 border border-red-500/30 text-red-300 focus:border-red-400'
+                                    : isLow
+                                    ? 'bg-amber-500/10 border border-amber-500/30 text-amber-300 focus:border-amber-400'
+                                    : 'bg-[#0a0a0a] border border-gray-800 text-white focus:border-amber-500/50'
+                                }`}
+                              />
+                            </td>
+                            <td className="py-3">
+                              {isOos ? (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-red-500/10 border border-red-500/20 text-red-400">
+                                  Out of Stock
+                                </span>
+                              ) : isLow ? (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                                  Low ({stock})
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-green-500/10 border border-green-500/20 text-green-400">
+                                  In Stock
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                  <p className="text-[10px] text-gray-700 mt-4">
+                    Changes are saved independently with the "Save Stock" button. Stock is validated server-side at checkout.
+                  </p>
+                </div>
+              </section>
+            )
+          })()}
         </div>
 
         {/* Sidebar Controls */}
