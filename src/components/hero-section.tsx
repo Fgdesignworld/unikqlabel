@@ -15,7 +15,7 @@ interface SlideDisplay {
   accentLine: string;
   sub: string;
   cta: string;
-  tagline: string;           // section badge (e.g. "Luxury Streetwear · Est. 2024")
+  tagline: string;           // section badge (e.g. "Luxury Streetwear · Est. 2026")
   ctaSecondary: string;      // secondary button text
   ctaSecondaryHref: string;  // secondary button link
   badgeIcon: string;         // lucide icon name for carousel card top-right
@@ -27,8 +27,8 @@ function splitTitle(title: string): { lines: string[]; accentLine: string } {
   const mid = Math.ceil(words.length / 2);
   return { lines: [words.slice(0, mid).join(' '), words.slice(mid).join(' ')], accentLine: words.slice(mid).join(' ') };
 }
-const CAT_HREF: Record<string, string> = { men:'/men', women:'/women', unisex:'/unisex', trending:'/products', limited:'/products' };
-const CAT_LABEL: Record<string, string> = { men:'Men', women:'Women', unisex:'Unisex', trending:'Trending', limited:'Limited Drops' };
+const CAT_HREF: Record<string, string> = { men:'/men', women:'/women', unisex:'/unisex' };
+const CAT_LABEL: Record<string, string> = { men:'Men', women:'Women', unisex:'Unisex' };
 function mapApiSlide(s: ApiHeroSlide): SlideDisplay {
   const { lines, accentLine } = splitTitle(s.title);
   // Prefix relative upload paths with /api so Vite proxy forwards to PHP server
@@ -39,13 +39,13 @@ function mapApiSlide(s: ApiHeroSlide): SlideDisplay {
     category: CAT_LABEL[s.category] ?? s.category,
     tag: s.badge_text || s.tagline || 'New Arrivals',
     bg: resolveImg(s.image) || '/images/hero-bg.jpg',
-    href: s.cta_primary_link || CAT_HREF[s.category] || '/products',
+    href: CAT_HREF[s.category] || '',
     lines, accentLine,
     sub: s.subtitle ?? '',
     cta: s.cta_primary_text || 'Shop Now',
-    tagline: s.tagline || 'Luxury Streetwear · Est. 2024',
-    ctaSecondary: s.cta_secondary_text || 'Explore Collections',
-    ctaSecondaryHref: s.cta_secondary_link || '/#collections',
+    tagline: s.tagline || 'Luxury Streetwear · Est. 2026',
+    ctaSecondary: s.cta_secondary_text || '',
+    ctaSecondaryHref: s.cta_secondary_link || '',
     badgeIcon: s.badge_icon || 'Crown',
   };
 }
@@ -55,25 +55,25 @@ const FALLBACK_SLIDES: SlideDisplay[] = [
     id: 'men', category: 'Men', tag: 'New Arrivals', bg: '/images/hero-bg.jpg', href: '/men',
     lines: ['Dress Like', 'Royalty'], accentLine: 'Royalty',
     sub: 'Bold. Structured. Built for kings who lead the streets.', cta: 'Shop Men',
-    tagline: 'Luxury Streetwear · Est. 2024', ctaSecondary: 'Explore Collections', ctaSecondaryHref: '/#collections', badgeIcon: 'Crown',
+    tagline: 'Luxury Streetwear · Est. 2026', ctaSecondary: '', ctaSecondaryHref: '', badgeIcon: 'Crown',
   },
   {
     id: 'women', category: 'Women', tag: 'Bestseller', bg: '/images/hero-bg.jpg', href: '/women',
     lines: ['Elegance', 'Meets Edge'], accentLine: 'Meets Edge',
     sub: 'Premium cuts that make every entrance unforgettable.', cta: 'Shop Women',
-    tagline: 'Luxury Streetwear · Est. 2024', ctaSecondary: 'Explore Collections', ctaSecondaryHref: '/#collections', badgeIcon: 'Sparkles',
+    tagline: 'Luxury Streetwear · Est. 2026', ctaSecondary: '', ctaSecondaryHref: '', badgeIcon: 'Sparkles',
   },
   {
     id: 'unisex', category: 'Unisex', tag: 'Trending Now', bg: '/images/hero-bg.jpg', href: '/unisex',
     lines: ['Beyond', 'Boundaries'], accentLine: 'Boundaries',
     sub: 'Fashion for the fearless — no rules, just vibes.', cta: 'Explore Unisex',
-    tagline: 'Luxury Streetwear · Est. 2024', ctaSecondary: 'Explore Collections', ctaSecondaryHref: '/#collections', badgeIcon: 'Zap',
+    tagline: 'Luxury Streetwear · Est. 2026', ctaSecondary: '', ctaSecondaryHref: '', badgeIcon: 'Zap',
   },
   {
     id: 'drops', category: 'Limited Drops', tag: '🔥 Exclusive', bg: '/images/hero-bg.jpg', href: '/products',
     lines: ['Limited', 'Edition'], accentLine: 'Edition',
     sub: "Exclusive pieces. Once they're gone, they're gone forever.", cta: 'Grab Yours',
-    tagline: 'Luxury Streetwear · Est. 2024', ctaSecondary: 'Explore Collections', ctaSecondaryHref: '/#collections', badgeIcon: 'Star',
+    tagline: 'Luxury Streetwear · Est. 2026', ctaSecondary: '', ctaSecondaryHref: '', badgeIcon: 'Star',
   },
 ];
 
@@ -284,10 +284,10 @@ export function HeroSection() {
                 <ShoppingBag size={15} className="text-current" />
                 <span>{slide.cta}</span>
               </Link>
-              <Link to={slide.ctaSecondaryHref} className="btn-outline-gold text-sm w-full sm:w-auto justify-center" style={{ minWidth: 175 }}>
+              {/* <Link to={slide.ctaSecondaryHref} className="btn-outline-gold text-sm w-full sm:w-auto justify-center" style={{ minWidth: 175 }}>
                 <span>{slide.ctaSecondary}</span>
                 <ArrowRight size={15} className="text-current" />
-              </Link>
+              </Link> */}
             </motion.div>
 
             {/* Category quick-filter pills */}
@@ -319,13 +319,13 @@ export function HeroSection() {
             </motion.div>
 
             {/* Countdown timer */}
-            <motion.div
+            {/* <motion.div
               initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.75 }}
               className="flex items-center gap-3 justify-center lg:justify-start mb-7 flex-wrap"
             >
               <Timer size={13} className="text-amber-500 animate-pulse shrink-0" />
-              <span className="text-xs uppercase tracking-wider shrink-0" style={{ color: 'rgba(245,240,232,0.45)' }}>Next drop ends in</span>
+              <span className="text-xs uppercase tracking-wider shrink-0" style={{ color: 'rgba(245,240,232,0.45)' }}>Next drop in</span>
               <div className="flex items-center gap-1">
                 {[countdown.h, countdown.m, countdown.s].map((val, i) => (
                   <span key={i} className="flex items-center">
@@ -337,7 +337,7 @@ export function HeroSection() {
                   </span>
                 ))}
               </div>
-            </motion.div>
+            </motion.div> */}
 
             {/* Trust row */}
             <motion.div
@@ -349,7 +349,7 @@ export function HeroSection() {
                 {[1,2,3,4,5].map(i => <Star key={i} size={12} fill="currentColor" className="text-amber-500" />)}
               </div>
               <span className="font-body text-xs" style={{ color: '#888880' }}>
-                Trusted by <span className="font-semibold text-amber-500">2,000+</span> fashion lovers
+                Trusted by <span className="font-semibold text-amber-500">20+</span> fashion lovers
               </span>
             </motion.div>
           </div>
@@ -384,19 +384,25 @@ export function HeroSection() {
                   exit="exit"
                   className="absolute inset-0"
                 >
-                  <img
-                    src={slide.bg}
-                    alt={slide.category}
-                    loading="lazy"
-                    className="w-full h-full object-cover object-top"
-                  />
-                  {/* gradient */}
-                  <div className="absolute inset-0" style={{
-                    background: 'linear-gradient(180deg, rgba(13,13,13,0.05) 0%, rgba(13,13,13,0.25) 40%, rgba(13,13,13,0.92) 100%)',
-                  }} />
+                  <Link
+                    to={slide.href}
+                    className="absolute inset-0 cursor-pointer group/image"
+                    aria-label={`View ${slide.category} collection`}
+                  >
+                    <img
+                      src={slide.bg}
+                      alt={slide.category}
+                      loading="lazy"
+                      className="w-full h-full object-cover object-top group-hover/image:scale-105 transition-transform duration-500"
+                    />
+                    {/* gradient */}
+                    <div className="absolute inset-0" style={{
+                      background: 'linear-gradient(180deg, rgba(13,13,13,0.05) 0%, rgba(13,13,13,0.25) 40%, rgba(13,13,13,0.92) 100%)',
+                    }} />
+                  </Link>
 
                   {/* Top tag */}
-                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-20">
                     <span className="section-badge text-[10px]">{slide.tag}</span>
                     <div className="w-7 h-7 rounded-full flex items-center justify-center"
                       style={{ background: 'rgba(13,13,13,0.7)', border: '1px solid rgba(212,175,55,0.3)', backdropFilter: 'blur(8px)' }}>
@@ -405,7 +411,7 @@ export function HeroSection() {
                   </div>
 
                   {/* Bottom info card */}
-                  <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <div className="absolute bottom-0 left-0 right-0 p-5 pointer-events-none z-20">
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <span className="font-cinzel text-[10px] tracking-[0.28em] uppercase text-amber-500">{slide.category}</span>
                     </div>
@@ -467,7 +473,7 @@ export function HeroSection() {
               style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.45)' }}
             >
               <Crown size={12} className="text-amber-500" />
-              <span className="font-body text-xs font-semibold whitespace-nowrap" style={{ color: '#F5F0E8' }}>Premium Quality</span>
+              <span className="font-body text-xs font-semibold whitespace-nowrap" style={{ color: 'var(--text-primary)' }}>Premium Quality</span>
             </motion.div>
 
             <motion.div
@@ -477,7 +483,7 @@ export function HeroSection() {
               style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.45)' }}
             >
               <Zap size={12} className="text-amber-500" />
-              <span className="font-body text-xs font-semibold whitespace-nowrap" style={{ color: '#F5F0E8' }}>Limited Drops</span>
+              <span className="font-body text-xs font-semibold whitespace-nowrap" style={{ color: 'var(--text-primary)' }}>Limited Drops</span>
             </motion.div>
 
             <motion.div
@@ -487,13 +493,13 @@ export function HeroSection() {
               style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.45)' }}
             >
               <Sparkles size={12} className="text-amber-500" />
-              <span className="font-body text-xs font-semibold whitespace-nowrap" style={{ color: '#F5F0E8' }}>Trending Now</span>
+              <span className="font-body text-xs font-semibold whitespace-nowrap" style={{ color: 'var(--text-primary)' }}>Trending Now</span>
             </motion.div>
           </div>
         </div>
 
         {/* ── Scroll indicator ── */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 2.2, duration: 0.6 }}
           className="hidden md:flex absolute bottom-6 left-1/2 -translate-x-1/2 flex-col items-center gap-1"
@@ -501,7 +507,7 @@ export function HeroSection() {
         >
           <span className="font-body text-[10px] uppercase tracking-widest">Scroll</span>
           <div className="w-px h-7 rounded-full" style={{ background: 'linear-gradient(to bottom, rgba(212,175,55,0.5), transparent)' }} />
-        </motion.div>
+        </motion.div> */}
       </div>
     </section>
   );

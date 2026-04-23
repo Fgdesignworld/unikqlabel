@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 export function CTASection() {
   return (
-    <section className="py-10 px-4 relative overflow-hidden" style={{ background: '#0D0D0D' }}>
+    <section className="py-10 px-4 relative overflow-hidden" style={{ background: 'var(--surface-page)' }}>
       {/* Background glows */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full blur-3xl opacity-20"
@@ -47,7 +47,7 @@ export function CTASection() {
 
           <span className="section-badge mb-5 inline-block">Limited Edition</span>
 
-          <h2 className="font-heading text-4xl md:text-6xl font-black mt-2 mb-5 leading-tight" style={{ color: '#F5F0E8' }}>
+          <h2 className="font-heading text-4xl md:text-6xl font-black mt-2 mb-5 leading-tight" style={{ color: 'var(--text-primary)' }}>
             Rule Your{" "}
             <span style={{
               background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white) 0%, var(--theme-color) 45%, color-mix(in srgb, var(--theme-color) 70%, black) 100%)',
@@ -60,7 +60,7 @@ export function CTASection() {
             </span>
           </h2>
 
-          <p className="font-body text-lg max-w-xl mx-auto mb-10" style={{ color: 'rgba(245,240,232,0.60)' }}>
+          <p className="font-body text-lg max-w-xl mx-auto mb-10" style={{ color: 'var(--text-muted)' }}>
             Join the kingdom. Wear the crown. Limited drops, premium quality — exclusively yours.
           </p>
 
@@ -73,14 +73,14 @@ export function CTASection() {
               <Crown size={15} className="mr-2 text-current" />
               <span>Shop the Kingdom</span>
             </Link>
-            <Link
+            {/* <Link
               to="/#collections"
               className="btn-outline-gold text-sm w-full sm:w-auto justify-center"
               style={{ minWidth: 200 }}
             >
               <span>Explore Collections</span>
               <ArrowRight size={15} className="ml-2 text-current" />
-            </Link>
+            </Link> */}
           </div>
         </motion.div>
       </div>

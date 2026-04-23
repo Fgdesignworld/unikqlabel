@@ -101,8 +101,8 @@ function BestSellerCard({ product, index }: { product: Product; index: number })
       onHoverEnd={() => setIsHovered(false)}
       className="group relative rounded-xl overflow-hidden flex flex-col"
       style={{
-        background: '#111',
-        border: isHovered ? '1px solid rgba(212,175,55,0.2)' : '1px solid rgba(255,255,255,0.06)',
+        background: 'var(--surface-card)',
+        border: isHovered ? '1px solid rgba(212,175,55,0.2)' : '1px solid rgba(212,175,55,0.08)',
         transition: 'border-color 0.3s ease',
       }}
     >
@@ -274,7 +274,7 @@ export function BestSellers() {
   }, [])
 
   return (
-    <section className="py-5 px-4" style={{ background: '#0D0D0D' }}>
+    <section className="py-5 px-4" style={{ background: 'var(--surface-page)' }}>
       <div className="container mx-auto max-w-7xl">
         {/* Header */}
         <motion.div
@@ -285,7 +285,7 @@ export function BestSellers() {
           className="text-center mb-16"
         >
           <span className="section-badge mb-4 inline-block">Fan Favorites</span>
-          <h2 className="font-heading text-4xl md:text-5xl font-black mt-3" style={{ color: '#F5F0E8' }}>
+          <h2 className="font-heading text-4xl md:text-5xl font-black mt-3" style={{ color: 'var(--text-primary)' }}>
             Best{" "}
             <span style={{
               background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white) 0%, var(--theme-color) 100%)',

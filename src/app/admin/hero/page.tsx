@@ -18,7 +18,7 @@ const CATEGORIES = [
     { value: 'women',    label: 'Women' },
     { value: 'unisex',   label: 'Unisex' },
     { value: 'trending', label: 'Trending' },
-    { value: 'limited',  label: 'Limited Drops' },
+    // { value: 'limited',  label: 'Limited Drops' },
 ] as const
 
 const BADGE_ICONS = ['Crown', 'Zap', 'Star', 'Sparkles', 'Timer', 'ShoppingBag', 'ArrowRight', 'Trophy']
@@ -167,7 +167,7 @@ function SlideForm({ slide, onSave, onClose }: {
                         <FormInput
                             type="text" value={form.tagline ?? ''}
                             onChange={e => set('tagline', e.target.value)}
-                            placeholder="e.g. Luxury Streetwear · Est. 2024"
+                            placeholder="e.g. Luxury Streetwear · Est. 2026"
                         />
                     </Field>
 

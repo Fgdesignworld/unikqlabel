@@ -5,7 +5,7 @@ import { useSettings } from '@/context/settings-context'
 export function FloatingWhatsApp() {
   const { settings } = useSettings()
   const waNum  = (settings.whatsapp || settings.phone || '918639424039').replace(/[^0-9]/g, '')
-  const waLink = `https://wa.me/${waNum}?text=Hi! I'm interested in ordering from ${settings.site_name || 'Lakshmi Home Foods'}.`
+  const waLink = `https://wa.me/${waNum}?text=Hi! I'm interested in ordering from ${settings.site_name || 'UNIKQ LABEL'}.`
   return (
     <motion.div
       initial={{ scale: 0, opacity: 0 }}

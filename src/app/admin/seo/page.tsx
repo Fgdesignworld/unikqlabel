@@ -125,7 +125,7 @@ function PageSeoForm({
                             type="text"
                             value={form.meta_title}
                             onChange={e => set('meta_title', e.target.value)}
-                            placeholder={`${page.label} | Lakshmi Home Foods`}
+                            placeholder={`${page.label} |`}
                             className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
                         />
                         <CharCount value={form.meta_title} max={60} hint="Optimal: 50–60 chars" />
@@ -138,7 +138,7 @@ function PageSeoForm({
                             rows={3}
                             value={form.meta_description}
                             onChange={e => set('meta_description', e.target.value)}
-                            placeholder={`Discover authentic ${page.label.toLowerCase()} from Lakshmi Home Foods...`}
+                            placeholder={`Discover authentic ${page.label.toLowerCase()} from UNIKQ LABEL...`}
                             className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all resize-none"
                         />
                         <CharCount value={form.meta_description} max={160} hint="Optimal: 150–160 chars" />

@@ -1,12 +1,13 @@
 
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Star, ShoppingBag, Check, Eye, Share2 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useCart } from "@/context/cart-context"
 import { useSettings } from "@/context/settings-context"
 import { Image } from "@/components/ui/image"
+import { reviewService, type ReviewStats } from "@/services/reviewService"
 import type { Product, SizeVariant, ColorVariant } from "@/data/products"
 import { cn } from "@/lib/utils"
 
@@ -23,6 +24,34 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const [isAdded, setIsAdded] = useState(false)
   const [imgHovered, setImgHovered] = useState(false)
   const [sizeError, setSizeError] = useState(false)
+  const [colorError, setColorError] = useState(false)
+  const [reviewStats, setReviewStats] = useState<ReviewStats | null>(null)
+
+  // Auto-select when there is exactly one option — no user action needed
+  useEffect(() => {
+    if (product.colorVariants?.length === 1) setSelectedColor(product.colorVariants[0])
+    else setSelectedColor(null)
+  }, [product.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const sv = product.sizeVariants || []
+    if (sv.length === 1) setSelectedSizeIdx(0)
+    else setSelectedSizeIdx(null)
+  }, [product.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fetch review stats for this product
+  useEffect(() => {
+    if (!product.numericId) return
+    let cancelled = false
+    reviewService.getByProduct(product.numericId)
+      .then(data => {
+        if (!cancelled) setReviewStats(data.stats)
+      })
+      .catch(() => {
+        // Silently ignore errors
+      })
+    return () => { cancelled = true }
+  }, [product.numericId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const sizeVariants: SizeVariant[] = product.sizeVariants || []
   const currency = settings?.currency_symbol || '₹'
@@ -77,8 +106,14 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const isOOS = remainingStock !== null && remainingStock === 0
 
   const handleAddToCart = () => {
-    // Require size selection if size variants exist
-    if (sizeVariants.length > 0 && selectedSizeIdx === null) {
+    // Require colour selection if multiple colours exist and none is selected
+    if (product.colorVariants && product.colorVariants.length > 1 && !selectedColor) {
+      setColorError(true)
+      setTimeout(() => setColorError(false), 1500)
+      return
+    }
+    // Require size selection if multiple size variants exist and none is selected
+    if (sizeVariants.length > 1 && selectedSizeIdx === null) {
       setSizeError(true)
       setTimeout(() => setSizeError(false), 1500)
       return
@@ -128,7 +163,8 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.25), ease: "easeOut" }}
-      className="group relative bg-gradient-to-br from-[#1a1410] to-[#0f0f0f] rounded-2xl overflow-hidden border border-[#d97706]/10 hover:border-[#d97706]/30 transition-all duration-300 flex flex-col"
+      className="group relative rounded-2xl overflow-hidden border border-[#d97706]/10 hover:border-[#d97706]/30 transition-all duration-300 flex flex-col"
+      style={{ background: 'var(--surface-card)' }}
     >
       {/* Image */}
       <div
@@ -200,42 +236,44 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       <div className="p-3 md:p-4 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-1 md:gap-2 mb-1 md:mb-2">
           <Link to={`/products/${product.id}`} className="flex-1 min-w-0">
-            <h3 className="font-serif text-sm md:text-lg font-bold text-[#fef3e2] group-hover:text-amber-500 transition-colors line-clamp-1">
+            <h3 className="font-serif text-sm md:text-lg font-bold group-hover:text-amber-500 transition-colors line-clamp-1" style={{ color: 'var(--text-primary)' }}>
               {product.name}
             </h3>
           </Link>
-          {product.rating && (
-            <div className="flex items-center gap-0.5 md:gap-1 flex-shrink-0">
-              <Star className="w-3 h-3 md:w-4 md:h-4 text-[#f59e0b] fill-[#f59e0b]" />
-              <span className="text-[#f59e0b] text-[10px] md:text-sm font-medium">{product.rating}</span>
-            </div>
-          )}
+          {(() => {
+            const reviewCount = reviewStats?.total ?? 0
+            const avgRating = reviewStats?.average ?? 0
+            if (reviewCount === 0) return null
+            return (
+              <div className="flex items-center gap-0.5 md:gap-1 flex-shrink-0">
+                <Star className="w-3 h-3 md:w-4 md:h-4 text-[#f59e0b] fill-[#f59e0b]" />
+                <span className="text-[#f59e0b] text-[10px] md:text-sm font-medium">{avgRating.toFixed(1)}</span>
+              </div>
+            )
+          })()}
         </div>
 
-        {product.description && (
-          <p className="text-[#fef3e2]/60 text-sm mb-3 line-clamp-2">{product.description}</p>
-        )}
+        {/* Review Count Badge */}
+        {(() => {
+          const reviewCount = reviewStats?.total ?? 0
+          if (reviewCount === 0) return null
+          return (
+            <div className="mb-2 flex items-center gap-1">
+              <span className="text-[10px] md:text-xs font-semibold text-amber-400">
+                {reviewCount} Review{reviewCount !== 1 ? 's' : ''}
+              </span>
+            </div>
+          )
+        })()}
+
+        {/* {product.description && (
+          <p className="text-sm mb-3 line-clamp-2" style={{ color: 'var(--text-muted)' }}>{product.description}</p>
+        )} */}
 
         {/* Color Variants */}
         {product.colorVariants && product.colorVariants.length > 0 && (
           <div className="mb-2.5">
             <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide pb-0.5">
-              {/* Default / Transparent swatch - clears color selection and shows default image */}
-              <button
-                key="__default"
-                title="Default"
-                onClick={() => setSelectedColor(null)}
-                className={cn(
-                  'shrink-0 w-5 h-5 rounded-full border-1.5 transition-all ring-offset-1.5 ring-offset-[#0f0f0f] flex items-center justify-center',
-                  selectedColor === null
-                    ? 'border-amber-500 ring-1.5 ring-amber-500/50 shadow-md shadow-amber-500/25'
-                    : 'border-white/20 hover:border-amber-500/50 hover:shadow-md hover:shadow-amber-500/15'
-                )}
-                style={{ background: 'transparent' }}
-              >
-                <span className="w-2 h-2 rounded-full bg-white/5 border border-white/25" />
-              </button>
-
               {product.colorVariants.map(cv => {
                 const isSelected = selectedColor?.color === cv.color
                 return (
@@ -244,10 +282,12 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                     title={cv.color}
                     onClick={() => setSelectedColor(cv)}
                     className={cn(
-                      'shrink-0 w-5 h-5 rounded-full border-1.5 transition-all ring-offset-1.5 ring-offset-[#0f0f0f]',
+                      'shrink-0 w-5 h-5 rounded-full border-1.5 transition-all ring-offset-1.5',
                       isSelected
                         ? 'border-amber-500 ring-1.5 ring-amber-500/50 shadow-md shadow-amber-500/25 scale-105'
-                        : 'border-white/20 hover:border-amber-500/50 hover:shadow-md hover:shadow-amber-500/15'
+                        : colorError
+                          ? 'border-red-400 ring-1 ring-red-500/50 animate-pulse'
+                          : 'border-white/20 hover:border-amber-500/50 hover:shadow-md hover:shadow-amber-500/15'
                     )}
                     style={{ background: cv.hex }}
                   />
@@ -271,8 +311,9 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                       ? 'bg-amber-500 text-[#0f0f0f] shadow-md shadow-amber-500/20 scale-100'
                       : sizeError
                         ? 'bg-red-500/10 text-red-400 border border-red-500/60 animate-pulse'
-                        : 'bg-[#1a1410] text-[#fef3e2]/70 border border-[#d97706]/20 hover:border-[#d97706]/60 hover:text-[#fef3e2]'
+                        : 'border border-[#d97706]/20 hover:border-[#d97706]/60'
                   )}
+                  style={selectedSizeIdx !== idx && !sizeError ? { background: 'var(--surface-alt)', color: 'var(--text-dim)' } : {}}
                 >
                   {sv.label}
                 </button>
@@ -295,10 +336,10 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             <div className="flex items-baseline gap-2">
               <p className="text-amber-500 text-base md:text-xl font-bold">{currency}{effectivePrice.toLocaleString('en-IN')}</p>
               {showDiscount && (
-                <p className="text-[#fef3e2]/40 text-xs md:text-sm line-through">{currency}{basePrice.toLocaleString('en-IN')}</p>
+                <p className="text-xs md:text-sm line-through" style={{ color: 'var(--text-ghost)' }}>{currency}{basePrice.toLocaleString('en-IN')}</p>
               )}
             </div>
-            <p className="text-[#fef3e2]/50 text-[10px] md:text-xs">
+            <p className="text-[10px] md:text-xs" style={{ color: 'var(--text-subtle)' }}>
               {selectedColor ? selectedColor.color : (sizeVariants.length === 0 ? product.weight : '')}
             </p>
           </div>

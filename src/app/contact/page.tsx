@@ -125,16 +125,21 @@ export default function ContactPage() {
     const base = 'w-full px-4 py-3.5 rounded-xl text-sm font-body outline-none transition-all'
     const err  = errors[k]
     return `${base} ${err
-      ? 'border border-red-500/60 bg-red-500/5 text-[#F5F0E8] placeholder-[#F5F0E8]/30'
-      : 'border border-[rgba(212,175,55,0.15)] bg-[rgba(212,175,55,0.04)] text-[#F5F0E8] placeholder-[#F5F0E8]/35 focus:border-[rgba(212,175,55,0.45)]'
+      ? 'border border-red-500/60 bg-red-500/5'
+      : 'border border-[rgba(212,175,55,0.15)] focus:border-[rgba(212,175,55,0.45)]'
     }`
   }
+
+  const inputStyle = (k: string) => ({
+    color: 'var(--text-primary)' as const,
+    background: errors[k] ? undefined : 'var(--surface-card)' as const,
+  })
 
   const waRaw    = settings?.whatsapp || settings?.phone || '918639424039'
   const waNumber = String(waRaw).replace(/\D/g, '')
 
   return (
-    <main className="min-h-screen" style={{ background: '#0D0D0D' }}>
+    <main className="min-h-screen" style={{ background: 'var(--surface-page)' }}>
       <Navbar />
       <PageHeader
         title="Contact Us"
@@ -167,7 +172,7 @@ export default function ContactPage() {
               transition={{ duration: 0.7 }}
             >
               <span className="section-badge mb-5 inline-block">Get in Touch</span>
-              <h2 className="font-heading text-3xl md:text-4xl font-black mb-4 leading-tight" style={{ color: '#F5F0E8' }}>
+              <h2 className="font-heading text-3xl md:text-4xl font-black mb-4 leading-tight" style={{ color: 'var(--text-primary)' }}>
                 Talk to the{' '}
                 <span style={{
                   background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white), var(--theme-color))',
@@ -176,7 +181,7 @@ export default function ContactPage() {
                   backgroundClip: 'text',
                 }}>Kingdom</span>
               </h2>
-              <p className="font-body text-base mb-8 leading-relaxed" style={{ color: 'rgba(245,240,232,0.6)' }}>
+              <p className="font-body text-base mb-8 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
                 Have a question about sizing, styling, or bulk orders? Our team is here to help you dress like royalty.
               </p>
 
@@ -195,8 +200,8 @@ export default function ContactPage() {
                         <card.icon className="w-5 h-5" style={{ color: card.color === '#25D366' ? '#fff' : card.color }} />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-body font-semibold text-sm truncate" style={{ color: '#F5F0E8' }}>{card.label}</p>
-                        <p className="font-body text-xs mt-0.5 text-ellipsis" style={{ color: 'rgba(245,240,232,0.55)' }}>{card.value}</p>
+                        <p className="font-body font-semibold text-sm truncate" style={{ color: 'var(--text-primary)' }}>{card.label}</p>
+                        <p className="font-body text-xs mt-0.5 text-ellipsis" style={{ color: 'var(--text-dim)' }}>{card.value}</p>
                       </div>
                     </div>
                   )
@@ -244,7 +249,7 @@ export default function ContactPage() {
             >
               <div className="p-8 md:p-10 rounded-3xl"
                 style={{
-                  background: 'rgba(20,18,14,0.8)',
+                  background: 'var(--surface-card)',
                   border: '1px solid rgba(212,175,55,0.10)',
                   boxShadow: '0 30px 80px rgba(0,0,0,0.5)',
                 }}>
@@ -253,7 +258,7 @@ export default function ContactPage() {
                     style={{ background: 'rgba(212,175,55,0.10)', border: '1px solid rgba(212,175,55,0.2)' }}>
                     <MessageSquare className="w-4 h-4 text-amber-500" />
                   </div>
-                  <h2 className="font-heading text-2xl font-bold" style={{ color: '#F5F0E8' }}>Send a Message</h2>
+                  <h2 className="font-heading text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Send a Message</h2>
                 </div>
 
                 <AnimatePresence mode="wait">
@@ -274,8 +279,8 @@ export default function ContactPage() {
                       >
                         <CheckCircle className="w-8 h-8 text-[#25D366]" />
                       </motion.div>
-                      <p className="font-heading text-xl font-bold mb-2" style={{ color: '#F5F0E8' }}>Message Sent!</p>
-                      <p className="font-body text-sm" style={{ color: 'rgba(245,240,232,0.5)' }}>We'll reach out within 24 hours via your preferred channel.</p>
+                      <p className="font-heading text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Message Sent!</p>
+                      <p className="font-body text-sm" style={{ color: 'var(--text-subtle)' }}>We'll reach out within 24 hours via your preferred channel.</p>
                       <button
                         className="mt-5 text-xs underline"
                         style={{ color: 'rgba(212,175,55,0.6)' }}
@@ -313,6 +318,7 @@ export default function ContactPage() {
                             value={formData.name}
                             onChange={setField('name')}
                             className={inputCls('name')}
+                            style={inputStyle('name')}
                           />
                           {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
                         </div>
@@ -326,6 +332,7 @@ export default function ContactPage() {
                             value={formData.phone}
                             onChange={setField('phone')}
                             className={inputCls('phone')}
+                            style={inputStyle('phone')}
                           />
                           {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone}</p>}
                         </div>
@@ -341,6 +348,7 @@ export default function ContactPage() {
                           value={formData.email}
                           onChange={setField('email')}
                           className={inputCls('email')}
+                          style={inputStyle('email')}
                         />
                         {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
                       </div>
@@ -354,12 +362,13 @@ export default function ContactPage() {
                             value={formData.inquiry_type}
                             onChange={setField('inquiry_type')}
                             className={`${inputCls('inquiry_type')} appearance-none pr-10 cursor-pointer`}
+                            style={inputStyle('inquiry_type')}
                           >
                             {inquiryOptions.map(o => (
                               <option key={o.value} value={o.value} className="bg-[#1a1a1a]">{o.label}</option>
                             ))}
                           </select>
-                          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: 'rgba(245,240,232,0.35)' }} />
+                          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: 'var(--text-ghost)' }} />
                         </div>
                       </div>
 
@@ -373,6 +382,7 @@ export default function ContactPage() {
                           value={formData.message}
                           onChange={setField('message')}
                           className={`${inputCls('message')} resize-none`}
+                          style={inputStyle('message')}
                         />
                         {errors.message && <p className="text-red-400 text-xs mt-1">{errors.message}</p>}
                       </div>
@@ -391,7 +401,7 @@ export default function ContactPage() {
                               className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all border"
                               style={formData.preferred_contact === m.value
                                 ? { borderColor: 'rgba(212,175,55,0.5)', background: 'rgba(212,175,55,0.12)', color: 'var(--theme-color)' }
-                                : { borderColor: 'rgba(255,255,255,0.08)', background: 'transparent', color: 'rgba(245,240,232,0.4)' }
+                                : { borderColor: 'rgba(255,255,255,0.08)', background: 'transparent', color: 'var(--text-ghost)' }
                               }
                             >
                               {m.label}

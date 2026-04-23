@@ -23,7 +23,7 @@ const pillars = [
 
 export function TraditionSection() {
   return (
-    <section className="py-10 px-4" style={{ background: 'linear-gradient(180deg, #111110 0%, #0D0D0D 100%)' }}>
+    <section className="py-10 px-4" style={{ background: 'var(--surface-page)' }}>
       <div className="container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
 
@@ -68,7 +68,7 @@ export function TraditionSection() {
                 boxShadow: '0 20px 50px rgba(0,0,0,0.6)',
               }}
             >
-              <p className="font-heading text-3xl font-black text-amber-500">2024</p>
+              <p className="font-heading text-3xl font-black text-amber-500">2026</p>
               <p className="font-body text-xs mt-0.5 uppercase tracking-widest" style={{ color: 'rgba(245,240,232,0.6)' }}>Est. Year</p>
             </motion.div>
           </motion.div>
@@ -81,7 +81,7 @@ export function TraditionSection() {
             transition={{ duration: 0.9 }}
           >
             <span className="section-badge">Our Story</span>
-            <h2 className="font-heading text-4xl md:text-5xl font-black mt-5 mb-6 leading-tight" style={{ color: '#F5F0E8' }}>
+            <h2 className="font-heading text-4xl md:text-5xl font-black mt-5 mb-6 leading-tight" style={{ color: 'var(--text-primary)' }}>
               Our{" "}
               <span style={{
                 background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white) 0%, var(--theme-color) 100%)',
@@ -93,12 +93,12 @@ export function TraditionSection() {
               </span>
             </h2>
 
-            <p className="font-body text-lg leading-relaxed mb-5" style={{ color: 'rgba(245,240,232,0.72)' }}>
+            <p className="font-body text-lg leading-relaxed mb-5" style={{ color: 'var(--text-muted)' }}>
               At <span className="text-amber-500" style={{ fontWeight: 600 }}>UNIKQ LABEL</span>, we believe fashion is a crown you
               wear every day. Born from the spirit of royalty and the energy of the streets, we craft garments that speak power,
               confidence, and unapologetic self-expression.
             </p>
-            <p className="font-body text-base leading-relaxed mb-10" style={{ color: 'rgba(245,240,232,0.55)' }}>
+            <p className="font-body text-base leading-relaxed mb-10" style={{ color: 'var(--text-dim)' }}>
               Our unisex collections break boundaries — designed for kings, queens, and everyone who dares to rule their own narrative.
             </p>
 
@@ -122,8 +122,8 @@ export function TraditionSection() {
                     <pillar.icon className="w-5 h-5 text-amber-500" />
                   </div>
                   <div>
-                    <p className="font-body font-semibold text-sm" style={{ color: '#F5F0E8' }}>{pillar.title}</p>
-                    <p className="font-body text-xs mt-0.5" style={{ color: 'rgba(245,240,232,0.5)' }}>{pillar.desc}</p>
+                    <p className="font-body font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{pillar.title}</p>
+                    <p className="font-body text-xs mt-0.5" style={{ color: 'var(--text-subtle)' }}>{pillar.desc}</p>
                   </div>
                 </motion.div>
               ))}

@@ -59,7 +59,7 @@ export const categories = [
   { id: "men", name: "Men Collection",        description: "Premium menswear" },
   { id: "women", name: "Women Collection",    description: "Elegant womenswear" },
   { id: "unisex", name: "Unisex Collection",  description: "Unisex streetwear" },
-  { id: "limited", name: "Limited Drops",     description: "Exclusive editions" },
+  // { id: "limited", name: "Limited Drops",     description: "Exclusive editions" },
 ]
 
 export function getProductsByCategory(category: string): Product[] {

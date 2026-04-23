@@ -4,38 +4,38 @@ import { Quote, Star, ChevronLeft, ChevronRight } from "lucide-react"
 
 const reviews = [
   {
-    name: "Arjun Mehta",
-    handle: "@arjun.style",
-    location: "Mumbai",
+    name: "Sai Kiran Reddy",
+    handle: "@sai.kiran",
+    location: "Hyderabad",
     text: "UNIKQ LABEL changed how I dress. The quality is absolutely fire — premium stitching, perfect fit. Feels like I'm wearing luxury without the crazy price tag.",
     rating: 5,
-    avatar: "AM",
+    avatar: "SK",
   },
+  // {
+  //   name: "Sravani Lakshmi",
+  //   handle: "@sravani.style",
+  //   location: "Vijayawada",
+  //   text: "Finally a brand that gets unisex fashion RIGHT. The Queen Collection is stunning — I get compliments every single time I wear it.",
+  //   rating: 5,
+  //   avatar: "SL",
+  // },
+  // {
+  //   name: "Rahul Chowdary",
+  //   handle: "@rahul.royal",
+  //   location: "Guntur",
+  //   text: "The King Collection hoodie is my go-to. Fabric quality is insane, the gold embroidery adds that royal touch. 100% buying again.",
+  //   rating: 5,
+  //   avatar: "RC",
+  // },
   {
-    name: "Priya Sharma",
-    handle: "@priya.royale",
-    location: "Delhi",
-    text: "Finally a brand that gets unisex fashion RIGHT. The Queen Collection is stunning — I get compliments every single time I wear it.",
-    rating: 5,
-    avatar: "PS",
-  },
-  {
-    name: "Karan Nair",
-    handle: "@k.nair_official",
-    location: "Bangalore",
-    text: "The King Collection hoodie is my go-to. Fabric quality is insane, the gold embroidery adds that royal touch. 100% buying again.",
-    rating: 5,
-    avatar: "KN",
-  },
-  {
-    name: "Neha Reddy",
-    handle: "@neh.streetstyle",
-    location: "Hyderabad",
+    name: "Anusha Reddy",
+    handle: "@anusha.trends",
+    location: "Warangal",
     text: "Ordered 3 pieces in one go. Super fast delivery, packaging was premium, and the clothes feel like they're worth 3x the price. Love UNIKQ!",
     rating: 5,
-    avatar: "NR",
+    avatar: "AR",
   },
-]
+];
 
 export function ReviewsSection() {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -68,7 +68,7 @@ export function ReviewsSection() {
   const review = reviews[currentIndex]
 
   return (
-    <section className="py-10 px-4" style={{ background: '#0D0D0D' }}>
+    <section className="py-10 px-4" style={{ background: 'var(--surface-page)' }}>
       <div className="container mx-auto max-w-4xl">
         {/* Header */}
         <motion.div
@@ -79,7 +79,7 @@ export function ReviewsSection() {
           className="text-center mb-14"
         >
           <span className="section-badge mb-4 inline-block">Community</span>
-          <h2 className="font-heading text-4xl md:text-5xl font-black mt-3" style={{ color: '#F5F0E8' }}>
+          <h2 className="font-heading text-4xl md:text-5xl font-black mt-3" style={{ color: 'var(--text-primary)' }}>
             What{" "}
             <span style={{
               background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white) 0%, var(--theme-color) 100%)',
@@ -95,7 +95,7 @@ export function ReviewsSection() {
         <div className="relative">
           <div className="rounded-3xl p-8 md:p-14 min-h-[280px] flex items-center justify-center overflow-hidden relative"
             style={{
-              background: 'rgba(20,18,14,0.8)',
+              background: 'var(--surface-card)',
               border: '1px solid rgba(212,175,55,0.12)',
               backdropFilter: 'blur(20px)',
               boxShadow: '0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(212,175,55,0.08)',
@@ -132,7 +132,7 @@ export function ReviewsSection() {
                   ))}
                 </div>
 
-                <p className="font-heading text-lg md:text-2xl italic mb-7 leading-relaxed" style={{ color: 'rgba(245,240,232,0.88)' }}>
+                <p className="font-heading text-lg md:text-2xl italic mb-7 leading-relaxed" style={{ color: 'var(--text-primary)' }}>
                   &ldquo;{review.text}&rdquo;
                 </p>
 
@@ -143,7 +143,7 @@ export function ReviewsSection() {
                     {review.avatar}
                   </div>
                   <div className="text-left">
-                    <p className="font-semibold text-sm" style={{ color: '#F5F0E8' }}>{review.name}</p>
+                    <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{review.name}</p>
                     <p className="text-xs" style={{ color: 'rgba(212,175,55,0.7)' }}>{review.handle} · {review.location}</p>
                   </div>
                 </div>

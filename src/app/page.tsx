@@ -14,7 +14,7 @@ import { useSeo } from "@/hooks/use-seo"
 export default function Home() {
   useSeo({ pageType: 'home', pageSlug: 'home', fallbackTitle: 'UNIKQ LABEL — Premium Fashion • Everyday Royalty' })
   return (
-    <main className="min-h-screen bg-[#0f0f0f]">
+    <main className="min-h-screen" style={{ background: 'var(--surface-page)' }}>
       <Navbar />
       <HeroSection />
       <CategorySection />

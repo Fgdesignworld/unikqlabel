@@ -1,4 +1,5 @@
 import { motion } from "framer-motion"
+import { useSettings } from "@/context/settings-context"
 import { Instagram, ExternalLink } from "lucide-react"
 import { Image } from "@/components/ui/image"
 
@@ -12,8 +13,11 @@ const galleryImages = [
 ]
 
 export function GallerySection() {
+  const { settings } = useSettings()
+  const instagramUrl = settings.social_instagram || "https://www.instagram.com/"
+
   return (
-    <section className="py-10 px-4" style={{ background: 'linear-gradient(180deg, #0D0D0D 0%, #0F0F0E 100%)' }}>
+    <section id="gallery" className="py-10 px-4" style={{ background: 'var(--surface-page)' }}>
       <div className="container mx-auto max-w-7xl">
         {/* Header */}
         <motion.div
@@ -24,10 +28,10 @@ export function GallerySection() {
           className="text-center mb-14"
         >
           <span className="section-badge mb-4 inline-flex items-center gap-2">
-            <Instagram className="w-3.5 h-3.5" />
+            {/* <Instagram className="w-3.5 h-3.5" /> */}
             Style Gallery
           </span>
-          <h2 className="font-heading text-4xl md:text-5xl font-black mt-3" style={{ color: '#F5F0E8' }}>
+          <h2 className="font-heading text-4xl md:text-5xl font-black mt-3" style={{ color: 'var(--text-primary)' }}>
             Wear the{" "}
             <span style={{
               background: 'linear-gradient(135deg, #F0D060 0%, #D4AF37 100%)',
@@ -94,7 +98,7 @@ export function GallerySection() {
           className="text-center mt-12"
         >
           <a
-            href="https://www.instagram.com/"
+            href={instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-bold text-sm uppercase tracking-wider transition-all duration-300 group hover:-translate-y-1"
@@ -104,7 +108,7 @@ export function GallerySection() {
               color: 'var(--theme-color)',
             }}
           >
-            <Instagram className="w-4 h-4" />
+            {/* <Instagram className="w-4 h-4" /> */}
             Follow Our Style
             <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
           </a>

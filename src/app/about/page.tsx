@@ -30,7 +30,7 @@ const pillars = [
 ]
 
 const stats = [
-  { value: "2024", label: "Year Founded" },
+  { value: "2026", label: "Year Founded" },
   { value: "2K+", label: "Happy Customers" },
   { value: "100%", label: "Premium Quality" },
   { value: "3", label: "Collections" },
@@ -41,8 +41,8 @@ const sections = [
     title: "Our Story",
     image: "/images/about-lifestyle.jpg",
     content:
-      "UNIKQ LABEL was born from a single belief: fashion should feel like royalty, not a compromise. Founded in 2024, we set out to create a brand that bridges the gap between high-end luxury and everyday streetwear. What began as a vision for bold, unapologetic self-expression has grown into a movement — worn by kings, queens, and everyone who dares to rule their own narrative.",
-    badge: "Est. 2024",
+      "UNIKQ LABEL was born from a single belief: fashion should feel like royalty, not a compromise. Founded in 2026, we set out to create a brand that bridges the gap between high-end luxury and everyday streetwear. What began as a vision for bold, unapologetic self-expression has grown into a movement — worn by kings, queens, and everyone who dares to rule their own narrative.",
+    badge: "Est. 2026",
   },
   {
     title: "Our Design Philosophy",
@@ -64,7 +64,7 @@ export default function AboutPage() {
   useSeo({ pageType: 'page', pageSlug: 'about', fallbackTitle: 'About Us — UNIKQ LABEL' })
 
   return (
-    <main className="min-h-screen" style={{ background: '#0D0D0D' }}>
+    <main className="min-h-screen" style={{ background: 'var(--surface-page)' }}>
       <Navbar />
       <PageHeader
         title="About UNIKQ LABEL"
@@ -92,7 +92,7 @@ export default function AboutPage() {
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
                 }}>{stat.value}</p>
-                <p className="font-body text-xs uppercase tracking-widest" style={{ color: 'rgba(245,240,232,0.5)' }}>{stat.label}</p>
+                <p className="font-body text-xs uppercase tracking-widest" style={{ color: 'var(--text-subtle)' }}>{stat.label}</p>
               </motion.div>
             ))}
           </div>
@@ -109,7 +109,7 @@ export default function AboutPage() {
             className="text-center mb-14"
           >
             <span className="section-badge mb-4 inline-block">What We Stand For</span>
-            <h2 className="font-heading text-4xl md:text-5xl font-black mt-3" style={{ color: '#F5F0E8' }}>
+            <h2 className="font-heading text-4xl md:text-5xl font-black mt-3" style={{ color: 'var(--text-primary)' }}>
               Our{' '}
               <span style={{
                 background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white), var(--theme-color))',
@@ -130,7 +130,7 @@ export default function AboutPage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="p-7 rounded-2xl group hover:-translate-y-1 transition-all duration-300"
                 style={{
-                  background: 'rgba(20,18,14,0.7)',
+                  background: 'var(--surface-card)',
                   border: '1px solid rgba(212,175,55,0.08)',
                   boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
                 }}
@@ -139,8 +139,8 @@ export default function AboutPage() {
                   style={{ background: 'rgba(212,175,55,0.10)', border: '1px solid rgba(212,175,55,0.20)' }}>
                   <pillar.icon className="w-5 h-5 text-amber-500" />
                 </div>
-                <h3 className="font-heading text-lg font-bold mb-3" style={{ color: '#F5F0E8' }}>{pillar.title}</h3>
-                <p className="font-body text-sm leading-relaxed" style={{ color: 'rgba(245,240,232,0.55)' }}>{pillar.description}</p>
+                <h3 className="font-heading text-lg font-bold mb-3" style={{ color: 'var(--text-primary)' }}>{pillar.title}</h3>
+                <p className="font-body text-sm leading-relaxed" style={{ color: 'var(--text-dim)' }}>{pillar.description}</p>
               </motion.div>
             ))}
           </div>
@@ -181,11 +181,11 @@ export default function AboutPage() {
                 transition={{ duration: 0.8, delay: 0.15 }}
                 className="w-full lg:w-1/2"
               >
-                <h2 className="font-heading text-3xl md:text-4xl font-black mb-5 leading-tight" style={{ color: '#F5F0E8' }}>
+                <h2 className="font-heading text-3xl md:text-4xl font-black mb-5 leading-tight" style={{ color: 'var(--text-primary)' }}>
                   {section.title}
                 </h2>
                 <div className="w-16 h-0.5 mb-6" style={{ background: 'linear-gradient(90deg, var(--theme-color), transparent)' }} />
-                <p className="font-body text-lg leading-relaxed" style={{ color: 'rgba(245,240,232,0.65)' }}>
+                <p className="font-body text-lg leading-relaxed" style={{ color: 'var(--text-muted)' }}>
                   {section.content}
                 </p>
               </motion.div>
@@ -203,7 +203,7 @@ export default function AboutPage() {
             viewport={{ once: true }}
             className="relative p-10 md:p-16 rounded-3xl text-center overflow-hidden"
             style={{
-              background: 'rgba(20,18,14,0.8)',
+              background: 'var(--surface-card)',
               border: '1px solid rgba(212,175,55,0.18)',
               boxShadow: '0 40px 100px rgba(0,0,0,0.5)',
             }}
@@ -213,7 +213,7 @@ export default function AboutPage() {
               backgroundImage: 'radial-gradient(ellipse at 50% 80%, rgba(212,175,55,0.15) 0%, transparent 60%)',
             }} />
             <Crown className="w-10 h-10 mx-auto mb-5 text-amber-500" />
-            <h3 className="font-heading text-3xl md:text-4xl font-black mb-4" style={{ color: '#F5F0E8' }}>
+            <h3 className="font-heading text-3xl md:text-4xl font-black mb-4" style={{ color: 'var(--text-primary)' }}>
               Wear the{' '}
               <span style={{
                 background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white), var(--theme-color))',
@@ -222,7 +222,7 @@ export default function AboutPage() {
                 backgroundClip: 'text',
               }}>Crown</span>
             </h3>
-            <p className="font-body text-base mb-9 max-w-lg mx-auto" style={{ color: 'rgba(245,240,232,0.6)' }}>
+            <p className="font-body text-base mb-9 max-w-lg mx-auto" style={{ color: 'var(--text-muted)' }}>
               Join thousands of fashion royals who choose UNIKQ LABEL for their everyday kingdom.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

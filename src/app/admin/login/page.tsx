@@ -13,6 +13,21 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // Force dark theme on login page — it is outside AdminLayout
+  useEffect(() => {
+    const html = document.documentElement
+    html.setAttribute('data-theme', 'dark')
+    const darkVars: Record<string, string> = {
+      '--surface-page': '#0D0D0D', '--surface-card': '#111111', '--surface-alt': '#1a1a1a',
+      '--text-primary': '#F5F0E8', '--text-muted': 'rgba(245,240,232,0.65)',
+    }
+    Object.entries(darkVars).forEach(([k, v]) => html.style.setProperty(k, v))
+    return () => {
+      const saved = (localStorage.getItem('unikq-theme') || 'dark')
+      html.setAttribute('data-theme', saved)
+    }
+  }, [])
+
   // If already authenticated, skip login page entirely (replaces history entry)
   useEffect(() => {
     authService.getStatus().then(result => {
@@ -39,7 +54,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#1a1410] to-[#0a0a0a] flex items-center justify-center p-4">
+    <div data-admin="true" className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#1a1410] to-[#0a0a0a] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">

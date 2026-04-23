@@ -260,7 +260,7 @@ export default function CheckoutPage() {
       return sum
     }, 0)
 
-    const message = `*New Order from Lakshmi Home Foods*
+    const message = `*New Order from UNIKQ LABEL*
 
 *Invoice:* ${newInvoiceNo}
 
@@ -334,10 +334,10 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
 
   if (!isHydrated) {
     return (
-      <main className="min-h-screen flex items-center justify-center" style={{ background: '#0D0D0D' }}>
+      <main className="min-h-screen flex items-center justify-center" style={{ background: 'var(--surface-page)' }}>
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-amber-500" />
-          <p className="font-body" style={{ color: 'rgba(245,240,232,0.55)' }}>Loading checkout...</p>
+          <p className="font-body" style={{ color: 'var(--text-dim)' }}>Loading checkout...</p>
         </div>
       </main>
     )
@@ -348,7 +348,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
   }
 
   return (
-    <main className="min-h-screen" style={{ background: '#0D0D0D' }}>
+    <main className="min-h-screen" style={{ background: 'var(--surface-page)' }}>
       <Navbar />
 
       <div className="pt-24 pb-20 px-4">
@@ -363,7 +363,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                 <button
                 onClick={() => step === "review" ? setStep("details") : navigate(-1)}
                 className="flex items-center gap-2 transition-colors font-body text-sm hover:text-amber-500"
-                style={{ color: 'rgba(245,240,232,0.55)' }}
+                style={{ color: 'var(--text-dim)' }}
               >
                 <ArrowLeft className="w-5 h-5" />
                 {step === "review" ? "Back to Details" : "Continue Shopping"}
@@ -395,13 +395,13 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm font-heading transition-all"
                       style={isActive
-                        ? { background: 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 80%, black))', color: '#0D0D0D', boxShadow: isCurrent ? '0 0 0 2px var(--theme-color), 0 0 0 4px #0D0D0D' : 'none' }
-                        : { background: 'rgba(212,175,55,0.06)', color: 'rgba(245,240,232,0.4)', border: '1px solid rgba(212,175,55,0.12)' }
+                        ? { background: 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 80%, black))', color: '#0D0D0D', boxShadow: isCurrent ? '0 0 0 2px var(--theme-color), 0 0 0 4px var(--surface-page)' : 'none' }
+                        : { background: 'rgba(212,175,55,0.06)', color: 'var(--text-faint)', border: '1px solid rgba(212,175,55,0.12)' }
                       }
                     >
                       {stepIndex}
                     </div>
-                    <span className="hidden sm:block font-body text-sm" style={{ color: isActive ? '#F5F0E8' : 'rgba(245,240,232,0.4)' }}>
+                    <span className="hidden sm:block font-body text-sm" style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-faint)' }}>
                       {label}
                     </span>
                     {index < 2 && (
@@ -429,12 +429,24 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
               >
                 <CheckCircle2 className="w-12 h-12 text-green-500" />
               </motion.div>
-              <h1 className="font-heading text-3xl md:text-4xl font-black mb-4" style={{ color: '#F5F0E8' }}>
+              <h1 className="font-heading text-3xl md:text-4xl font-black mb-4" style={{ color: 'var(--text-primary)' }}>
                 Order Placed Successfully!
               </h1>
-              <p className="font-body text-base max-w-md mx-auto mb-10" style={{ color: 'rgba(245,240,232,0.6)' }}>
-                Your order details have been sent to our WhatsApp. We will process your order shortly.
+              <p className="font-body text-base max-w-md mx-auto mb-2" style={{ color: 'var(--text-muted)' }}>
+                Our team will contact you soon for payment details.
               </p>
+              <div className="flex items-center justify-center gap-2 font-body text-sm max-w-md mx-auto mb-10" style={{ color: 'var(--text-subtle)' }}>
+                <span>For queries, WhatsApp:</span>
+                <a 
+                  href={`https://wa.me/${(settings?.whatsapp || settings?.phone || '919601874404').replace(/[^0-9]/g, '')}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="font-semibold hover:text-green-400 transition-colors" 
+                  style={{ color: 'var(--theme-color)' }}
+                >
+                  {settings?.whatsapp || settings?.phone || '+91-9601874404'}
+                </a>
+              </div>
 
               <div className="flex flex-row items-center justify-center gap-3 mx-auto">
                 <button
@@ -473,12 +485,12 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="rounded-3xl p-6 md:p-8"
-                    style={{ background: 'rgba(20,18,14,0.85)', border: '1px solid rgba(212,175,55,0.12)', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}
+                    style={{ background: 'var(--surface-card)', border: '1px solid rgba(212,175,55,0.12)', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}
                   >
-                    <h1 className="font-heading text-2xl md:text-3xl font-black mb-2" style={{ color: '#F5F0E8' }}>
+                    <h1 className="font-heading text-2xl md:text-3xl font-black mb-2" style={{ color: 'var(--text-primary)' }}>
                       Delivery Details
                     </h1>
-                    <p className="font-body text-sm mb-8" style={{ color: 'rgba(245,240,232,0.5)' }}>
+                    <p className="font-body text-sm mb-8" style={{ color: 'var(--text-subtle)' }}>
                       Please fill in your delivery information to complete the order.
                     </p>
 
@@ -495,7 +507,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                           onChange={(e) => handleInputChange("name", e.target.value)}
                           placeholder="Enter your full name"
                           className="w-full px-4 py-3 rounded-xl font-body text-sm outline-none transition-all"
-                          style={{ background: 'rgba(13,13,13,0.7)', border: `1px solid ${errors.name ? '#ef4444' : 'rgba(212,175,55,0.15)'}`, color: '#F5F0E8' }}
+                          style={{ background: 'var(--surface-card)', border: `1px solid ${errors.name ? '#ef4444' : 'rgba(212,175,55,0.15)'}`, color: 'var(--text-primary)' }}
                         />
                         {errors.name && (
                           <p className="text-red-400 text-xs mt-1 font-body">{errors.name}</p>
@@ -514,7 +526,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                           onChange={(e) => handleInputChange("phone", e.target.value.replace(/\D/g, "").slice(0, 10))}
                           placeholder="Enter 10-digit phone number"
                           className="w-full px-4 py-3 rounded-xl font-body text-sm outline-none transition-all"
-                          style={{ background: 'rgba(13,13,13,0.7)', border: `1px solid ${errors.phone ? '#ef4444' : 'rgba(212,175,55,0.15)'}`, color: '#F5F0E8' }}
+                          style={{ background: 'var(--surface-card)', border: `1px solid ${errors.phone ? '#ef4444' : 'rgba(212,175,55,0.15)'}`, color: 'var(--text-primary)' }}
                         />
                         {errors.phone && (
                           <p className="text-red-400 text-xs mt-1 font-body">{errors.phone}</p>
@@ -533,7 +545,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                           placeholder="House/Flat No., Street, Landmark"
                           rows={3}
                           className="w-full px-4 py-3 rounded-xl font-body text-sm outline-none resize-none transition-all"
-                          style={{ background: 'rgba(13,13,13,0.7)', border: `1px solid ${errors.address ? '#ef4444' : 'rgba(212,175,55,0.15)'}`, color: '#F5F0E8' }}
+                          style={{ background: 'var(--surface-card)', border: `1px solid ${errors.address ? '#ef4444' : 'rgba(212,175,55,0.15)'}`, color: 'var(--text-primary)' }}
                         />
                         {errors.address && (
                           <p className="text-red-400 text-xs mt-1 font-body">{errors.address}</p>
@@ -553,7 +565,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                             onChange={(e) => handleInputChange("city", e.target.value)}
                             placeholder="City"
                             className="w-full px-4 py-3 rounded-xl font-body text-sm outline-none transition-all"
-                            style={{ background: 'rgba(13,13,13,0.7)', border: `1px solid ${errors.city ? '#ef4444' : 'rgba(212,175,55,0.15)'}`, color: '#F5F0E8' }}
+                            style={{ background: 'var(--surface-card)', border: `1px solid ${errors.city ? '#ef4444' : 'rgba(212,175,55,0.15)'}`, color: 'var(--text-primary)' }}
                           />
                           {errors.city && <p className="text-red-400 text-xs mt-1 font-body">{errors.city}</p>}
                         </div>
@@ -568,7 +580,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                             onChange={(e) => handleInputChange("pincode", e.target.value.replace(/\D/g, "").slice(0, 6))}
                             placeholder="6-digit"
                             className="w-full px-4 py-3 rounded-xl font-body text-sm outline-none transition-all"
-                            style={{ background: 'rgba(13,13,13,0.7)', border: `1px solid ${errors.pincode ? '#ef4444' : 'rgba(212,175,55,0.15)'}`, color: '#F5F0E8' }}
+                            style={{ background: 'var(--surface-card)', border: `1px solid ${errors.pincode ? '#ef4444' : 'rgba(212,175,55,0.15)'}`, color: 'var(--text-primary)' }}
                           />
                           {errors.pincode && <p className="text-red-400 text-xs mt-1 font-body">{errors.pincode}</p>}
                         </div>
@@ -586,7 +598,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                           placeholder="Any special instructions for your order..."
                           rows={2}
                           className="w-full px-4 py-3 rounded-xl font-body text-sm outline-none resize-none transition-all"
-                          style={{ background: 'rgba(13,13,13,0.7)', border: '1px solid rgba(212,175,55,0.15)', color: '#F5F0E8' }}
+                          style={{ background: 'var(--surface-card)', border: '1px solid rgba(212,175,55,0.15)', color: 'var(--text-primary)' }}
                         />
                       </div>
 
@@ -607,9 +619,9 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                     className="space-y-5"
                   >
                     {/* Delivery Info */}
-                    <div className="rounded-3xl p-6" style={{ background: 'rgba(20,18,14,0.85)', border: '1px solid rgba(212,175,55,0.12)' }}>
+                    <div className="rounded-3xl p-6" style={{ background: 'var(--surface-card)', border: '1px solid rgba(212,175,55,0.12)' }}>
                       <div className="flex items-center justify-between mb-4">
-                        <h2 className="font-heading text-xl font-bold" style={{ color: '#F5F0E8' }}>
+                        <h2 className="font-heading text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
                           Delivery Information
                         </h2>
                         <button
@@ -619,30 +631,30 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                           Edit
                         </button>
                       </div>
-                      <div className="space-y-2 font-body text-sm" style={{ color: 'rgba(245,240,232,0.65)' }}>
-                        <p><span style={{ color: 'rgba(245,240,232,0.4)' }}>Name:</span> {customerDetails.name}</p>
-                        <p><span style={{ color: 'rgba(245,240,232,0.4)' }}>Phone:</span> {customerDetails.phone}</p>
-                        <p><span style={{ color: 'rgba(245,240,232,0.4)' }}>Address:</span> {customerDetails.address}</p>
-                        <p><span style={{ color: 'rgba(245,240,232,0.4)' }}>City:</span> {customerDetails.city} - {customerDetails.pincode}</p>
+                      <div className="space-y-2 font-body text-sm" style={{ color: 'var(--text-muted)' }}>
+                        <p><span style={{ color: 'var(--text-ghost)' }}>Name:</span> {customerDetails.name}</p>
+                        <p><span style={{ color: 'var(--text-ghost)' }}>Phone:</span> {customerDetails.phone}</p>
+                        <p><span style={{ color: 'var(--text-ghost)' }}>Address:</span> {customerDetails.address}</p>
+                        <p><span style={{ color: 'var(--text-ghost)' }}>City:</span> {customerDetails.city} - {customerDetails.pincode}</p>
                         {customerDetails.notes && (
-                          <p><span style={{ color: 'rgba(245,240,232,0.4)' }}>Notes:</span> {customerDetails.notes}</p>
+                          <p><span style={{ color: 'var(--text-ghost)' }}>Notes:</span> {customerDetails.notes}</p>
                         )}
                       </div>
                     </div>
 
                     {/* Order Items */}
-                    <div className="rounded-3xl p-6" style={{ background: 'rgba(20,18,14,0.85)', border: '1px solid rgba(212,175,55,0.12)' }}>
-                      <h2 className="font-heading text-xl font-bold mb-4" style={{ color: '#F5F0E8' }}>
+                    <div className="rounded-3xl p-6" style={{ background: 'var(--surface-card)', border: '1px solid rgba(212,175,55,0.12)' }}>
+                      <h2 className="font-heading text-xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
                         Order Items ({items.length})
                       </h2>
                       <div className="space-y-3">
                         {items.map((item) => (
-                          <div key={item.id} className="flex gap-3 p-3 rounded-xl" style={{ background: 'rgba(13,13,13,0.5)', border: '1px solid rgba(212,175,55,0.07)' }}>
+                          <div key={item.id} className="flex gap-3 p-3 rounded-xl" style={{ background: 'var(--surface-alt)', border: '1px solid rgba(212,175,55,0.07)' }}>
                             <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
                               <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-heading font-semibold text-sm truncate" style={{ color: '#F5F0E8' }}>{item.name}</h3>
+                              <h3 className="font-heading font-semibold text-sm line-clamp-2 leading-tight" style={{ color: 'var(--text-primary)' }}>{item.name}</h3>
                               {(item.size || item.color) && (
                                 <div className="flex flex-wrap gap-1 mt-0.5">
                                   {item.size && (
@@ -656,7 +668,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                               <div className="flex items-center gap-2 mt-0.5">
                                 <p className="font-heading font-bold text-sm text-amber-500">{settings?.currency_symbol || '₹'}{item.price * item.quantity}</p>
                                 {item.originalPrice && (
-                                  <p className="font-body text-xs line-through" style={{ color: 'rgba(245,240,232,0.3)' }}>{settings?.currency_symbol || '₹'}{item.originalPrice * item.quantity}</p>
+                                  <p className="font-body text-xs line-through" style={{ color: 'var(--text-trace)' }}>{settings?.currency_symbol || '₹'}{item.originalPrice * item.quantity}</p>
                                 )}
                               </div>
                             </div>
@@ -668,7 +680,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                                 <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="p-1 rounded-full transition-colors">
                                   <Minus className="w-3 h-3 text-amber-500" />
                                 </button>
-                                <span className="font-heading font-bold text-xs w-5 text-center" style={{ color: '#F5F0E8' }}>{item.quantity}</span>
+                                <span className="font-heading font-bold text-xs w-5 text-center" style={{ color: 'var(--text-primary)' }}>{item.quantity}</span>
                                 <button
                                   onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                   disabled={item.maxStock !== undefined && item.quantity >= item.maxStock}
@@ -721,9 +733,9 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
                     className="rounded-3xl p-6"
-                    style={{ background: 'rgba(20,18,14,0.85)', border: '1px solid rgba(212,175,55,0.12)', boxShadow: '0 20px 50px rgba(0,0,0,0.4)' }}
+                    style={{ background: 'var(--surface-card)', border: '1px solid rgba(212,175,55,0.12)', boxShadow: '0 20px 50px rgba(0,0,0,0.4)' }}
                   >
-                    <h2 className="font-heading text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#F5F0E8' }}>
+                    <h2 className="font-heading text-xl font-bold mb-4 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
                       <ShoppingBag className="w-5 h-5 text-amber-500" />
                       Order Summary
                     </h2>
@@ -734,18 +746,19 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                           ? Math.round((item.originalPrice - item.price) * item.quantity)
                           : 0
                         return (
-                          <div key={item.id} className="flex gap-3 items-center p-2 rounded-xl" style={{ background: 'rgba(13,13,13,0.4)', border: '1px solid rgba(212,175,55,0.06)' }}>
+                          <div key={item.id} className="flex gap-3 items-center p-2 rounded-xl" style={{ background: 'var(--surface-alt)', border: '1px solid rgba(212,175,55,0.06)' }}>
                             <div className="relative w-11 h-11 rounded-lg overflow-hidden flex-shrink-0">
                               <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-heading text-xs font-semibold truncate" style={{ color: '#F5F0E8' }}>{item.name}</h3>                              {(item.size || item.color) && (
+                              <h3 className="font-heading text-xs font-semibold line-clamp-2 leading-tight" style={{ color: 'var(--text-primary)' }}>{item.name}</h3>
+                              {(item.size || item.color) && (
                                 <div className="flex flex-wrap gap-1 mt-0.5">
                                   {item.size  && <span className="text-[9px] font-bold px-1.5 py-0 rounded" style={{ background: 'rgba(217,119,6,0.15)', color: '#fbbf24' }}>{item.size}</span>}
                                   {item.color && <span className="text-[9px] font-bold px-1.5 py-0 rounded" style={{ background: 'rgba(148,163,184,0.1)', color: '#94a3b8' }}>{item.color}</span>}
                                 </div>
                               )}                              <div className="flex items-center justify-between mt-0.5">
-                                <span className="font-body text-[10px]" style={{ color: 'rgba(245,240,232,0.4)' }}>
+                                <span className="font-body text-[10px]" style={{ color: 'var(--text-ghost)' }}>
                                   × {item.quantity}
                                 </span>
                                 <div className="flex flex-col items-end gap-0.5">
@@ -756,7 +769,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                                     )}
                                   </div>
                                   {item.discountPercent && item.originalPrice && (
-                                    <span className="font-body text-[9px] line-through" style={{ color: 'rgba(245,240,232,0.3)' }}>{settings?.currency_symbol || '₹'}{item.originalPrice * item.quantity}</span>
+                                    <span className="font-body text-[9px] line-through" style={{ color: 'var(--text-trace)' }}>{settings?.currency_symbol || '₹'}{item.originalPrice * item.quantity}</span>
                                   )}
                                 </div>
                               </div>
@@ -797,9 +810,9 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                                     maxLength={30}
                                     className="w-full pl-8 pr-3 py-2.5 rounded-xl font-mono text-xs font-bold outline-none transition-all"
                                     style={{
-                                      background: 'rgba(13,13,13,0.7)',
+                                      background: 'var(--surface-card)',
                                       border: `1px solid ${couponError ? '#ef4444' : 'rgba(212,175,55,0.15)'}`,
-                                      color: '#F5F0E8',
+                                      color: 'var(--text-primary)',
                                     }}
                                   />
                                 </div>
@@ -850,8 +863,8 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
 
                       {/* ─── Totals ─────────────────────────────────────── */}
                       <div className="flex items-center justify-between text-sm">
-                        <span className="font-body" style={{ color: 'rgba(245,240,232,0.5)' }}>Subtotal</span>
-                        <span className="font-body" style={{ color: '#F5F0E8' }}>{settings?.currency_symbol || '₹'}{totalPrice}</span>
+                        <span className="font-body" style={{ color: 'var(--text-subtle)' }}>Subtotal</span>
+                        <span className="font-body" style={{ color: 'var(--text-primary)' }}>{settings?.currency_symbol || '₹'}{totalPrice}</span>
                       </div>
                       {(() => {
                         const totalSaved = items.reduce((sum, item) => {
@@ -874,20 +887,20 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                         </div>
                       )}
                       <div className="flex items-center justify-between text-sm">
-                        <span className="font-body" style={{ color: 'rgba(245,240,232,0.5)' }}>Delivery</span>
+                        <span className="font-body" style={{ color: 'var(--text-subtle)' }}>Delivery</span>
                         {deliveryCharge === 0 && deliveryRule.free_delivery_above > 0 ? (
                           <span className="font-body text-green-400 font-medium">Free (above {settings?.currency_symbol || '₹'}{deliveryRule.free_delivery_above})</span>
                         ) : (
-                          <span className="font-body" style={{ color: '#F5F0E8' }}>{settings?.currency_symbol || '₹'}{deliveryCharge}</span>
+                          <span className="font-body" style={{ color: 'var(--text-primary)' }}>{settings?.currency_symbol || '₹'}{deliveryCharge}</span>
                         )}
                       </div>
                       {totalPrice < deliveryRule.free_delivery_above && deliveryRule.free_delivery_above > 0 && (
-                        <p className="font-body text-xs" style={{ color: 'rgba(245,240,232,0.4)' }}>
+                        <p className="font-body text-xs" style={{ color: 'var(--text-ghost)' }}>
                           Add {settings?.currency_symbol || '₹'}{deliveryRule.free_delivery_above - totalPrice} more for free delivery
                         </p>
                       )}
                       <div className="flex items-center justify-between pt-3" style={{ borderTop: '1px solid rgba(212,175,55,0.10)' }}>
-                        <span className="font-heading font-semibold" style={{ color: '#F5F0E8' }}>Total</span>
+                        <span className="font-heading font-semibold" style={{ color: 'var(--text-primary)' }}>Total</span>
                         <span className="font-heading text-2xl font-black" style={{
                           background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white), var(--theme-color))',
                           WebkitBackgroundClip: 'text',
@@ -910,7 +923,7 @@ Delivery: ${deliveryCharge === 0 ? "FREE" : `${currency}${deliveryCharge}`}
                       { icon: Shield,  text: '100% Premium quality guaranteed' },
                       { icon: Clock,   text: 'Delivery within 2-3 business days' },
                     ].map(({ icon: Icon, text }) => (
-                      <div key={text} className="flex items-center gap-3 font-body text-sm" style={{ color: 'rgba(245,240,232,0.55)' }}>
+                      <div key={text} className="flex items-center gap-3 font-body text-sm" style={{ color: 'var(--text-dim)' }}>
                         <Icon className="w-4 h-4 flex-shrink-0 text-amber-500" />
                         <span>{text}</span>
                       </div>

@@ -151,7 +151,7 @@ export const InvoiceTemplate = ({
           <div style={{ width: '200px', paddingTop: '5px' }}>
             <h3 style={{ textTransform: 'uppercase', fontSize: '10px', fontWeight: '800', color: '#999', letterSpacing: '1.2px', marginBottom: '10px' }}>Store Info</h3>
             <p style={{ margin: 0, fontSize: '14px', fontWeight: '700', color: '#000' }}>UNIKQ LABEL</p>
-            <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Premium Fashion Collective</p>
+            <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Premium Fashion Collection</p>
             <p style={{ margin: '4px 0', fontSize: '13px', color: 'var(--theme-color)', fontWeight: '700' }}>WA: {settings?.whatsapp || '+91 8639424039'}</p>
           </div>
         </div>
@@ -185,13 +185,13 @@ export const InvoiceTemplate = ({
                   <td style={{ textAlign: 'center', padding: '12px 10px', borderBottom: '1px solid #f0f0f0', fontSize: '12px', fontWeight: '600' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', flexWrap: 'wrap' }}>
                       {item.size && (
-                        <span style={{ display: 'inline-block', backgroundColor: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '6px', padding: '2px 7px', color: '#b45309', fontWeight: '700', fontSize: '11px', lineHeight: '1.4' }}>
+                        <span style={{ color: '#b45309', fontWeight: '700', fontSize: '11px' }}>
                           {item.size}
                         </span>
                       )}
                       {item.color && (
-                        <span style={{ display: 'inline-block', backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '2px 7px', color: '#475569', fontWeight: '700', fontSize: '11px', marginBottom: '4px' }}>
-                          {item.color}
+                        <span style={{ color: '#475569', fontWeight: '700', fontSize: '11px'}}>
+                         / {item.color}
                         </span>
                       )}
                       {!item.size && !item.color && (
@@ -292,7 +292,7 @@ export const InvoiceTemplate = ({
       {showFooter && (
         <div style={{ position: 'relative', zIndex: 1, marginTop: '40px', textAlign: 'center' }}>
           <p style={{ margin: '0 0 5px 0', fontSize: '14px', fontWeight: '800', color: '#000' }}>Thank you for your order!</p>
-          <p style={{ margin: 0, fontSize: '12px', color: '#666', fontWeight: '500' }}>Questions? WhatsApp: <span style={{ color: 'var(--theme-color)', fontWeight: '700' }}>{settings?.whatsapp || '+91 8639424039'}</span></p>
+          <p style={{ margin: 0, fontSize: '12px', color: '#666', fontWeight: '500' }}>Our team will contact you soon for payment details. For queries, WhatsApp: <span style={{ color: 'var(--theme-color)', fontWeight: '700' }}>{settings?.whatsapp || settings?.phone || '+91-9601874404'}</span></p>
 
         </div>
       )}

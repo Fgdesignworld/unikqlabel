@@ -193,6 +193,18 @@ function handleRequest(): void {
         return;
     }
 
+    // POST /admin/account/change-password
+    if ($method === 'POST' && $uri === '/admin/account/change-password') {
+        AuthController::changePassword();
+        return;
+    }
+
+    // POST /admin/account/change-email
+    if ($method === 'POST' && $uri === '/admin/account/change-email') {
+        AuthController::changeEmail();
+        return;
+    }
+
     // ========================================
     // ADMIN PRODUCT ROUTES
     // ========================================

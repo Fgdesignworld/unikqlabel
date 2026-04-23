@@ -26,6 +26,7 @@ import {
   Boxes,
 } from 'lucide-react'
 import { inventoryService, inventoryKey, type InventoryRow } from '@/services/inventoryService'
+import RichTextEditor from '@/components/admin/RichTextEditor'
 
 export default function AdminProductFormPage() {
   const { id } = useParams()
@@ -294,7 +295,7 @@ export default function AdminProductFormPage() {
                 <input 
                   value={form.name} 
                   onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  placeholder="e.g. Nethi Sunnunda"
+                  placeholder="e.g. Classic Black T-Shirt"
                   className="w-full px-5 py-3 bg-[#0a0a0a] border border-gray-800 rounded-2xl text-white focus:outline-none focus:border-amber-500/50 transition-all placeholder:text-gray-700"
                   required
                 />
@@ -302,12 +303,10 @@ export default function AdminProductFormPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-400 mb-2">Description</label>
-                <textarea 
-                  value={form.description} 
-                  onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                  placeholder="Tell customers about this homemade goodness..."
-                  rows={4}
-                  className="w-full px-5 py-4 bg-[#0a0a0a] border border-gray-800 rounded-2xl text-white focus:outline-none focus:border-amber-500/50 transition-all resize-none placeholder:text-gray-700"
+                <RichTextEditor
+                  value={form.description}
+                  onChange={html => setForm(f => ({ ...f, description: html }))}
+                  placeholder="Write a detailed product description — supports bold, lists, headings, links and more…"
                 />
               </div>
 

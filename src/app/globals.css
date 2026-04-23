@@ -68,6 +68,18 @@
   
   /* Dynamic theme color - defaults to amber #f59e0b, can be overridden via settings */
   --theme-color: #f59e0b;
+
+  /* ── Semantic surface / text tokens (used in inline styles across components) ── */
+  --surface-page:  #0D0D0D;
+  --surface-card:  #111111;
+  --surface-alt:   #1a1a1a;
+  --text-primary:  #F5F0E8;
+  --text-muted:    rgba(245,240,232,0.65);
+  --text-dim:      rgba(245,240,232,0.55);
+  --text-subtle:   rgba(245,240,232,0.50);
+  --text-faint:    rgba(245,240,232,0.45);
+  --text-ghost:    rgba(245,240,232,0.35);
+  --text-trace:    rgba(245,240,232,0.30);
 }
 
 @theme inline {
@@ -421,4 +433,266 @@
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
   pointer-events: none;
   opacity: 0.35;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT THEME  —  applied when <html data-theme="light">
+   Warm cream luxury palette. Gold accents unchanged.
+   ═══════════════════════════════════════════════════════════════ */
+
+html[data-theme="light"] {
+  --background: #faf7f2;
+  --foreground: #1a1714;
+  --card: #ffffff;
+  --card-foreground: #1a1714;
+  --popover: #ffffff;
+  --popover-foreground: #1a1714;
+  --secondary: #f0ece5;
+  --secondary-foreground: #1a1714;
+  --muted: #f5f1ea;
+  --muted-foreground: #6b6560;
+  --border: rgba(212, 175, 55, 0.22);
+  --input: rgba(212, 175, 55, 0.1);
+  color-scheme: light;
+
+  /* Semantic tokens flipped for light mode */
+  --surface-page:  #faf7f2;
+  --surface-card:  #ffffff;
+  --surface-alt:   #f5f1ea;
+  --text-primary:  #1a1714;
+  --text-muted:    rgba(26,23,20,0.65);
+  --text-dim:      rgba(26,23,20,0.55);
+  --text-subtle:   rgba(26,23,20,0.50);
+  --text-faint:    rgba(26,23,20,0.45);
+  --text-ghost:    rgba(26,23,20,0.35);
+  --text-trace:    rgba(26,23,20,0.30);
+}
+
+html[data-theme="light"] body {
+  background-color: #faf7f2;
+  color: #1a1714;
+}
+
+/* ── Scrollbar ── */
+html[data-theme="light"] ::-webkit-scrollbar-track { background: #f0ece5; }
+
+/* ── Page background classes ── */
+html[data-theme="light"] .bg-\[\#0a0a0a\]  { background-color: #faf7f2 !important; }
+html[data-theme="light"] .bg-\[\#0D0D0D\]  { background-color: #faf7f2 !important; }
+html[data-theme="light"] .bg-\[\#0d0d0d\]  { background-color: #faf7f2 !important; }
+html[data-theme="light"] .bg-\[\#0f0f0f\]  { background-color: #faf7f2 !important; }
+html[data-theme="light"] .bg-\[\#0F0F0F\]  { background-color: #faf7f2 !important; }
+
+/* ── Card / section backgrounds ── */
+html[data-theme="light"] .bg-\[\#111\]       { background-color: #ffffff !important; }
+html[data-theme="light"] .bg-\[\#111111\]    { background-color: #ffffff !important; }
+html[data-theme="light"] .bg-\[\#1A1A1A\]   { background-color: #f5f1ea !important; }
+html[data-theme="light"] .bg-\[\#1a1a1a\]   { background-color: #f5f1ea !important; }
+html[data-theme="light"] .bg-\[\#2C2C2C\]   { background-color: #ede9e2 !important; }
+html[data-theme="light"] .bg-\[\#2c2c2c\]   { background-color: #ede9e2 !important; }
+
+/* ── Semi-transparent white → dark equivalent ── */
+html[data-theme="light"] .bg-white\/2  { background-color: rgba(26,23,20,0.03) !important; }
+html[data-theme="light"] .bg-white\/3  { background-color: rgba(26,23,20,0.04) !important; }
+html[data-theme="light"] .bg-white\/4  { background-color: rgba(26,23,20,0.04) !important; }
+html[data-theme="light"] .bg-white\/5  { background-color: rgba(26,23,20,0.05) !important; }
+html[data-theme="light"] .bg-white\/6  { background-color: rgba(26,23,20,0.06) !important; }
+html[data-theme="light"] .bg-white\/8  { background-color: rgba(26,23,20,0.08) !important; }
+html[data-theme="light"] .bg-white\/10 { background-color: rgba(26,23,20,0.10) !important; }
+html[data-theme="light"] .bg-white\/12 { background-color: rgba(26,23,20,0.12) !important; }
+html[data-theme="light"] .bg-white\/15 { background-color: rgba(26,23,20,0.15) !important; }
+html[data-theme="light"] .bg-white\/20 { background-color: rgba(26,23,20,0.20) !important; }
+
+/* ── Gray backgrounds → light ── */
+html[data-theme="light"] .bg-gray-700  { background-color: rgba(26,23,20,0.12) !important; }
+html[data-theme="light"] .bg-gray-800  { background-color: rgba(26,23,20,0.08) !important; }
+html[data-theme="light"] .bg-gray-900  { background-color: rgba(26,23,20,0.06) !important; }
+
+/* ── Text: white → dark ──
+   Hero section (#home) and sticky dark overlays keep white text via
+   the overrides at the bottom of this block.                        ── */
+html[data-theme="light"] .text-white        { color: #1a1714 !important; }
+html[data-theme="light"] .text-white\/80    { color: rgba(26,23,20,0.80) !important; }
+html[data-theme="light"] .text-white\/70    { color: rgba(26,23,20,0.70) !important; }
+html[data-theme="light"] .text-white\/68    { color: rgba(26,23,20,0.68) !important; }
+html[data-theme="light"] .text-white\/60    { color: rgba(26,23,20,0.60) !important; }
+html[data-theme="light"] .text-white\/55    { color: rgba(26,23,20,0.55) !important; }
+html[data-theme="light"] .text-white\/50    { color: rgba(26,23,20,0.50) !important; }
+html[data-theme="light"] .text-white\/45    { color: rgba(26,23,20,0.45) !important; }
+html[data-theme="light"] .text-white\/40    { color: rgba(26,23,20,0.40) !important; }
+html[data-theme="light"] .text-white\/35    { color: rgba(26,23,20,0.35) !important; }
+html[data-theme="light"] .text-white\/30    { color: rgba(26,23,20,0.30) !important; }
+html[data-theme="light"] .text-white\/25    { color: rgba(26,23,20,0.25) !important; }
+html[data-theme="light"] .text-white\/20    { color: rgba(26,23,20,0.20) !important; }
+html[data-theme="light"] .text-white\/15    { color: rgba(26,23,20,0.15) !important; }
+
+/* ── Gray text → warmer dark equivalents ── */
+html[data-theme="light"] .text-gray-300 { color: #4a4540 !important; }
+html[data-theme="light"] .text-gray-400 { color: #5a5450 !important; }
+html[data-theme="light"] .text-gray-500 { color: #6b6560 !important; }
+html[data-theme="light"] .text-gray-600 { color: #7a7470 !important; }
+html[data-theme="light"] .text-gray-700 { color: #9a9490 !important; }
+html[data-theme="light"] .text-gray-800 { color: #b0aba5 !important; }
+
+/* ── Border overrides ── */
+html[data-theme="light"] .border-white\/6   { border-color: rgba(26,23,20,0.08)  !important; }
+html[data-theme="light"] .border-white\/8   { border-color: rgba(26,23,20,0.10)  !important; }
+html[data-theme="light"] .border-white\/10  { border-color: rgba(26,23,20,0.10)  !important; }
+html[data-theme="light"] .border-white\/12  { border-color: rgba(26,23,20,0.12)  !important; }
+html[data-theme="light"] .border-white\/15  { border-color: rgba(26,23,20,0.15)  !important; }
+html[data-theme="light"] .border-white\/20  { border-color: rgba(26,23,20,0.20)  !important; }
+html[data-theme="light"] .border-white\/25  { border-color: rgba(26,23,20,0.25)  !important; }
+html[data-theme="light"] .border-white\/30  { border-color: rgba(26,23,20,0.30)  !important; }
+html[data-theme="light"] .border-gray-700   { border-color: rgba(26,23,20,0.15)  !important; }
+html[data-theme="light"] .border-gray-800   { border-color: rgba(26,23,20,0.10)  !important; }
+html[data-theme="light"] .border-dashed.border-gray-800 { border-color: rgba(26,23,20,0.18) !important; }
+
+/* ── Glassmorphism ── */
+html[data-theme="light"] .glass {
+  background: rgba(255,252,247,0.88) !important;
+  border-color: rgba(212,175,55,0.18) !important;
+  box-shadow: 0 4px 20px rgba(26,23,20,0.08) !important;
+}
+html[data-theme="light"] .glass-gold {
+  background: color-mix(in srgb, var(--theme-color) 8%, rgba(255,252,247,0.92)) !important;
+}
+
+/* ── Input fields ── */
+html[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html[data-theme="light"] textarea,
+html[data-theme="light"] select {
+  color: #1a1714 !important;
+  background-color: rgba(26,23,20,0.04) !important;
+  border-color: rgba(26,23,20,0.15) !important;
+}
+html[data-theme="light"] input::placeholder,
+html[data-theme="light"] textarea::placeholder {
+  color: rgba(26,23,20,0.35) !important;
+}
+
+/* ── Light theme gradient text (heading accent) ── */
+html[data-theme="light"] .text-gradient-royal {
+  background: linear-gradient(135deg, #1a1714 0%, color-mix(in srgb, var(--theme-color) 90%, white) 40%, var(--theme-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Hero section: KEEP DARK (it has explicit dark overlay via inline style) ── */
+html[data-theme="light"] #home .text-white        { color: #F5F0E8 !important; }
+html[data-theme="light"] #home .text-white\/80    { color: rgba(245,240,232,0.80) !important; }
+html[data-theme="light"] #home .text-white\/70    { color: rgba(245,240,232,0.70) !important; }
+html[data-theme="light"] #home .text-white\/60    { color: rgba(245,240,232,0.60) !important; }
+html[data-theme="light"] #home .text-white\/50    { color: rgba(245,240,232,0.50) !important; }
+html[data-theme="light"] #home .text-white\/45    { color: rgba(245,240,232,0.45) !important; }
+
+/* ── Preserve white text on colored pill/badge/button backgrounds ── */
+html[data-theme="light"] [class*="bg-green-"] .text-white,
+html[data-theme="light"] [class*="bg-red-"] .text-white,
+html[data-theme="light"] [class*="bg-emerald-"] .text-white,
+html[data-theme="light"] [class*="bg-amber-"] .text-white { color: inherit !important; }
+
+/* ── btn-primary: already uses color: #0D0D0D inline — no change needed ── */
+
+/* ── Divider ── */
+html[data-theme="light"] .gold-divider {
+  background: linear-gradient(90deg, transparent, var(--theme-color), transparent);
+}
+
+/* ── Cart sidebar dark Tailwind classes ── */
+html[data-theme="light"] .bg-\[\#1a1410\]     { background-color: #faf7f2 !important; }
+html[data-theme="light"] .bg-\[\#0f0f0f\]\/50 { background-color: rgba(26,23,20,0.04) !important; }
+html[data-theme="light"] .bg-\[\#0f0f0f\]\/30 { background-color: rgba(26,23,20,0.03) !important; }
+html[data-theme="light"] .text-\[\#fef3e2\]   { color: #1a1714 !important; }
+html[data-theme="light"] .text-\[\#fef3e2\]\/60 { color: rgba(26,23,20,0.60) !important; }
+html[data-theme="light"] .text-\[\#fef3e2\]\/40 { color: rgba(26,23,20,0.40) !important; }
+
+/* ── Arbitrary dark text used throughout cart ── */
+html[data-theme="light"] .text-\[\#F5F0E8\]   { color: #1a1714 !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   ADMIN DARK LOCK  —  applied inside [data-admin="true"]
+   Forces all dark Tailwind classes to stay dark regardless of
+   user theme.  Same !important specificity as light-theme rules
+   above, but declared LAST → wins the cascade.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Page / layout backgrounds ── */
+html [data-admin] .bg-\[\#0a0a0a\]  { background-color: #0a0a0a !important; }
+html [data-admin] .bg-\[\#0a0a0a\]\/90 { background-color: rgba(10,10,10,0.9) !important; }
+html [data-admin] .bg-\[\#0c0c0c\]  { background-color: #0c0c0c !important; }
+html [data-admin] .bg-\[\#0d0d0d\]  { background-color: #0d0d0d !important; }
+html [data-admin] .bg-\[\#0D0D0D\]  { background-color: #0d0d0d !important; }
+html [data-admin] .bg-\[\#0e0e0e\]  { background-color: #0e0e0e !important; }
+html [data-admin] .bg-\[\#0f0f0f\]  { background-color: #0f0f0f !important; }
+html [data-admin] .bg-\[\#111\]     { background-color: #111111 !important; }
+html [data-admin] .bg-\[\#111111\]  { background-color: #111111 !important; }
+html [data-admin] .bg-\[\#141414\]  { background-color: #141414 !important; }
+html [data-admin] .bg-\[\#1a1a1a\]  { background-color: #1a1a1a !important; }
+html [data-admin] .bg-\[\#1A1A1A\]  { background-color: #1a1a1a !important; }
+html [data-admin] .bg-\[\#2C2C2C\]  { background-color: #2c2c2c !important; }
+html [data-admin] .bg-\[\#2c2c2c\]  { background-color: #2c2c2c !important; }
+
+/* ── Gray / opacity backgrounds ── */
+html [data-admin] .bg-gray-800  { background-color: #1f2937 !important; }
+html [data-admin] .bg-gray-900  { background-color: #111827 !important; }
+html [data-admin] .bg-white\/2  { background-color: rgba(255,255,255,0.02) !important; }
+html [data-admin] .bg-white\/3  { background-color: rgba(255,255,255,0.03) !important; }
+html [data-admin] .bg-white\/4  { background-color: rgba(255,255,255,0.04) !important; }
+html [data-admin] .bg-white\/5  { background-color: rgba(255,255,255,0.05) !important; }
+html [data-admin] .bg-white\/8  { background-color: rgba(255,255,255,0.08) !important; }
+html [data-admin] .bg-white\/10 { background-color: rgba(255,255,255,0.10) !important; }
+
+/* ── Text colors ── */
+html [data-admin] .text-white        { color: #ffffff !important; }
+html [data-admin] .text-white\/80    { color: rgba(255,255,255,0.80) !important; }
+html [data-admin] .text-white\/70    { color: rgba(255,255,255,0.70) !important; }
+html [data-admin] .text-white\/60    { color: rgba(255,255,255,0.60) !important; }
+html [data-admin] .text-white\/50    { color: rgba(255,255,255,0.50) !important; }
+html [data-admin] .text-white\/40    { color: rgba(255,255,255,0.40) !important; }
+html [data-admin] .text-white\/30    { color: rgba(255,255,255,0.30) !important; }
+html [data-admin] .text-white\/20    { color: rgba(255,255,255,0.20) !important; }
+html [data-admin] .text-gray-300    { color: #d1d5db !important; }
+html [data-admin] .text-gray-400    { color: #9ca3af !important; }
+html [data-admin] .text-gray-500    { color: #6b7280 !important; }
+html [data-admin] .text-gray-600    { color: #4b5563 !important; }
+html [data-admin] .text-gray-700    { color: #374151 !important; }
+html [data-admin] .text-gray-800    { color: #1f2937 !important; }
+
+/* ── Borders ── */
+html [data-admin] .border-gray-700  { border-color: #374151 !important; }
+html [data-admin] .border-gray-800  { border-color: #1f2937 !important; }
+html [data-admin] .border-gray-800\/50 { border-color: rgba(31,41,55,0.5) !important; }
+html [data-admin] .border-zinc-700  { border-color: #3f3f46 !important; }
+html [data-admin] .border-zinc-800  { border-color: #27272a !important; }
+html [data-admin] .border-zinc-800\/50 { border-color: rgba(39,39,42,0.5) !important; }
+html [data-admin] .border-white\/8  { border-color: rgba(255,255,255,0.08) !important; }
+html [data-admin] .border-white\/10 { border-color: rgba(255,255,255,0.10) !important; }
+html [data-admin] .border-white\/15 { border-color: rgba(255,255,255,0.15) !important; }
+
+/* ── Input fields — prevent light-theme override inside admin ── */
+html [data-admin] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html [data-admin] textarea,
+html [data-admin] select {
+  color: #ffffff !important;
+  background-color: #0a0a0a !important;
+  border-color: #1f2937 !important;
+}
+html [data-admin] input::placeholder,
+html [data-admin] textarea::placeholder {
+  color: rgba(255,255,255,0.25) !important;
+}
+
+/* ── Glassmorphism inside admin ── */
+html [data-admin] .glass {
+  background: rgba(20,18,14,0.65) !important;
+  border-color: rgba(212,175,55,0.12) !important;
+}
+
+/* ── Gradient text stays as-is inside admin ── */
+html [data-admin] .text-gradient-royal {
+  background: linear-gradient(135deg, #ffffff 0%, color-mix(in srgb, var(--theme-color) 90%, white) 40%, var(--theme-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

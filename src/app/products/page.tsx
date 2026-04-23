@@ -122,7 +122,7 @@ export default function ProductsPage() {
   }, [priceBounds])
 
   return (
-    <main className="min-h-screen" style={{ background: '#0D0D0D' }}>
+    <main className="min-h-screen" style={{ background: 'var(--surface-page)' }}>
       <Navbar />
       <PageHeader
         title="All Collections"
@@ -146,13 +146,13 @@ export default function ProductsPage() {
               style={{
                 background: 'rgba(212,175,55,0.04)',
                 border: '1px solid rgba(212,175,55,0.12)',
-                color: '#F5F0E8',
+                color: 'var(--text-primary)',
               }}
             />
             {search && (
               <button onClick={() => setSearch('')}
                 className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors"
-                style={{ color: 'rgba(245,240,232,0.4)' }}>
+                style={{ color: 'var(--text-ghost)' }}>
                 <X className="w-4 h-4" />
               </button>
             )}
@@ -166,7 +166,7 @@ export default function ProductsPage() {
               className="shrink-0 flex items-center gap-1.5 px-5 py-2.5 rounded-full font-semibold text-sm transition-all"
               style={category === 'all'
                 ? { background: 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 70%, black))', color: '#0D0D0D' }
-                : { background: 'color-mix(in srgb, var(--theme-color) 8%, transparent)', color: 'rgba(245,240,232,0.6)', border: '1px solid color-mix(in srgb, var(--theme-color) 15%, transparent)' }
+                : { background: 'color-mix(in srgb, var(--theme-color) 8%, transparent)', color: 'var(--text-muted)', border: '1px solid color-mix(in srgb, var(--theme-color) 15%, transparent)' }
               }
             >
               <Crown className="w-3 h-3" /> All
@@ -177,7 +177,7 @@ export default function ProductsPage() {
                 className="shrink-0 px-5 py-2.5 rounded-full font-semibold text-sm transition-all"
                 style={category === cat.slug
                   ? { background: 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 70%, black))', color: '#0D0D0D' }
-                  : { background: 'color-mix(in srgb, var(--theme-color) 8%, transparent)', color: 'rgba(245,240,232,0.6)', border: '1px solid color-mix(in srgb, var(--theme-color) 15%, transparent)' }
+                  : { background: 'color-mix(in srgb, var(--theme-color) 8%, transparent)', color: 'var(--text-muted)', border: '1px solid color-mix(in srgb, var(--theme-color) 15%, transparent)' }
                 }
               >
                 {cat.name}
@@ -188,7 +188,7 @@ export default function ProductsPage() {
 
         {/* ── Price Filter ── */}
         <section className="mb-5">
-          <div className="p-5 rounded-2xl" style={{ background: 'rgba(20,18,14,0.7)', border: '1px solid rgba(212,175,55,0.08)' }}>
+          <div className="p-5 rounded-2xl" style={{ background: 'var(--surface-card)', border: '1px solid rgba(212,175,55,0.08)' }}>
             <div className="flex items-center justify-between mb-3">
               <p className="font-body text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(212,175,55,0.6)' }}>Price Range</p>
               <span className="font-body text-xs font-bold text-amber-500">₹{minPrice} – ₹{maxPrice}</span>
@@ -196,8 +196,8 @@ export default function ProductsPage() {
             <DualRangeSlider min={priceBounds[0]} max={priceBounds[1]} lo={minPrice} hi={maxPrice}
               onChange={(lo, hi) => { setMinPrice(lo); setMaxPrice(hi) }} />
             <div className="flex justify-between mt-2">
-              <span className="font-body text-[10px]" style={{ color: 'rgba(245,240,232,0.25)' }}>₹{priceBounds[0]}</span>
-              <span className="font-body text-[10px]" style={{ color: 'rgba(245,240,232,0.25)' }}>₹{priceBounds[1]}</span>
+              <span className="font-body text-[10px]" style={{ color: 'var(--text-trace)' }}>₹{priceBounds[0]}</span>
+              <span className="font-body text-[10px]" style={{ color: 'var(--text-trace)' }}>₹{priceBounds[1]}</span>
             </div>
           </div>
         </section>
@@ -205,7 +205,7 @@ export default function ProductsPage() {
         {/* ── Results Meta ── */}
         <div className="flex items-center gap-3 mb-6 min-h-6">
           {!loading && (
-            <span className="font-body text-xs" style={{ color: 'rgba(245,240,232,0.35)' }}>
+            <span className="font-body text-xs" style={{ color: 'var(--text-ghost)' }}>
               {filtered.length} style{filtered.length !== 1 ? 's' : ''} found
             </span>
           )}
@@ -226,7 +226,7 @@ export default function ProductsPage() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-20">
             <Crown className="w-12 h-12 mx-auto mb-4" style={{ color: 'rgba(212,175,55,0.3)' }} />
-            <p className="font-body text-lg mb-4" style={{ color: 'rgba(245,240,232,0.4)' }}>No styles match your filters.</p>
+            <p className="font-body text-lg mb-4" style={{ color: 'var(--text-ghost)' }}>No styles match your filters.</p>
             <button onClick={clearFilters} className="btn-primary text-sm"><span>Clear Filters</span></button>
           </div>
         ) : (

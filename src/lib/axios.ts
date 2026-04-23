@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 /**
- * Axios instance for Lakshmi Home Foods API
+ * Axios instance for UNIKQ LABEL API
  * 
  * Base URL points to the PHP API server.
  * Update this when deploying to production.

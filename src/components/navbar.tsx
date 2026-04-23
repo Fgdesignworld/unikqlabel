@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 import { lockScroll, unlockScroll } from "@/lib/scroll-lock"
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, ShoppingBag, Crown, ChevronDown } from "lucide-react"
+import { Menu, X, ShoppingBag, Crown, ChevronDown, Sun, Moon } from "lucide-react"
 import { useCart } from "@/context/cart-context"
 import { Image } from "@/components/ui/image"
 import { useSettings } from "@/context/settings-context"
+import { useTheme } from "@/context/theme-context"
 
 const navLinks = [
   { name: "Home",        href: "/" },
@@ -22,8 +23,11 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = useLocation().pathname
+  // Pages that have a dark full-bleed hero — navbar can safely use cream text before scroll
+  const isHeroPage = ['/', '/men', '/women', '/unisex', '/products', '/about', '/contact', '/track'].includes(pathname)
   const { totalItems, setIsCartOpen } = useCart()
   const { settings } = useSettings()
+  const { isDark, toggleTheme } = useTheme()
 
   const siteName  = settings.site_name    || 'UNIKQ LABEL'
   const logoSrc   = settings.logo_url
@@ -62,13 +66,13 @@ export function Navbar() {
         }`}
         style={isScrolled ? {
           borderBottom: '1px solid rgba(212,175,55,0.12)',
-          background: 'rgba(13,13,13,0.88)',
-          boxShadow: '0 8px 40px rgba(0,0,0,0.6)',
+          background: isDark ? 'rgba(13,13,13,0.88)' : 'rgba(250,247,242,0.92)',
+          boxShadow: isDark ? '0 8px 40px rgba(0,0,0,0.6)' : '0 8px 30px rgba(26,23,20,0.1)',
         } : {}}
       >
         <div className="w-full max-w-7xl mx-auto px-4 flex items-center justify-between">
           {/* ── Logo ── */}
-          <Link to="/" className="flex items-center gap-3 group flex-shrink-0">
+          <Link to="/" className="flex items-center gap-3 group shrink-0">
             <div className={`relative transition-all duration-300 ${isScrolled ? "w-auto h-12" : "w-auto h-14"} overflow-hidden`} style={{ borderRadius: 0, minHeight: isScrolled ? 40 : 50, marginTop: isScrolled ? 0 : 20 }}>
               <div className="absolute inset-0" style={{
                 background: 'radial-gradient(circle, rgba(212,175,55,0.18) 0%, transparent 70%)',
@@ -82,7 +86,7 @@ export function Navbar() {
           {/* ── Desktop Nav ── */}
           <div className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2"
             style={{
-              background: 'rgba(255,255,255,0.03)',
+              background: ((isHeroPage && !isScrolled) || isDark) ? 'rgba(255,255,255,0.03)' : 'rgba(26,23,20,0.04)',
               backdropFilter: 'blur(16px)',
               border: '1px solid rgba(212,175,55,0.10)',
               borderRadius: '9999px',
@@ -94,10 +98,10 @@ export function Navbar() {
                 <Link
                   key={link.name}
                   to={link.href}
-                  className={`text-[13px] px-3 py-1 tracking-[0.10em] font-medium uppercase transition-all relative group ${
+                  className={`text-[13px] px-3 py-1 tracking-widest font-medium uppercase transition-all relative group ${
                     isActive ? "" : "hover:opacity-100"
                   }`}
-                  style={{ color: isActive ? 'var(--theme-color)' : 'rgba(245,240,232,0.65)' }}
+                  style={{ color: isActive ? 'var(--theme-color)' : ((isHeroPage && !isScrolled) || isDark) ? 'rgba(245,240,232,0.65)' : 'rgba(26,23,20,0.65)' }}
                 >
                   {link.name}
                   <span className="absolute -bottom-0.5 left-0 h-[1.5px] rounded-full transition-all duration-300"
@@ -120,19 +124,36 @@ export function Navbar() {
             {/* Cart button */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="hidden md:flex items-center justify-center w-9 h-9 rounded-full border transition-all relative group"
+              className="flex items-center justify-center w-9 h-9 rounded-full border transition-all relative group"
               aria-label="Open cart"
               style={{
                 background: 'rgba(212,175,55,0.06)',
-                borderColor: 'rgba(212,175,55,0.2)',
+                borderColor: ((isHeroPage && !isScrolled) || isDark) ? 'rgba(212,175,55,0.2)' : 'rgba(26,23,20,0.15)',
               }}
             >
               <ShoppingBag size={15} className="text-amber-500" />
               {totalItems > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center bg-amber-500 text-[#0D0D0D]">
+                <span className="absolute -top-1.5 -right-1.5 text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center shadow-lg"
+                  style={{ background: 'var(--theme-color)', color: '#0D0D0D' }}>
                   {totalItems}
                 </span>
               )}
+            </button>
+
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              className="hidden md:flex items-center justify-center w-9 h-9 rounded-full border transition-all"
+              aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+              style={{
+                background: isDark ? 'rgba(212,175,55,0.06)' : 'rgba(26,23,20,0.05)',
+                borderColor: isDark ? 'rgba(212,175,55,0.2)' : 'rgba(26,23,20,0.15)',
+              }}
+            >
+              {isDark
+                ? <Sun size={15} className="text-amber-500" />
+                : <Moon size={15} style={{ color: (isHeroPage && !isScrolled) ? 'var(--theme-color)' : 'rgba(26,23,20,0.7)' }} />
+              }
             </button>
 
             {/* Shop CTA */}
@@ -173,14 +194,14 @@ export function Navbar() {
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 z-30 lg:hidden"
+              className="fixed inset-0 z-40 lg:hidden"
               style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
             />
             <motion.div
               initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] z-40 lg:hidden overflow-y-auto"
-              style={{ background: '#0D0D0D', borderLeft: '1px solid rgba(212,175,55,0.15)' }}
+              className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] z-50 lg:hidden overflow-y-auto"
+              style={{ background: isDark ? '#0D0D0D' : '#faf7f2', borderLeft: '1px solid rgba(212,175,55,0.15)' }}
             >
               {/* Header */}
               <div className="flex items-center justify-between px-3 border-b"
@@ -208,7 +229,7 @@ export function Navbar() {
                           className="flex items-center justify-between py-3.5 px-4 rounded-xl transition-all font-medium text-sm uppercase tracking-wider"
                           style={isActive
                             ? { background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 15%, transparent), color-mix(in srgb, var(--theme-color) 5%, transparent))', color: 'var(--theme-color)', borderLeft: '2px solid var(--theme-color)' }
-                            : { color: 'rgba(245,240,232,0.7)' }
+                            : { color: isDark ? 'rgba(245,240,232,0.7)' : 'rgba(26,23,20,0.7)' }
                           }
                         >
                           <span>{link.name}</span>
@@ -232,13 +253,29 @@ export function Navbar() {
                 </div>
 
                 {/* Stats */}
+                {/* Mobile theme toggle */}
+                <div className="mt-4 flex items-center justify-between px-1">
+                  <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: isDark ? 'rgba(245,240,232,0.45)' : 'rgba(26,23,20,0.5)' }}>Theme</span>
+                  <button
+                    onClick={toggleTheme}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all"
+                    style={{
+                      background: isDark ? 'rgba(212,175,55,0.06)' : 'rgba(26,23,20,0.05)',
+                      borderColor: isDark ? 'rgba(212,175,55,0.2)' : 'rgba(26,23,20,0.15)',
+                      color: isDark ? 'var(--theme-color)' : 'rgba(26,23,20,0.7)',
+                    }}
+                  >
+                    {isDark ? <><Sun size={12} /> Light</> : <><Moon size={12} /> Dark</>}
+                  </button>
+                </div>
+
                 <div className="mt-6 pt-5 border-t" style={{ borderColor: 'rgba(212,175,55,0.08)' }}>
-                  <p className="text-[10px] tracking-widest uppercase mb-3 text-center" style={{ color: 'rgba(245,240,232,0.35)' }}>Why UNIKQ</p>
+                  <p className="text-[10px] tracking-widest uppercase mb-3 text-center" style={{ color: isDark ? 'rgba(245,240,232,0.35)' : 'rgba(26,23,20,0.4)' }}>Why UNIKQ</p>
                   <div className="grid grid-cols-2 gap-2">
                     {[{ v: 'Premium', l: 'Quality' }, { v: 'Limited', l: 'Drops' }, { v: 'Unisex', l: 'Fashion' }, { v: 'Royal', l: 'Style' }].map(({ v, l }) => (
                       <div key={l} className="text-center p-3 rounded-lg" style={{ background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.08)' }}>
                         <p className="font-bold text-sm text-amber-500">{v}</p>
-                        <p className="text-[10px] mt-0.5" style={{ color: 'rgba(245,240,232,0.5)' }}>{l}</p>
+                        <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(245,240,232,0.5)' : 'rgba(26,23,20,0.5)' }}>{l}</p>
                       </div>
                     ))}
                   </div>

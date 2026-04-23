@@ -8,7 +8,6 @@ import { productService } from "@/services/productService"
 import type { Product } from "@/data/products"
 import { useSeo } from "@/hooks/use-seo"
 import { motion } from "framer-motion"
-import { Link } from "react-router-dom"
 
 const features = [
   { icon: Crown,    text: "Unisex Design", desc: "Made for all" },
@@ -30,7 +29,7 @@ export default function UnisexPage() {
   }, [])
 
   return (
-    <main className="min-h-screen" style={{ background: '#0D0D0D' }}>
+    <main className="min-h-screen" style={{ background: 'var(--surface-page)' }}>
       <Navbar />
       <PageHeader
         title="Unisex Collection"
@@ -48,11 +47,11 @@ export default function UnisexPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 + i * 0.1 }}
                 className="flex items-center gap-2 px-4 py-2 rounded-full"
-                style={{ background: 'rgba(20,18,14,0.9)', border: '1px solid rgba(212,175,55,0.2)', backdropFilter: 'blur(12px)' }}
+                style={{ background: 'var(--surface-card)', border: '1px solid rgba(212,175,55,0.2)', backdropFilter: 'blur(12px)' }}
               >
                 <f.icon className="w-4 h-4 text-amber-500" />
-                <span className="font-body text-sm font-semibold" style={{ color: '#F5F0E8' }}>{f.text}</span>
-                <span className="font-body text-xs" style={{ color: 'rgba(245,240,232,0.45)' }}>· {f.desc}</span>
+                <span className="font-body text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{f.text}</span>
+                <span className="font-body text-xs" style={{ color: 'var(--text-faint)' }}>· {f.desc}</span>
               </motion.div>
             ))}
           </div>
@@ -69,7 +68,7 @@ export default function UnisexPage() {
             className="p-5 rounded-2xl text-center"
             style={{ background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.10)' }}
           >
-            <p className="font-body text-sm" style={{ color: 'rgba(245,240,232,0.65)' }}>
+            <p className="font-body text-sm" style={{ color: 'var(--text-muted)' }}>
               UNIKQ Unisex are crafted for{' '}
               <span className="text-amber-500 font-semibold">both kings and queens</span>
               {' '}— versatile wardrobe staples you'll reach for every day.
@@ -87,9 +86,11 @@ export default function UnisexPage() {
             </div>
           ) : items.length === 0 ? (
             <div className="text-center py-20">
-              <Crown className="w-12 h-12 mx-auto mb-4" style={{ color: 'rgba(212,175,55,0.3)' }} />
-              <p className="font-body text-lg mb-6" style={{ color: 'rgba(245,240,232,0.4)' }}>Unisex Collection launching soon. Stay tuned.</p>
-              <Link to="/products" className="btn-outline-gold text-sm inline-flex">Browse All Styles</Link>
+              <Sparkles className="w-14 h-14 mx-auto mb-6" style={{ color: 'rgba(212,175,55,0.35)' }} />
+              <h2 className="font-heading text-4xl md:text-5xl font-black mx-auto mb-2" style={{ color: 'var(--text-ghost)', maxWidth: '900px' }}>
+                Unisex Collection coming soon.
+              </h2>
+              <p className="font-body text-lg text-amber-500 font-semibold" style={{ color: 'var(--text-ghost)', opacity: 0.9 }}>Stay tuned.</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">

@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link, Outlet, useLocation } from 'react-router-dom'
 import { authService, type AdminUser } from '@/services/authService'
 import { orderService } from '@/services/orderService'
-import { Package, ShoppingCart, LogOut, LayoutDashboard, Menu, X, Tag, Globe, Settings, Megaphone, Truck, Bell, Star, Layers, Ruler, Palette, Users, MessageSquare, Ticket, Boxes } from 'lucide-react'
+import { Package, ShoppingCart, LogOut, LayoutDashboard, Menu, X, Tag, Globe, Settings, Megaphone, Truck, Bell, Star, Layers, Ruler, Palette, Users, MessageSquare, Ticket, Boxes, ShieldCheck } from 'lucide-react'
 import { Toaster } from '@/components/ui/toaster'
 import { NotificationBell } from '@/components/admin/NotificationBell'
 import { MobileBottomNav } from '@/components/admin/MobileBottomNav'
 import { OrdersRefreshProvider, useOrdersRefresh } from '@/context/orders-refresh-context'
+import { useTheme } from '@/context/theme-context'
 
 export default function AdminLayout() {
   return (
@@ -22,11 +23,55 @@ function AdminLayoutContent() {
   const navigate = useNavigate()
   const location = useLocation()
   const { refreshKey } = useOrdersRefresh()
+  const { theme } = useTheme()   // track so we can re-override when user toggles
   const [admin, setAdmin] = useState<AdminUser | null>(null)
   const [loading, setLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [unreadNotifications, setUnreadNotifications] = useState(0)
   const [pendingOrdersCount, setPendingOrdersCount] = useState(0)
+
+  // ── Always force dark theme while inside admin ────────────────────────────
+  // Depends on `theme` so it re-fires whenever the user toggles, overriding back.
+  useEffect(() => {
+    const html = document.documentElement
+    const darkVars: Record<string, string> = {
+      '--surface-page': '#0D0D0D',
+      '--surface-card': '#111111',
+      '--surface-alt':  '#1a1a1a',
+      '--text-primary': '#F5F0E8',
+      '--text-muted':   'rgba(245,240,232,0.65)',
+      '--text-dim':     'rgba(245,240,232,0.55)',
+      '--text-subtle':  'rgba(245,240,232,0.50)',
+      '--text-faint':   'rgba(245,240,232,0.45)',
+      '--text-ghost':   'rgba(245,240,232,0.35)',
+      '--text-trace':   'rgba(245,240,232,0.30)',
+    }
+    html.setAttribute('data-theme', 'dark')
+    Object.entries(darkVars).forEach(([k, v]) => html.style.setProperty(k, v))
+
+    return () => {
+      // Restore the user's saved preference when navigating away from admin
+      const saved = (localStorage.getItem('unikq-theme') || 'dark') as 'light' | 'dark'
+      html.setAttribute('data-theme', saved)
+      if (saved === 'light') {
+        const lightVars: Record<string, string> = {
+          '--surface-page': '#faf7f2',
+          '--surface-card': '#ffffff',
+          '--surface-alt':  '#f5f1ea',
+          '--text-primary': '#1a1714',
+          '--text-muted':   'rgba(26,23,20,0.65)',
+          '--text-dim':     'rgba(26,23,20,0.55)',
+          '--text-subtle':  'rgba(26,23,20,0.50)',
+          '--text-faint':   'rgba(26,23,20,0.45)',
+          '--text-ghost':   'rgba(26,23,20,0.35)',
+          '--text-trace':   'rgba(26,23,20,0.30)',
+        }
+        Object.entries(lightVars).forEach(([k, v]) => html.style.setProperty(k, v))
+      } else {
+        Object.entries(darkVars).forEach(([k, v]) => html.style.setProperty(k, v))
+      }
+    }
+  }, [theme]) // re-run whenever ThemeContext tries to change theme
 
   useEffect(() => {
     checkAuth()
@@ -73,7 +118,7 @@ function AdminLayoutContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div data-admin="true" className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a0a' }}>
         <div className="animate-spin w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full" />
       </div>
     )
@@ -97,12 +142,13 @@ function AdminLayoutContent() {
     { path: '/admin/colors', icon: Palette, label: 'Color Library' },
     { path: '/admin/seo', icon: Globe, label: 'SEO' },
     { path: '/admin/settings', icon: Settings, label: 'Settings' },
+    { path: '/admin/account', icon: ShieldCheck, label: 'Account' },
   ]
 
   const pageTitle = location.pathname.split('/').filter(Boolean).pop() || 'Dashboard'
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex">
+    <div data-admin="true" className="min-h-screen flex" style={{ background: '#0a0a0a' }}>
       {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#0c0c0c] border-r border-gray-800 transform transition-transform duration-300 lg:translate-x-0 flex flex-col ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         {/* Pinned header */}

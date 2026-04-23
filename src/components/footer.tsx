@@ -8,6 +8,7 @@ import { useSettings } from '@/context/settings-context'
 const quickLinks = [
   { name: "Home",        href: "/" },
   { name: "Collections", href: "/products" },
+  { name: "Follow Our Style", href: "/#gallery" },
   { name: "About Us",    href: "/about" },
   { name: "Contact",     href: "/contact" },
 ]
@@ -57,7 +58,7 @@ export function Footer() {
 
   return (
     <footer className="pt-16 pb-24 md:pb-8 px-4" style={{
-      background: 'linear-gradient(180deg, #111110 0%, #080807 100%)',
+      background: 'var(--surface-card)',
       borderTop: '1px solid rgba(212,175,55,0.08)',
     }}>
       <div className="container mx-auto max-w-7xl">
@@ -76,9 +77,9 @@ export function Footer() {
               </div>
             </Link>
 
-            <p className="font-body text-sm leading-relaxed mb-6" style={{ color: 'rgba(245,240,232,0.5)' }}>
+            {/* <p className="font-body text-sm leading-relaxed mb-6" style={{ color: 'var(--text-subtle)' }}>
               Premium unisex streetwear where kings and queens dress with royal attitude.
-            </p>
+            </p> */}
 
             {/* Social Icons */}
             <div className="flex items-center gap-2.5">
@@ -114,7 +115,7 @@ export function Footer() {
               {quickLinks.map((link) => (
                 <li key={link.name}>
                   <Link to={link.href} className="font-body text-sm transition-colors hover:text-amber-500 flex items-center gap-1.5 group"
-                    style={{ color: 'rgba(245,240,232,0.55)' }}>
+                    style={{ color: 'var(--text-dim)' }}>
                     <span className="w-1 h-1 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                     {link.name}
                   </Link>
@@ -135,7 +136,7 @@ export function Footer() {
               {collections.map((col) => (
                 <li key={col.name}>
                   <Link to={col.href} className="font-body text-sm transition-colors hover:text-amber-500 flex items-center gap-1.5 group"
-                    style={{ color: 'rgba(245,240,232,0.55)' }}>
+                    style={{ color: 'var(--text-dim)' }}>
                     <Crown className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
                     {col.name}
                   </Link>
@@ -156,7 +157,7 @@ export function Footer() {
             {/* Newsletter */}
             {!subscribed ? (
               <form onSubmit={handleSubscribe} className="mb-5">
-                <p className="font-body text-xs mb-3" style={{ color: 'rgba(245,240,232,0.45)' }}>Get exclusive drops & offers</p>
+                <p className="font-body text-xs mb-3" style={{ color: 'var(--text-faint)' }}>Get exclusive drops & offers</p>
                 <div className="flex rounded-full overflow-hidden border" style={{ borderColor: 'rgba(212,175,55,0.2)', background: 'rgba(212,175,55,0.04)' }}>
                   <input
                     type="email"
@@ -164,7 +165,7 @@ export function Footer() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Your email"
                     className="flex-1 bg-transparent px-4 py-2.5 text-xs outline-none"
-                    style={{ color: '#F5F0E8' }}
+                    style={{ color: 'var(--text-primary)' }}
                     required
                   />
                   <button type="submit" className="px-3 flex items-center justify-center text-amber-500">
@@ -183,19 +184,19 @@ export function Footer() {
             <div className="space-y-2.5">
               <a href={`tel:${phone.replace(/\s/g, '')}`}
                 className="flex items-center gap-2.5 text-xs transition-colors hover:text-amber-500"
-                style={{ color: 'rgba(245,240,232,0.5)' }}>
+                style={{ color: 'var(--text-subtle)' }}>
                 <Phone className="w-3.5 h-3.5 flex-shrink-0 text-amber-500" />
                 {phone}
               </a>
               {settingsEmail && (
                 <a href={`mailto:${settingsEmail}`}
                   className="flex items-center gap-2.5 text-xs transition-colors hover:text-amber-500 break-all"
-                  style={{ color: 'rgba(245,240,232,0.5)' }}>
+                  style={{ color: 'var(--text-subtle)' }}>
                   <Mail className="w-3.5 h-3.5 flex-shrink-0 text-amber-500" />
                   {settingsEmail}
                 </a>
               )}
-              <div className="flex items-start gap-2.5 text-xs" style={{ color: 'rgba(245,240,232,0.5)' }}>
+              <div className="flex items-start gap-2.5 text-xs" style={{ color: 'var(--text-subtle)' }}>
                 <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-500" />
                 <span>{address}</span>
               </div>
@@ -208,12 +209,12 @@ export function Footer() {
 
         {/* ── Copyright ── */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="font-body text-xs" style={{ color: 'rgba(245,240,232,0.3)' }}>
-            © 2024 UNIKQ LABEL. All rights reserved.
+          <p className="font-body text-xs" style={{ color: 'var(--text-trace)' }}>
+            © 2026 UNIKQ LABEL. All rights reserved.
           </p>
           <div className="flex items-center gap-1.5">
             <Crown className="w-3 h-3" style={{ color: 'rgba(212,175,55,0.4)' }} />
-            <p className="font-body text-xs" style={{ color: 'rgba(245,240,232,0.3)' }}>
+            <p className="font-body text-xs" style={{ color: 'var(--text-trace)' }}>
               Wear the Crown. Rule Your Style.
             </p>
           </div>

@@ -41,4 +41,28 @@ export const authService = {
         const response = await api.get('/admin/status');
         return response.data;
     },
+
+    /**
+     * Change admin password — requires current password for verification.
+     * The API returns relogin:true, so the caller should redirect to /admin/login.
+     */
+    async changePassword(data: {
+        current_password: string;
+        new_password: string;
+        confirm_password: string;
+    }): Promise<{ success: boolean; message: string; relogin: boolean }> {
+        const response = await api.post('/admin/account/change-password', data);
+        return response.data;
+    },
+
+    /**
+     * Change admin email — requires current password for verification.
+     */
+    async changeEmail(data: {
+        current_password: string;
+        new_email: string;
+    }): Promise<{ success: boolean; message: string; new_email: string }> {
+        const response = await api.post('/admin/account/change-email', data);
+        return response.data;
+    },
 };

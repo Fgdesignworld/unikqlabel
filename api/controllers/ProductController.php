@@ -289,6 +289,6 @@ class ProductController {
         $p['discount_price'] = isset($p['discount_price']) && $p['discount_price'] !== null
             ? (float) $p['discount_price']
             : null;
-        $p['rating']         = (float) ($p['rating'] ?? 4.5);
+        $p['rating']         = (float) ($p['rating'] ?? 0);
     }
 }

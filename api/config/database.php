@@ -1,6 +1,6 @@
 <?php
 /**
- * Database Configuration — Lakshmi Home Foods
+ * Database Configuration — UNIKQ LABEL
  * 
  * Update these credentials for your environment.
  */

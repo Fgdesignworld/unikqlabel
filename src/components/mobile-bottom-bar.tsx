@@ -11,8 +11,7 @@ export function MobileBottomBar() {
   const { totalItems, setIsCartOpen } = useCart()
   const { settings } = useSettings()
 
-  const isProductDetailPage = pathname.startsWith('/products/') && pathname !== '/products'
-  if (isProductDetailPage) return null
+  // Show on all pages including product detail so mobile bottom bar is available site-wide
 
   const waNum = (settings?.whatsapp || settings?.phone || '918639424039').replace(/[^0-9]/g, '')
 
@@ -51,7 +50,8 @@ export function MobileBottomBar() {
                     <motion.span
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="absolute -top-2 -right-2 w-4 h-4 bg-[#d97706] text-[#0f0f0f] text-[10px] font-bold rounded-full flex items-center justify-center"
+                      className="absolute -top-2 -right-2 w-4 h-4 text-[#0f0f0f] text-[10px] font-bold rounded-full flex items-center justify-center shadow-lg"
+                      style={{ background: 'var(--theme-color)' }}
                     >
                       {totalItems}
                     </motion.span>

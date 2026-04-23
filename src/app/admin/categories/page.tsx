@@ -103,41 +103,41 @@ function CategoryForm({
       <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       {/* Panel */}
-      <div className="w-full max-w-md bg-[#0c0c0c] border-l border-gray-800 overflow-y-auto flex flex-col">
+      <div className="w-full max-w-md bg-[#0c0c0c] border-l border-gray-800 overflow-y-auto flex flex-col max-h-screen">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-gray-800">
+        <div className="flex items-center justify-between p-3 sm:p-5 border-b border-gray-800">
           <div>
-            <h2 className="text-white font-black text-lg">{isEditing ? 'Edit Category' : 'New Category'}</h2>
+            <h2 className="text-white font-black text-base sm:text-lg">{isEditing ? 'Edit Category' : 'New Category'}</h2>
             <p className="text-gray-500 text-xs mt-0.5">{isEditing ? 'Update category details' : 'Add a new product category'}</p>
           </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/5">
-            <X className="w-5 h-5" />
+          <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/5 flex-shrink-0">
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex-1 p-5 space-y-5">
+        <form onSubmit={handleSubmit} className="flex-1 p-3 sm:p-5 space-y-4 sm:space-y-5">
 
           {/* Image upload */}
           <div>
             <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-2">Category Image</label>
             {form.image ? (
-              <div className="relative w-full h-32 rounded-2xl overflow-hidden border border-gray-700 group">
-                <img src={form.image.startsWith('/') ? `/api${form.image}` : form.image} alt="preview" className="w-full h-full object-cover rounded-2xl" />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+              <div className="relative w-full h-24 sm:h-32 rounded-xl sm:rounded-2xl overflow-hidden border border-gray-700 group">
+                <img src={form.image.startsWith('/') ? `/api${form.image}` : form.image} alt="preview" className="w-full h-full object-cover rounded-xl sm:rounded-2xl" />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 md:opacity-100 transition-opacity flex items-center justify-center gap-2 sm:gap-3">
                   <button 
                     type="button"
                     onClick={() => fileRef.current?.click()}
-                    className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+                    className="p-1.5 sm:p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
                   >
-                    <Upload className="w-5 h-5 text-white" />
+                    <Upload className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </button>
                   <button 
                     type="button"
                     onClick={removeImage}
-                    className="p-2 bg-red-500/20 rounded-full hover:bg-red-500/30 transition-colors"
+                    className="p-1.5 sm:p-2 bg-red-500/20 rounded-full hover:bg-red-500/30 transition-colors"
                   >
-                    <Trash2 className="w-5 h-5 text-red-500" />
+                    <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
                   </button>
                 </div>
               </div>
@@ -145,9 +145,9 @@ function CategoryForm({
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="w-full h-32 bg-white/2 border-2 border-dashed border-gray-700 rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-amber-500/50 hover:bg-amber-500/5 transition-all text-gray-600 hover:text-amber-500"
+                className="w-full h-24 sm:h-32 bg-white/2 border-2 border-dashed border-gray-700 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-amber-500/50 hover:bg-amber-500/5 transition-all text-gray-600 hover:text-amber-500"
               >
-                {uploading ? <Loader2 className="w-6 h-6 animate-spin text-amber-500" /> : <ImageIcon className="w-6 h-6" />}
+                {uploading ? <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin text-amber-500" /> : <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6" />}
                 <span className="text-xs font-medium">{uploading ? 'Uploading...' : 'Click to upload image'}</span>
               </button>
             )}
@@ -163,7 +163,7 @@ function CategoryForm({
               onChange={e => setField('name', e.target.value)}
               placeholder="e.g. Pickles"
               required
-              className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 focus:bg-white/6 transition-all"
+              className="w-full bg-white/4 border border-gray-700 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 focus:bg-white/6 transition-all"
             />
           </div>
 
@@ -176,12 +176,12 @@ function CategoryForm({
                 value={form.slug ?? ''}
                 onChange={e => setField('slug', toSlug(e.target.value))}
                 placeholder="auto-generated"
-                className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
+                className="w-full bg-white/4 border border-gray-700 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
               />
               <button
                 type="button"
                 onClick={() => { setForm(prev => ({ ...prev, slug: toSlug(form.name) })); setSlugEdited(false) }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-amber-500 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-amber-500 transition-colors flex-shrink-0"
                 title="Regenerate from name"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
@@ -198,21 +198,21 @@ function CategoryForm({
               min={0}
               value={form.sort_order ?? 0}
               onChange={e => setField('sort_order', parseInt(e.target.value) || 0)}
-              className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500/50 transition-all"
+              className="w-full bg-white/4 border border-gray-700 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-white text-sm focus:outline-none focus:border-amber-500/50 transition-all"
             />
           </div>
 
           {/* Status */}
           <div>
             <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-2">Status</label>
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               {(['active', 'inactive'] as const).map(s => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => setField('status', s)}
                   className={cn(
-                    'flex-1 py-2.5 rounded-xl text-sm font-bold border transition-all',
+                    'flex-1 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold border transition-all',
                     form.status === s
                       ? s === 'active' ? 'bg-green-500/10 border-green-500/40 text-green-400' : 'bg-red-500/10 border-red-500/40 text-red-400'
                       : 'bg-white/2 border-gray-700 text-gray-500 hover:border-gray-600'
@@ -225,20 +225,20 @@ function CategoryForm({
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-2 sm:gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl border border-gray-700 text-gray-400 text-sm font-bold hover:border-gray-600 hover:text-white transition-all"
+              className="flex-1 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-700 text-gray-400 text-xs sm:text-sm font-bold hover:border-gray-600 hover:text-white transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving || uploading}
-              className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-sm font-black transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex-1 py-2 sm:py-2.5 rounded-lg sm:rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs sm:text-sm font-black transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+              {saving ? <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> : <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
               {isEditing ? 'Save Changes' : 'Create Category'}
             </button>
           </div>
@@ -251,18 +251,18 @@ function CategoryForm({
 // --- Skeleton ---
 function CategorySkeleton() {
   return (
-    <div className="space-y-3">
+    <div className="space-y-2 sm:space-y-3">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="bg-[#0e0e0e] border border-gray-800/50 rounded-2xl p-4 flex items-center gap-4 animate-pulse">
-          <div className="w-12 h-12 rounded-xl bg-gray-800 shrink-0" />
-          <div className="flex-1 space-y-2">
-            <div className="h-4 w-36 bg-gray-800 rounded-lg" />
-            <div className="h-3 w-52 bg-gray-800/60 rounded-lg" />
+        <div key={i} className="bg-[#0e0e0e] border border-gray-800/50 rounded-lg sm:rounded-2xl p-3 sm:p-4 flex items-center gap-2 sm:gap-4 animate-pulse">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gray-800 shrink-0" />
+          <div className="flex-1 space-y-1.5 sm:space-y-2 min-w-0">
+            <div className="h-3 sm:h-4 w-24 sm:w-36 bg-gray-800 rounded-lg" />
+            <div className="h-2.5 sm:h-3 w-32 sm:w-52 bg-gray-800/60 rounded-lg" />
           </div>
-          <div className="flex gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gray-800" />
-            <div className="w-8 h-8 rounded-xl bg-gray-800" />
-            <div className="w-8 h-8 rounded-xl bg-gray-800" />
+          <div className="flex gap-1 sm:gap-2">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-gray-800" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-gray-800" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-gray-800" />
           </div>
         </div>
       ))}
@@ -281,22 +281,22 @@ function CatPagination({ page, lastPage, total, perPage, onPage }: {
   const start = Math.max(0, Math.min(page - 3, lastPage - 5))
   const visible = pages.slice(start, start + 5)
   return (
-    <div className="flex items-center justify-between mt-4 flex-wrap gap-2">
+    <div className="flex items-center justify-between mt-4 flex-wrap gap-2 sm:gap-4">
       <p className="text-xs text-gray-600">Showing {from}&ndash;{to} of {total}</p>
       <div className="flex items-center gap-1">
         <button onClick={() => onPage(page - 1)} disabled={page === 1}
-          className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
-          <ChevronLeft className="w-4 h-4" />
+          className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg sm:rounded-xl border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+          <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
         </button>
         {visible.map(p => (
           <button key={p} onClick={() => onPage(p)}
-            className={cn('w-8 h-8 rounded-xl text-xs font-black transition-all',
+            className={cn('w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl text-xs font-black transition-all',
               p === page ? 'bg-amber-500 text-black' : 'border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600'
             )}>{p}</button>
         ))}
         <button onClick={() => onPage(page + 1)} disabled={page === lastPage}
-          className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
-          <ChevronRight className="w-4 h-4" />
+          className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg sm:rounded-xl border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+          <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
         </button>
       </div>
     </div>
@@ -367,45 +367,45 @@ export default function AdminCategoriesPage() {
   const handleSaved = () => { setFormOpen(false); load() }
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white">Categories</h1>
-          <p className="text-gray-500 text-sm mt-1">Manage product categories</p>
+          <h1 className="text-xl sm:text-2xl font-black text-white">Categories</h1>
+          <p className="text-gray-500 text-xs sm:text-sm mt-1">Manage product categories</p>
         </div>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-black text-sm font-black rounded-xl transition-colors"
+          className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-amber-500 hover:bg-amber-400 text-black text-xs sm:text-sm font-black rounded-lg sm:rounded-xl transition-colors"
         >
-          <Plus className="w-4 h-4" />
-          New Category
+          <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span>New Category</span>
         </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
         {[
           { label: 'Total', value: categories.length, color: 'text-white' },
           { label: 'Active', value: categories.filter(c => c.status === 'active').length, color: 'text-green-400' },
           { label: 'Inactive', value: categories.filter(c => c.status === 'inactive').length, color: 'text-red-400' },
         ].map(s => (
-          <div key={s.label} className="bg-[#0e0e0e] border border-gray-800 rounded-2xl p-4">
+          <div key={s.label} className="bg-[#0e0e0e] border border-gray-800 rounded-lg sm:rounded-2xl p-3 sm:p-4">
             <p className="text-gray-500 text-xs font-bold uppercase tracking-wider">{s.label}</p>
-            <p className={cn('text-2xl font-black mt-1', s.color)}>{s.value}</p>
+            <p className={cn('text-xl sm:text-2xl font-black mt-1 sm:mt-2', s.color)}>{s.value}</p>
           </div>
         ))}
       </div>
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+        <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500" />
         <input
           type="text"
           placeholder="Search categories..."
           value={search}
           onChange={e => { setSearch(e.target.value); setCatPage(1) }}
-          className="w-full bg-[#0e0e0e] border border-gray-800 rounded-xl pl-11 pr-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/30 transition-all"
+          className="w-full bg-[#0e0e0e] border border-gray-800 rounded-lg sm:rounded-xl pl-9 sm:pl-11 pr-3 sm:pr-4 py-2 sm:py-3 text-white text-xs sm:text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/30 transition-all"
         />
       </div>
 
@@ -413,58 +413,58 @@ export default function AdminCategoriesPage() {
       {loading ? (
         <CategorySkeleton />
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <Tag className="w-12 h-12 text-gray-700 mb-4" />
-          <p className="text-white font-bold text-lg">No categories found</p>
-          <p className="text-gray-500 text-sm mt-1">{search ? 'Try a different search' : 'Create your first category'}</p>
+        <div className="flex flex-col items-center justify-center py-12 sm:py-20 text-center px-4">
+          <Tag className="w-8 sm:w-12 h-8 sm:h-12 text-gray-700 mb-3 sm:mb-4" />
+          <p className="text-white font-bold text-base sm:text-lg">No categories found</p>
+          <p className="text-gray-500 text-xs sm:text-sm mt-1">{search ? 'Try a different search' : 'Create your first category'}</p>
           {!search && (
-            <button onClick={openCreate} className="mt-4 px-4 py-2 bg-amber-500 text-black text-sm font-black rounded-xl hover:bg-amber-400 transition-colors">
+            <button onClick={openCreate} className="mt-4 px-3 sm:px-4 py-2 bg-amber-500 text-black text-xs sm:text-sm font-black rounded-lg sm:rounded-xl hover:bg-amber-400 transition-colors">
               + Create Category
             </button>
           )}
         </div>
       ) : (
         <>
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {paginated.map(cat => (
-            <div key={cat.id} className="bg-[#0e0e0e] border border-gray-800 rounded-2xl p-4 flex items-center gap-4 hover:border-gray-700 transition-all group">
+            <div key={cat.id} className="relative bg-[#0e0e0e] border border-gray-800 rounded-lg sm:rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 hover:border-gray-700 transition-all group">
               {/* Image */}
-              <div className="w-12 h-12 rounded-xl bg-white/4 border border-gray-800 flex items-center justify-center overflow-hidden shrink-0">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-white/4 border border-gray-800 flex items-center justify-center overflow-hidden shrink-0">
                 {cat.image ? (
                   <img src={`/api${cat.image}`} alt={cat.name} className="w-full h-full object-cover" />
                 ) : (
-                  <Tag className="w-5 h-5 text-gray-600" />
+                  <Tag className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                 )}
               </div>
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-white font-bold text-sm truncate">{cat.name}</h3>
+                <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+                  <h3 className="text-white font-bold text-sm sm:text-base truncate">{cat.name}</h3>
                   <span className={cn(
-                    'text-xs font-bold px-2 py-0.5 rounded-full border',
+                    'text-xs font-bold px-2 py-0.5 rounded-full border whitespace-nowrap',
                     cat.status === 'active' ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-red-500/10 border-red-500/20 text-red-400'
                   )}>
                     {cat.status}
                   </span>
                 </div>
-                <div className="flex items-center gap-3 mt-1">
-                  <span className="text-gray-600 text-xs">/category/{cat.slug}</span>
+                <div className="flex items-center gap-2 sm:gap-3 mt-1 flex-wrap text-xs">
+                  <span className="text-gray-600">/category/{cat.slug}</span>
                   {cat.product_count !== undefined && (
-                    <span className="text-gray-600 text-xs">{cat.product_count} products</span>
+                    <span className="text-gray-600">{cat.product_count} products</span>
                   )}
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute right-3 top-3 flex items-center gap-2 sm:static sm:ml-0 opacity-100 transition-opacity">
                 {/* Toggle */}
                 <button
                   onClick={() => handleToggle(cat)}
                   disabled={toggling === cat.id}
                   title={cat.status === 'active' ? 'Deactivate' : 'Activate'}
                   className={cn(
-                    'p-2 rounded-xl transition-colors',
+                    'p-1.5 sm:p-2 rounded-lg sm:rounded-xl transition-colors',
                     cat.status === 'active' ? 'text-green-400 hover:bg-green-500/10' : 'text-gray-500 hover:bg-white/5'
                   )}
                 >
@@ -477,7 +477,7 @@ export default function AdminCategoriesPage() {
                 {/* Edit */}
                 <button
                   onClick={() => openEdit(cat)}
-                  className="p-2 text-gray-400 hover:text-amber-400 hover:bg-amber-500/10 rounded-xl transition-colors"
+                  className="p-1.5 sm:p-2 text-gray-400 hover:text-amber-400 hover:bg-amber-500/10 rounded-lg sm:rounded-xl transition-colors"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
@@ -485,7 +485,7 @@ export default function AdminCategoriesPage() {
                 {/* Delete */}
                 <button
                   onClick={() => setDeleteTarget(cat)}
-                  className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+                  className="p-1.5 sm:p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg sm:rounded-xl transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

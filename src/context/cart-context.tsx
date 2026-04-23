@@ -57,6 +57,24 @@ const defaultCustomerDetails: CustomerDetails = {
   notes: "",
 }
 
+function loadCustomerDetails(): CustomerDetails {
+  try {
+    const raw = localStorage.getItem('lakshmi-customer-details')
+    return raw ? (JSON.parse(raw) as CustomerDetails) : defaultCustomerDetails
+  } catch {
+    return defaultCustomerDetails
+  }
+}
+
+// Helper to persist customerDetails
+function persistCustomerDetails(details: CustomerDetails) {
+  try {
+    localStorage.setItem('lakshmi-customer-details', JSON.stringify(details))
+  } catch (err) {
+    console.error('Failed to persist customer details:', err)
+  }
+}
+
 function loadCart(): CartItem[] {
   try {
     const version = localStorage.getItem('lakshmi-cart-version')
@@ -90,12 +108,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(loadCart)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
-  const [customerDetails, setCustomerDetails] = useState<CustomerDetails>(defaultCustomerDetails)
+  const [customerDetails, setCustomerDetails] = useState<CustomerDetails>(loadCustomerDetails)
   
   // Persist cart to localStorage on every change
   useEffect(() => {
     persistCart(items)
   }, [items])
+
+  // Persist customer details to localStorage on every change
+  useEffect(() => {
+    persistCustomerDetails(customerDetails)
+  }, [customerDetails])
 
   const addItem = (newItem: Omit<CartItem, "quantity">) => {
     setItems((prev) => {
@@ -135,6 +158,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = () => {
     persistCart([])
     setItems([])
+    persistCustomerDetails(defaultCustomerDetails)
     setCustomerDetails(defaultCustomerDetails)
   }
 

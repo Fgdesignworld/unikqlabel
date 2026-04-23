@@ -8,7 +8,7 @@ import {
   ChevronLeft, ChevronRight, Loader2, ZoomIn, Zap,
   MessageSquare, FileText, Send, AlertCircle, CheckCircle2,
   ShieldCheck, ThumbsUp, ArrowLeft, Truck, Package, Award,
-  FlameKindling, Sparkles, BadgeCheck, Share2,
+  FlameKindling, Sparkles, BadgeCheck, Share2, X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { reviewService, type Review, type ReviewStats } from "@/services/reviewService"
@@ -20,6 +20,7 @@ import { useSettings } from "@/context/settings-context"
 import { productService } from "@/services/productService"
 import type { Product, SizeVariant, ColorVariant } from '@/data/products'
 import { resolveStock, getStockStatus, type InventoryRow } from '@/services/inventoryService'
+import DOMPurify from 'dompurify'
 
 /* ──────────────────────────────────────────────────────────────── */
 /*  Helpers                                                          */
@@ -36,7 +37,7 @@ function StarRow({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' |
   const s = size === 'lg' ? 'w-6 h-6' : size === 'md' ? 'w-5 h-5' : 'w-3.5 h-3.5'
   return (
     <div className="flex items-center gap-0.5">
-      {[1,2,3,4,5].map(i => (
+      {[1, 2, 3, 4, 5].map(i => (
         <Star key={i} className={cn(s, i <= Math.round(rating) ? 'text-amber-400 fill-amber-400' : 'text-gray-700 fill-gray-800')} />
       ))}
     </div>
@@ -62,7 +63,7 @@ function StarPicker({ value, onChange }: { value: number; onChange: (v: number) 
   const [hover, setHover] = useState(0)
   return (
     <div className="flex gap-1">
-      {[1,2,3,4,5].map(i => (
+      {[1, 2, 3, 4, 5].map(i => (
         <button key={i} type="button" onClick={() => onChange(i)}
           onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(0)}>
           <Star className={cn('w-8 h-8 transition-all', i <= (hover || value) ? 'text-amber-400 fill-amber-400 scale-110' : 'text-gray-600')} />
@@ -117,7 +118,7 @@ function ReviewsSection({ productId }: { productId: number | null }) {
     setLoadingReviews(true)
     reviewService.getByProduct(productId)
       .then(data => { setReviews(data.reviews); setStats(data.stats) })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoadingReviews(false))
   }, [productId])
 
@@ -159,7 +160,7 @@ function ReviewsSection({ productId }: { productId: number | null }) {
         </div>
         {totalReviews > 0 && stats ? (
           <div className="flex-1 space-y-2.5 justify-center flex flex-col">
-            {[5,4,3,2,1].map(n => (
+            {[5, 4, 3, 2, 1].map(n => (
               <RatingBar key={n} label={String(n)} count={stats.breakdown[n] ?? 0} total={totalReviews} />
             ))}
           </div>
@@ -273,12 +274,12 @@ function ReviewsSection({ productId }: { productId: number | null }) {
 /* ──────────────────────────────────────────────────────────────── */
 
 const FEATURES = [
-  { icon: Leaf,         label: 'Premium Fabric',     color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-  { icon: Sparkles,     label: 'Trendy Designs',     color: 'text-purple-400',  bg: 'bg-purple-500/10  border-purple-500/20'  },
-  { icon: BadgeCheck,   label: 'Authentic Brand',    color: 'text-sky-400',     bg: 'bg-sky-500/10     border-sky-500/20'     },
-  { icon: Award,        label: 'Premium Quality',    color: 'text-amber-400',   bg: 'bg-amber-500/10   border-amber-500/20'   },
-  { icon: FlameKindling,label: 'Style Crafted',      color: 'text-orange-400',  bg: 'bg-orange-500/10  border-orange-500/20'  },
-  { icon: Truck,        label: 'Pan India Delivery', color: 'text-rose-400',    bg: 'bg-rose-500/10    border-rose-500/20'    },
+  { icon: Leaf, label: 'Premium Fabric', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+  { icon: Sparkles, label: 'Trendy Designs', color: 'text-purple-400', bg: 'bg-purple-500/10  border-purple-500/20' },
+  { icon: BadgeCheck, label: 'Authentic Brand', color: 'text-sky-400', bg: 'bg-sky-500/10     border-sky-500/20' },
+  { icon: Award, label: 'Premium Quality', color: 'text-amber-400', bg: 'bg-amber-500/10   border-amber-500/20' },
+  { icon: FlameKindling, label: 'Style Crafted', color: 'text-orange-400', bg: 'bg-orange-500/10  border-orange-500/20' },
+  { icon: Truck, label: 'Pan India Delivery', color: 'text-rose-400', bg: 'bg-rose-500/10    border-rose-500/20' },
 ]
 
 export default function ProductDetailPage() {
@@ -304,8 +305,34 @@ export default function ProductDetailPage() {
   const [reviewStats, setReviewStats] = useState<ReviewStats | null>(null)
   const [numericProductId, setNumericProductId] = useState<number | null>(null)
   const [inventory, setInventory] = useState<InventoryRow[]>([])
+  const [showSizeGuide, setShowSizeGuide] = useState(false)
 
   const currency = settings?.currency_symbol || '\u20b9'
+
+  // Lock background scroll when a modal (size guide or image lightbox) is open
+  useEffect(() => {
+    const shouldLock = showSizeGuide || zoomed
+    if (!shouldLock) return
+
+    const scrollY = window.scrollY || window.pageYOffset || 0
+    // Freeze background by fixing body and storing scroll position
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.left = '0'
+    document.body.style.right = '0'
+    document.body.dataset.lockedScroll = String(scrollY)
+
+    return () => {
+      // Restore body styles and scroll position
+      const stored = Number(document.body.dataset.lockedScroll) || 0
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.left = ''
+      document.body.style.right = ''
+      delete document.body.dataset.lockedScroll
+      window.scrollTo(0, stored)
+    }
+  }, [showSizeGuide, zoomed])
 
   useEffect(() => {
     if (!slug) return
@@ -360,7 +387,7 @@ export default function ProductDetailPage() {
         setMeta('og:type', 'product')
         productService.getPublicProducts().then(all => {
           setRelated(all.filter(x => x.category === mapped.category && x.id !== mapped.id).slice(0, 4))
-        }).catch(() => {})
+        }).catch(() => { })
       })
       .catch(() => { if (!cancelled) setNotFound(true) })
       .finally(() => { if (!cancelled) setLoading(false) })
@@ -372,7 +399,7 @@ export default function ProductDetailPage() {
     let cancelled = false
     reviewService.getByProduct(productIdForReviews)
       .then(data => { if (!cancelled) setReviewStats(data.stats) })
-      .catch(() => {})
+      .catch(() => { })
     return () => { cancelled = true }
   }, [productIdForReviews])
 
@@ -396,8 +423,18 @@ export default function ProductDetailPage() {
       if (rs === null && rc === null && stock === null) stock = r.stock
     }
     if (stock !== null && stock > 0 && quantity > stock) setQuantity(stock)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inventory, selectedSizeVariant, selectedColor])
+
+  // Auto-select single colour / single size once product has loaded so the
+  // user doesn't have to interact when there is only one valid choice.
+  useEffect(() => {
+    if (!product) return
+    if (product.colorVariants?.length === 1) setSelectedColor(product.colorVariants[0])
+    const sv = product.sizeVariants || []
+    if (sv.length === 1) setSelectedSizeVariant(0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product?.id])
 
   if (loading) {
     return (
@@ -441,7 +478,7 @@ export default function ProductDetailPage() {
     ? [...colorImages, ...defaultImages]
     : defaultImages
 
-  const variants     = product.variants || [{ weight: product.weight, price: product.price }]
+  const variants = product.variants || [{ weight: product.weight, price: product.price }]
   const sizeVariants = product.sizeVariants || []
 
   // Inventory stock resolution
@@ -450,23 +487,13 @@ export default function ProductDetailPage() {
   const currentStock = resolveStock(inventory, _sizeLabel, _colorLabel)
   const stockStatus = getStockStatus(currentStock)
 
-  // True when the product has colour variants with inventory configured but
-  // the user has not yet picked a colour — we must require a selection so we
-  // always know which variant's stock to enforce.
-  const colorRequired = !!(
-    product.colorVariants && product.colorVariants.length > 0 &&
-    selectedColor === null &&
-    inventory.length > 0
-  )
+  // True when the product has multiple colour variants and the user has not
+  // yet picked one — we always need to know which colour goes into the cart.
+  const colorRequired = !!(product.colorVariants && product.colorVariants.length > 1 && selectedColor === null)
 
-  // True when the product has size variants with inventory configured but
-  // the user has not yet picked a size — we must require a selection so we
-  // always know which variant's stock to enforce.
-  const sizeRequired = !!(
-    sizeVariants.length > 0 &&
-    selectedSizeVariant === null &&
-    inventory.length > 0
-  )
+  // True when the product has multiple size variants and the user has not
+  // yet picked one — we always need to know which size goes into the cart.
+  const sizeRequired = !!(sizeVariants.length > 1 && selectedSizeVariant === null)
 
   // Maximum order quantity: capped by known stock (and hard limit of 10)
   const maxQty = currentStock !== null && currentStock > 0
@@ -480,7 +507,7 @@ export default function ProductDetailPage() {
     : null
   const basePrice = sizePriceOverride ?? weightBasePrice
 
-  const discountPct  = product.discount_price && product.discount_price > 0 && product.discount_price <= 100 ? Math.round(product.discount_price) : 0
+  const discountPct = product.discount_price && product.discount_price > 0 && product.discount_price <= 100 ? Math.round(product.discount_price) : 0
   const showDiscount = discountPct > 0
   const currentPrice = showDiscount ? Math.round(basePrice * (100 - discountPct) / 100) : basePrice
 
@@ -528,8 +555,14 @@ export default function ProductDetailPage() {
     setQuantity(1)
   }
 
-  const handleAddToCart = () => { doAddToCart(); setIsAdded(true); setTimeout(() => setIsAdded(false), 2000) }
-  const handleBuyNow    = () => { doAddToCart(); navigate('/checkout') }
+  const handleAddToCart = () => {
+    if (colorRequired || sizeRequired || stockStatus.disabled) return
+    doAddToCart(); setIsAdded(true); setTimeout(() => setIsAdded(false), 2000)
+  }
+  const handleBuyNow = () => {
+    if (colorRequired || sizeRequired || stockStatus.disabled) return
+    doAddToCart(); navigate('/checkout')
+  }
 
   // After adding to cart, optimistically decrement the local inventory so the
   // stock badge and quantity cap update instantly without a page reload.
@@ -540,10 +573,10 @@ export default function ProductDetailPage() {
     let targetIdx = -1, priority = 99
     inventory.forEach((r, idx) => {
       const rs = norm(r.size), rc = norm(r.color)
-      if (rs === s && rc === c             && priority > 1) { targetIdx = idx; priority = 1 }
+      if (rs === s && rc === c && priority > 1) { targetIdx = idx; priority = 1 }
       else if (rs === s && rc === null && c !== null && priority > 2) { targetIdx = idx; priority = 2 }
       else if (rc === c && rs === null && s !== null && priority > 3) { targetIdx = idx; priority = 3 }
-      else if (rs === null && rc === null              && priority > 4) { targetIdx = idx; priority = 4 }
+      else if (rs === null && rc === null && priority > 4) { targetIdx = idx; priority = 4 }
     })
     if (targetIdx >= 0) {
       setInventory(prev => prev.map((r, i) =>
@@ -555,8 +588,8 @@ export default function ProductDetailPage() {
   const handleShare = async () => {
     const url = window.location.href
     const shareData = {
-      title: `${product.name} — Lakshmi Home Foods`,
-      text: product.description || `Check out ${product.name} from Lakshmi Home Foods!`,
+      title: `${product.name} — UNIKQ LABEL`,
+      text: product.description || `Check out ${product.name} from UNIKQ LABEL!`,
       url,
     }
     if (navigator.share) {
@@ -568,7 +601,7 @@ export default function ProductDetailPage() {
 
   const tabs = [
     { key: 'description' as const, label: 'Description', icon: FileText },
-    { key: 'reviews'     as const, label: 'Reviews',     icon: MessageSquare },
+    { key: 'reviews' as const, label: 'Reviews', icon: MessageSquare },
   ]
 
   return (
@@ -711,24 +744,23 @@ export default function ProductDetailPage() {
               <h1 className="text-2xl md:text-[27px] font-bold text-white leading-snug">{product.name}</h1>
             </div>
 
-            {/* Rating chip */}
-            <div className="flex items-center gap-2">
-              {(() => {
-                const avg = reviewStats?.average ?? 0
-                const count = reviewStats?.total ?? 0
-                const displayRating = avg > 0 ? avg : (product.rating ?? 0)
-                return (
-                  <>
-                    <div className="flex items-center gap-1 px-2 py-0.5 bg-green-600/80 rounded text-white text-xs font-bold">
-                      <span>{displayRating > 0 ? displayRating.toFixed(1) : '4.0'}</span>
-                      <Star className="w-3 h-3 fill-white" />
-                    </div>
-                    <span className="text-white/15 text-xs">|</span>
-                    <span className="text-white/35 text-xs">{count} Review{count !== 1 ? 's' : ''}</span>
-                  </>
-                )
-              })()}
-            </div>
+            {/* Rating chip - Only show if reviews exist */}
+            {(() => {
+              const count = reviewStats?.total ?? 0
+              if (count === 0) return null
+              const avg = reviewStats?.average ?? 0
+              const displayRating = avg > 0 ? avg : (product.rating ?? 0)
+              return (
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 px-2 py-0.5 bg-green-600/80 rounded text-white text-xs font-bold">
+                    <span>{displayRating > 0 ? displayRating.toFixed(1) : '4.0'}</span>
+                    <Star className="w-3 h-3 fill-white" />
+                  </div>
+                  <span className="text-white/15 text-xs">|</span>
+                  <span className="text-white/35 text-xs">{count} Review{count !== 1 ? 's' : ''}</span>
+                </div>
+              )
+            })()}
 
             {/* Price block */}
             <div className="border-t border-b border-white/6 py-2">
@@ -745,32 +777,19 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Short description */}
-            {product.description && (
+            {/* {product.description && (
               <p className="text-sm text-white/45 leading-relaxed border-l-2 border-amber-500/25 pl-3.5">
-                {product.description.slice(0, 160)}{product.description.length > 160 ? '…' : ''}
+                {DOMPurify.sanitize(product.description).replace(/<[^>]*>/g, '').slice(0, 160)}{product.description.replace(/<[^>]*>/g, '').length > 160 ? '…' : ''}
               </p>
-            )}
+            )} */}
 
             {/* Color Variants */}
             {product.colorVariants && product.colorVariants.length > 0 && (
               <div>
                 <p className="text-[11px] font-semibold text-white/35 uppercase tracking-wider mb-2">
-                  Colour: <span className="text-amber-400 normal-case font-bold">{selectedColor ? selectedColor.color : 'Default'}</span>
+                  Colour: <span className="text-amber-400 normal-case font-bold">{selectedColor ? selectedColor.color : 'Select'}</span>
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
-                  {/* Default swatch */}
-                  <button
-                    title="Default"
-                    onClick={() => { setSelectedColor(null); setActiveImg(0) }}
-                    className={cn(
-                      'w-7 h-7 rounded-full border-2 transition-all flex items-center justify-center',
-                      selectedColor === null
-                        ? 'border-amber-500 ring-2 ring-amber-500/30 ring-offset-1 ring-offset-[#0a0a0a]'
-                        : 'border-white/12 hover:border-white/30'
-                    )}
-                  >
-                    <span className="w-3 h-3 rounded-full bg-linear-to-br from-white/10 to-white/5 border border-white/10" />
-                  </button>
                   {product.colorVariants.map((cv) => {
                     const cStock = inventory.length > 0 ? resolveStock(inventory, _sizeLabel, cv.color) : null
                     const cDisabled = cStock !== null && cStock === 0
@@ -805,24 +824,11 @@ export default function ProductDetailPage() {
                       {selectedSizeVariant !== null ? sizeVariants[selectedSizeVariant].label : 'Not selected'}
                     </span>
                   </p>
-                  <button className="text-[11px] text-amber-500/50 hover:text-amber-400 transition-colors underline underline-offset-2">
+                  <button onClick={() => setShowSizeGuide(true)} className="text-[11px] text-amber-500/50 hover:text-amber-400 transition-colors underline underline-offset-2">
                     Size Guide
                   </button>
                 </div>
                 <div className="flex flex-wrap items-center gap-1.5">
-                  {/* Clear selection */}
-                  <button
-                    title="Clear size selection"
-                    onClick={() => setSelectedSizeVariant(null)}
-                    className={cn(
-                      'w-8 h-8 rounded-xl border-2 transition-all flex items-center justify-center',
-                      selectedSizeVariant === null
-                        ? 'border-amber-500 bg-amber-500/8 text-amber-400'
-                        : 'border-white/8 text-white/25 hover:border-white/20 hover:text-white/45'
-                    )}
-                  >
-                    <span className="w-3 h-3 rounded-full border border-current opacity-50" />
-                  </button>
                   {sizeVariants.map((sv, idx) => {
                     const sStock = inventory.length > 0 ? resolveStock(inventory, sv.label, _colorLabel) : null
                     const sDisabled = sStock !== null && sStock === 0
@@ -932,9 +938,9 @@ export default function ProductDetailPage() {
                 >
                   {stockStatus.disabled ? 'Out of Stock'
                     : colorRequired ? 'Select Colour'
-                    : sizeRequired ? 'Select Size'
-                    : isAdded ? <><Check className="w-4 h-4" /> Added!</>
-                    : <><ShoppingBag className="w-4 h-4" /> Add to Bag</>}
+                      : sizeRequired ? 'Select Size'
+                        : isAdded ? <><Check className="w-4 h-4" /> Added!</>
+                          : <><ShoppingBag className="w-4 h-4" /> Add to Bag</>}
                 </motion.button>
                 <motion.button
                   whileTap={{ scale: (stockStatus.disabled || colorRequired || sizeRequired) ? 1 : 0.97 }}
@@ -960,9 +966,9 @@ export default function ProductDetailPage() {
         <div className="mt-4 space-y-2">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {[
-              { icon: Truck,       color: 'text-amber-500',  title: 'Fast Delivery',           desc: 'Pan India in 2–3 business days' },
-              { icon: ShieldCheck, color: 'text-emerald-400', title: 'Authenticity Guaranteed',  desc: '100% genuine UNIKQ Label product' },
-              { icon: Package,     color: 'text-sky-400',    title: 'Safe Packaging',            desc: 'Carefully packed, never damaged' },
+              { icon: Truck, color: 'text-amber-500', title: 'Fast Delivery', desc: 'Pan India in 2–3 business days' },
+              { icon: ShieldCheck, color: 'text-emerald-400', title: 'Authenticity Guaranteed', desc: '100% genuine UNIKQ Label product' },
+              { icon: Package, color: 'text-sky-400', title: 'Safe Packaging', desc: 'Carefully packed, never damaged' },
             ].map(item => (
               <div key={item.title} className="flex items-center gap-3 px-4 py-3 bg-white/2 border border-white/6 rounded-xl">
                 <item.icon className={cn('w-4 h-4 shrink-0', item.color)} />
@@ -1022,7 +1028,7 @@ export default function ProductDetailPage() {
                       <h3 className="text-xs font-bold text-amber-400 mb-3 flex items-center gap-2">
                         <FileText className="w-3.5 h-3.5" /> About this Product
                       </h3>
-                      <p className="text-white/55 text-sm leading-relaxed">{product.description}</p>
+                      <div className="text-white/55 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.description) }} />
                     </div>
                   )}
                   <div className="bg-[#111] border border-white/6 rounded-2xl p-5">
@@ -1109,48 +1115,87 @@ export default function ProductDetailPage() {
         )}
       </AnimatePresence>
 
+      {/* ── Size Guide Modal ── */}
+      <AnimatePresence>
+        {showSizeGuide && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-9998 bg-black/85 flex items-center justify-center p-4"
+            onClick={() => setShowSizeGuide(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#111] border border-gray-700 rounded-2xl p-6 max-w-2xl max-h-[90vh] overflow-y-auto w-full"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Award className="w-5 h-5 text-amber-400" /> Size Guide
+                </h2>
+                <button
+                  onClick={() => setShowSizeGuide(false)}
+                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Size Chart Table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm text-white/70 border-collapse">
+                    <thead>
+                      <tr className="border-b border-gray-700">
+                        <th className="px-3 py-3 text-left font-semibold text-amber-400 text-xs uppercase">Size</th>
+                        <th className="px-3 py-3 text-center font-semibold text-amber-400 text-xs uppercase">To Fit Bust (in)</th>
+                        {/* <th className="px-3 py-3 text-center font-semibold text-amber-400 text-xs uppercase">Front Length (in)</th> */}
+                        <th className="px-3 py-3 text-center font-semibold text-amber-400 text-xs uppercase">To Fit Waist (in)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        { size: 'XS', bust: '34.0', waist: '30.0' },
+                        { size: 'S', bust: '36.0', waist: '32.0' },
+                        { size: 'M', bust: '38.0', waist: '34.0' },
+                        { size: 'L', bust: '40.0', waist: '36.0' },
+                        { size: 'XL', bust: '42.0', waist: '38.0' },
+                        { size: 'XXL', bust: '44.0', waist: '40.0' },
+                        { size: '3XL', bust: '46.0', waist: '42.0' },
+                      ].map(row => (
+                        <tr key={row.size} className="border-b border-gray-800 hover:bg-white/5 transition-colors">
+                          <td className="px-3 py-2 font-semibold text-white">{row.size}</td>
+                          <td className="px-3 py-2 text-center">{row.bust}</td>
+                          {/* <td className="px-3 py-2 text-center">{row.length}</td> */}
+                          <td className="px-3 py-2 text-center">{row.waist}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Fitting Tips */}
+                <div className="bg-white/5 border border-white/10 rounded-lg p-4 space-y-2">
+                  <p className="text-xs font-bold text-amber-400 uppercase tracking-wider">📏 How to Measure</p>
+                  <ul className="space-y-1.5 text-xs text-white/60">
+                    <li>• <strong>Bust:</strong> Measure around the fullest part of your bust with arms down</li>
+                    <li>• <strong>Waist:</strong> Measure around your natural waist (smallest part)</li>
+                    {/* <li>• <strong>Length:</strong> Measure from the top of your shoulder to desired hem</li> */}
+                  </ul>
+                </div>
+
+                {/* Tips */}
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 space-y-1.5">
+                  <p className="text-xs font-bold text-amber-400 uppercase tracking-wider">💡 Tips</p>
+                  <p className="text-xs text-amber-200/70">If between sizes, we recommend sizing up for a comfortable fit. All measurements are in inches.</p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Mobile Sticky CTA ── */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-white/6 px-4 py-3">
-        <div className="flex items-center gap-3">
-          <div className="flex-1 min-w-0">
-            <p className="text-amber-400 font-bold text-base leading-none">{currency}{currentPrice.toLocaleString('en-IN')}</p>
-            {showDiscount && (
-              <p className="text-white/20 text-[10px] mt-0.5 flex items-center gap-1">
-                <span className="line-through">{currency}{basePrice.toLocaleString('en-IN')}</span>
-                <span className="text-green-400 font-semibold">{discountPct}% off</span>
-              </p>
-            )}
-          </div>
-          <button
-            onClick={handleAddToCart}
-            disabled={isAdded || stockStatus.disabled || colorRequired || sizeRequired}
-            className={cn(
-              'flex items-center gap-2 px-5 h-11 rounded-xl font-black text-sm transition-all',
-              (stockStatus.disabled || colorRequired || sizeRequired)
-                ? 'bg-white/6 text-white/25 cursor-not-allowed'
-                : isAdded
-                  ? 'bg-green-600 text-white'
-                  : 'bg-amber-500 text-black active:scale-95'
-            )}
-          >
-            {isAdded ? <Check size={16} /> : <ShoppingBag size={16} />}
-            {isAdded ? 'Added' : stockStatus.disabled ? 'Out of Stock' : colorRequired ? 'Pick Colour' : sizeRequired ? 'Pick Size' : 'Add to Bag'}
-          </button>
-          <button
-            onClick={handleBuyNow}
-            disabled={stockStatus.disabled || colorRequired || sizeRequired}
-            className={cn(
-              'flex items-center justify-center h-11 w-11 rounded-xl border transition-all active:scale-95',
-              (stockStatus.disabled || colorRequired || sizeRequired)
-                ? 'border-white/6 text-white/15 cursor-not-allowed'
-                : 'border-amber-500/25 text-amber-500 hover:bg-amber-500/8'
-            )}
-          >
-            <Zap size={18} />
-          </button>
-        </div>
-      </div>
-      <div className="lg:hidden h-20" />
+
 
       <Footer />
     </main>

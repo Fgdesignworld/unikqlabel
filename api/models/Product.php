@@ -94,7 +94,7 @@ class Product {
             'discount_price'=> isset($data['discount_price']) ? (float)$data['discount_price'] : null,
             'image'         => $data['image'] ?? null,
             'gallery_images'=> isset($data['gallery_images']) ? json_encode($data['gallery_images']) : null,
-            'rating'        => $data['rating'] ?? 4.5,
+            'rating'        => $data['rating'] ?? 0,
             'bestseller'    => $data['bestseller'] ?? 0,
             'is_veg'        => $data['is_veg'] ?? 1,
             'is_homemade'   => $data['is_homemade'] ?? 1,

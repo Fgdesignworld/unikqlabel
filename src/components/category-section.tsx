@@ -10,7 +10,7 @@ const collections = [
     subtitle: "Men's Line",
     image: "/images/collection-king.jpg",
     description: "Bold streetwear for the kings",
-    href: "/snacks",
+    href: "/men",
     tag: "Exclusively His",
   },
   {
@@ -18,7 +18,7 @@ const collections = [
     subtitle: "Women's Line",
     image: "/images/collection-queen.jpg",
     description: "Elegant power for the queens",
-    href: "/pickles",
+    href: "/women",
     tag: "Exclusively Hers",
   },
   {
@@ -26,7 +26,7 @@ const collections = [
     subtitle: "Unisex Line",
     image: "/images/collection-essentials.jpg",
     description: "Rule together, dress together",
-    href: "/spices",
+    href: "/unisex",
     tag: "Unisex",
   },
 ]
@@ -43,7 +43,7 @@ export function CategorySection() {
   };
 
   return (
-    <section id="collections" className="py-5 px-4" style={{ background: 'linear-gradient(180deg, #0D0D0D 0%, #111110 100%)' }}>
+    <section id="collections" className="py-5 px-4" style={{ background: 'var(--surface-page)' }}>
       <div className="container mx-auto max-w-7xl">
 
         {/* Section Header */}
@@ -55,7 +55,7 @@ export function CategorySection() {
             transition={{ duration: 0.7 }}
           >
             <span className="section-badge mb-4 block w-fit">Our World</span>
-            <h2 className="font-heading text-4xl md:text-5xl font-black leading-tight" style={{ color: '#F5F0E8' }}>
+            <h2 className="font-heading text-4xl md:text-5xl font-black leading-tight" style={{ color: 'var(--text-primary)' }}>
               Shop by{" "}
               <span style={{
                 background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white) 0%, var(--theme-color) 100%)',

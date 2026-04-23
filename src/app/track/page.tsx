@@ -93,14 +93,14 @@ function StatusStepper({ status }: { status: string }) {
             <div className="flex flex-col items-center gap-1 min-w-13">
               <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all"
                 style={{
-                  background: done ? 'var(--theme-color)' : 'rgba(255,255,255,0.05)',
+                  background: done ? 'var(--theme-color)' : 'var(--surface-alt)',
                   border: active ? '2px solid var(--theme-color)' : done ? '2px solid var(--theme-color)' : '2px solid rgba(255,255,255,0.1)',
                   boxShadow: active ? '0 0 12px rgba(212,175,55,0.4)' : 'none',
                 }}>
-                <Icon className="w-3.5 h-3.5" style={{ color: done ? '#0D0D0D' : 'rgba(255,255,255,0.3)' }} />
+                <Icon className="w-3.5 h-3.5" style={{ color: done ? '#0D0D0D' : 'var(--text-trace)' }} />
               </div>
               <span className="text-[9px] font-bold uppercase tracking-wider text-center leading-tight"
-                style={{ color: done ? 'var(--theme-color)' : 'rgba(255,255,255,0.25)' }}>
+                style={{ color: done ? 'var(--theme-color)' : 'var(--text-trace)' }}>
                 {step.label}
               </span>
             </div>
@@ -127,7 +127,7 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.06 }}
       className="rounded-2xl overflow-hidden"
-      style={{ background: '#0c0c0c', border: '1px solid rgba(255,255,255,0.06)' }}
+      style={{ background: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.06)' }}
     >
       {/* Header row */}
       <button
@@ -143,16 +143,16 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
         {/* Invoice + date */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-white font-black text-sm">{order.invoice_number}</span>
+            <span className="font-black text-sm" style={{ color: 'var(--text-primary)' }}>{order.invoice_number}</span>
             <span className="px-2 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider"
               style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}>
               {cfg.label}
             </span>
           </div>
           <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-            <span className="text-[11px]" style={{ color: 'rgba(245,240,232,0.4)' }}>{fmtDate(order.created_at)} • {fmtTime(order.created_at)}</span>
+            <span className="text-[11px]" style={{ color: 'var(--text-ghost)' }}>{fmtDate(order.created_at)} • {fmtTime(order.created_at)}</span>
             {order.city && (
-              <span className="flex items-center gap-1 text-[11px]" style={{ color: 'rgba(245,240,232,0.35)' }}>
+              <span className="flex items-center gap-1 text-[11px]" style={{ color: 'var(--text-ghost)' }}>
                 <MapPin className="w-2.5 h-2.5" /> {order.city}
               </span>
             )}
@@ -162,7 +162,7 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
         {/* Total */}
         <div className="text-right shrink-0">
           <p className="text-amber-400 font-black text-base">{currency}{Number(order.total).toLocaleString('en-IN')}</p>
-          <p className="text-[10px]" style={{ color: 'rgba(245,240,232,0.35)' }}>{order.items?.length || 0} item{(order.items?.length || 0) !== 1 ? 's' : ''}</p>
+          <p className="text-[10px]" style={{ color: 'var(--text-ghost)' }}>{order.items?.length || 0} item{(order.items?.length || 0) !== 1 ? 's' : ''}</p>
         </div>
 
         {expanded ? <ChevronUp className="w-4 h-4 text-gray-600 shrink-0" /> : <ChevronDown className="w-4 h-4 text-gray-600 shrink-0" />}
@@ -186,10 +186,10 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
 
               {/* Items */}
               <div className="space-y-2">
-                <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'rgba(245,240,232,0.3)' }}>Items Ordered</p>
+                <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-trace)' }}>Items Ordered</p>
                 {(order.items || []).map((item, i) => (
                   <div key={i} className="flex items-center gap-3 p-3 rounded-xl"
-                    style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                    style={{ background: 'var(--surface-alt)', border: '1px solid rgba(255,255,255,0.04)' }}>
                     {/* Image or placeholder */}
                     {item.image_url ? (
                       <img src={item.image_url} alt={item.product_name}
@@ -204,7 +204,7 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="text-white font-semibold text-sm truncate">{item.product_name}</p>
+                      <p className="font-semibold text-sm truncate" style={{ color: 'var(--text-primary)' }}>{item.product_name}</p>
                       <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                         {item.size_label && (
                           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
@@ -219,14 +219,14 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
                           </span>
                         )}
                         {!item.size_label && !item.color_name && (
-                          <span className="text-[10px]" style={{ color: 'rgba(245,240,232,0.35)' }}>—</span>
+                          <span className="text-[10px]" style={{ color: 'var(--text-ghost)' }}>—</span>
                         )}
                       </div>
                     </div>
                     <div className="text-right shrink-0">
                       {item.original_price && Number(item.original_price) > Number(item.price) ? (
                         <>
-                          <p className="text-[10px] line-through" style={{ color: 'rgba(245,240,232,0.3)' }}>
+                          <p className="text-[10px] line-through" style={{ color: 'var(--text-trace)' }}>
                             {currency}{Number(item.original_price * item.qty).toLocaleString('en-IN')}
                           </p>
                           <p className="text-amber-400 font-bold text-sm">{currency}{Number(item.total).toLocaleString('en-IN')}</p>
@@ -239,7 +239,7 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
                       ) : (
                         <>
                           <p className="text-amber-400 font-bold text-sm">{currency}{Number(item.total).toLocaleString('en-IN')}</p>
-                          <p className="text-[10px]" style={{ color: 'rgba(245,240,232,0.35)' }}>×{item.qty} @ {currency}{Number(item.price).toLocaleString('en-IN')}</p>
+                          <p className="text-[10px]" style={{ color: 'var(--text-ghost)' }}>×{item.qty} @ {currency}{Number(item.price).toLocaleString('en-IN')}</p>
                         </>
                       )}
                     </div>
@@ -248,20 +248,20 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
               </div>
 
               {/* Summary */}
-              <div className="rounded-xl p-3 space-y-2" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+              <div className="rounded-xl p-3 space-y-2" style={{ background: 'var(--surface-alt)', border: '1px solid rgba(255,255,255,0.04)' }}>
                 <div className="flex justify-between text-[12px]">
-                  <span style={{ color: 'rgba(245,240,232,0.5)' }}>Subtotal</span>
-                  <span className="text-white font-semibold">{currency}{Number(order.subtotal).toLocaleString('en-IN')}</span>
+                  <span style={{ color: 'var(--text-subtle)' }}>Subtotal</span>
+                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{currency}{Number(order.subtotal).toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-[12px]">
-                  <span style={{ color: 'rgba(245,240,232,0.5)' }}>Delivery</span>
-                  <span className="font-semibold" style={{ color: Number(order.delivery) === 0 ? '#4ade80' : 'rgba(245,240,232,0.8)' }}>
+                  <span style={{ color: 'var(--text-subtle)' }}>Delivery</span>
+                  <span style={{ color: Number(order.delivery) === 0 ? '#4ade80' : 'var(--text-primary)' }}>
                     {Number(order.delivery) === 0 ? 'FREE' : `${currency}${Number(order.delivery).toLocaleString('en-IN')}`}
                   </span>
                 </div>
                 {Number(order.discount_amount) > 0 && (
                   <div className="flex justify-between text-[12px]">
-                    <span style={{ color: 'rgba(245,240,232,0.5)' }}>
+                    <span style={{ color: 'var(--text-subtle)' }}>
                       Coupon{order.coupon_code ? <span style={{ color: '#fbbf24' }}> ({order.coupon_code})</span> : ''}
                     </span>
                     <span className="font-semibold" style={{ color: '#4ade80' }}>
@@ -271,12 +271,12 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
                 )}
                 {order.payment_method && (
                   <div className="flex justify-between text-[12px]">
-                    <span style={{ color: 'rgba(245,240,232,0.5)' }}>Payment</span>
-                    <span className="text-white font-semibold uppercase">{order.payment_method}</span>
+                    <span style={{ color: 'var(--text-subtle)' }}>Payment</span>
+                    <span className="font-semibold uppercase" style={{ color: 'var(--text-primary)' }}>{order.payment_method}</span>
                   </div>
                 )}
                 <div className="flex justify-between pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                  <span className="font-black text-sm" style={{ color: 'rgba(245,240,232,0.8)' }}>Total</span>
+                  <span className="font-black text-sm" style={{ color: 'var(--text-primary)' }}>Total</span>
                   <span className="text-amber-400 font-black text-base">{currency}{Number(order.total).toLocaleString('en-IN')}</span>
                 </div>
               </div>
@@ -346,7 +346,7 @@ export default function TrackOrderPage() {
   }
 
   return (
-    <main className="min-h-screen" style={{ background: '#0D0D0D' }}>
+    <main className="min-h-screen" style={{ background: 'var(--surface-page)' }}>
       <Navbar />
       <PageHeader
         title="Track Order"
@@ -362,10 +362,10 @@ export default function TrackOrderPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="rounded-2xl p-6 mb-8"
-            style={{ background: '#0c0c0c', border: '1px solid rgba(212,175,55,0.12)', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}
+            style={{ background: 'var(--surface-card)', border: '1px solid rgba(212,175,55,0.12)', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}
           >
             {/* Tab switcher */}
-            <div className="flex rounded-xl p-1 mb-6" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="flex rounded-xl p-1 mb-6" style={{ background: 'var(--surface-alt)', border: '1px solid rgba(255,255,255,0.06)' }}>
               {([
                 { key: 'phone',   label: 'Mobile Number', icon: Phone },
                 { key: 'invoice', label: 'Invoice Number', icon: FileText },
@@ -380,7 +380,7 @@ export default function TrackOrderPage() {
                     background: 'linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.08))',
                     border: '1px solid rgba(212,175,55,0.3)',
                     color: 'var(--theme-color)',
-                  } : { color: 'rgba(245,240,232,0.4)', border: '1px solid transparent' }}
+                  } : { color: 'var(--text-ghost)', border: '1px solid transparent' }}
                 >
                   <Icon className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">{label}</span>
@@ -396,7 +396,7 @@ export default function TrackOrderPage() {
                   <>
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
                       <Phone className="w-4 h-4" style={{ color: 'rgba(212,175,55,0.5)' }} />
-                      <span className="text-sm font-bold" style={{ color: 'rgba(245,240,232,0.4)' }}>+91</span>
+                      <span className="text-sm font-bold" style={{ color: 'var(--text-ghost)' }}>+91</span>
                       <span className="w-px h-4" style={{ background: 'rgba(255,255,255,0.1)' }} />
                     </div>
                     <input
@@ -409,9 +409,9 @@ export default function TrackOrderPage() {
                       onChange={e => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 10))}
                       className="w-full pl-22 pr-12 py-4 rounded-xl text-sm font-medium outline-none transition-all"
                       style={{
-                        background: 'rgba(255,255,255,0.03)',
+                        background: 'var(--surface-alt)',
                         border: '1px solid rgba(212,175,55,0.2)',
-                        color: '#F5F0E8',
+                        color: 'var(--text-primary)',
                       }}
                     />
                   </>
@@ -427,9 +427,9 @@ export default function TrackOrderPage() {
                       onChange={e => setInvoiceInput(e.target.value.toUpperCase())}
                       className="w-full pl-10 pr-12 py-4 rounded-xl text-sm font-medium outline-none transition-all uppercase tracking-wider"
                       style={{
-                        background: 'rgba(255,255,255,0.03)',
+                        background: 'var(--surface-alt)',
                         border: '1px solid rgba(212,175,55,0.2)',
-                        color: '#F5F0E8',
+                        color: 'var(--text-primary)',
                       }}
                     />
                   </>
@@ -437,7 +437,7 @@ export default function TrackOrderPage() {
                 {(phoneInput || invoiceInput) && (
                   <button type="button" onClick={clear}
                     className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full transition-colors"
-                    style={{ color: 'rgba(245,240,232,0.35)' }}>
+                    style={{ color: 'var(--text-ghost)' }}>
                     <X className="w-3.5 h-3.5" />
                   </button>
                 )}
@@ -473,7 +473,7 @@ export default function TrackOrderPage() {
             </form>
 
             {/* Hint */}
-            <p className="text-center text-[11px] mt-4" style={{ color: 'rgba(245,240,232,0.25)' }}>
+            <p className="text-center text-[11px] mt-4" style={{ color: 'var(--text-trace)' }}>
               {tab === 'phone'
                 ? 'Enter the mobile number you used when placing your order'
                 : 'Find your invoice number in the PDF or WhatsApp confirmation message'}
@@ -489,18 +489,18 @@ export default function TrackOrderPage() {
                   {(orders === null || orders.length === 0) && !error && (
                     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
                       className="text-center py-16 rounded-2xl"
-                      style={{ background: '#0c0c0c', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      style={{ background: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.05)' }}>
                       <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
                         style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.12)' }}>
                         <ShoppingBag className="w-7 h-7 text-amber-500/40" />
                       </div>
-                      <p className="text-white font-bold text-lg mb-1">No Orders Found</p>
-                      <p className="text-sm" style={{ color: 'rgba(245,240,232,0.4)' }}>
+                      <p className="font-bold text-lg mb-1" style={{ color: 'var(--text-primary)' }}>No Orders Found</p>
+                      <p className="text-sm" style={{ color: 'var(--text-ghost)' }}>
                         {tab === 'phone'
                           ? "We couldn't find any orders for this mobile number."
                           : "No order matches this invoice number."}
                       </p>
-                      <p className="text-xs mt-2" style={{ color: 'rgba(245,240,232,0.25)' }}>
+                      <p className="text-xs mt-2" style={{ color: 'var(--text-trace)' }}>
                         Please check and try again
                       </p>
                     </motion.div>
@@ -510,7 +510,7 @@ export default function TrackOrderPage() {
                   {orders && orders.length > 0 && (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-[11px] font-black uppercase tracking-widest" style={{ color: 'rgba(245,240,232,0.35)' }}>
+                        <p className="text-[11px] font-black uppercase tracking-widest" style={{ color: 'var(--text-ghost)' }}>
                           {orders.length} Order{orders.length !== 1 ? 's' : ''} Found
                         </p>
                         <button onClick={clear} className="text-[11px] font-bold" style={{ color: 'rgba(212,175,55,0.6)' }}>
@@ -537,13 +537,13 @@ export default function TrackOrderPage() {
                 { icon: Truck,    title: 'Live Status',      desc: 'See real-time status from pending to delivered' },
               ].map(({ icon: Icon, title, desc }) => (
                 <div key={title} className="p-4 rounded-xl text-center"
-                  style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(212,175,55,0.07)' }}>
+                  style={{ background: 'var(--surface-alt)', border: '1px solid rgba(212,175,55,0.07)' }}>
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center mx-auto mb-3"
                     style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.15)' }}>
                     <Icon className="w-4 h-4 text-amber-500" />
                   </div>
-                  <p className="text-white font-bold text-sm mb-1">{title}</p>
-                  <p className="text-[11px]" style={{ color: 'rgba(245,240,232,0.4)' }}>{desc}</p>
+                  <p className="font-bold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>{title}</p>
+                  <p className="text-[11px]" style={{ color: 'var(--text-ghost)' }}>{desc}</p>
                 </div>
               ))}
             </motion.div>
