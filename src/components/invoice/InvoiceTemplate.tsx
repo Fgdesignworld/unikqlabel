@@ -61,7 +61,7 @@ export const InvoiceTemplate = ({
     // Already absolute URL? Use as-is
     if (url.startsWith('http')) return url
     // Relative path? Add /api prefix (backend stores as /uploads/... and serves at /api/uploads/...)
-    if (url.startsWith('/')) return `/api${url}`
+    if (url.startsWith('/') && !url.startsWith('/api')) return `/api${url}`
     // Default case - shouldn't happen
     return url
   }
@@ -101,7 +101,7 @@ export const InvoiceTemplate = ({
         zIndex: 0,
         textTransform: 'uppercase'
       }}>
-        UNIKQ LABEL
+        {settings?.site_name || 'Koffee Kup'}
       </div>
 
       {/* Header */}
@@ -111,7 +111,7 @@ export const InvoiceTemplate = ({
             <img
               src={logoPng}
               crossOrigin="anonymous"
-              alt={settings?.site_name || 'UNIKQ LABEL'}
+              alt={settings?.site_name || 'Koffee Kup'}
               onError={() => {
                 console.error('Logo failed to load:', logoPng)
                 setLogoError(true)
@@ -121,9 +121,8 @@ export const InvoiceTemplate = ({
           ) : (
             <>
               <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '900', color: '#000', letterSpacing: '-1.5px', lineHeight: 1 }}>
-                {settings?.site_name || 'UNIKQ LABEL'}
+                {settings?.site_name || 'Koffee Kup'}
               </h1>
-              <p style={{ margin: '6px 0 0 0', color: '#666', fontSize: '14px', fontWeight: '500' }}>{settings?.site_tagline || 'Premium Fashion \u2022 Everyday Royalty'}</p>
             </>
           )}
         </div>
@@ -150,8 +149,7 @@ export const InvoiceTemplate = ({
           </div>
           <div style={{ width: '200px', paddingTop: '5px' }}>
             <h3 style={{ textTransform: 'uppercase', fontSize: '10px', fontWeight: '800', color: '#999', letterSpacing: '1.2px', marginBottom: '10px' }}>Store Info</h3>
-            <p style={{ margin: 0, fontSize: '14px', fontWeight: '700', color: '#000' }}>UNIKQ LABEL</p>
-            <p style={{ margin: '4px 0', fontSize: '13px', color: '#666' }}>Premium Fashion Collection</p>
+            <p style={{ margin: 0, fontSize: '14px', fontWeight: '700', color: '#000' }}>{settings?.site_name || 'Koffee Kup'}</p>
             <p style={{ margin: '4px 0', fontSize: '13px', color: 'var(--theme-color)', fontWeight: '700' }}>WA: {settings?.whatsapp || '+91 8639424039'}</p>
           </div>
         </div>

@@ -1,514 +1,197 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, ArrowRight, Crown, Sparkles, Star, Zap, ChevronLeft, ChevronRight, Timer, type LucideIcon } from 'lucide-react';
-import { heroSlideService, type HeroSlide as ApiHeroSlide } from '@/services/heroSlideService';
+import { useEffect, useState, useRef } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Link } from "react-router-dom"
+import { ChevronLeft, ChevronRight, ArrowRight, Leaf } from "lucide-react"
+import { heroSlideService, type HeroSlide } from "@/services/heroSlideService"
 
-// ─── Display shape (used by carousel) ────────────────────────────────────────
-interface SlideDisplay {
-  id: string;
-  category: string;
-  tag: string;
-  bg: string;
-  href: string;
-  lines: string[];
-  accentLine: string;
-  sub: string;
-  cta: string;
-  tagline: string;           // section badge (e.g. "Luxury Streetwear · Est. 2026")
-  ctaSecondary: string;      // secondary button text
-  ctaSecondaryHref: string;  // secondary button link
-  badgeIcon: string;         // lucide icon name for carousel card top-right
-}
-
-function splitTitle(title: string): { lines: string[]; accentLine: string } {
-  const words = title.trim().split(' ');
-  if (words.length <= 2) return { lines: [title], accentLine: title };
-  const mid = Math.ceil(words.length / 2);
-  return { lines: [words.slice(0, mid).join(' '), words.slice(mid).join(' ')], accentLine: words.slice(mid).join(' ') };
-}
-const CAT_HREF: Record<string, string> = { men:'/men', women:'/women', unisex:'/unisex' };
-const CAT_LABEL: Record<string, string> = { men:'Men', women:'Women', unisex:'Unisex' };
-function mapApiSlide(s: ApiHeroSlide): SlideDisplay {
-  const { lines, accentLine } = splitTitle(s.title);
-  // Prefix relative upload paths with /api so Vite proxy forwards to PHP server
-  const resolveImg = (p: string | null | undefined) =>
-    p ? (p.startsWith('http') || p.startsWith('/api/') ? p : `/api${p}`) : null;
-  return {
-    id: String(s.id),
-    category: CAT_LABEL[s.category] ?? s.category,
-    tag: s.badge_text || s.tagline || 'New Arrivals',
-    bg: resolveImg(s.image) || '/images/hero-bg.jpg',
-    href: CAT_HREF[s.category] || '',
-    lines, accentLine,
-    sub: s.subtitle ?? '',
-    cta: s.cta_primary_text || 'Shop Now',
-    tagline: s.tagline || 'Luxury Streetwear · Est. 2026',
-    ctaSecondary: s.cta_secondary_text || '',
-    ctaSecondaryHref: s.cta_secondary_link || '',
-    badgeIcon: s.badge_icon || 'Crown',
-  };
-}
-
-const FALLBACK_SLIDES: SlideDisplay[] = [
-  {
-    id: 'men', category: 'Men', tag: 'New Arrivals', bg: '/images/hero-bg.jpg', href: '/men',
-    lines: ['Dress Like', 'Royalty'], accentLine: 'Royalty',
-    sub: 'Bold. Structured. Built for kings who lead the streets.', cta: 'Shop Men',
-    tagline: 'Luxury Streetwear · Est. 2026', ctaSecondary: '', ctaSecondaryHref: '', badgeIcon: 'Crown',
-  },
-  {
-    id: 'women', category: 'Women', tag: 'Bestseller', bg: '/images/hero-bg.jpg', href: '/women',
-    lines: ['Elegance', 'Meets Edge'], accentLine: 'Meets Edge',
-    sub: 'Premium cuts that make every entrance unforgettable.', cta: 'Shop Women',
-    tagline: 'Luxury Streetwear · Est. 2026', ctaSecondary: '', ctaSecondaryHref: '', badgeIcon: 'Sparkles',
-  },
-  {
-    id: 'unisex', category: 'Unisex', tag: 'Trending Now', bg: '/images/hero-bg.jpg', href: '/unisex',
-    lines: ['Beyond', 'Boundaries'], accentLine: 'Boundaries',
-    sub: 'Fashion for the fearless — no rules, just vibes.', cta: 'Explore Unisex',
-    tagline: 'Luxury Streetwear · Est. 2026', ctaSecondary: '', ctaSecondaryHref: '', badgeIcon: 'Zap',
-  },
-  {
-    id: 'drops', category: 'Limited Drops', tag: '🔥 Exclusive', bg: '/images/hero-bg.jpg', href: '/products',
-    lines: ['Limited', 'Edition'], accentLine: 'Edition',
-    sub: "Exclusive pieces. Once they're gone, they're gone forever.", cta: 'Grab Yours',
-    tagline: 'Luxury Streetwear · Est. 2026', ctaSecondary: '', ctaSecondaryHref: '', badgeIcon: 'Star',
-  },
-];
-
-// ─── Dynamic badge icon ────────────────────────────────────────────────────────
-const BADGE_ICON_MAP: Record<string, LucideIcon> = { Crown, Zap, Sparkles, Star };
-function BadgeIcon({ name, size }: { name: string; size: number }) {
-  const Icon = BADGE_ICON_MAP[name] ?? Crown;
-  return <Icon size={size} className="text-amber-500" />;
-}
-
-function pad2(n: number) { return String(n).padStart(2, '0'); }
-
-// ─── Carousel variants ────────────────────────────────────────────────────────
-const slideV = {
-  enter: (d: number) => ({ opacity: 0, scale: 1.04, x: d > 0 ? 50 : -50 }),
-  center: { opacity: 1, scale: 1, x: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as unknown as string } },
-  exit:   (d: number) => ({ opacity: 0, scale: 0.97, x: d > 0 ? -30 : 30, transition: { duration: 0.35 } }),
-};
-
-// ─── Component ────────────────────────────────────────────────────────────────
 export function HeroSection() {
-  const parallaxRef            = useRef<HTMLDivElement>(null);
-  const dropEndRef             = useRef(Date.now() + 24 * 60 * 60 * 1000);
-  const [current, setCurrent]  = useState(0);
-  const [dir, setDir]          = useState<1 | -1>(1);
-  const [autoKey, setAutoKey]  = useState(0);
-  const [activePill, setActivePill] = useState(-1);
-  const [countdown, setCountdown]   = useState({ h: 23, m: 59, s: 59 });
-  const [slides, setSlides]         = useState<SlideDisplay[]>(FALLBACK_SLIDES);
+  const heroRef = useRef<HTMLDivElement>(null)
+  const [slides, setSlides] = useState<HeroSlide[]>([])
+  const [currentIdx, setCurrentIdx] = useState(0)
+  const [direction, setDirection] = useState(0)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let active = true
     heroSlideService.getPublic()
-      .then(apiSlides => {
-        if (Array.isArray(apiSlides) && apiSlides.length > 0) {
-          setSlides(apiSlides.map(mapApiSlide));
-        }
-      })
-      .catch(() => { /* keep FALLBACK_SLIDES */ });
-  }, []);
+      .then(data => { if (active) { setSlides(data); setLoading(false) } })
+      .catch(() => { if (active) setLoading(false) })
+    return () => { active = false }
+  }, [])
 
-  const total = slides.length;
-
-  const goTo = useCallback((idx: number, d: 1 | -1 = 1) => {
-    setDir(d);
-    setCurrent(((idx % total) + total) % total);
-    setAutoKey(k => k + 1);
-  }, [total]);
-
-  const next = useCallback(() => goTo(current + 1,  1), [current, goTo]);
-  const prev = useCallback(() => goTo(current - 1, -1), [current, goTo]);
-
-  // Auto-advance (reset when autoKey changes)
   useEffect(() => {
-    const t = setInterval(() => {
-      setDir(1);
-      setCurrent(c => (c + 1) % total);
-    }, 5000);
-    return () => clearInterval(t);
-  }, [autoKey, total]);
+    if (slides.length <= 1) return
+    const t = setInterval(() => { setDirection(1); setCurrentIdx(prev => (prev + 1) % slides.length) }, 6000)
+    return () => clearInterval(t)
+  }, [slides])
 
-  // Countdown tick
-  useEffect(() => {
-    const tick = setInterval(() => {
-      const ms = dropEndRef.current - Date.now();
-      if (ms <= 0) { clearInterval(tick); setCountdown({ h: 0, m: 0, s: 0 }); return; }
-      setCountdown({
-        h: Math.floor(ms / 3_600_000),
-        m: Math.floor((ms % 3_600_000) / 60_000),
-        s: Math.floor((ms % 60_000) / 1_000),
-      });
-    }, 1000);
-    return () => clearInterval(tick);
-  }, []);
+  const imgUrl = (src: string | null | undefined) =>
+    src ? (src.startsWith('/') && !src.startsWith('/api') ? `/api${src}` : src) : null
 
-  // Parallax
-  useEffect(() => {
-    const onScroll = () => {
-      if (parallaxRef.current) {
-        parallaxRef.current.style.transform = `translateY(${window.scrollY * 0.25}px) scale(1.06)`;
-      }
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  const handlePrev = () => { if (slides.length <= 1) return; setDirection(-1); setCurrentIdx(prev => (prev - 1 + slides.length) % slides.length) }
+  const handleNext = () => { if (slides.length <= 1) return; setDirection(1); setCurrentIdx(prev => (prev + 1) % slides.length) }
+  const handleDot = (idx: number) => { if (idx === currentIdx) return; setDirection(idx > currentIdx ? 1 : -1); setCurrentIdx(idx) }
 
-  const slide = slides[current] ?? slides[0];
+  const currentSlide = slides[currentIdx]
+  const slideHasImage = currentSlide && imgUrl(currentSlide.image)
 
-  // Build category pills dynamically from loaded slides (one pill per unique category)
-  const categoryPills = useMemo(() => {
-    const seen = new Set<string>();
-    const pills: { label: string; href: string; slideIdx: number }[] = [
-      { label: 'All', href: '/products', slideIdx: -1 },
-    ];
-    slides.forEach((s, i) => {
-      if (!seen.has(s.category)) {
-        seen.add(s.category);
-        pills.push({ label: s.category, href: s.href, slideIdx: i });
-      }
-    });
-    return pills;
-  }, [slides]);
+  const slideVariants = {
+    enter: (d: number) => ({ x: d > 0 ? '100%' : d < 0 ? '-100%' : 0, opacity: 0, scale: 1.04 }),
+    center: { x: 0, opacity: 1, scale: 1, transition: { x: { type: 'spring', stiffness: 200, damping: 30 }, opacity: { duration: 0.7 }, scale: { duration: 1 } } },
+    exit: (d: number) => ({ x: d > 0 ? '-60%' : d < 0 ? '60%' : 0, opacity: 0, scale: 0.96, transition: { duration: 0.6 } }),
+  }
+
+  const textVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.12 + 0.2, duration: 0.8, ease: [0.22, 1, 0.36, 1] } }),
+  }
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center overflow-hidden">
+    <section ref={heroRef} className="relative min-h-screen h-screen w-full flex items-center overflow-hidden">
 
-      {/* ── Subtle parallax BG ── */}
-      <div
-        ref={parallaxRef}
-        className="absolute inset-0 bg-cover bg-center will-change-transform"
-        style={{ backgroundImage: 'url(/images/hero-bg.jpg)', transformOrigin: 'center top', filter: 'brightness(0.10) blur(3px)' }}
-      />
-
-      {/* ── Dark overlay ── */}
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg,#0D0D0D 0%,rgba(13,13,13,0.97) 55%,rgba(13,13,13,0.94) 100%)' }} />
-
-      {/* ── Gold glows ── */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-[15%] w-96 h-96 rounded-full blur-3xl opacity-10"
-          style={{ background: 'radial-gradient(circle, var(--theme-color), transparent)' }} />
-        <div className="absolute bottom-1/4 right-[20%] w-64 h-64 rounded-full blur-3xl opacity-7"
-          style={{ background: 'radial-gradient(circle, var(--theme-color), transparent)' }} />
-      </div>
-
-      {/* ── Dot grid ── */}
-      <div className="absolute inset-0 pointer-events-none opacity-10" style={{
-        backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(212,175,55,0.30) 1px, transparent 0)',
-        backgroundSize: '40px 40px',
-      }} />
-
-      {/* ── Main layout ── */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16 lg:pt-25 lg:pb-20">
-        <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
-
-          {/* ════════════════════════════════
-              LEFT PANEL
-          ════════════════════════════════ */}
-          <div className="flex-1 text-center lg:text-left max-w-xl lg:max-w-none order-2 lg:order-1">
-
-            {/* Luxury badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.1 }}
-              className="flex items-center gap-3 mb-5 justify-center lg:justify-start"
-            >
-              <div className="h-px w-10 shrink-0" style={{ background: 'linear-gradient(90deg, transparent, var(--theme-color))' }} />
-              <span className="section-badge">{slide.tagline}</span>
-              <div className="h-px w-10 shrink-0 lg:hidden" style={{ background: 'linear-gradient(90deg, var(--theme-color), transparent)' }} />
-            </motion.div>
-
-            {/* Brand label */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              className="mb-3"
-            >
-              <span className="font-cinzel text-sm sm:text-base tracking-[0.4em] uppercase"
-                style={{ color: 'var(--theme-color)', textShadow: '0 0 30px color-mix(in srgb, var(--theme-color) 50%, transparent)' }}>
-                UNIKQ LABEL
-              </span>
-            </motion.div>
-
-            {/* Dynamic headline */}
-            <AnimatePresence mode="wait">
-              <motion.h1
-                key={`h-${current}`}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as unknown as string }}
-                className="font-heading font-black leading-[1.02] mb-5"
-                style={{ fontSize: 'clamp(2.6rem, 6.5vw, 5rem)', letterSpacing: '-0.01em' }}
-              >
-                {slide.lines.map((line, i) =>
-                  line === slide.accentLine
-                    ? (
-                      <span key={i} className="block" style={{
-                        background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white) 0%, var(--theme-color) 45%, color-mix(in srgb, var(--theme-color) 70%, black) 100%)',
-                        WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-                        filter: 'drop-shadow(0 0 40px rgba(212,175,55,0.4))',
-                      }}>{line}</span>
-                    ) : (
-                      <span key={i} className="text-white block">{line}</span>
-                    )
+      {/* ── Background Layer ── */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <AnimatePresence initial={false} custom={direction}>
+          {slideHasImage ? (
+            <motion.div key={currentSlide!.id ?? currentIdx} custom={direction} variants={slideVariants}
+              initial="enter" animate="center" exit="exit" className="absolute inset-0 w-full h-full">
+              <picture className="w-full h-full block">
+                {currentSlide!.mobile_image && (
+                  <source srcSet={imgUrl(currentSlide!.mobile_image)!} media="(max-width: 640px)" />
                 )}
-              </motion.h1>
-            </AnimatePresence>
-
-            {/* Dynamic subtitle */}
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={`s-${current}`}
-                initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                transition={{ duration: 0.45, delay: 0.05 }}
-                className="font-body text-base sm:text-lg mb-7 max-w-md mx-auto lg:mx-0"
-                style={{ color: 'rgba(245,240,232,0.68)', lineHeight: 1.7 }}
-              >
-                {slide.sub}
-              </motion.p>
-            </AnimatePresence>
-
-            {/* CTA buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start mb-6"
-            >
-              <Link to={slide.href} className="btn-primary text-sm w-full sm:w-auto justify-center" style={{ minWidth: 175 }}>
-                <ShoppingBag size={15} className="text-current" />
-                <span>{slide.cta}</span>
-              </Link>
-              {/* <Link to={slide.ctaSecondaryHref} className="btn-outline-gold text-sm w-full sm:w-auto justify-center" style={{ minWidth: 175 }}>
-                <span>{slide.ctaSecondary}</span>
-                <ArrowRight size={15} className="text-current" />
-              </Link> */}
+                <img src={imgUrl(currentSlide!.image)!} alt={currentSlide!.title || 'Aarvia'}
+                  className="w-full h-full object-cover object-center" />
+              </picture>
             </motion.div>
-
-            {/* Category quick-filter pills */}
-            <motion.div
-              initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.62 }}
-              className="flex items-center gap-2 flex-wrap justify-center lg:justify-start mb-6"
-            >
-              {categoryPills.map(pill => {
-                const isActive = activePill === pill.slideIdx || (pill.slideIdx === -1 && activePill === -1);
-                return (
-                  <Link
-                    key={pill.label}
-                    to={pill.href}
-                    onClick={() => {
-                      setActivePill(pill.slideIdx);
-                      if (pill.slideIdx >= 0) goTo(pill.slideIdx, pill.slideIdx > current ? 1 : -1);
-                    }}
-                    className="px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all duration-300 border"
-                    style={isActive
-                      ? { background: 'var(--theme-color)', color: '#0D0D0D', borderColor: 'var(--theme-color)' }
-                      : { background: 'rgba(212,175,55,0.06)', color: 'rgba(245,240,232,0.6)', borderColor: 'rgba(212,175,55,0.18)' }
-                    }
-                  >
-                    {pill.label}
-                  </Link>
-                );
-              })}
+          ) : (
+            <motion.div key="default-bg" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #1A3D2E 0%, #0D2018 40%, #1F4D3A 70%, #162B22 100%)' }}>
+              <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(ellipse at 25% 35%, rgba(200,169,107,0.12) 0%, transparent 55%), radial-gradient(ellipse at 75% 70%, rgba(31,77,58,0.4) 0%, transparent 50%)' }} />
+              <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(247,244,237,0.6) 1px, transparent 0)', backgroundSize: '28px 28px' }} />
             </motion.div>
+          )}
+        </AnimatePresence>
 
-            {/* Countdown timer */}
-            {/* <motion.div
-              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.75 }}
-              className="flex items-center gap-3 justify-center lg:justify-start mb-7 flex-wrap"
-            >
-              <Timer size={13} className="text-amber-500 animate-pulse shrink-0" />
-              <span className="text-xs uppercase tracking-wider shrink-0" style={{ color: 'rgba(245,240,232,0.45)' }}>Next drop in</span>
-              <div className="flex items-center gap-1">
-                {[countdown.h, countdown.m, countdown.s].map((val, i) => (
-                  <span key={i} className="flex items-center">
-                    <span className="font-heading font-black text-sm px-2 py-0.5 rounded-lg"
-                      style={{ background: 'rgba(212,175,55,0.10)', color: 'var(--theme-color)', border: '1px solid rgba(212,175,55,0.22)', minWidth: 32, textAlign: 'center', display: 'inline-block' }}>
-                      {pad2(val)}
-                    </span>
-                    {i < 2 && <span className="text-amber-500 font-bold mx-0.5">:</span>}
-                  </span>
-                ))}
-              </div>
-            </motion.div> */}
-
-            {/* Trust row */}
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.9 }}
-              className="flex items-center gap-3 justify-center lg:justify-start"
-            >
-              <div className="flex gap-0.5">
-                {[1,2,3,4,5].map(i => <Star key={i} size={12} fill="currentColor" className="text-amber-500" />)}
-              </div>
-              <span className="font-body text-xs" style={{ color: '#888880' }}>
-                Trusted by <span className="font-semibold text-amber-500">20+</span> fashion lovers
-              </span>
-            </motion.div>
-          </div>
-
-          {/* ════════════════════════════════
-              RIGHT PANEL — CAROUSEL
-          ════════════════════════════════ */}
-          <div className="relative shrink-0 w-full max-w-xs sm:max-w-sm lg:max-w-md order-1 lg:order-2">
-
-            {/* Outer glow */}
-            <div className="absolute inset-0 rounded-3xl pointer-events-none"
-              style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--theme-color) 22%, transparent) 0%, transparent 70%)', filter: 'blur(55px)', transform: 'scale(1.45)' }}
-            />
-
-            {/* Carousel frame */}
-            <div
-              className="relative overflow-hidden rounded-3xl"
-              style={{
-                border: '1.5px solid color-mix(in srgb, var(--theme-color) 38%, transparent)',
-                boxShadow: '0 0 0 8px color-mix(in srgb, var(--theme-color) 4%, transparent), 0 50px 100px rgba(0,0,0,0.8)',
-                aspectRatio: '4/5',
-              }}
-            >
-              {/* Slides */}
-              <AnimatePresence custom={dir} initial={false}>
-                <motion.div
-                  key={current}
-                  custom={dir}
-                  variants={slideV}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  className="absolute inset-0"
-                >
-                  <Link
-                    to={slide.href}
-                    className="absolute inset-0 cursor-pointer group/image"
-                    aria-label={`View ${slide.category} collection`}
-                  >
-                    <img
-                      src={slide.bg}
-                      alt={slide.category}
-                      loading="lazy"
-                      className="w-full h-full object-cover object-top group-hover/image:scale-105 transition-transform duration-500"
-                    />
-                    {/* gradient */}
-                    <div className="absolute inset-0" style={{
-                      background: 'linear-gradient(180deg, rgba(13,13,13,0.05) 0%, rgba(13,13,13,0.25) 40%, rgba(13,13,13,0.92) 100%)',
-                    }} />
-                  </Link>
-
-                  {/* Top tag */}
-                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-20">
-                    <span className="section-badge text-[10px]">{slide.tag}</span>
-                    <div className="w-7 h-7 rounded-full flex items-center justify-center"
-                      style={{ background: 'rgba(13,13,13,0.7)', border: '1px solid rgba(212,175,55,0.3)', backdropFilter: 'blur(8px)' }}>
-                      <BadgeIcon name={slide.badgeIcon} size={11} />
-                    </div>
-                  </div>
-
-                  {/* Bottom info card */}
-                  <div className="absolute bottom-0 left-0 right-0 p-5 pointer-events-none z-20">
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <span className="font-cinzel text-[10px] tracking-[0.28em] uppercase text-amber-500">{slide.category}</span>
-                    </div>
-                    {/* <p className="font-heading text-xl font-black text-white mb-3 leading-tight">
-                      {slide.lines.join(' ')}
-                    </p> */}
-                    {/* <Link
-                      to={slide.href}
-                      className="inline-flex items-center gap-2 btn-primary text-[11px] py-2 px-4"
-                    >
-                      <span>{slide.cta}</span>
-                      <ArrowRight size={11} className="text-current" />
-                    </Link> */}
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-
-              {/* Prev / Next buttons */}
-              <button
-                onClick={prev}
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 z-10"
-                style={{ background: 'rgba(13,13,13,0.72)', border: '1px solid rgba(212,175,55,0.28)', backdropFilter: 'blur(8px)' }}
-                aria-label="Previous slide"
-              >
-                <ChevronLeft size={15} className="text-amber-500" />
-              </button>
-              <button
-                onClick={next}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 z-10"
-                style={{ background: 'rgba(13,13,13,0.72)', border: '1px solid rgba(212,175,55,0.28)', backdropFilter: 'blur(8px)' }}
-                aria-label="Next slide"
-              >
-                <ChevronRight size={15} className="text-amber-500" />
-              </button>
-            </div>
-
-            {/* Dot indicators */}
-            <div className="flex items-center justify-center gap-2 mt-4">
-              {slides.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => goTo(i, i > current ? 1 : -1)}
-                  aria-label={`Go to slide ${i + 1}`}
-                  className="transition-all duration-300 rounded-full"
-                  style={{
-                    width:  i === current ? 24 : 7,
-                    height: 7,
-                    background: i === current ? 'var(--theme-color)' : 'rgba(212,175,55,0.22)',
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* Floating badges — desktop only */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1.1, duration: 0.5 }}
-              className="absolute -left-5 top-[18%] glass-gold rounded-2xl px-3 py-2 hidden lg:flex items-center gap-2"
-              style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.45)' }}
-            >
-              <Crown size={12} className="text-amber-500" />
-              <span className="font-body text-xs font-semibold whitespace-nowrap" style={{ color: 'var(--text-primary)' }}>Premium Quality</span>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1.4, duration: 0.5 }}
-              className="absolute -right-5 top-[42%] glass-gold rounded-2xl px-3 py-2 hidden lg:flex items-center gap-2"
-              style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.45)' }}
-            >
-              <Zap size={12} className="text-amber-500" />
-              <span className="font-body text-xs font-semibold whitespace-nowrap" style={{ color: 'var(--text-primary)' }}>Limited Drops</span>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.7, duration: 0.5 }}
-              className="absolute -left-3 bottom-[20%] glass-gold rounded-2xl px-3 py-2 hidden lg:flex items-center gap-2"
-              style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.45)' }}
-            >
-              <Sparkles size={12} className="text-amber-500" />
-              <span className="font-body text-xs font-semibold whitespace-nowrap" style={{ color: 'var(--text-primary)' }}>Trending Now</span>
-            </motion.div>
-          </div>
-        </div>
-
-        {/* ── Scroll indicator ── */}
-        {/* <motion.div
-          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2.2, duration: 0.6 }}
-          className="hidden md:flex absolute bottom-6 left-1/2 -translate-x-1/2 flex-col items-center gap-1"
-          style={{ color: 'rgba(212,175,55,0.45)' }}
-        >
-          <span className="font-body text-[10px] uppercase tracking-widest">Scroll</span>
-          <div className="w-px h-7 rounded-full" style={{ background: 'linear-gradient(to bottom, rgba(212,175,55,0.5), transparent)' }} />
-        </motion.div> */}
+        {/* Gradient overlay — always present */}
+        <div className="absolute inset-0 z-10 pointer-events-none"
+          style={{ background: 'linear-gradient(105deg, rgba(10,28,20,0.75) 0%, rgba(10,28,20,0.45) 50%, rgba(10,28,20,0.2) 100%)' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-40 z-10 pointer-events-none"
+          style={{ background: 'linear-gradient(0deg, rgba(247,244,237,0.08) 0%, transparent 100%)' }} />
       </div>
+
+      {/* ── Hero Content ── */}
+      <div className="relative z-20 w-full max-w-7xl mx-auto px-6 lg:px-16 pt-24">
+        <div className="max-w-2xl">
+
+          {/* Eyebrow label */}
+          {(loading || currentSlide?.subtitle) && (
+            <motion.div
+              custom={0} variants={textVariants} initial="hidden" animate="visible"
+              className="flex items-center gap-3 mb-8">
+              <Leaf className="w-4 h-4 opacity-70" style={{ color: '#C8A96B' }} />
+              <span className="text-[11px] font-semibold tracking-[0.28em] uppercase"
+                style={{ color: 'rgba(200,169,107,0.85)' }}>
+                {loading ? 'Premium Natural Wellness' : currentSlide?.subtitle}
+              </span>
+              <span className="block h-px w-10 opacity-40" style={{ background: '#C8A96B' }} />
+            </motion.div>
+          )}
+
+          {/* Headline */}
+          <motion.h1
+            custom={1} variants={textVariants} initial="hidden" animate="visible"
+            className="mb-6 leading-[1.05]"
+            style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}>
+            <AnimatePresence mode="wait">
+              <motion.span key={`title-${currentIdx}`}
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.6 }}
+                className="block">
+                <span className="block text-5xl md:text-7xl lg:text-8xl" style={{ color: '#F7F4ED' }}>
+                  {loading ? 'Nature Refined.' : (currentSlide?.title || 'Nature Refined.')}
+                </span>
+                {!currentSlide?.title && (
+                  <span className="block text-5xl md:text-7xl lg:text-8xl italic mt-1"
+                    style={{ color: 'rgba(200,169,107,0.9)' }}>
+                    Luxury Reimagined.
+                  </span>
+                )}
+              </motion.span>
+            </AnimatePresence>
+          </motion.h1>
+
+          {/* CTAs */}
+          <motion.div custom={2} variants={textVariants} initial="hidden" animate="visible"
+            className="flex flex-wrap items-center gap-4">
+            <Link to={currentSlide?.cta_primary_link || '/products'}
+              className="group flex items-center gap-2.5 px-8 py-4 rounded-none font-semibold tracking-wider transition-all duration-400 hover:gap-4"
+              style={{ background: '#C8A96B', color: '#1A2E1F', fontSize: '0.75rem', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+              {currentSlide?.cta_primary_text || 'Shop Collection'}
+              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+            </Link>
+            <Link to="/about"
+              className="group flex items-center gap-2 px-8 py-4 rounded-none font-semibold tracking-wider transition-all duration-400"
+              style={{ background: 'transparent', color: '#F7F4ED', fontSize: '0.75rem', letterSpacing: '0.14em', textTransform: 'uppercase', border: '1px solid rgba(247,244,237,0.3)' }}>
+              Our Story
+              <span className="block w-4 h-px" style={{ background: 'rgba(247,244,237,0.5)' }} />
+            </Link>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* ── Slide Counter & Navigation ── */}
+      {slides.length > 1 && (
+        <>
+          {/* Dot indicators — bottom center */}
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3">
+            {slides.map((_, i) => (
+              <button key={i} onClick={() => handleDot(i)}
+                className="relative flex items-center justify-center cursor-pointer transition-all"
+                aria-label={`Slide ${i + 1}`}>
+                <motion.span
+                  animate={{ width: i === currentIdx ? '28px' : '6px', background: i === currentIdx ? '#C8A96B' : 'rgba(247,244,237,0.35)' }}
+                  transition={{ duration: 0.35, ease: 'easeOut' }}
+                  className="block h-0.5 rounded-full"
+                  style={{ width: i === currentIdx ? '28px' : '6px', background: i === currentIdx ? '#C8A96B' : 'rgba(247,244,237,0.35)' }}
+                />
+              </button>
+            ))}
+          </div>
+
+          {/* Prev/Next arrows */}
+          <div className="absolute bottom-8 right-8 z-30 flex items-center gap-2">
+            <button onClick={handlePrev} aria-label="Previous"
+              className="w-10 h-10 rounded-full flex items-center justify-center border transition-all hover:scale-105 active:scale-95"
+              style={{ background: 'rgba(247,244,237,0.08)', border: '1px solid rgba(247,244,237,0.2)', color: '#F7F4ED', backdropFilter: 'blur(8px)' }}>
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button onClick={handleNext} aria-label="Next"
+              className="w-10 h-10 rounded-full flex items-center justify-center border transition-all hover:scale-105 active:scale-95"
+              style={{ background: 'rgba(247,244,237,0.08)', border: '1px solid rgba(247,244,237,0.2)', color: '#F7F4ED', backdropFilter: 'blur(8px)' }}>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Slide count */}
+          <div className="absolute right-8 bottom-18 z-30 hidden md:flex items-center gap-2"
+            style={{ color: 'rgba(247,244,237,0.4)', fontSize: '0.6875rem', fontFamily: "'Plus Jakarta Sans', sans-serif", letterSpacing: '0.12em' }}>
+            <span style={{ color: '#C8A96B', fontWeight: 600 }}>{(currentIdx + 1).toString().padStart(2, '0')}</span>
+            <span>/</span>
+            <span>{slides.length.toString().padStart(2, '0')}</span>
+          </div>
+        </>
+      )}
+
+      {/* ── Scroll indicator ── */}
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4, duration: 0.8 }}
+        className="absolute bottom-10 left-8 z-30 hidden md:flex flex-col items-center gap-2">
+        <span className="text-[10px] font-semibold tracking-[0.2em] uppercase" style={{ color: 'rgba(247,244,237,0.35)', writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
+          Scroll
+        </span>
+        <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+          className="w-px h-10" style={{ background: 'linear-gradient(180deg, rgba(200,169,107,0.6), transparent)' }} />
+      </motion.div>
     </section>
-  );
+  )
 }

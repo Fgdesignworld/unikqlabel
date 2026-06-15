@@ -1,52 +1,113 @@
-# Enable URL rewriting for single-page app fallback
-<IfModule mod_rewrite.c>
-  RewriteEngine On
+# ============================================================
+# SECURITY HARDENED .HTACCESS (React + PHP API Safe Version)
+# ============================================================
 
-  # Don't rewrite existing files or directories
-  RewriteCond %{REQUEST_FILENAME} -f [OR]
-  RewriteCond %{REQUEST_FILENAME} -d
-  RewriteRule ^ - [L]
-
-  # Rewrite everything else to index.html
-  RewriteRule ^ index.html [L]
-</IfModule>
-
-# Prevent directory listings
+# ------------------------------------------------------------
+# Prevent directory listing
+# ------------------------------------------------------------
 Options -Indexes
 
-# Caching for static assets
+# ------------------------------------------------------------
+# Block access to hidden files (.env, .git, etc.)
+# ------------------------------------------------------------
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# ------------------------------------------------------------
+# Block sensitive files (db dumps, backups, archives, logs)
+# ------------------------------------------------------------
+<FilesMatch "\.(sql|zip|tar|gz|bak|log|sh)$">
+    Require all denied
+</FilesMatch>
+
+# ------------------------------------------------------------
+# Block direct access to PHP files
+# Allow only index.php if needed as front controller
+# ------------------------------------------------------------
+<FilesMatch "^(?!index\.php$).+\.php$">
+    Require all denied
+</FilesMatch>
+
+# ------------------------------------------------------------
+# SPA Rewrite Rules (React Router Support)
+# ------------------------------------------------------------
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Skip existing files/folders
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # React SPA fallback
+    RewriteRule ^ index.html [L]
+</IfModule>
+
+# ------------------------------------------------------------
+# Default index
+# ------------------------------------------------------------
+DirectoryIndex index.html index.php
+
+# ------------------------------------------------------------
+# Browser Caching
+# ------------------------------------------------------------
 <IfModule mod_expires.c>
-  ExpiresActive On
-  ExpiresByType text/html "access plus 0 seconds"
-  ExpiresByType text/css "access plus 1 month"
-  ExpiresByType text/javascript "access plus 1 month"
-  ExpiresByType application/javascript "access plus 1 month"
-  ExpiresByType application/json "access plus 0 seconds"
-  ExpiresByType image/svg+xml "access plus 1 month"
-  ExpiresByType image/x-icon "access plus 1 year"
-  ExpiresByType image/jpeg "access plus 1 month"
-  ExpiresByType image/png "access plus 1 month"
-  ExpiresByType image/gif "access plus 1 month"
+    ExpiresActive On
+
+    ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType application/json "access plus 0 seconds"
+
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+
+    ExpiresByType image/x-icon "access plus 1 year"
 </IfModule>
 
-# Enable gzip/deflate compression for text-based assets
+# ------------------------------------------------------------
+# Compression
+# ------------------------------------------------------------
 <IfModule mod_deflate.c>
-  <IfModule mod_setenvif.c>
-    SetEnvIfNoCase Request_URI \
-      \\.(?:gif|jpe?g|png|svg|ico)$ no-gzip dont-vary
-  </IfModule>
-  AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css application/javascript application/json
+    <IfModule mod_setenvif.c>
+        SetEnvIfNoCase Request_URI \
+        \.(?:gif|jpe?g|png|svg|ico)$ no-gzip dont-vary
+    </IfModule>
+
+    AddOutputFilterByType DEFLATE \
+        text/plain \
+        text/html \
+        text/xml \
+        text/css \
+        application/javascript \
+        application/json
 </IfModule>
 
-# Security headers
+# ------------------------------------------------------------
+# Security Headers
+# ------------------------------------------------------------
 <IfModule mod_headers.c>
-  Header always set X-Content-Type-Options "nosniff"
-  Header always set X-Frame-Options "SAMEORIGIN"
-  Header always set X-XSS-Protection "1; mode=block"
-  Header always set Referrer-Policy "no-referrer-when-downgrade"
-  Header always set Content-Security-Policy "default-src 'self' 'unsafe-inline' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com;"
-  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-</IfModule>
 
-# Fallback for browsers that request directory index
-DirectoryIndex index.html
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+    Header always set X-Permitted-Cross-Domain-Policies "none"
+
+    # CSP (adjust connect-src if API is on another domain)
+    # CSP (adjust connect-src if API is on another domain)
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://checkout.razorpay.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://checkout.razorpay.com; font-src 'self' https://fonts.gstatic.com https://checkout.razorpay.com; img-src 'self' data: blob: https://www.google-analytics.com https://www.googletagmanager.com https://cdn.razorpay.com; connect-src 'self' https://www.google-analytics.com https://stats.g.doubleclick.net https://api.razorpay.com https://lumberjack.razorpay.com; frame-src https://api.razorpay.com https://checkout.razorpay.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
+
+    # HSTS only when HTTPS is enabled
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" env=HTTPS
+
+    # Remove server leak headers
+    Header always unset X-Powered-By
+    Header always unset Server
+
+</IfModule>

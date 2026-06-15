@@ -65,8 +65,9 @@ class InventoryController {
 
             echo json_encode(['inventory' => $inventory]);
         } catch (\Throwable $e) {
+            error_log('Inventory show error: ' . $e->getMessage());
             http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+            echo json_encode(['error' => 'An internal error occurred.']);
         }
     }
 

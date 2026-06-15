@@ -2,10 +2,13 @@
 /**
  * Review Controller — Public submission + email verification + admin moderation
  *
- * Set APP_URL below to match your deployment domain so verification links work.
+ * APP_URL is loaded from .env. Set it to your live domain in production.
  */
 
-define('APP_URL', 'http://localhost:3000');   // ← change to live domain in production
+// APP_URL loaded from .env (set by database.php bootstrap) with safe fallback
+if (!defined('APP_URL')) {
+    define('APP_URL', $_ENV['APP_URL'] ?? 'http://localhost:3000');
+}
 
 require_once __DIR__ . '/../models/Review.php';
 require_once __DIR__ . '/../middleware/auth.php';
@@ -315,9 +318,9 @@ class ReviewController {
      */
     private static function sendVerificationEmail(string $toEmail, string $name, string $token): void {
         $verifyUrl  = APP_URL . '/verify-review?token=' . urlencode($token);
-        $subject    = 'Verify your review — Lakshmi Home Foods';
-        $fromEmail  = 'noreply@lakshmihomefoods.com';
-        $fromName   = 'Lakshmi Home Foods';
+        $subject    = 'Verify your review — KoffeeKup';
+        $fromEmail  = 'noreply@koffeekup.com';
+        $fromName   = 'KoffeeKup';
 
         $htmlBody = <<<HTML
 <!DOCTYPE html>
@@ -326,8 +329,8 @@ class ReviewController {
 <body style="font-family:Arial,sans-serif;background:#0f0f0f;color:#fef3e2;margin:0;padding:0;">
   <div style="max-width:520px;margin:40px auto;background:#1a1a1a;border-radius:16px;overflow:hidden;border:1px solid #333;">
     <div style="background:#d97706;padding:24px;text-align:center;">
-      <h1 style="margin:0;color:#0f0f0f;font-size:22px;font-weight:900;">Lakshmi Home Foods</h1>
-      <p style="margin:4px 0 0;color:#0f0f0f;font-size:12px;opacity:.8;">Pure Taste of Tradition</p>
+      <h1 style="margin:0;color:#0f0f0f;font-size:22px;font-weight:900;">KoffeeKup</h1>
+      <p style="margin:4px 0 0;color:#0f0f0f;font-size:12px;opacity:.8;">Premium Coffee & Delights</p>
     </div>
     <div style="padding:32px;">
       <h2 style="color:#fef3e2;font-size:18px;margin:0 0 12px;">Hi {$name}, verify your review!</h2>

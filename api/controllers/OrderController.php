@@ -117,8 +117,9 @@ class OrderController {
                 'total'           => $result['total'],
             ]);
         } catch (Exception $e) {
+            error_log('Checkout error: ' . $e->getMessage());
             http_response_code(400);
-            echo json_encode(['error' => $e->getMessage()]);
+            echo json_encode(['error' => 'Failed to place order. Please try again.']);
         }
     }
 

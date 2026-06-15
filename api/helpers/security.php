@@ -28,7 +28,7 @@ function sanitizeInput(mixed $value, int $maxLen = 500): string {
 
 /**
  * Allow a very limited set of HTML tags for CMS blocks.
- * Strips anything not in the allowlist.
+ * Strips anything not in the allowlist. Multi-layer XSS defence.
  */
 function sanitizeHtml(mixed $value, int $maxLen = 50000): string {
     if ($value === null) return '';
@@ -36,9 +36,15 @@ function sanitizeHtml(mixed $value, int $maxLen = 50000): string {
     // strip_tags allowlist — no script, no style, no event attributes
     $allowed = '<p><br><b><strong><i><em><ul><ol><li><h2><h3><h4><a><img><blockquote><hr><span>';
     $str = strip_tags($str, $allowed);
-    // Remove all event handler attributes (onclick, onerror, etc.) and javascript: hrefs
-    $str = preg_replace('/\s+on\w+\s*=\s*["\'][^"\']*["\']/i', '', $str);
-    $str = preg_replace('/href\s*=\s*["\']javascript:[^"\']*["\']/i', 'href="#"', $str);
+    // Remove ALL event handler attributes (onclick, onerror, onload, etc.)
+    // Handles whitespace/newline obfuscation: on\s*error, on\n*click, etc.
+    $str = preg_replace('/\bon\w[\w\-]*\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)/si', '', $str);
+    // Remove javascript:, vbscript:, data: URI schemes in href/src attributes
+    $str = preg_replace('/(href|src|action)\s*=\s*["\']?\s*(javascript|vbscript|data)\s*:/si', '$1="#"', $str);
+    // Remove expression() in style attributes (IE CSS expression attack)
+    $str = preg_replace('/style\s*=\s*["\'][^"\']*expression\s*\([^"\']*["\']/si', '', $str);
+    // Remove style attributes containing url() (CSS injection vector)
+    $str = preg_replace('/style\s*=\s*["\'][^"\']*url\s*\([^"\']*["\']/si', '', $str);
     return mb_substr(trim($str), 0, $maxLen);
 }
 

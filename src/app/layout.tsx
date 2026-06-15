@@ -10,7 +10,7 @@ import './globals.css';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="font-sans antialiased bg-[#0f0f0f] text-[#fef3e2] min-h-screen">
+    <div className="font-sans antialiased bg-background text-foreground min-h-screen">
       <CartProvider>
         <ScrollToTop />
         {children}

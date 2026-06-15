@@ -125,7 +125,8 @@ class CouponController {
             $coupon['is_active'] = (bool) $coupon['is_active'];
             self::ok(['coupon' => $coupon], 'Coupon created successfully.');
         } catch (Exception $e) {
-            self::error('Failed to create coupon: ' . $e->getMessage());
+            error_log('Coupon create error: ' . $e->getMessage());
+            self::error('Failed to create coupon. Please try again.');
         }
     }
 
@@ -159,7 +160,8 @@ class CouponController {
             $updated['is_active'] = (bool) $updated['is_active'];
             self::ok(['coupon' => $updated], 'Coupon updated successfully.');
         } catch (Exception $e) {
-            self::error('Failed to update coupon: ' . $e->getMessage());
+            error_log('Coupon update error: ' . $e->getMessage());
+            self::error('Failed to update coupon. Please try again.');
         }
     }
 

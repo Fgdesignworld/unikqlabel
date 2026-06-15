@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { productService, type ApiProduct } from '@/services/productService'
 import { categoryService, type Category } from '@/services/categoryService'
 import { useToast } from '@/hooks/use-toast'
+import DOMPurify from 'dompurify'
 import { Image } from '@/components/ui/image'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -12,6 +13,9 @@ import {
   SelectItem, 
   SelectTrigger, 
   SelectValue,
+  SelectGroup,
+  SelectLabel,
+  SelectSeparator,
 } from '@/components/ui/select'
 import {
   Sheet,
@@ -94,20 +98,20 @@ function SortableProductRow({
 
   return (
     <div ref={setNodeRef} style={style} className={cn(
-      "group bg-[#0e0e0e] md:bg-transparent border border-gray-800 md:border-b md:border-x-0 md:border-t-0 p-3 md:p-0 rounded-3xl md:rounded-none mb-3 md:mb-0 hover:bg-white/[0.015] transition-all duration-300 relative",
+      "group bg-[#F8F9FD] md:bg-transparent border border-slate-200 md:border-b md:border-x-0 md:border-t-0 p-3 md:p-0 rounded-3xl md:rounded-none mb-3 md:mb-0 hover:bg-white/[0.015] transition-all duration-300 relative",
       isDragging && "shadow-2xl shadow-black/80 ring-1 ring-amber-500/50"
     )}>
       <div className="flex flex-col md:grid md:grid-cols-[40px_2.5fr_1.5fr_1.5fr_1fr_120px] md:items-center gap-3 md:gap-0 h-full">
         {/* Drag Handle & Mobile Top Bar */}
         <div className="flex items-center justify-between md:justify-center md:py-5 md:pl-4">
-          <button {...attributes} {...listeners} className="p-1.5 text-gray-500 hover:text-amber-500 cursor-grab active:cursor-grabbing rounded-xl bg-white/5 md:bg-transparent touch-none">
+          <button {...attributes} {...listeners} className="p-1.5 text-gray-500 hover:text-amber-500 cursor-grab active:cursor-grabbing rounded-xl bg-slate-50 md:bg-transparent touch-none">
             <GripVertical className="w-5 h-5 md:w-4 md:h-4" />
           </button>
           
           <div className="md:hidden flex items-center gap-2">
             <span className={cn(
                "text-[10px] font-black uppercase tracking-[0.1em] px-2 py-1 rounded-full border",
-               p.status === 'active' ? "text-green-500 border-green-500/20 bg-green-500/10" : "text-gray-500 border-gray-800 bg-gray-900"
+               p.status === 'active' ? "text-green-500 border-green-500/20 bg-green-500/10" : "text-gray-500 border-slate-200 bg-gray-900"
              )}>
               {p.status}
              </span>
@@ -115,7 +119,7 @@ function SortableProductRow({
         </div>
 
         <div className="flex items-center gap-3 md:py-5 md:px-8 bg-black/40 md:bg-transparent p-2.5 rounded-2xl md:rounded-none border border-white/5 md:border-none">
-          <div className="w-14 h-14 md:w-14 md:h-14 rounded-xl bg-[#0a0a0a] border border-gray-800 overflow-hidden flex-shrink-0 relative group-hover:border-amber-500/40 transition-all shadow-lg group-hover:shadow-amber-500/5">
+          <div className="w-14 h-14 md:w-14 md:h-14 rounded-xl bg-[#F4F6FB] border border-slate-200 overflow-hidden flex-shrink-0 relative group-hover:border-amber-500/40 transition-all shadow-lg group-hover:shadow-amber-500/5">
             {p.image ? (
               <Image src={p.image} alt={p.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
             ) : (
@@ -132,14 +136,14 @@ function SortableProductRow({
           <div className="flex-1 min-w-0">
             <p className="text-white font-bold text-sm tracking-tight truncate group-hover:text-amber-500 transition-colors leading-tight">{p.name}</p>
             <div className="flex flex-wrap items-center gap-2 mt-1">
-               <span className="text-gray-500 text-[9px] font-black uppercase tracking-tighter bg-gray-800/40 border border-gray-700/50 px-1.5 py-0.5 rounded">SKU: UNI-P{p.id}</span>
+               <span className="text-gray-500 text-[9px] font-black uppercase tracking-tighter bg-gray-800/40 border border-slate-300/50 px-1.5 py-0.5 rounded">SKU: UNI-P{p.id}</span>
             </div>
           </div>
         </div>
 
         {/* Desktop Category (Hidden on mobile wrapper, moved inline on mobile below) */}
-        <div className="hidden md:flex md:py-5 md:px-8">
-          <Badge variant="outline" className="border-gray-800 text-gray-400 font-bold tracking-widest text-[9px] uppercase px-2 py-0.5 bg-[#151515] group-hover:border-amber-500/20 transition-colors">
+        <div className="hidden md:flex md:py-5 md:px-8 items-center">
+          <Badge variant="outline" className="border-slate-200 text-slate-500 font-bold tracking-widest text-[9px] uppercase px-2 py-0.5 bg-slate-50 group-hover:border-amber-500/20 transition-colors">
             {p.category}
           </Badge>
         </div>
@@ -149,7 +153,7 @@ function SortableProductRow({
           <div className="flex flex-col">
             <span className="text-gray-600 text-[9px] md:hidden font-black uppercase tracking-widest mb-0.5">Price / Wt</span>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-white font-black text-sm tracking-tight">₹{p.price}</span>
+              <span className="text-slate-900 font-black text- tracking-tight">₹{p.price}</span>
               <span className="text-gray-600 text-[10px] font-medium">{p.weight}</span>
             </div>
           </div>
@@ -174,24 +178,24 @@ function SortableProductRow({
         </div>
 
         {/* Actions Menu */}
-        <div className="flex items-center justify-end gap-2 md:opacity-40 group-hover:opacity-100 transition-opacity md:py-5 md:px-4 mt-1 md:mt-0 pt-2 border-t border-gray-800 md:border-t-0 md:pt-0">
+        <div className="flex items-center justify-end gap-2 md:opacity-40 group-hover:opacity-100 transition-opacity md:py-5 md:px-4 mt-1 md:mt-0 pt-2 border-t border-slate-200 md:border-t-0 md:pt-0">
           <button 
             onClick={() => onView(p)} 
-            className="flex-1 md:flex-none flex justify-center items-center py-2 px-3 md:p-2.5 text-gray-500 bg-white/5 hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all"
+            className="flex-1 md:flex-none flex justify-center items-center py-2 px-3 md:p-2.5 text-gray-500 bg-slate-50 hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all"
             title="Quick View"
           >
             <Eye className="w-4 h-4" />
           </button>
           <button 
             onClick={() => onEdit(p.id)} 
-            className="flex-1 md:flex-none flex justify-center items-center py-2 px-3 md:p-2.5 text-gray-500 bg-white/5 hover:text-amber-500 hover:bg-amber-500/10 rounded-xl transition-all"
+            className="flex-1 md:flex-none flex justify-center items-center py-2 px-3 md:p-2.5 text-gray-500 bg-slate-50 hover:text-amber-500 hover:bg-amber-500/10 rounded-xl transition-all"
             title="Edit Details"
           >
             <Edit2 className="w-4 h-4" />
           </button>
           <button 
             onClick={() => onDelete(p.id)} 
-            className="flex-1 md:flex-none flex justify-center items-center py-2 px-3 md:p-2.5 text-gray-500 bg-white/5 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+            className="flex-1 md:flex-none flex justify-center items-center py-2 px-3 md:p-2.5 text-gray-500 bg-slate-50 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
             title="Delete Product"
           >
             <Trash2 className="w-4 h-4" />
@@ -212,7 +216,7 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<ApiProduct[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [categories, setCategories] = useState<Category[]>([])
+  const [categoryTree, setCategoryTree] = useState<Category[]>([])
   
   // Drawer State
   const [selectedProduct, setSelectedProduct] = useState<ApiProduct | null>(null)
@@ -247,8 +251,8 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     loadProducts()
-    categoryService.getAll()
-      .then(cats => setCategories(cats))
+    categoryService.getTree()
+      .then(tree => setCategoryTree(tree))
       .catch(() => {})
   }, [])
 
@@ -305,10 +309,20 @@ export default function AdminProductsPage() {
 
   // Filtered & Sorted Data
   const filteredAndSorted = useMemo(() => {
+    // Build a map: parentSlug → Set of subcategory slugs for efficient lookup
+    const parentSubSlugs = new Map<string, Set<string>>()
+    categoryTree.forEach(parent => {
+      if (parent.subcategories && parent.subcategories.length > 0) {
+        parentSubSlugs.set(parent.slug, new Set(parent.subcategories.map(s => s.slug)))
+      }
+    })
+
     let result = products.filter(p => {
       const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || 
                           p.category.toLowerCase().includes(search.toLowerCase())
-      const matchesCategory = categoryFilter === 'all' || p.category === categoryFilter
+      const matchesCategory = categoryFilter === 'all' ||
+        p.category === categoryFilter ||
+        (parentSubSlugs.has(categoryFilter) && parentSubSlugs.get(categoryFilter)!.has(p.category))
       const matchesStatus = statusFilter === 'all' || p.status === statusFilter
       return matchesSearch && matchesCategory && matchesStatus
     })
@@ -394,7 +408,7 @@ export default function AdminProductsPage() {
             <div className="h-px w-8 bg-amber-500" />
             <p className="text-amber-500 text-[10px] font-black uppercase tracking-[0.2em]">Inventory Management</p>
           </div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Product <span className="text-amber-500">Catalog</span></h1>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Product <span className="text-amber-500">Catalog</span></h1>
           <p className="text-gray-500 text-xs mt-1 font-medium">Manage your digital storefront and product inventory.</p>
         </div>
         
@@ -417,14 +431,14 @@ export default function AdminProductsPage() {
           { label: 'Bestsellers', value: stats.bestsellers, icon: TrendingUp, color: 'text-amber-500', bg: 'bg-amber-500/10' },
           { label: 'Avg. Price', value: `₹${stats.avgPrice}`, icon: Tag, color: 'text-purple-500', bg: 'bg-purple-500/10' },
         ].map((stat, i) => (
-          <Card key={i} className="bg-[#0c0c0c] border-gray-800/50 hover:border-gray-700 transition-colors group">
+          <Card key={i} className="bg-white border-slate-200/80 hover:border-slate-300 transition-colors group">
             <CardContent className="p-3.5 md:p-5 flex items-center gap-3 md:gap-4">
               <div className={cn("w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0", stat.bg)}>
                 <stat.icon className={cn("w-5 h-5 md:w-6 h-6", stat.color)} />
               </div>
               <div className="min-w-0">
                 <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-gray-500 mb-0.5 truncate">{stat.label}</p>
-                <p className="text-lg md:text-xl font-black text-white truncate">{stat.value}</p>
+                <p className="text-lg md:text-xl font-black text-slate-900 truncate">{stat.value}</p>
               </div>
             </CardContent>
           </Card>
@@ -432,44 +446,61 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Main Table Interface */}
-      <div className="bg-[#0c0c0c] border border-gray-800 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black">
+      <div className="bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black">
         {/* Toolbar */}
-        <div className="p-4 md:p-6 border-b border-gray-800 flex flex-col xl:flex-row items-stretch xl:items-center gap-4 justify-between bg-[#0e0e0e]">
+        <div className="p-4 md:p-6 border-b border-slate-200 flex flex-col xl:flex-row items-stretch xl:items-center gap-4 justify-between bg-[#F8F9FD]">
           <div className="relative w-full xl:w-96 group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600 group-focus-within:text-amber-500 transition-colors" />
             <input 
               value={search} 
               onChange={e => { setSearch(e.target.value); setCurrentPage(1); }} 
               placeholder="Search by name or category..." 
-              className="w-full pl-11 pr-4 py-2.5 bg-[#111] border border-gray-800/50 rounded-2xl text-white text-xs font-bold focus:outline-none focus:border-amber-500/50 focus:ring-4 focus:ring-amber-500/10 transition-all" 
+              className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200/80 rounded-2xl text-slate-800 text-xs font-bold focus:outline-none focus:border-amber-500/50 focus:ring-4 focus:ring-amber-500/10 transition-all" 
             />
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full xl:w-auto">
-            <div className="flex items-center gap-1.5 bg-[#111] p-1 border border-gray-800/50 rounded-2xl flex-1 sm:w-auto overflow-x-auto scrollbar-hide">
+            <div className="flex items-center gap-1.5 bg-slate-50 p-1 border border-slate-200/80 rounded-2xl flex-1 sm:w-auto overflow-x-auto scrollbar-hide">
               <div className="pl-2 pr-1 flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-gray-600 whitespace-nowrap">
                 <Filter className="w-3 h-3" /> Filter:
               </div>
               
               <Select value={categoryFilter} onValueChange={v => { setCategoryFilter(v); setCurrentPage(1); }}>
-                <SelectTrigger className="h-7 bg-transparent border-none text-[10px] font-bold text-white focus:ring-0 focus:ring-offset-0 px-2 gap-1 group/trigger hover:bg-white/5 transition-colors rounded-lg">
+                <SelectTrigger className="h-7 bg-transparent border-none text-[10px] font-bold text-slate-800 focus:ring-0 focus:ring-offset-0 px-2 gap-1 group/trigger hover:bg-slate-50 transition-colors rounded-lg">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#0c0c0c] border-gray-800 text-white min-w-[140px]">
+                <SelectContent className="bg-white border-slate-200 text-slate-800 min-w-[160px]">
                   <SelectItem value="all" className="text-xs focus:bg-amber-500 focus:text-black">All Categories</SelectItem>
-                  {categories.map(cat => (
-                    <SelectItem key={cat.id} value={cat.slug} className="text-xs focus:bg-amber-500 focus:text-black capitalize">{cat.name}</SelectItem>
-                  ))}
+                  {categoryTree.length > 0 ? (
+                    categoryTree.map(parent => (
+                      parent.subcategories && parent.subcategories.length > 0 ? (
+                        <SelectGroup key={parent.id}>
+                          <SelectLabel className="text-[9px] font-black uppercase tracking-widest text-gray-500 px-2 pb-0.5">{parent.name}</SelectLabel>
+                          <SelectItem value={parent.slug} className="text-xs focus:bg-amber-500 focus:text-black pl-3">
+                            All {parent.name}
+                          </SelectItem>
+                          {parent.subcategories.map(sub => (
+                            <SelectItem key={sub.id} value={sub.slug} className="text-xs focus:bg-amber-500 focus:text-black pl-5 text-gray-300">
+                              ↳ {sub.name}
+                            </SelectItem>
+                          ))}
+                          <SelectSeparator className="bg-gray-800/60 my-1" />
+                        </SelectGroup>
+                      ) : (
+                        <SelectItem key={parent.id} value={parent.slug} className="text-xs focus:bg-amber-500 focus:text-black capitalize">{parent.name}</SelectItem>
+                      )
+                    ))
+                  ) : null}
                 </SelectContent>
               </Select>
               
               <div className="w-px h-4 bg-gray-800 mx-1" />
               
               <Select value={statusFilter} onValueChange={v => { setStatusFilter(v); setCurrentPage(1); }}>
-                <SelectTrigger className="h-7 bg-transparent border-none text-[10px] font-bold text-white focus:ring-0 focus:ring-offset-0 px-2 gap-1 group/trigger hover:bg-white/5 transition-colors rounded-lg">
+                <SelectTrigger className="h-7 bg-transparent border-none text-[10px] font-bold text-slate-800 focus:ring-0 focus:ring-offset-0 px-2 gap-1 group/trigger hover:bg-slate-50 transition-colors rounded-lg">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#0c0c0c] border-gray-800 text-white min-w-[120px]">
+                <SelectContent className="bg-white border-slate-200 text-slate-800 min-w-[120px]">
                   <SelectItem value="all" className="text-xs focus:bg-amber-500 focus:text-black">Any Status</SelectItem>
                   <SelectItem value="active" className="text-xs focus:bg-amber-500 focus:text-black">Active</SelectItem>
                   <SelectItem value="inactive" className="text-xs focus:bg-amber-500 focus:text-black">Inactive</SelectItem>
@@ -480,10 +511,10 @@ export default function AdminProductsPage() {
               <div className="hidden sm:flex items-center">
                 <div className="w-px h-4 bg-gray-800 mx-1" />
                 <Select value={String(itemsPerPage)} onValueChange={v => { setItemsPerPage(Number(v)); setCurrentPage(1); }}>
-                  <SelectTrigger className="h-7 bg-transparent border-none text-[10px] font-bold text-white focus:ring-0 focus:ring-offset-0 px-2 gap-1 group/trigger hover:bg-white/5 transition-colors rounded-lg">
+                  <SelectTrigger className="h-7 bg-transparent border-none text-[10px] font-bold text-slate-800 focus:ring-0 focus:ring-offset-0 px-2 gap-1 group/trigger hover:bg-slate-50 transition-colors rounded-lg">
                     <SelectValue placeholder="Rows" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#0c0c0c] border-gray-800 text-white min-w-[100px]">
+                  <SelectContent className="bg-white border-slate-200 text-slate-800 min-w-[100px]">
                     <SelectItem value="10" className="text-xs focus:bg-amber-500 focus:text-black">10 Rows</SelectItem>
                     <SelectItem value="50" className="text-xs focus:bg-amber-500 focus:text-black">50 Rows</SelectItem>
                     <SelectItem value="100" className="text-xs focus:bg-amber-500 focus:text-black">100 Rows</SelectItem>
@@ -496,7 +527,7 @@ export default function AdminProductsPage() {
               <div className="flex items-center gap-2 flex-1">
                 <button 
                   onClick={resetFilters}
-                  className="flex-1 p-2.5 bg-white/5 border border-white/10 rounded-2xl text-gray-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.15em]"
+                  className="flex-1 p-2.5 bg-slate-50 border border-white/10 rounded-2xl text-gray-400 hover:text-slate-900 hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.15em]"
                   title="Reset Filters"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
@@ -504,7 +535,7 @@ export default function AdminProductsPage() {
                 </button>
                 <button 
                   onClick={loadProducts}
-                  className="flex-1 p-2.5 bg-white/5 border border-white/10 rounded-2xl text-gray-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.15em]"
+                  className="flex-1 p-2.5 bg-slate-50 border border-white/10 rounded-2xl text-gray-400 hover:text-slate-900 hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.15em]"
                   title="Refresh Data"
                 >
                   <ArrowUpDown className={cn("w-3.5 h-3.5", loading && "animate-spin")} />
@@ -515,10 +546,10 @@ export default function AdminProductsPage() {
               {/* Rows per page - Mobile Only in this bar */}
               <div className="sm:hidden flex-1 max-w-[100px]">
                 <Select value={String(itemsPerPage)} onValueChange={v => { setItemsPerPage(Number(v)); setCurrentPage(1); }}>
-                  <SelectTrigger className="h-[46px] w-full bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black text-white focus:ring-0 focus:ring-offset-0 px-3 gap-1 group/trigger hover:bg-white/10 transition-all">
+                  <SelectTrigger className="h-[46px] w-full bg-slate-50 border border-white/10 rounded-2xl text-[10px] font-black text-slate-800 focus:ring-0 focus:ring-offset-0 px-3 gap-1 group/trigger hover:bg-white/10 transition-all">
                     <SelectValue placeholder="Rows" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#0c0c0c] border-gray-800 text-white min-w-[100px]">
+                  <SelectContent className="bg-white border-slate-200 text-slate-800 min-w-[100px]">
                     <SelectItem value="10" className="text-xs focus:bg-amber-500 focus:text-black">10 Rows</SelectItem>
                     <SelectItem value="50" className="text-xs focus:bg-amber-500 focus:text-black">50 Rows</SelectItem>
                     <SelectItem value="100" className="text-xs focus:bg-amber-500 focus:text-black">100 Rows</SelectItem>
@@ -533,7 +564,7 @@ export default function AdminProductsPage() {
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <div className="w-full">
           {/* Desktop Table Header (Hidden on Mobile) */}
-          <div className="hidden md:grid grid-cols-[40px_2.5fr_1.5fr_1.5fr_1fr_120px] bg-[#111]/50 border-b border-gray-800/50 px-4">
+          <div className="hidden md:grid grid-cols-[40px_2.5fr_1.5fr_1.5fr_1fr_120px] bg-slate-50/50 border-b border-slate-200/80 px-4">
             <div className="py-5 w-10"></div>
             {[
               { label: 'Product Details', key: 'name', sortable: true },
@@ -579,26 +610,26 @@ export default function AdminProductsPage() {
         {/* Empty State */}
         {filteredAndSorted.length === 0 && (
           <div className="flex flex-col items-center justify-center py-5 px-6 text-center">
-            <div className="w-20 h-20 bg-[#0a0a0a] border border-gray-800 rounded-[2rem] flex items-center justify-center mb-6 shadow-inner">
+            <div className="w-20 h-20 bg-[#F4F6FB] border border-slate-200 rounded-[2rem] flex items-center justify-center mb-6 shadow-inner">
               <Layers className="w-10 h-10 text-gray-800" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">No products found</h3>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">No products found</h3>
             <p className="text-gray-500 text-sm max-w-sm">Try adjusting your search criteria, clearing filters, or create a new product to add to the inventory.</p>
           </div>
         )}
 
         {/* Pagination Footer */}
         {filteredAndSorted.length > 0 && (
-          <div className="p-6 border-t border-gray-800 bg-[#0c0c0c] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="p-6 border-t border-slate-200 bg-white flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-gray-500 text-xs font-medium">
-              Showing <span className="text-white font-bold">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="text-white font-bold">{Math.min(currentPage * itemsPerPage, filteredAndSorted.length)}</span> of <span className="text-white font-bold">{filteredAndSorted.length}</span> items
+              Showing <span className="text-slate-800 font-bold">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="text-slate-800 font-bold">{Math.min(currentPage * itemsPerPage, filteredAndSorted.length)}</span> of <span className="text-slate-800 font-bold">{filteredAndSorted.length}</span> items
             </p>
             
             <div className="flex items-center gap-1.5">
               <button 
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="p-2 text-gray-500 hover:text-white disabled:opacity-20 transition-all hover:bg-white/5 rounded-lg"
+                className="p-2 text-gray-500 hover:text-slate-900 disabled:opacity-20 transition-all hover:bg-slate-50 rounded-lg"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -625,7 +656,7 @@ export default function AdminProductsPage() {
                         "w-8 h-8 rounded-lg text-[10px] font-black transition-all flex items-center justify-center border",
                         isCurrent 
                           ? "bg-amber-500 border-amber-500 text-black shadow-lg shadow-amber-500/20" 
-                          : "bg-[#111] border-gray-800 text-gray-500 hover:border-gray-700 hover:text-white"
+                          : "bg-slate-50 border-slate-200 text-gray-500 hover:border-slate-300 hover:text-white"
                       )}
                     >
                       {page}
@@ -637,7 +668,7 @@ export default function AdminProductsPage() {
               <button 
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
-                className="p-2 text-gray-500 hover:text-white disabled:opacity-20 transition-all hover:bg-white/5 rounded-lg"
+                className="p-2 text-gray-500 hover:text-slate-900 disabled:opacity-20 transition-all hover:bg-slate-50 rounded-lg"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -648,12 +679,12 @@ export default function AdminProductsPage() {
 
       {/* Drawer for Quick View Details */}
       <Sheet open={isDrawerOpen} onOpenChange={(open) => !open && setSelectedProduct(null)} modal={true}>
-        <SheetContent className="bg-[#0a0a0a] border-l border-white/5 text-white w-full sm:max-w-xl p-0 overflow-hidden flex flex-col shadow-2xl">
+        <SheetContent className="bg-white border-l border-slate-200 text-slate-900 w-full sm:max-w-xl p-0 overflow-hidden flex flex-col shadow-2xl">
           {/* Sticky Header with Glassmorphism */}
           <div className="sticky top-0 z-20 backdrop-blur-2xl bg-black/40 border-b border-white/5 px-6 py-5 flex items-center justify-between">
             <div>
               <p className="text-amber-500 text-[10px] font-black uppercase tracking-[0.2em] mb-0.5">Specifications</p>
-              <SheetTitle className="text-white text-xl font-black tracking-tight">Product <span className="text-gray-500 italic">Overview</span></SheetTitle>
+              <SheetTitle className="text-slate-900 text-xl font-black tracking-tight">Product <span className="text-gray-500 italic">Overview</span></SheetTitle>
             </div>
             <button 
               onClick={() => setSelectedProduct(null)}
@@ -689,19 +720,19 @@ export default function AdminProductsPage() {
 
                   <div className="lg:col-span-7 space-y-4">
                     <div className="flex flex-wrap items-center gap-2">
-                       <Badge variant="outline" className="border-gray-800 text-gray-500 bg-black/40 text-[9px] tracking-[0.1em] uppercase px-2 py-0.5">
+                       <Badge variant="outline" className="border-slate-200 text-gray-500 bg-black/40 text-[9px] tracking-[0.1em] uppercase px-2 py-0.5">
                         {selectedProduct.category}
                       </Badge>
                       <div className={cn(
                         "flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[9px] font-black uppercase tracking-widest",
-                        selectedProduct.status === 'active' ? "text-green-500 border-green-500/10 bg-green-500/5" : "text-gray-500 border-gray-800/50 bg-gray-900/40"
+                        selectedProduct.status === 'active' ? "text-green-500 border-green-500/10 bg-green-500/5" : "text-gray-500 border-slate-200/80 bg-gray-900/40"
                       )}>
                         <div className={cn("w-1 h-1 rounded-full", selectedProduct.status === 'active' ? "bg-green-500 animate-pulse" : "bg-gray-500")} />
                         {selectedProduct.status}
                       </div>
                     </div>
 
-                    <h2 className="text-3xl font-black tracking-tight text-white leading-[1.1]">{selectedProduct.name}</h2>
+                    <h2 className="text-3xl font-black tracking-tight text-slate-900 leading-[1.1]">{selectedProduct.name}</h2>
                     
                     <div className="flex flex-wrap items-center gap-4 text-[10px] font-bold text-gray-400 border-t border-white/5 pt-4">
                       <div className="flex items-center gap-2"><Tag className="w-3.5 h-3.5 text-amber-500" /> <span className="uppercase tracking-widest">SKU:</span> UNI-P{selectedProduct.id}</div>
@@ -709,9 +740,9 @@ export default function AdminProductsPage() {
                     </div>
 
                     <div className="pt-2">
-                       <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/5 rounded-2xl">
+                       <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-white/5 rounded-2xl">
                           <IndianRupee className="w-4 h-4 text-amber-500" />
-                          <span className="text-2xl font-black text-white">₹{selectedProduct.price}</span>
+                          <span className="text-2xl font-black text-slate-900">₹{selectedProduct.price}</span>
                           <span className="text-gray-600 text-[10px] font-black uppercase">Start From</span>
                        </div>
                     </div>
@@ -729,7 +760,7 @@ export default function AdminProductsPage() {
                       <item.icon className={cn("w-4 h-4", item.color)} />
                       <div>
                         <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest leading-none mb-1">{item.label}</p>
-                        <p className="text-xs font-black text-white">{item.value}</p>
+                        <p className="text-xs font-black text-slate-700">{item.value}</p>
                       </div>
                     </div>
                   ))}
@@ -762,9 +793,10 @@ export default function AdminProductsPage() {
                       <div className="absolute top-0 right-0 p-8 text-white/5 pointer-events-none group-hover:text-white/10 transition-colors">
                         <BadgeInfo className="w-16 h-16 rotate-12" />
                       </div>
-                      <p className="relative z-10 text-gray-300 text-xs leading-relaxed tracking-wide italic whitespace-pre-line">
-                        {selectedProduct.description}
-                      </p>
+                      <div 
+                        className="relative z-10 text-slate-700 text-xs leading-relaxed tracking-wide rich-text-content"
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedProduct.description) }}
+                      />
                     </div>
                   </div>
                 )}
@@ -776,7 +808,7 @@ export default function AdminProductsPage() {
 
       {/* Delete Confirmation Modal */}
       <AlertDialog open={productToDelete !== null} onOpenChange={(open) => !open && setProductToDelete(null)}>
-        <AlertDialogContent className="bg-[#0c0c0c] border-gray-800 text-white rounded-[2rem]">
+        <AlertDialogContent className="bg-white border-slate-200 shadow-xl text-slate-900 rounded-[2rem]">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl font-black tracking-tight">Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-500 font-medium">
@@ -784,7 +816,7 @@ export default function AdminProductsPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6 flex gap-3">
-            <AlertDialogCancel className="bg-transparent border-gray-800 text-gray-400 hover:text-white hover:bg-white/5 rounded-2xl transition-all">
+            <AlertDialogCancel className="bg-transparent border-slate-200 text-gray-400 hover:text-slate-900 hover:bg-slate-50 rounded-2xl transition-all">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction 

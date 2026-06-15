@@ -4,11 +4,15 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    sourcemap: false,        // Never expose source maps in production
+    target: 'es2020',
+  },
   server: {
     port: 3000,
     proxy: {
       '/api': {
-        // target: 'https://unikqlabel.com',
+        // target: 'https://koffeekup.in',
         target: 'http://localhost:8000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),

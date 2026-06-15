@@ -21,7 +21,7 @@ class Order {
             $db->beginTransaction();
 
             // Generate invoice number
-            $invoiceNumber = 'UNI-' . substr(time(), -6);
+            $invoiceNumber = 'KK-' . substr(time(), -6);
 
             // Calculate totals
             $subtotal = 0;
@@ -524,6 +524,324 @@ class Order {
         }
 
         return array_values($data);
+    }
+
+    // =========================================================================
+    // RAZORPAY PAYMENT METHODS
+    // =========================================================================
+
+    /**
+     * Create a PENDING order for Razorpay online payment.
+     *
+     * Identical to create() except:
+     *  - Sets payment_status = 'pending'
+     *  - Sets payment_method = 'razorpay'
+     *  - Does NOT decrement stock (stock is reserved only after payment verified)
+     *  - Does NOT increment coupon usage (happens in markPaid)
+     *  - Does NOT trigger admin notification (happens in markPaid)
+     */
+    public static function createPending(
+        array   $orderData,
+        array   $items,
+        ?float  $proposedDelivery = null,
+        ?string $couponCode       = null,
+        float   $proposedDiscount = 0
+    ): array {
+        $db = getDB();
+
+        try {
+            $db->beginTransaction();
+
+            $invoiceNumber = 'KK-' . substr(time(), -6);
+
+            // ── Server-side total calculation ─────────────────────────────────
+            $subtotal = 0;
+            foreach ($items as $item) {
+                $subtotal += ($item['price'] * $item['qty']);
+            }
+
+            $activeRule = DeliveryRule::getActive();
+            $delivery   = self::calculateDelivery($subtotal, $activeRule);
+
+            // ── Coupon re-validation ───────────────────────────────────────────
+            $discountAmount    = 0.0;
+            $appliedCouponCode = null;
+
+            if (!empty($couponCode)) {
+                $coupon = Coupon::findByCode($couponCode);
+                if (!$coupon) {
+                    throw new Exception('Invalid coupon code.');
+                }
+                $validation = Coupon::validate($coupon, $subtotal);
+                if (!$validation['valid']) {
+                    throw new Exception($validation['message']);
+                }
+                $discountAmount    = $validation['discount_amount'];
+                $appliedCouponCode = strtoupper(trim($couponCode));
+            }
+
+            $total = max(0, $subtotal + $delivery - $discountAmount);
+
+            // ── Stock availability check (read-only, no decrement yet) ─────────
+            foreach ($items as $item) {
+                if (!empty($item['product_id'])) {
+                    $pid = (int) $item['product_id'];
+                    if (Inventory::hasInventory($pid)) {
+                        $available = Inventory::checkStock(
+                            $pid,
+                            $item['size_label'] ?? null,
+                            $item['color_name'] ?? null
+                        );
+                        if ($available !== null && $available < (int) $item['qty']) {
+                            $name    = $item['product_name'];
+                            $variant = trim(implode(' / ', array_filter([
+                                $item['size_label'] ?? '',
+                                $item['color_name'] ?? '',
+                            ])));
+                            $label = $variant ? "$name ($variant)" : $name;
+                            if ($available === 0) {
+                                throw new Exception("\"$label\" is out of stock.");
+                            }
+                            throw new Exception("Only $available unit(s) of \"$label\" available.");
+                        }
+                    }
+                }
+            }
+
+            // ── Insert pending order ───────────────────────────────────────────
+            $stmt = $db->prepare("
+                INSERT INTO orders
+                    (invoice_number, customer_name, phone, address, city, pincode, notes,
+                     subtotal, delivery, discount_amount, coupon_code, total,
+                     payment_method, payment_status)
+                VALUES
+                    (:invoice, :name, :phone, :address, :city, :pincode, :notes,
+                     :subtotal, :delivery, :discount_amount, :coupon_code, :total,
+                     'razorpay', 'pending')
+            ");
+            $stmt->execute([
+                'invoice'         => $invoiceNumber,
+                'name'            => htmlspecialchars($orderData['customer_name'], ENT_QUOTES, 'UTF-8'),
+                'phone'           => htmlspecialchars($orderData['phone'], ENT_QUOTES, 'UTF-8'),
+                'address'         => htmlspecialchars($orderData['address'], ENT_QUOTES, 'UTF-8'),
+                'city'            => htmlspecialchars($orderData['city'], ENT_QUOTES, 'UTF-8'),
+                'pincode'         => htmlspecialchars($orderData['pincode'], ENT_QUOTES, 'UTF-8'),
+                'notes'           => htmlspecialchars($orderData['notes'] ?? '', ENT_QUOTES, 'UTF-8'),
+                'subtotal'        => $subtotal,
+                'delivery'        => $delivery,
+                'discount_amount' => $discountAmount,
+                'coupon_code'     => $appliedCouponCode,
+                'total'           => $total,
+            ]);
+
+            $orderId = (int) $db->lastInsertId();
+
+            // ── Insert order items (no stock decrement) ────────────────────────
+            $itemStmt = $db->prepare("
+                INSERT INTO order_items
+                    (order_id, product_id, product_name, weight, size_label, color_name,
+                     image_url, qty, price, original_price, discount_percent, total)
+                VALUES
+                    (:order_id, :product_id, :product_name, :weight, :size_label, :color_name,
+                     :image_url, :qty, :price, :original_price, :discount_percent, :total)
+            ");
+
+            foreach ($items as $item) {
+                $sizeLabel = isset($item['size_label']) && $item['size_label'] !== ''
+                    ? htmlspecialchars($item['size_label'], ENT_QUOTES, 'UTF-8') : null;
+                $colorName = isset($item['color_name']) && $item['color_name'] !== ''
+                    ? htmlspecialchars($item['color_name'], ENT_QUOTES, 'UTF-8') : null;
+                $imageUrl  = isset($item['image_url']) && $item['image_url'] !== ''
+                    ? filter_var($item['image_url'], FILTER_SANITIZE_URL) : null;
+
+                $itemStmt->execute([
+                    'order_id'         => $orderId,
+                    'product_id'       => $item['product_id'] ?? null,
+                    'product_name'     => htmlspecialchars($item['product_name'], ENT_QUOTES, 'UTF-8'),
+                    'weight'           => htmlspecialchars($item['weight'] ?? '', ENT_QUOTES, 'UTF-8'),
+                    'size_label'       => $sizeLabel,
+                    'color_name'       => $colorName,
+                    'image_url'        => $imageUrl,
+                    'qty'              => (int) $item['qty'],
+                    'price'            => (float) $item['price'],
+                    'original_price'   => isset($item['original_price']) && $item['original_price'] > $item['price']
+                                            ? (float) $item['original_price'] : null,
+                    'discount_percent' => isset($item['discount_percent']) && $item['discount_percent'] > 0
+                                            ? (float) $item['discount_percent'] : null,
+                    'total'            => (float) ($item['price'] * $item['qty']),
+                ]);
+            }
+
+            $db->commit();
+
+            return [
+                'id'              => $orderId,
+                'invoice_number'  => $invoiceNumber,
+                'subtotal'        => $subtotal,
+                'delivery'        => $delivery,
+                'discount_amount' => $discountAmount,
+                'coupon_code'     => $appliedCouponCode,
+                'total'           => $total,
+            ];
+
+        } catch (Exception $e) {
+            $db->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Fetch a single order row by ID (no items, no trashed exclusion).
+     * Used during payment verification to check state before mutating.
+     */
+    public static function getById(int $id): ?array
+    {
+        $db   = getDB();
+        $stmt = $db->prepare("SELECT * FROM orders WHERE id = :id LIMIT 1");
+        $stmt->execute(['id' => $id]);
+        $row  = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    /**
+     * Store the Razorpay-generated order ID against a local pending order.
+     * Called immediately after razorpayCreateOrder() succeeds.
+     */
+    public static function setRazorpayOrderId(int $localOrderId, string $rzpOrderId): bool
+    {
+        $db   = getDB();
+        $stmt = $db->prepare(
+            "UPDATE orders SET razorpay_order_id = :rzp_id WHERE id = :id AND payment_status = 'pending'"
+        );
+        return $stmt->execute(['rzp_id' => $rzpOrderId, 'id' => $localOrderId]);
+    }
+
+    /**
+     * Mark a pending order as paid after Razorpay signature verification.
+     *
+     * Atomically (inside a transaction):
+     *  1. Re-validates payment_status is still 'pending' (prevents double-processing)
+     *  2. Decrements stock for all items
+     *  3. Increments coupon usage
+     *  4. Updates order: payment_status=paid, status=confirmed, Razorpay IDs, paid_at
+     *  5. Creates admin notification
+     */
+    public static function markPaid(
+        int    $localOrderId,
+        string $rzpPaymentId,
+        string $rzpSignature
+    ): void {
+        $db = getDB();
+
+        try {
+            $db->beginTransaction();
+
+            // Re-fetch order inside transaction to prevent race conditions
+            $stmt = $db->prepare("SELECT * FROM orders WHERE id = :id FOR UPDATE");
+            $stmt->execute(['id' => $localOrderId]);
+            $order = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$order) {
+                throw new Exception("Order #{$localOrderId} not found");
+            }
+            if ($order['payment_status'] === 'paid') {
+                // Already processed — idempotent, just commit and return
+                $db->commit();
+                return;
+            }
+            if ($order['payment_status'] !== 'pending') {
+                throw new Exception("Order #{$localOrderId} is not in a payable state");
+            }
+
+            // ── Fetch items ────────────────────────────────────────────────────
+            $itemStmt = $db->prepare(
+                "SELECT product_id, size_label, color_name, qty FROM order_items WHERE order_id = :oid"
+            );
+            $itemStmt->execute(['oid' => $localOrderId]);
+            $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // ── Decrement stock ────────────────────────────────────────────────
+            foreach ($items as $item) {
+                $pid = isset($item['product_id']) ? (int) $item['product_id'] : null;
+                if (!$pid) continue;
+                if (!Inventory::hasInventory($pid)) continue;
+
+                // Re-check stock one final time inside transaction
+                $available = Inventory::checkStock(
+                    $pid,
+                    $item['size_label'] ?? null,
+                    $item['color_name'] ?? null
+                );
+                if ($available !== null && $available < (int) $item['qty']) {
+                    throw new Exception('Stock changed before payment could be confirmed. Please contact support.');
+                }
+
+                Inventory::decrement(
+                    $pid,
+                    $item['size_label'] ?? null,
+                    $item['color_name'] ?? null,
+                    (int) $item['qty']
+                );
+            }
+
+            // ── Update order to paid ───────────────────────────────────────────
+            $upd = $db->prepare("
+                UPDATE orders SET
+                    payment_status       = 'paid',
+                    status               = 'confirmed',
+                    razorpay_payment_id  = :pay_id,
+                    razorpay_signature   = :signature,
+                    paid_at              = NOW()
+                WHERE id = :id
+            ");
+            $upd->execute([
+                'pay_id'    => $rzpPaymentId,
+                'signature' => $rzpSignature,
+                'id'        => $localOrderId,
+            ]);
+
+            $db->commit();
+
+            // ── Coupon usage increment (non-critical, outside transaction) ─────
+            if (!empty($order['coupon_code'])) {
+                try {
+                    Coupon::incrementUsage($order['coupon_code']);
+                } catch (Exception $ce) {
+                    error_log('[Razorpay] Coupon usage increment failed: ' . $ce->getMessage());
+                }
+            }
+
+            // ── Admin notification (non-critical) ─────────────────────────────
+            try {
+                $customerName = $order['customer_name'];
+                $total        = number_format((float) $order['total'], 2);
+                Notification::create(
+                    'new_order',
+                    $localOrderId,
+                    "Paid order #{$order['invoice_number']} from {$customerName} — ₹{$total}"
+                );
+            } catch (Exception $ne) {
+                error_log('[Razorpay] Notification creation failed: ' . $ne->getMessage());
+            }
+
+        } catch (Exception $e) {
+            $db->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Mark a pending payment order as failed (e.g. user dismissed the popup).
+     * Stock was never decremented so no restore needed.
+     */
+    public static function cancelPendingPayment(int $localOrderId): bool
+    {
+        $db   = getDB();
+        $stmt = $db->prepare(
+            "UPDATE orders SET payment_status = 'failed', status = 'cancelled'
+             WHERE id = :id AND payment_status = 'pending'"
+        );
+        return $stmt->execute(['id' => $localOrderId]);
     }
 
 }

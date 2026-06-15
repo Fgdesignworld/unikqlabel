@@ -7,8 +7,12 @@ export interface Category {
     image: string | null;
     status: 'active' | 'inactive';
     sort_order: number;
+    parent_id: number | null;
+    sub_count?: number;
+    parent_name?: string;
     product_count?: number;
     created_at?: string;
+    subcategories?: Category[];
 }
 
 export interface CategoryPayload {
@@ -17,12 +21,19 @@ export interface CategoryPayload {
     image?: string | null;
     status?: 'active' | 'inactive';
     sort_order?: number;
+    parent_id?: number | null;
 }
 
 export const categoryService = {
-    /** Public: active categories */
+    /** Public: active categories (flat) */
     async getActive(): Promise<Category[]> {
         const res = await api.get('/categories');
+        return res.data.data?.categories ?? [];
+    },
+
+    /** Public: hierarchical tree (parents with subcategories array) */
+    async getTree(): Promise<Category[]> {
+        const res = await api.get('/categories/tree');
         return res.data.data?.categories ?? [];
     },
 

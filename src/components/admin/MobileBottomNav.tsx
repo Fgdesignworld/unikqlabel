@@ -35,7 +35,7 @@ export function MobileBottomNav({ adminName, unreadCount = 0, pendingOrderCount 
     (path !== '/admin/dashboard' && location.pathname.startsWith(path))
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-2xl border-t border-gray-800/60 safe-area-pb">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-2xl border-t border-slate-200/80 safe-area-pb shadow-[0_-4px_20px_rgba(15,23,42,0.08)]">
       <div className="flex items-center justify-around px-1 py-2">
         {items.map(item => (
           <Link
@@ -44,24 +44,24 @@ export function MobileBottomNav({ adminName, unreadCount = 0, pendingOrderCount 
             className={cn(
               "relative flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all min-w-[56px]",
               isActive(item.path)
-                ? "text-amber-500"
-                : "text-gray-500 hover:text-gray-300 active:scale-95"
+                ? "text-[#C9A45C]"
+                : "text-slate-400 hover:text-slate-700 active:scale-95"
             )}
           >
             <div className={cn(
               "relative p-1.5 rounded-xl transition-colors",
-              isActive(item.path) ? "bg-amber-500/10" : ""
+              isActive(item.path) ? "bg-amber-50 border border-amber-200/60" : ""
             )}>
               <item.icon className="w-5 h-5" />
               {item.badge && item.badge > 0 ? (
-                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 flex items-center justify-center bg-amber-500 text-black text-[8px] font-black rounded-full px-0.5 shadow-lg shadow-amber-500/30">
+                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 flex items-center justify-center bg-[#C9A45C] text-white text-[8px] font-black rounded-full px-0.5 shadow-sm">
                   {item.badge > 99 ? '99+' : item.badge}
                 </span>
               ) : null}
             </div>
             <span className={cn(
               "text-[9px] font-black uppercase tracking-widest",
-              isActive(item.path) ? "text-amber-500" : "text-gray-600"
+              isActive(item.path) ? "text-[#C9A45C]" : "text-slate-400"
             )}>
               {item.label}
             </span>
@@ -71,14 +71,14 @@ export function MobileBottomNav({ adminName, unreadCount = 0, pendingOrderCount 
         {/* Profile / Sign Out */}
         <button
           onClick={handleProfile}
-          className="relative flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all min-w-[56px] text-gray-500 hover:text-gray-300 active:scale-95"
+          className="relative flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all min-w-[56px] text-slate-400 hover:text-slate-700 active:scale-95"
         >
           <div className="relative p-0 rounded-xl">
-            <div className="w-7 h-7 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-500 text-xs font-black">
+            <div className="w-7 h-7 rounded-xl bg-amber-50 border border-amber-200/60 flex items-center justify-center text-[#B8903E] text-xs font-black">
               {adminName?.charAt(0)?.toUpperCase() || 'A'}
             </div>
           </div>
-          <span className="text-[9px] font-black uppercase tracking-widest text-gray-600">Profile</span>
+          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Profile</span>
         </button>
       </div>
     </nav>

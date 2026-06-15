@@ -8,6 +8,7 @@ import {
   Calendar, Tag, User,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { AdminSelect } from '@/components/admin/AdminSelect'
 import { leadService, type Lead, type LeadFollowup } from '@/services/leadService'
 
 // ─── Inline WhatsApp icon ───────────────────────────────────────────────────────
@@ -118,7 +119,7 @@ export default function LeadDetailPanel({ lead, onClose, onUpdated }: Props) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex justify-end p-4 bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-60 flex justify-end p-4 bg-slate-800/40 backdrop-blur-sm"
       onClick={onClose}
     >
       <motion.div
@@ -127,24 +128,24 @@ export default function LeadDetailPanel({ lead, onClose, onUpdated }: Props) {
         exit={{ x: 60, opacity: 0 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         onClick={e => e.stopPropagation()}
-        className="w-full max-w-md bg-[#0c0c0c] border border-gray-800 rounded-2xl overflow-y-auto flex flex-col"
+        className="w-full max-w-md bg-white border border-slate-200 rounded-2xl overflow-y-auto flex flex-col"
         style={{ maxHeight: 'calc(100vh - 2rem)' }}
       >
         {/* Header */}
-        <div className="flex items-start justify-between p-5 border-b border-gray-800 shrink-0">
+        <div className="flex items-start justify-between p-5 border-b border-slate-200 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
               <span className="text-base font-black text-amber-400">{detail.name[0]?.toUpperCase()}</span>
             </div>
             <div>
-              <h2 className="font-black text-white text-base">{detail.name}</h2>
+              <h2 className="font-black text-slate-900 text-base">{detail.name}</h2>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className={cn('text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border', sm.color, sm.bg, sm.border)}>{sm.label}</span>
                 <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full', sc.color, sc.bg)}>{sc.label}</span>
               </div>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-800 text-gray-400 transition-colors">
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -177,7 +178,7 @@ export default function LeadDetailPanel({ lead, onClose, onUpdated }: Props) {
           </div>
 
           {/* Lead details */}
-          <div className="bg-gray-900/40 rounded-2xl p-4 space-y-2.5 text-sm">
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-2.5 text-sm">
             {[
               { label: 'Phone', value: detail.phone },
               detail.email ? { label: 'Email', value: detail.email } : null,
@@ -186,8 +187,8 @@ export default function LeadDetailPanel({ lead, onClose, onUpdated }: Props) {
               { label: 'Date', value: fmtDate(detail.created_at) },
             ].filter(Boolean).map((row: any) => (
               <div key={row.label} className="flex gap-2">
-                <span className="text-gray-500 w-20 shrink-0 text-xs font-bold uppercase tracking-wider">{row.label}</span>
-                <span className="text-gray-300 text-xs">{row.value}</span>
+                <span className="text-slate-400 w-20 shrink-0 text-xs font-bold uppercase tracking-wider">{row.label}</span>
+                <span className="text-slate-700 text-xs">{row.value}</span>
               </div>
             ))}
           </div>
@@ -195,43 +196,39 @@ export default function LeadDetailPanel({ lead, onClose, onUpdated }: Props) {
           {/* Original message */}
           <div className="bg-amber-500/5 border border-amber-500/15 rounded-2xl p-4">
             <p className="text-[10px] font-black uppercase tracking-widest text-amber-500/60 mb-2">Message</p>
-            <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{detail.message}</p>
+            <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">{detail.message}</p>
           </div>
 
           {/* Update Status & Score */}
-          <div className="bg-[#111] border border-gray-800 rounded-2xl p-4 space-y-3">
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3">
             <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Update Lead</p>
             <div className="flex gap-2">
               <div className="flex-1">
                 <label className="block text-[10px] text-gray-500 mb-1">Status</label>
-                <div className="relative">
-                  <select
-                    value={statusVal}
-                    onChange={e => setStatusVal(e.target.value as Lead['status'])}
-                    className="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white outline-none appearance-none focus:border-amber-500/40"
-                  >
-                    <option value="new">New</option>
-                    <option value="contacted">Contacted</option>
-                    <option value="converted">Converted</option>
-                    <option value="closed">Closed</option>
-                  </select>
-                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-600 pointer-events-none" />
-                </div>
+                <AdminSelect
+                  value={statusVal}
+                  onChange={val => setStatusVal(val as Lead['status'])}
+                  options={[
+                    { value: 'new', label: 'New' },
+                    { value: 'contacted', label: 'Contacted' },
+                    { value: 'converted', label: 'Converted' },
+                    { value: 'closed', label: 'Closed' },
+                  ]}
+                  variant="small"
+                />
               </div>
               <div className="flex-1">
                 <label className="block text-[10px] text-gray-500 mb-1">Score</label>
-                <div className="relative">
-                  <select
-                    value={scoreVal}
-                    onChange={e => setScoreVal(e.target.value as Lead['lead_score'])}
-                    className="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white outline-none appearance-none focus:border-amber-500/40"
-                  >
-                    <option value="hot">Hot</option>
-                    <option value="warm">Warm</option>
-                    <option value="cold">Cold</option>
-                  </select>
-                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-600 pointer-events-none" />
-                </div>
+                <AdminSelect
+                  value={scoreVal}
+                  onChange={val => setScoreVal(val as Lead['lead_score'])}
+                  options={[
+                    { value: 'hot', label: 'Hot' },
+                    { value: 'warm', label: 'Warm' },
+                    { value: 'cold', label: 'Cold' },
+                  ]}
+                  variant="small"
+                />
               </div>
             </div>
             <button
@@ -244,7 +241,7 @@ export default function LeadDetailPanel({ lead, onClose, onUpdated }: Props) {
           </div>
 
           {/* Add Follow-up */}
-          <div className="bg-[#111] border border-gray-800 rounded-2xl p-4 space-y-3">
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3">
             <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Add Follow-up</p>
             {/* Type pills */}
             <div className="flex gap-1.5 flex-wrap">
@@ -252,7 +249,7 @@ export default function LeadDetailPanel({ lead, onClose, onUpdated }: Props) {
                 <button
                   key={t}
                   onClick={() => setFollowupType(t)}
-                  className={cn('px-2.5 py-1 rounded-lg text-[10px] font-bold capitalize transition-all border', followupType === t ? 'bg-amber-500/15 border-amber-500/30 text-amber-400' : 'bg-gray-900 border-gray-800 text-gray-500 hover:text-white')}
+                  className={cn('px-2.5 py-1 rounded-lg text-[10px] font-bold capitalize transition-all border', followupType === t ? 'bg-amber-500/15 border-amber-500/30 text-amber-500' : 'bg-white border-slate-200 text-slate-500 hover:text-slate-800')}
                 >
                   {t}
                 </button>
@@ -263,7 +260,7 @@ export default function LeadDetailPanel({ lead, onClose, onUpdated }: Props) {
               placeholder="Notes…"
               value={followupNotes}
               onChange={e => { setFollowupNotes(e.target.value); setFError('') }}
-              className="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2.5 text-xs text-white placeholder-gray-600 outline-none focus:border-amber-500/40 resize-none"
+              className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-amber-500/40 resize-none"
             />
             <div>
               <label className="block text-[10px] text-gray-500 mb-1">Next Follow-up Date (optional)</label>
@@ -271,7 +268,7 @@ export default function LeadDetailPanel({ lead, onClose, onUpdated }: Props) {
                 type="date"
                 value={followupDate}
                 onChange={e => setFollowupDate(e.target.value)}
-                className="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-500/40"
+                className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-amber-500/40"
               />
             </div>
             {fError && <p className="text-red-400 text-xs">{fError}</p>}
@@ -300,12 +297,12 @@ export default function LeadDetailPanel({ lead, onClose, onUpdated }: Props) {
                       <div className="w-7 h-7 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 mt-0.5">
                         <FIcon className="w-3.5 h-3.5 text-amber-400" />
                       </div>
-                      <div className="flex-1 bg-gray-900/40 rounded-xl p-3">
+                      <div className="flex-1 bg-white border border-slate-200 rounded-xl p-3">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-[10px] font-black uppercase tracking-wider text-amber-400">{fu.type}</span>
                           <span className="text-[10px] text-gray-600">{fmtDateTime(fu.created_at)}</span>
                         </div>
-                        <p className="text-xs text-gray-300 leading-relaxed">{fu.notes}</p>
+                        <p className="text-xs text-slate-600 leading-relaxed">{fu.notes}</p>
                         {fu.next_followup_date && (
                           <div className="flex items-center gap-1 mt-2">
                             <Calendar className="w-3 h-3 text-gray-500" />

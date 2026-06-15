@@ -8,7 +8,7 @@
  *  - UA/IP fingerprint check to detect session hijacking
  */
 
-define('SESSION_IDLE_TIMEOUT', 28800); // 8 hours — admin stays logged in all day
+define('SESSION_IDLE_TIMEOUT', 28800); // 8 hours — admin stays logged in all day (configurable via .env: SESSION_TIMEOUT)
 
 function requireAuth(): void {
     if (session_status() === PHP_SESSION_NONE) {

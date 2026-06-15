@@ -21,8 +21,8 @@ export const generateInvoice = async (
         const maxContentHeight = 1050;
 
         // Get the global bridge for React communication
-        const updateInvoiceData = (window as any).updateInvoiceData;
-        if (!updateInvoiceData) throw new Error('updateInvoiceData helper not found on window');
+        const updateInvoiceData = (window as any).__invoiceUpdater;
+        if (!updateInvoiceData) throw new Error('Invoice updater not available');
 
         let currentItemIndex = 0;
         let pageNum = 0;
@@ -95,7 +95,7 @@ export const generateInvoice = async (
         }
 
         if (showDownload) {
-            pdf.save(`Invoice_UNI_${invoiceNumber}.pdf`);
+            pdf.save(`Invoice_KK_${invoiceNumber}.pdf`);
         }
 
         return pdf.output('blob');

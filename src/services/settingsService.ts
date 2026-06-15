@@ -24,6 +24,7 @@ export interface SiteSettings {
     // Typography
     font_heading?: string | null;
     font_body?: string | null;
+    cod_enabled?: string | null;
     [key: string]: string | null | undefined;
 }
 

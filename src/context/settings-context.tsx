@@ -11,10 +11,10 @@ interface SettingsContextValue {
     refresh: () => Promise<void>;
 }
 
-const THEME_COLOR_KEY = 'unikq_theme_color';
+const THEME_COLOR_KEY = 'koffeekup_theme_color';
 
 const DEFAULT: SiteSettings = {
-    site_name: 'UNIKQ LABEL',
+    site_name: 'KoffeeKup',
     currency_symbol: '₹',
     theme_color: '#f59e0b',
     font_heading: 'Playfair Display',
@@ -78,7 +78,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
                 fav.rel = 'icon';
                 document.head.appendChild(fav);
             }
-            fav.href = s.favicon_url.startsWith('/') ? `/api${s.favicon_url}` : s.favicon_url;
+            fav.href = s.favicon_url.startsWith('/') && !s.favicon_url.startsWith('/api') ? `/api${s.favicon_url}` : s.favicon_url;
         }
     };
 

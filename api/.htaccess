@@ -1,5 +1,27 @@
 RewriteEngine On
 
+# ============================================================
+# SECURITY: Block direct access to sensitive files & directories
+# ============================================================
+
+# Block dotfiles
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Block database dumps, backups, archives, logs, config files
+<FilesMatch "\.(sql|zip|tar|gz|bak|log|sh|md|txt|csv)$">
+    Require all denied
+</FilesMatch>
+
+# Block direct access to internal PHP files (only index.php is the entry point)
+<FilesMatch "^(?!index\.php$).+\.php$">
+    Require all denied
+</FilesMatch>
+
+# Block access to internal directories
+RewriteRule ^(config|controllers|helpers|middleware|migrations|models|routes|storage)/ - [F,L]
+
 # Handle Authorization Header
 RewriteCond %{HTTP:Authorization} .
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

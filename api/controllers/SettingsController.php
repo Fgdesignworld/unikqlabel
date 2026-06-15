@@ -8,6 +8,7 @@ require_once __DIR__ . '/../models/Settings.php';
 require_once __DIR__ . '/../middleware/auth.php';
 require_once __DIR__ . '/../helpers/upload.php';
 require_once __DIR__ . '/../helpers/security.php';
+require_once __DIR__ . '/../helpers/razorpay.php';
 
 class SettingsController {
 
@@ -26,9 +27,13 @@ class SettingsController {
 
     /**
      * GET /api/settings — All settings as flat key-value (public, cached-friendly)
+     * Security: Razorpay secret and key_id are NEVER exposed to the public.
      */
     public static function index(): void {
         $settings = Settings::getAll();
+        // Strip payment credentials — they must never reach the frontend
+        unset($settings['razorpay_key_secret']);
+        unset($settings['razorpay_key_id']);
         self::ok(['settings' => $settings]);
     }
 
@@ -36,10 +41,15 @@ class SettingsController {
 
     /**
      * GET /api/admin/settings/grouped — Grouped by setting_group
+     * Security: razorpay_key_secret is masked as placeholder if set.
      */
     public static function adminGrouped(): void {
         requireAuth();
         $grouped = Settings::getAllGrouped();
+        // Mask secret so it never leaves the server in plaintext
+        if (!empty($grouped['payment']['razorpay_key_secret'])) {
+            $grouped['payment']['razorpay_key_secret'] = RAZORPAY_SECRET_MASK;
+        }
         self::ok(['settings' => $grouped]);
     }
 
@@ -63,6 +73,8 @@ class SettingsController {
         foreach ($data as $key => $value) {
             $safeKey = preg_replace('/[^a-z0-9_]/', '', strtolower($key));
             if (empty($safeKey)) continue;
+            // Never overwrite the secret with the masked placeholder sent by the UI
+            if ($safeKey === 'razorpay_key_secret' && $value === RAZORPAY_SECRET_MASK) continue;
             $clean[$safeKey] = $value !== null ? (string) $value : null;
         }
 
@@ -77,7 +89,7 @@ class SettingsController {
             self::ok(['settings' => $updated], 'Settings saved successfully');
         } catch (Exception $e) {
             error_log('Settings save error: ' . $e->getMessage());
-            self::error('Failed to save settings: ' . $e->getMessage(), 500);
+            self::error('Failed to save settings. Please try again.', 500);
         }
     }
 

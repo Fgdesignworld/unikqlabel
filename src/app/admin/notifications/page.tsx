@@ -26,7 +26,7 @@ function NotifSkeleton() {
   return (
     <div className="space-y-2">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="bg-[#0c0c0c] border border-gray-800/50 rounded-2xl p-4 pl-5 animate-pulse">
+        <div key={i} className="bg-white border border-slate-200/80 rounded-2xl p-4 pl-5 animate-pulse">
           <div className="flex items-start gap-4">
             <div className="w-10 h-10 rounded-xl bg-gray-800 shrink-0 mt-0.5" />
             <div className="flex-1 space-y-2">
@@ -50,22 +50,22 @@ function NotifPagination({ page, lastPage, total, perPage, onPage }: {
   const start = Math.max(0, Math.min(page - 3, lastPage - 5))
   const pages = Array.from({ length: lastPage }, (_, i) => i + 1).slice(start, start + 5)
   return (
-    <div className="flex items-center justify-between pt-3 border-t border-gray-800/50">
+    <div className="flex items-center justify-between pt-3 border-t border-slate-200/80">
       <p className="text-xs text-gray-600">Showing {from}–{to} of {total}</p>
       <div className="flex items-center gap-1">
         <button onClick={() => onPage(page - 1)} disabled={page === 1}
-          className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+          className="w-8 h-8 flex items-center justify-center rounded-xl border border-slate-200 text-gray-500 hover:text-slate-900 hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
           <ChevronLeft className="w-4 h-4" />
         </button>
         {pages.map(p => (
           <button key={p} onClick={() => onPage(p)}
             className={cn('w-8 h-8 rounded-xl text-xs font-black transition-all',
-              p === page ? 'bg-amber-500 text-black' : 'border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600')}>
+              p === page ? 'bg-amber-500 text-black' : 'border border-slate-200 text-gray-500 hover:text-slate-900 hover:border-gray-600')}>
             {p}
           </button>
         ))}
         <button onClick={() => onPage(page + 1)} disabled={page === lastPage}
-          className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+          className="w-8 h-8 flex items-center justify-center rounded-xl border border-slate-200 text-gray-500 hover:text-slate-900 hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -90,11 +90,11 @@ function NotificationCard({
     <div
       onClick={() => onNavigate(notification)}
       className={cn(
-        'group relative bg-[#0c0c0c] border rounded-2xl overflow-hidden cursor-pointer',
-        'hover:border-gray-700 transition-all duration-200',
+        'group relative bg-white border rounded-2xl overflow-hidden cursor-pointer',
+        'hover:border-slate-300 transition-all duration-200',
         isUnread
           ? 'border-amber-500/30 shadow-sm shadow-amber-500/5'
-          : 'border-gray-800/50'
+          : 'border-slate-200/80'
       )}
     >
       {/* Unread left accent bar */}
@@ -115,7 +115,7 @@ function NotificationCard({
         <div className="flex-1 min-w-0">
           <p className={cn(
             'text-sm leading-relaxed',
-            isUnread ? 'text-white font-semibold' : 'text-gray-400'
+            isUnread ? 'text-slate-900 font-semibold' : 'text-gray-400'
           )}>
             {notification.message}
           </p>
@@ -224,7 +224,7 @@ export default function AdminNotificationsPage() {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-0.5">Admin Panel</p>
-          <h1 className="text-xl md:text-2xl font-black text-white">Notifications</h1>
+          <h1 className="text-xl md:text-2xl font-black text-slate-900">Notifications</h1>
           <p className="text-gray-500 text-xs mt-0.5">{notifications.length} total · {unreadCount} unread</p>
         </div>
         <div className="flex items-center gap-2">
@@ -240,7 +240,7 @@ export default function AdminNotificationsPage() {
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-gray-800 rounded-xl text-gray-400 hover:text-white hover:border-gray-700 transition-colors text-xs font-bold"
+            className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-xl text-gray-400 hover:text-slate-900 hover:border-slate-300 transition-colors text-xs font-bold"
           >
             <RefreshCw className={cn('w-3.5 h-3.5', refreshing && 'animate-spin')} />
             <span className="hidden sm:inline">Refresh</span>
@@ -250,31 +250,31 @@ export default function AdminNotificationsPage() {
 
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <div className="bg-[#0c0c0c] border border-gray-800/50 rounded-2xl p-4">
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-4">
           <div className="w-9 h-9 bg-amber-500/10 rounded-xl flex items-center justify-center mb-3">
             <Bell className="w-4 h-4 text-amber-500" />
           </div>
-          <p className="text-2xl font-black text-white">{unreadCount}</p>
+          <p className="text-2xl font-black text-slate-900">{unreadCount}</p>
           <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-0.5">Unread</p>
         </div>
-        <div className="bg-[#0c0c0c] border border-gray-800/50 rounded-2xl p-4">
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-4">
           <div className="w-9 h-9 bg-green-500/10 rounded-xl flex items-center justify-center mb-3">
             <CheckCheck className="w-4 h-4 text-green-500" />
           </div>
-          <p className="text-2xl font-black text-white">{notifications.length - unreadCount}</p>
+          <p className="text-2xl font-black text-slate-900">{notifications.length - unreadCount}</p>
           <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-0.5">Read</p>
         </div>
-        <div className="bg-[#0c0c0c] border border-gray-800/50 rounded-2xl p-4 col-span-2 sm:col-span-1">
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-4 col-span-2 sm:col-span-1">
           <div className="w-9 h-9 bg-blue-500/10 rounded-xl flex items-center justify-center mb-3">
             <ShoppingBag className="w-4 h-4 text-blue-500" />
           </div>
-          <p className="text-2xl font-black text-white">{notifications.length}</p>
+          <p className="text-2xl font-black text-slate-900">{notifications.length}</p>
           <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-0.5">Total</p>
         </div>
       </div>
 
       {/* Filter tabs */}
-      <div className="flex items-center gap-2 p-1 bg-[#0c0c0c] border border-gray-800/50 rounded-2xl w-fit">
+      <div className="flex items-center gap-2 p-1 bg-white border border-slate-200/80 rounded-2xl w-fit">
         {(['all', 'unread'] as const).map(f => (
           <button
             key={f}
@@ -293,9 +293,9 @@ export default function AdminNotificationsPage() {
 
       {/* Notifications list */}
       {displayed.length === 0 ? (
-        <div className="bg-[#0c0c0c] border border-gray-800 rounded-2xl p-16 text-center">
+        <div className="bg-white border border-slate-200 rounded-2xl p-16 text-center">
           <Inbox className="w-10 h-10 text-gray-700 mx-auto mb-3" />
-          <p className="text-white font-bold">
+          <p className="text-slate-800 font-bold">
             {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
           </p>
           <p className="text-gray-500 text-xs mt-1">

@@ -1,6 +1,6 @@
-﻿'use client'
+'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { orderService, type OrdersAnalytics, type ChartDay, type OrderFilters } from '@/services/orderService'
 import { useSettings } from '@/context/settings-context'
@@ -17,6 +17,8 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
+import { createPortal } from 'react-dom'
+import { AdminSelect } from '@/components/admin/AdminSelect'
 
 // â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string; border: string; label: string; icon: React.ElementType }> = {
@@ -35,6 +37,7 @@ const PAYMENT_CONFIG: Record<string, { label: string; icon: React.ElementType; c
   phonepay:   { label: 'PhonePe',          icon: Smartphone,  color: 'text-indigo-400' },
   card:       { label: 'Card',             icon: CreditCard,  color: 'text-cyan-400' },
   netbanking: { label: 'Net Banking',      icon: CreditCard,  color: 'text-green-400' },
+  razorpay:   { label: 'Razorpay',         icon: CreditCard,  color: 'text-blue-400' },
   other:      { label: 'Other',            icon: IndianRupee, color: 'text-gray-400' },
   unknown:    { label: 'Not set',          icon: IndianRupee, color: 'text-gray-600' },
 }
@@ -59,7 +62,7 @@ function fmtTime(d: string) {
 function CustomTooltip({ active, payload, label, currency }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[#111] border border-gray-800 rounded-xl p-3 shadow-2xl">
+    <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-2xl">
       <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">{label}</p>
       <p className="text-amber-500 font-black text-sm">{payload[0]?.value} orders</p>
       {payload[1] && <p className="text-green-400 font-bold text-xs">{currency || '₹'}{Number(payload[1]?.value).toLocaleString('en-IN')}</p>}
@@ -78,11 +81,11 @@ function AnalyticsCards({ analytics, settings }: { analytics: OrdersAnalytics; s
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {cards.map(card => (
-        <div key={card.label} className={cn("bg-[#0c0c0c] border rounded-2xl p-4 md:p-5 group hover:border-gray-700 transition-colors", card.border)}>
+        <div key={card.label} className={cn("bg-white border rounded-2xl p-4 md:p-5 group hover:border-slate-300 transition-colors", card.border)}>
           <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-transform group-hover:scale-110", card.bg)}>
             <card.icon className={cn("w-5 h-5", card.color)} />
           </div>
-          <p className="text-xl md:text-2xl font-black text-white tracking-tight">{card.data.count}</p>
+          <p className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{card.data.count}</p>
           <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-0.5">{card.label} Orders</p>
           <p className="text-xs font-bold text-gray-400 mt-1">{settings?.currency_symbol || '₹'}{card.data.revenue.toLocaleString('en-IN')}</p>
         </div>
@@ -95,7 +98,7 @@ function AnalyticsCards({ analytics, settings }: { analytics: OrdersAnalytics; s
 function StatusBreakdown({ byStatus }: { byStatus: Record<string, number> }) {
   const total = Object.values(byStatus).reduce((a, b) => a + b, 0) || 1
   return (
-    <div className="bg-[#0c0c0c] border border-gray-800/50 rounded-2xl p-5">
+    <div className="bg-white border border-slate-200/80 rounded-2xl p-5">
       <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-4">Order Status Breakdown</p>
       <div className="space-y-2.5">
         {VALID_STATUSES.map(s => {
@@ -109,10 +112,10 @@ function StatusBreakdown({ byStatus }: { byStatus: Record<string, number> }) {
                 <Icon className={cn("w-3 h-3", cfg.text)} />
               </div>
               <span className="text-gray-400 text-xs w-20 capitalize">{cfg.label}</span>
-              <div className="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+              <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
                 <div className={cn("h-full rounded-full transition-all duration-700", cfg.dot.replace('bg-', 'bg-'))} style={{ width: `${pct}%` }} />
               </div>
-              <span className="text-xs font-bold text-white w-6 text-right">{count}</span>
+              <span className="text-xs font-bold text-slate-700 w-6 text-right">{count}</span>
             </div>
           )
         })}
@@ -126,7 +129,7 @@ function PaymentBreakdown({ byPayment }: { byPayment: Record<string, number> }) 
   const entries = Object.entries(byPayment).sort((a, b) => b[1] - a[1])
   const total = entries.reduce((a, [, v]) => a + v, 0) || 1
   return (
-    <div className="bg-[#0c0c0c] border border-gray-800/50 rounded-2xl p-5">
+    <div className="bg-white border border-slate-200/80 rounded-2xl p-5">
       <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-4">Payment Methods</p>
       {entries.length === 0 ? (
         <p className="text-gray-600 text-xs text-center py-3">No payment data yet</p>
@@ -140,10 +143,10 @@ function PaymentBreakdown({ byPayment }: { byPayment: Record<string, number> }) 
               <div key={method} className="flex items-center gap-3">
                 <Icon className={cn("w-4 h-4 shrink-0", cfg.color)} />
                 <span className="text-gray-400 text-xs w-24 truncate">{cfg.label}</span>
-                <div className="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
                   <div className="h-full bg-amber-500/60 rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
                 </div>
-                <span className="text-xs font-bold text-white w-6 text-right">{count}</span>
+                <span className="text-xs font-bold text-slate-700 w-6 text-right">{count}</span>
               </div>
             )
           })}
@@ -156,10 +159,10 @@ function PaymentBreakdown({ byPayment }: { byPayment: Record<string, number> }) 
 // â”€â”€â”€ Orders Chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function OrdersChart({ chartData, currency }: { chartData: ChartDay[]; currency?: string }) {
   return (
-    <div className="bg-[#0c0c0c] border border-gray-800/50 rounded-2xl overflow-hidden">
-      <div className="p-5 border-b border-gray-800 flex items-center justify-between">
+    <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden">
+      <div className="p-5 border-b border-slate-200 flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-black text-white uppercase tracking-widest">Orders &amp; Revenue</h3>
+          <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Orders &amp; Revenue</h3>
           <p className="text-[10px] text-gray-500 mt-0.5">Last 14 days</p>
         </div>
         <div className="flex items-center gap-4 text-[10px] font-bold text-gray-500">
@@ -180,9 +183,9 @@ function OrdersChart({ chartData, currency }: { chartData: ChartDay[]; currency?
                 <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f" />
-            <XAxis dataKey="day" stroke="#374151" tick={{ fill: '#6b7280', fontSize: 9, fontWeight: 700 }} />
-            <YAxis stroke="#374151" tick={{ fill: '#6b7280', fontSize: 9 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+            <XAxis dataKey="day" stroke="#CBD5E1" tick={{ fill: '#94A3B8', fontSize: 9, fontWeight: 700 }} />
+            <YAxis stroke="#CBD5E1" tick={{ fill: '#94A3B8', fontSize: 9 }} />
             <Tooltip content={<CustomTooltip currency={currency} />} />
             <Area type="monotone" dataKey="orders" name="orders" stroke="#f59e0b" strokeWidth={2} fill="url(#orders)" />
             <Area type="monotone" dataKey="revenue" name="revenue" stroke="#22c55e" strokeWidth={1.5} fill="url(#revenue)" />
@@ -209,30 +212,46 @@ function PaymentBadge({ method }: { method?: string | null }) {
 function ConfirmModal({
   title, message, confirmText = 'Confirm', isDangerous = false, onConfirm, onCancel,
 }: { title: string; message: string; confirmText?: string; isDangerous?: boolean; onConfirm: () => void; onCancel: () => void }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onCancel}>
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    setMounted(true)
+    return () => setMounted(false)
+  }, [])
+
+  if (!mounted) return null
+
+  return createPortal(
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-[6px]"
+      onClick={onCancel}
+    >
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-sm bg-[#111] border border-gray-800 rounded-2xl p-6 shadow-2xl"
+        exit={{ opacity: 0, scale: 0.95, y: 16 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+        className="w-full max-w-sm bg-slate-50/95 border border-[#C9A45C]/20 rounded-2xl p-6 shadow-2xl shadow-[#C9A45C]/5 backdrop-blur-md"
         onClick={e => e.stopPropagation()}
       >
-        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-4", isDangerous ? "bg-red-500/10" : "bg-amber-500/10")}>
-          <AlertTriangle className={cn("w-6 h-6", isDangerous ? "text-red-400" : "text-amber-400")} />
+        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-4", isDangerous ? "bg-red-500/10" : "bg-[#C9A45C]/10")}>
+          <AlertTriangle className={cn("w-6 h-6", isDangerous ? "text-red-400" : "text-[#C9A45C]")} />
         </div>
-        <h2 className="text-white font-black text-lg mb-2">{title}</h2>
+        <h2 className="text-slate-900 font-black text- mb-2 tracking-wide font-sans">{title}</h2>
         <p className="text-gray-400 text-sm mb-6 leading-relaxed">{message}</p>
         <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-sm font-bold border border-gray-700 text-gray-400 hover:text-white hover:border-gray-600 transition-all">
+          <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-sm font-bold border border-slate-200 text-gray-400 hover:text-slate-900 hover:border-slate-300 transition-all hover:bg-white/5">
             Cancel
           </button>
-          <button onClick={onConfirm} className={cn("flex-1 py-2.5 rounded-xl text-sm font-black transition-all", isDangerous ? "bg-red-600 hover:bg-red-500 text-white" : "bg-amber-500 hover:bg-amber-400 text-black")}>
+          <button onClick={onConfirm} className={cn("flex-1 py-2.5 rounded-xl text-sm font-black transition-all", isDangerous ? "bg-red-600 hover:bg-red-500 text-white" : "bg-[#C9A45C] hover:bg-[#D4B16A] text-black shadow-lg shadow-[#C9A45C]/10")}>
             {confirmText}
           </button>
         </div>
       </motion.div>
-    </div>
+    </motion.div>,
+    document.body
   )
 }
 
@@ -254,6 +273,23 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
   const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG['pending']
   const StatusIcon = cfg.icon
 
+  const statusOptions = React.useMemo(() => {
+    return VALID_STATUSES.map(s => ({
+      value: s,
+      label: STATUS_CONFIG[s].label,
+    }))
+  }, [])
+
+  const paymentOptions = React.useMemo(() => {
+    return [
+      { value: '', label: '-- Not Set --' },
+      ...Object.entries(PAYMENT_CONFIG).filter(([k]) => k !== 'unknown').map(([k, v]) => ({
+        value: k,
+        label: v.label,
+      }))
+    ]
+  }, [])
+
   const loadDetail = async () => {
     if (detail) return
     setLoadingDetail(true)
@@ -264,9 +300,9 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
   const handleToggle = () => { onToggle(); if (!expanded) loadDetail() }
 
   return (
-    <div className={cn("bg-[#0c0c0c] border rounded-2xl overflow-hidden transition-colors", expanded ? "border-gray-700" : "border-gray-800/50 hover:border-gray-700")}>
+    <div className={cn("bg-white border rounded-2xl overflow-hidden transition-colors", expanded ? "border-slate-300" : "border-slate-200/80 hover:border-slate-300")}>
       {/* Row header */}
-      <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-white/2 transition-colors gap-3" onClick={handleToggle}>
+      <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 transition-colors gap-3" onClick={handleToggle}>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-0.5">
             <p className="text-amber-500 font-black text-xs tracking-wide">{order.invoice_number}</p>
@@ -276,11 +312,11 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
             </span>
             {order.payment_method && <PaymentBadge method={order.payment_method} />}
           </div>
-          <p className="text-white font-bold text-sm truncate">{order.customer_name}</p>
+          <p className="text-slate-800 font-bold text-sm truncate">{order.customer_name}</p>
           <p className="text-gray-500 text-xs">{order.phone}</p>
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">
-          <p className="text-white font-black text-base">{settings?.currency_symbol || '₹'}{Number(order.total).toLocaleString('en-IN')}</p>
+          <p className="text-slate-900 font-black text-">{settings?.currency_symbol || '₹'}{Number(order.total).toLocaleString('en-IN')}</p>
           <p className="text-gray-600 text-[10px]">{fmtDate(order.created_at)}</p>
           <p className="text-gray-700 text-[9px]">{fmtTime(order.created_at)}</p>
           {expanded ? <ChevronUp className="w-4 h-4 text-gray-500 mt-0.5" /> : <ChevronDown className="w-4 h-4 text-gray-500 mt-0.5" />}
@@ -289,7 +325,7 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
 
       {/* Expanded Detail */}
       {expanded && (
-        <div className="border-t border-gray-800 bg-[#080808] p-4 space-y-5">
+        <div className="border-t border-slate-200 bg-slate-50 p-4 space-y-5">
           {loadingDetail ? (
             <div className="flex justify-center py-6">
               <div className="animate-spin w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full" />
@@ -301,7 +337,7 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
                 {/* Address */}
                 <div className="space-y-1">
                   <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">Shipping Address</p>
-                  <p className="text-white font-medium text-sm">{detail.address}</p>
+                  <p className="text-slate-700 font-medium text-sm">{detail.address}</p>
                   <p className="text-gray-400 text-xs">{detail.city} – {detail.pincode}</p>
                   {detail.notes && <p className="text-gray-600 text-xs italic">"{detail.notes}"</p>}
                 </div>
@@ -310,16 +346,12 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
                 {!isTrash && (
                   <div className="space-y-1">
                     <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">Update Status</p>
-                    <select
+                    <AdminSelect
                       value={order.status}
-                      onChange={e => onStatusChange(order.id, e.target.value)}
-                      className="w-full px-3 py-2 bg-[#111] border border-gray-700 rounded-xl text-white text-xs font-bold focus:outline-none focus:border-amber-500/50 transition-colors"
-                      style={{ colorScheme: 'dark' }}
-                    >
-                      {VALID_STATUSES.map(s => (
-                        <option key={s} value={s} className="capitalize">{STATUS_CONFIG[s].label}</option>
-                      ))}
-                    </select>
+                      onChange={val => onStatusChange(order.id, val)}
+                      options={statusOptions}
+                      variant="small"
+                    />
                   </div>
                 )}
 
@@ -327,18 +359,35 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
                 {!isTrash && (
                   <div className="space-y-1">
                     <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">Payment Method</p>
-                    <select
+                    <AdminSelect
                       value={order.payment_method ?? ''}
-                      onChange={e => onPaymentChange(order.id, e.target.value)}
-                      className="w-full px-3 py-2 bg-[#111] border border-gray-700 rounded-xl text-white text-xs font-bold focus:outline-none focus:border-amber-500/50 transition-colors"
-                      style={{ colorScheme: 'dark' }}
-                    >
-                      <option value="">-- Not Set --</option>
-                      {Object.entries(PAYMENT_CONFIG).filter(([k]) => k !== 'unknown').map(([k, v]) => (
-                        <option key={k} value={k}>{v.label}</option>
-                      ))}
-                    </select>
+                      onChange={val => onPaymentChange(order.id, val)}
+                      options={paymentOptions}
+                      variant="small"
+                    />
                     {order.payment_ref && <p className="text-gray-500 text-[10px]">Ref: {order.payment_ref}</p>}
+                    {/* Razorpay payment status badge */}
+                    {detail.payment_status && (
+                      <div className="mt-1">
+                        <span className={cn(
+                          "inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full",
+                          detail.payment_status === 'paid'    && "bg-green-500/15 text-green-400",
+                          detail.payment_status === 'pending' && "bg-amber-500/15 text-amber-400",
+                          detail.payment_status === 'failed'  && "bg-red-500/15 text-red-400",
+                        )}>
+                          <div className={cn(
+                            "w-1.5 h-1.5 rounded-full",
+                            detail.payment_status === 'paid'    && "bg-green-400",
+                            detail.payment_status === 'pending' && "bg-amber-400",
+                            detail.payment_status === 'failed'  && "bg-red-400",
+                          )} />
+                          {detail.payment_status === 'paid' ? 'Paid Online' : detail.payment_status === 'pending' ? 'Payment Pending' : 'Payment Failed'}
+                        </span>
+                        {detail.razorpay_payment_id && (
+                          <p className="text-gray-600 text-[9px] mt-0.5 font-mono">{detail.razorpay_payment_id}</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -346,10 +395,10 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
               {/* Items Table */}
               <div>
                 <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-2">Order Items</p>
-                <div className="overflow-x-auto rounded-xl border border-gray-800">
+                <div className="overflow-x-auto rounded-xl border border-slate-200">
                   <table className="w-full text-xs">
                     <thead>
-                      <tr className="border-b border-gray-800 bg-[#0a0a0a]">
+                      <tr className="border-b border-slate-200 bg-[#F4F6FB]">
                         <th className="text-left p-3 text-gray-500 font-black uppercase tracking-widest">Item</th>
                         <th className="text-center p-3 text-gray-500 font-black uppercase tracking-widest">Variant</th>
                         <th className="text-center p-3 text-gray-500 font-black uppercase tracking-widest">Qty</th>
@@ -358,22 +407,22 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
                     </thead>
                     <tbody>
                       {(detail.items || []).map((item: any, i: number) => (
-                        <tr key={i} className="border-b border-gray-800/50 last:border-0">
+                        <tr key={i} className="border-b border-slate-200/80 last:border-0">
                           <td className="p-3">
                             <div className="flex items-center gap-2.5">
                               {item.image_url ? (
                                 <img
                                   src={item.image_url}
                                   alt={item.product_name}
-                                  className="w-10 h-10 rounded-lg object-cover border border-gray-700 shrink-0 bg-[#0a0a0a]"
+                                  className="w-10 h-10 rounded-lg object-cover border border-slate-300 shrink-0 bg-[#F4F6FB]"
                                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                                 />
                               ) : (
-                                <div className="w-10 h-10 rounded-lg border border-gray-800 bg-[#0a0a0a] flex items-center justify-center shrink-0">
+                                <div className="w-10 h-10 rounded-lg border border-slate-200 bg-[#F4F6FB] flex items-center justify-center shrink-0">
                                   <Package className="w-4 h-4 text-gray-700" />
                                 </div>
                               )}
-                              <p className="text-white font-medium">{item.product_name}</p>
+                              <p className="text-slate-700 font-medium">{item.product_name}</p>
                             </div>
                           </td>
                           <td className="p-3 text-center">
@@ -383,7 +432,7 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
                                   <span className="px-2 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-md font-bold">{item.size_label}</span>
                                 )}
                                 {item.color_name && (
-                                  <span className="px-2 py-0.5 bg-gray-800 text-gray-300 border border-gray-700 rounded-md font-bold">{item.color_name}</span>
+                                  <span className="px-2 py-0.5 bg-slate-100 text-slate-600 border border-slate-300 rounded-md font-bold">{item.color_name}</span>
                                 )}
                               </div>
                             ) : (
@@ -414,7 +463,7 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
                   </table>
                 </div>
                 <div className="flex justify-end gap-5 mt-3 text-xs flex-wrap">
-                  <span className="text-gray-500">Subtotal: <span className="text-white font-bold">{settings?.currency_symbol || '₹'}{Number(detail.subtotal).toLocaleString('en-IN')}</span></span>
+                  <span className="text-gray-500">Subtotal: <span className="text-slate-800 font-bold">{settings?.currency_symbol || '₹'}{Number(detail.subtotal).toLocaleString('en-IN')}</span></span>
                   {Number(detail.discount_amount) > 0 && (
                     <span className="text-gray-500">
                       Coupon
@@ -422,7 +471,7 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
                       <span className="text-green-400 font-bold ml-1">-{settings?.currency_symbol || '₹'}{Number(detail.discount_amount).toLocaleString('en-IN')}</span>
                     </span>
                   )}
-                  <span className="text-gray-500">Delivery: <span className="text-white font-bold">{Number(detail.delivery) === 0 ? 'FREE' : `${settings?.currency_symbol || '₹'}${Number(detail.delivery).toLocaleString('en-IN')}`}</span></span>
+                  <span className="text-gray-500">Delivery: <span className="text-slate-800 font-bold">{Number(detail.delivery) === 0 ? 'FREE' : `${settings?.currency_symbol || '₹'}${Number(detail.delivery).toLocaleString('en-IN')}`}</span></span>
                   <span className="text-gray-500">Total: <span className="text-amber-400 font-black">{settings?.currency_symbol || '₹'}{Number(detail.total).toLocaleString('en-IN')}</span></span>
                 </div>
               </div>
@@ -439,7 +488,7 @@ function OrderCard({ order, expanded, onToggle, onStatusChange, onPaymentChange,
                 </div>
               ) : (
                 <div className="flex justify-end pt-1">
-                  <button onClick={() => onDelete(order.id)} className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-red-500/10 text-gray-500 hover:text-red-400 border border-gray-700 hover:border-red-500/30 rounded-xl text-xs font-bold transition-all">
+                  <button onClick={() => onDelete(order.id)} className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-red-50 text-slate-500 hover:text-red-500 border border-slate-200 hover:border-red-300 rounded-xl text-xs font-bold transition-all">
                     <Trash2 className="w-3.5 h-3.5" /> Move to Trash
                   </button>
                 </div>
@@ -465,8 +514,8 @@ function DateRangePicker({ from, to, onChange, onClear }: {
         type="date"
         value={from}
         onChange={e => onChange(e.target.value, to)}
-        className="bg-[#111] border border-gray-700 rounded-xl px-3 py-1.5 text-white text-xs focus:outline-none focus:border-amber-500/50 transition-colors"
-        style={{ colorScheme: 'dark' }}
+        className="bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-slate-800 text-xs focus:outline-none focus:border-amber-500/50 transition-colors"
+        style={{ colorScheme: 'light' }}
       />
       <span className="text-gray-600 text-xs">to</span>
       <input
@@ -474,8 +523,8 @@ function DateRangePicker({ from, to, onChange, onClear }: {
         value={to}
         min={from}
         onChange={e => onChange(from, e.target.value)}
-        className="bg-[#111] border border-gray-700 rounded-xl px-3 py-1.5 text-white text-xs focus:outline-none focus:border-amber-500/50 transition-colors"
-        style={{ colorScheme: 'dark' }}
+        className="bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-slate-800 text-xs focus:outline-none focus:border-amber-500/50 transition-colors"
+        style={{ colorScheme: 'light' }}
       />
       {(from || to) && (
         <button onClick={onClear} className="text-gray-500 hover:text-red-400 transition-colors">
@@ -665,7 +714,7 @@ export default function AdminOrdersPage() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-0.5">Admin Panel</p>
-          <h1 className="text-xl md:text-2xl font-black text-white">
+          <h1 className="text-xl md:text-2xl font-black text-slate-900">
             {isTrash ? 'Trash – Orders' : 'Orders'}
           </h1>
           <p className="text-gray-500 text-xs mt-0.5">
@@ -685,7 +734,7 @@ export default function AdminOrdersPage() {
           )}
           <button
             onClick={handleRefresh} disabled={refreshing}
-            className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-gray-800 rounded-xl text-gray-400 hover:text-white hover:border-gray-700 transition-colors text-xs font-bold"
+            className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-xl text-gray-400 hover:text-slate-900 hover:border-slate-300 transition-colors text-xs font-bold"
           >
             <RefreshCw className={cn("w-3.5 h-3.5", refreshing && "animate-spin")} />
             <span className="hidden sm:inline">Refresh</span>
@@ -708,7 +757,7 @@ export default function AdminOrdersPage() {
       {chartData.length > 0 && <OrdersChart chartData={chartData} currency={settings?.currency_symbol} />}
 
       {/* â”€â”€ Filter Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <div className="bg-[#0c0c0c] border border-gray-800/50 rounded-2xl p-3 space-y-3">
+      <div className="bg-white border border-slate-200/80 rounded-2xl p-3 space-y-3">
         {/* Top row: search + filter toggle */}
         <div className="flex items-center gap-2 flex-wrap">
           <div className="flex-1 min-w-48 relative">
@@ -718,7 +767,7 @@ export default function AdminOrdersPage() {
               placeholder="Search name, phone, invoice…"
               value={searchInput}
               onChange={e => setSearchInput(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-[#111] border border-gray-700 rounded-xl text-white text-xs placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-colors"
+              className="w-full pl-9 pr-4 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-colors"
             />
             {searchInput && (
               <button onClick={() => { setSearchInput(''); setSearch('') }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white">
@@ -729,7 +778,7 @@ export default function AdminOrdersPage() {
           <button
             onClick={() => setShowFilters(v => !v)}
             className={cn("flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all",
-              showFilters || hasActiveFilters ? "bg-amber-500/10 border-amber-500/30 text-amber-400" : "bg-[#111] border-gray-700 text-gray-400 hover:text-white"
+              showFilters || hasActiveFilters ? "bg-amber-500/10 border-amber-500/30 text-amber-400" : "bg-slate-50 border-slate-300 text-gray-400 hover:text-white"
             )}
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -752,7 +801,7 @@ export default function AdminOrdersPage() {
               exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden"
             >
-              <div className="pt-2 border-t border-gray-800 space-y-3">
+              <div className="pt-2 border-t border-slate-200 space-y-3">
                 {/* Period + Status + Payment */}
                 <div className="flex flex-wrap gap-2">
                   {/* Period */}
@@ -762,7 +811,7 @@ export default function AdminOrdersPage() {
                       {PERIOD_FILTERS.map(f => (
                         <button key={f.value} onClick={() => { setPeriodFilter(f.value); setPage(1) }}
                           className={cn("px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all",
-                            periodFilter === f.value ? "bg-amber-500 text-black" : "bg-[#111] border border-gray-700 text-gray-500 hover:text-white"
+                            periodFilter === f.value ? "bg-amber-500 text-black" : "bg-white border border-slate-300 text-gray-500 hover:text-white"
                           )}>
                           {f.label}
                         </button>
@@ -779,7 +828,7 @@ export default function AdminOrdersPage() {
                           className={cn("px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all",
                             statusFilter === s
                               ? "bg-amber-500 text-black"
-                              : "bg-[#111] border border-gray-700 text-gray-500 hover:text-white"
+                              : "bg-white border border-slate-300 text-gray-500 hover:text-white"
                           )}>
                           {s === '' ? 'All' : STATUS_CONFIG[s]?.label ?? s}
                         </button>
@@ -796,7 +845,7 @@ export default function AdminOrdersPage() {
                           className={cn("px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all",
                             paymentFilter === pm
                               ? "bg-amber-500 text-black"
-                              : "bg-[#111] border border-gray-700 text-gray-500 hover:text-white"
+                              : "bg-white border border-slate-300 text-gray-500 hover:text-white"
                           )}>
                           {pm === '' ? 'All' : PAYMENT_CONFIG[pm]?.label ?? pm}
                         </button>
@@ -820,7 +869,7 @@ export default function AdminOrdersPage() {
                   <button
                     onClick={() => { setIsTrash(v => !v); setPage(1) }}
                     className={cn("flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-black border transition-all",
-                      isTrash ? "bg-red-500/10 border-red-500/30 text-red-400" : "bg-[#111] border-gray-700 text-gray-500 hover:text-red-400 hover:border-red-500/30"
+                      isTrash ? "bg-red-500/10 border-red-500/30 text-red-400" : "bg-slate-50 border-slate-300 text-gray-500 hover:text-red-400 hover:border-red-500/30"
                     )}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -839,7 +888,7 @@ export default function AdminOrdersPage() {
       {/* Orders List */}
       <div className="space-y-3">
         {orders.length === 0 ? (
-          <div className="bg-[#0c0c0c] border border-gray-800 rounded-2xl p-12 text-center">
+          <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
             <ShoppingCart className="w-8 h-8 text-gray-700 mx-auto mb-3" />
             <p className="text-gray-500 font-medium text-sm">
               {isTrash ? 'Trash is empty' : 'No orders found'}
@@ -883,7 +932,7 @@ export default function AdminOrdersPage() {
       {lastPage > 1 && (
         <div className="flex items-center justify-center gap-1.5 flex-wrap">
           <button onClick={() => setPage(p => p - 1)} disabled={page === 1}
-            className="w-8 h-8 flex items-center justify-center rounded-xl bg-[#0c0c0c] border border-gray-800 text-gray-400 hover:text-white hover:border-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+            className="w-8 h-8 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-gray-400 hover:text-slate-900 hover:border-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
             <ChevronLeft className="w-4 h-4" />
           </button>
           {visiblePages.map((p, i) => {
@@ -894,7 +943,7 @@ export default function AdminOrdersPage() {
                 {showEllipsis && <span className="text-gray-600 text-xs px-1">…</span>}
                 <button onClick={() => setPage(p)}
                   className={cn("w-8 h-8 flex items-center justify-center rounded-xl text-xs font-black transition-all",
-                    p === page ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20" : "bg-[#0c0c0c] border border-gray-800 text-gray-400 hover:text-white hover:border-gray-700"
+                    p === page ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20" : "bg-white border border-slate-200 text-gray-400 hover:text-slate-900 hover:border-slate-300"
                   )}>
                   {p}
                 </button>
@@ -902,7 +951,7 @@ export default function AdminOrdersPage() {
             )
           })}
           <button onClick={() => setPage(p => p + 1)} disabled={page === lastPage}
-            className="w-8 h-8 flex items-center justify-center rounded-xl bg-[#0c0c0c] border border-gray-800 text-gray-400 hover:text-white hover:border-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+            className="w-8 h-8 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-gray-400 hover:text-slate-900 hover:border-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>

@@ -69,7 +69,7 @@ function PasswordField({ id, label, value, onChange, placeholder, autoComplete }
                     onChange={e => onChange(e.target.value)}
                     placeholder={placeholder}
                     autoComplete={autoComplete ?? 'off'}
-                    className="w-full bg-[#1a1a1a] border border-gray-700 text-white placeholder-gray-600 rounded-xl px-4 py-3 pr-11 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition-colors"
+                    className="w-full bg-white border border-slate-300 text-slate-800 placeholder-slate-400 rounded-xl px-4 py-3 pr-11 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition-colors"
                 />
                 <button
                     type="button"
@@ -136,14 +136,14 @@ function ChangePasswordCard() {
     }
 
     return (
-        <div className="bg-[#111111] border border-gray-800 rounded-2xl overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
             {/* Header */}
-            <div className="px-6 py-5 border-b border-gray-800 flex items-center gap-3">
+            <div className="px-6 py-5 border-b border-slate-200 flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center">
                     <KeyRound className="w-4 h-4 text-amber-500" />
                 </div>
                 <div>
-                    <h2 className="text-white font-black text-sm">Change Password</h2>
+                    <h2 className="text-slate-900 font-black text-">Change Password</h2>
                     <p className="text-gray-500 text-xs mt-0.5">You will be signed out after changing your password</p>
                 </div>
             </div>
@@ -152,7 +152,7 @@ function ChangePasswordCard() {
                 {done ? (
                     <div className="flex flex-col items-center gap-3 py-6 text-center">
                         <CheckCircle2 className="w-12 h-12 text-green-400" />
-                        <p className="text-white font-bold">Password changed successfully!</p>
+                        <p className="text-slate-800 font-bold">Password changed successfully!</p>
                         <p className="text-gray-400 text-sm">Redirecting you to login…</p>
                     </div>
                 ) : (
@@ -249,14 +249,14 @@ function ChangeEmailCard() {
     }
 
     return (
-        <div className="bg-[#111111] border border-gray-800 rounded-2xl overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
             {/* Header */}
-            <div className="px-6 py-5 border-b border-gray-800 flex items-center gap-3">
+            <div className="px-6 py-5 border-b border-slate-200 flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center">
                     <Mail className="w-4 h-4 text-amber-500" />
                 </div>
                 <div>
-                    <h2 className="text-white font-black text-sm">Change Email Address</h2>
+                    <h2 className="text-slate-900 font-black text-">Change Email Address</h2>
                     <p className="text-gray-500 text-xs mt-0.5">Your email is used to sign in — confirm with your password</p>
                 </div>
             </div>
@@ -280,7 +280,7 @@ function ChangeEmailCard() {
                         onChange={e => set('new_email')(e.target.value)}
                         placeholder="admin@example.com"
                         autoComplete="email"
-                        className="w-full bg-[#1a1a1a] border border-gray-700 text-white placeholder-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition-colors"
+                        className="w-full bg-white border border-slate-300 text-slate-800 placeholder-slate-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 transition-colors"
                     />
                 </div>
 
@@ -317,7 +317,7 @@ export default function AdminAccountPage() {
                     <ShieldCheck className="w-5 h-5 text-amber-500" />
                 </div>
                 <div>
-                    <h1 className="text-white font-black text-xl">Account Security</h1>
+                    <h1 className="text-slate-900 font-black text-">Account Security</h1>
                     <p className="text-gray-500 text-sm">Manage your admin credentials</p>
                 </div>
             </div>

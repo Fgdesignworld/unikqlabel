@@ -23,7 +23,7 @@ export default function AdminLoginPage() {
     }
     Object.entries(darkVars).forEach(([k, v]) => html.style.setProperty(k, v))
     return () => {
-      const saved = (localStorage.getItem('unikq-theme') || 'dark')
+      const saved = (localStorage.getItem('koffeekup-theme') || 'dark')
       html.setAttribute('data-theme', saved)
     }
   }, [])
@@ -59,7 +59,7 @@ export default function AdminLoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-black text-white tracking-tight">
-            UNIKQ <span className="text-amber-500">LABEL</span>
+            Koffee<span className="text-amber-500">Kup</span>
           </h1>
           <p className="text-amber-500/60 text-sm mt-1 font-medium">Admin Panel</p>
         </div>
@@ -90,7 +90,7 @@ export default function AdminLoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-[#0a0a0a] border border-gray-800 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-colors"
-                  placeholder="admin@unikqlabel.com"
+                  placeholder="admin@koffeekup.com"
                   required
                 />
               </div>
@@ -129,7 +129,7 @@ export default function AdminLoginPage() {
         </div>
 
         <p className="text-center text-gray-600 text-xs mt-6">
-          © {new Date().getFullYear()} UNIKQ LABEL. All rights reserved.
+          © {new Date().getFullYear()} KoffeeKup. All rights reserved.
         </p>
       </div>
     </div>

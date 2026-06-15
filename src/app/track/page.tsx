@@ -290,7 +290,7 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function TrackOrderPage() {
-  useSeo({ pageType: 'page', pageSlug: 'track', fallbackTitle: 'Track Your Order — UNIKQ LABEL' })
+  useSeo({ pageType: 'page', pageSlug: 'track', fallbackTitle: 'Track Your Order — KoffeeKup' })
   const { settings } = useSettings()
   const currency = settings?.currency_symbol || '₹'
 
@@ -317,7 +317,7 @@ export default function TrackOrderPage() {
       return
     }
     if (tab === 'invoice' && query.length < 3) {
-      setError('Please enter a valid invoice number (e.g. UNI-123456).')
+      setError('Please enter a valid invoice number (e.g. KK-123456).')
       return
     }
 
@@ -351,6 +351,7 @@ export default function TrackOrderPage() {
       <PageHeader
         title="Track Order"
         subtitle="Enter your mobile number or invoice number to view your order history and live status"
+        backgroundImage="/images/track_hero_banner.png"
       />
 
       <section className="px-4 pb-24 pt-8">
@@ -422,7 +423,7 @@ export default function TrackOrderPage() {
                     </div>
                     <input
                       type="text"
-                      placeholder="e.g. UNI-643770"
+                      placeholder="e.g. KK-643770"
                       value={invoiceInput}
                       onChange={e => setInvoiceInput(e.target.value.toUpperCase())}
                       className="w-full pl-10 pr-12 py-4 rounded-xl text-sm font-medium outline-none transition-all uppercase tracking-wider"

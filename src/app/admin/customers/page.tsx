@@ -74,11 +74,11 @@ function StatCard({ label, value, icon: Icon, color, bg, border }: {
   icon: React.ElementType; color: string; bg: string; border: string
 }) {
   return (
-    <div className={cn('bg-[#0c0c0c] border rounded-2xl p-4 md:p-5', border)}>
+    <div className={cn('bg-white border rounded-2xl p-4 md:p-5', border)}>
       <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center mb-3', bg)}>
         <Icon className={cn('w-5 h-5', color)} />
       </div>
-      <p className="text-xl md:text-2xl font-black text-white tracking-tight">{value}</p>
+      <p className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{value}</p>
       <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-0.5">{label}</p>
     </div>
   )
@@ -109,10 +109,10 @@ function CustomerOrdersPanel({ phone, currency }: { phone: string; currency: str
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-gray-800">
+    <div className="overflow-x-auto rounded-xl border border-slate-200">
       <table className="w-full text-xs">
         <thead>
-          <tr className="border-b border-gray-800 bg-[#0a0a0a]">
+          <tr className="border-b border-slate-200 bg-[#F4F6FB]">
             <th className="text-left p-3 text-gray-500 font-black uppercase tracking-widest">Invoice</th>
             <th className="text-center p-3 text-gray-500 font-black uppercase tracking-widest">Status</th>
             <th className="text-center p-3 text-gray-500 font-black uppercase tracking-widest hidden sm:table-cell">Date</th>
@@ -124,7 +124,7 @@ function CustomerOrdersPanel({ phone, currency }: { phone: string; currency: str
           {orders.map(order => {
             const sc = STATUS_COLORS[order.status] || STATUS_COLORS.pending
             return (
-              <tr key={order.id} className="border-b border-gray-800/50 last:border-0">
+              <tr key={order.id} className="border-b border-slate-200/80 last:border-0">
                 <td className="p-3 text-amber-500 font-black">{order.invoice_number}</td>
                 <td className="p-3 text-center">
                   <span className={cn('px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border', sc.text, sc.bg, sc.border)}>
@@ -132,7 +132,7 @@ function CustomerOrdersPanel({ phone, currency }: { phone: string; currency: str
                   </span>
                 </td>
                 <td className="p-3 text-center text-gray-500 hidden sm:table-cell">{fmtDate(order.created_at)}</td>
-                <td className="p-3 text-right text-white font-bold">{currency}{Number(order.total).toLocaleString('en-IN')}</td>
+                <td className="p-3 text-right text-slate-800 font-bold">{currency}{Number(order.total).toLocaleString('en-IN')}</td>
                 <td className="p-3 text-right">
                   <Link
                     to={`/admin/orders?highlight=${order.id}`}
@@ -168,8 +168,8 @@ function CustomerCard({ customer, currency, index, settings }: {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04 }}
       className={cn(
-        'bg-[#0c0c0c] border rounded-2xl overflow-hidden transition-colors',
-        expanded ? 'border-gray-700' : 'border-gray-800/50 hover:border-gray-700',
+        'bg-white border rounded-2xl overflow-hidden transition-colors',
+        expanded ? 'border-slate-300' : 'border-slate-200/80 hover:border-slate-300',
       )}
     >
       {/* Main row */}
@@ -196,7 +196,7 @@ function CustomerCard({ customer, currency, index, settings }: {
         {/* Name + phone + city */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-white font-black text-sm truncate">{customer.customer_name}</p>
+            <p className="text-slate-900 font-black text- truncate">{customer.customer_name}</p>
             {isTopCustomer && (
               <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full text-amber-400 bg-amber-500/10 border border-amber-500/20">
                 Top Customer
@@ -263,13 +263,13 @@ function CustomerCard({ customer, currency, index, settings }: {
             transition={{ duration: 0.22 }}
             className="overflow-hidden"
           >
-            <div className="border-t border-gray-800 bg-[#080808] p-4 space-y-4">
+            <div className="border-t border-slate-200 bg-slate-50 p-4 space-y-4">
               {/* Detail band */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {/* Address */}
                 <div className="p-3 rounded-xl space-y-1" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
                   <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Address</p>
-                  <p className="text-white text-xs font-medium leading-relaxed">{customer.address || '—'}</p>
+                  <p className="text-slate-600 text-xs font-medium leading-relaxed">{customer.address || '—'}</p>
                   {(customer.city || customer.pincode) && (
                     <p className="text-gray-500 text-[11px]">{[customer.city, customer.pincode].filter(Boolean).join(' – ')}</p>
                   )}
@@ -284,11 +284,11 @@ function CustomerCard({ customer, currency, index, settings }: {
                   </div>
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-400">Orders Placed</span>
-                    <span className="text-white font-bold">{customer.order_count}</span>
+                    <span className="text-slate-800 font-bold">{customer.order_count}</span>
                   </div>
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-400">Avg. Order</span>
-                    <span className="text-white font-bold">
+                    <span className="text-slate-800 font-bold">
                       {currency}{customer.order_count > 0 ? Math.round(customer.total_spent / customer.order_count).toLocaleString('en-IN') : 0}
                     </span>
                   </div>
@@ -427,12 +427,12 @@ export default function AdminCustomersPage() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-0.5">Admin Panel</p>
-          <h1 className="text-xl md:text-2xl font-black text-white">Customers</h1>
+          <h1 className="text-xl md:text-2xl font-black text-slate-900">Customers</h1>
           <p className="text-gray-500 text-xs mt-0.5">{totalCustomers} unique customers</p>
         </div>
         <button
           onClick={handleRefresh} disabled={refreshing}
-          className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-gray-800 rounded-xl text-gray-400 hover:text-white hover:border-gray-700 transition-colors text-xs font-bold"
+          className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-xl text-gray-400 hover:text-slate-900 hover:border-slate-300 transition-colors text-xs font-bold"
         >
           <RefreshCw className={cn('w-3.5 h-3.5', refreshing && 'animate-spin')} />
           <span className="hidden sm:inline">Refresh</span>
@@ -454,7 +454,7 @@ export default function AdminCustomersPage() {
       </div>
 
       {/* Filter bar */}
-      <div className="bg-[#0c0c0c] border border-gray-800/50 rounded-2xl p-3">
+      <div className="bg-white border border-slate-200/80 rounded-2xl p-3">
         <div className="flex items-center gap-2 flex-wrap">
           {/* Search */}
           <div className="flex-1 min-w-48 relative">
@@ -464,7 +464,7 @@ export default function AdminCustomersPage() {
               placeholder="Search name or phone…"
               value={searchInput}
               onChange={e => setSearchInput(e.target.value)}
-              className="w-full pl-9 pr-8 py-2 bg-[#111] border border-gray-700 rounded-xl text-white text-xs placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-colors"
+              className="w-full pl-9 pr-8 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-colors"
             />
             {searchInput && (
               <button onClick={() => { setSearchInput(''); setSearch('') }}
@@ -478,7 +478,7 @@ export default function AdminCustomersPage() {
           <div className="relative">
             <button
               onClick={() => setShowSort(v => !v)}
-              className="flex items-center gap-2 px-3 py-2 bg-[#111] border border-gray-700 rounded-xl text-gray-300 text-xs font-bold hover:border-gray-600 transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-300 rounded-xl text-gray-300 text-xs font-bold hover:border-gray-600 transition-colors"
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
               <span>{currentSortLabel}</span>
@@ -498,7 +498,7 @@ export default function AdminCustomersPage() {
                       key={opt.value}
                       onClick={() => { setSort(opt.value); setShowSort(false) }}
                       className={cn(
-                        'w-full text-left px-4 py-2.5 text-xs font-bold hover:bg-white/5 transition-colors',
+                        'w-full text-left px-4 py-2.5 text-xs font-bold hover:bg-slate-50 transition-colors',
                         sort === opt.value ? 'text-amber-400' : 'text-gray-400',
                       )}
                     >
@@ -514,7 +514,7 @@ export default function AdminCustomersPage() {
 
       {/* Customer list */}
       {customers.length === 0 ? (
-        <div className="text-center py-20 bg-[#0c0c0c] border border-gray-800/50 rounded-2xl">
+        <div className="text-center py-20 bg-white border border-slate-200/80 rounded-2xl">
           <Users className="w-12 h-12 text-gray-800 mx-auto mb-3" />
           <p className="text-gray-400 font-bold">No customers found</p>
           <p className="text-gray-600 text-sm mt-1">Try a different search term</p>
@@ -538,7 +538,7 @@ export default function AdminCustomersPage() {
         <div className="flex items-center justify-center gap-1.5 flex-wrap pt-2">
           <button
             onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#111] border border-gray-800 text-gray-400 hover:text-white hover:border-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-white border border-slate-200 text-gray-400 hover:text-slate-900 hover:border-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
           >
             <ChevronLeft className="w-3 h-3" /> Prev
           </button>
@@ -554,7 +554,7 @@ export default function AdminCustomersPage() {
                     'w-8 h-8 rounded-xl text-xs font-black transition-all',
                     p === page
                       ? 'bg-amber-500 text-black'
-                      : 'bg-[#111] border border-gray-800 text-gray-400 hover:text-white hover:border-gray-700',
+                      : 'bg-white border border-slate-200 text-gray-400 hover:text-slate-900 hover:border-slate-300',
                   )}
                 >
                   {p}
@@ -564,7 +564,7 @@ export default function AdminCustomersPage() {
           })}
           <button
             onClick={() => setPage(p => Math.min(lastPage, p + 1))} disabled={page === lastPage}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#111] border border-gray-800 text-gray-400 hover:text-white hover:border-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-white border border-slate-200 text-gray-400 hover:text-slate-900 hover:border-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
           >
             Next <ChevronRight className="w-3 h-3" />
           </button>

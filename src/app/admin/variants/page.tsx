@@ -67,29 +67,29 @@ function VariantRowsEditor({
   }
 
   return (
-    <div className="border border-amber-500/30 rounded-lg p-4 mt-2 bg-[#111]">
+    <div className="border border-amber-500/30 rounded-lg p-4 mt-2 bg-slate-50">
       <div className="flex items-center justify-between mb-3">
         <p className="text-sm font-medium text-amber-400">Edit Sizes</p>
-        <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors">
+        <button onClick={onClose} className="text-slate-400 hover:text-slate-700 transition-colors">
           <X className="w-4 h-4" />
         </button>
       </div>
 
       <div className="space-y-2 mb-3">
         {rows.length === 0 && (
-          <p className="text-xs text-zinc-500 py-3 text-center">No sizes yet. Add one below.</p>
+          <p className="text-xs text-slate-400 py-3 text-center">No sizes yet. Add one below.</p>
         )}
         {rows.map((row, idx) => (
           <div key={row._key} className="flex items-center gap-2">
-            <GripVertical className="w-4 h-4 text-zinc-600 shrink-0" />
+            <GripVertical className="w-4 h-4 text-slate-400 shrink-0" />
             <input
-              className="flex-1 bg-[#1a1a1a] border border-zinc-700 rounded px-2 py-1 text-sm text-white placeholder:text-zinc-600 focus:border-amber-500 focus:outline-none"
+              className="flex-1 bg-white border border-slate-300 rounded px-2 py-1 text-sm text-slate-800 placeholder:text-slate-400 focus:border-amber-500 focus:outline-none"
               placeholder="Label (e.g. XL)"
               value={row.label}
               onChange={e => updateRow(idx, 'label', e.target.value)}
             />
             <input
-              className="w-24 bg-[#1a1a1a] border border-zinc-700 rounded px-2 py-1 text-sm text-white placeholder:text-zinc-600 focus:border-amber-500 focus:outline-none"
+              className="w-24 bg-white border border-slate-300 rounded px-2 py-1 text-sm text-slate-800 placeholder:text-slate-400 focus:border-amber-500 focus:outline-none"
               placeholder="+₹0"
               value={row.price_adjustment}
               onChange={e => updateRow(idx, 'price_adjustment', e.target.value)}
@@ -101,8 +101,8 @@ function VariantRowsEditor({
               className={cn(
                 'text-xs px-2 py-1 rounded border transition-colors',
                 row.is_active
-                  ? 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10'
-                  : 'border-zinc-700 text-zinc-500 bg-zinc-800/40'
+                  ? 'border-emerald-500/40 text-emerald-600 bg-emerald-50'
+                  : 'border-slate-300 text-slate-500 bg-slate-100'
               )}
             >
               {row.is_active ? 'On' : 'Off'}
@@ -202,12 +202,12 @@ function SetCard({
 
   return (
     <>
-      <div className="bg-[#1a1a1a] border border-zinc-800 rounded-xl overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
         <div className="flex items-center gap-3 p-4">
           {/* expand toggle */}
           <button
             onClick={() => setExpanded(!expanded)}
-            className="text-zinc-500 hover:text-amber-400 transition-colors"
+            className="text-slate-400 hover:text-amber-500 transition-colors"
           >
             {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </button>
@@ -216,17 +216,17 @@ function SetCard({
           {editing ? (
             <input
               autoFocus
-              className="flex-1 bg-[#111] border border-amber-500/50 rounded px-2 py-1 text-sm text-white focus:outline-none"
+              className="flex-1 bg-white border border-amber-500/50 rounded px-2 py-1 text-sm text-slate-800 focus:outline-none"
               value={editName}
               onChange={e => setEditName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleEditSave()}
             />
           ) : (
-            <span className="flex-1 text-sm font-medium text-white">{set.name}</span>
+            <span className="flex-1 text-sm font-medium text-slate-800">{set.name}</span>
           )}
 
           {/* variant count badge */}
-          <span className="text-xs bg-zinc-800 px-2 py-0.5 rounded-full text-zinc-400">
+          <span className="text-xs bg-white border border-slate-200 px-2 py-0.5 rounded-full text-slate-500">
             {set.variants.length} {set.variants.length === 1 ? 'size' : 'sizes'}
           </span>
 
@@ -235,8 +235,8 @@ function SetCard({
             className={cn(
               'text-xs px-2 py-0.5 rounded-full',
               set.is_active
-                ? 'bg-emerald-500/15 text-emerald-400'
-                : 'bg-zinc-700/40 text-zinc-500'
+                ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                : 'bg-slate-100 text-slate-400 border border-slate-200'
             )}
           >
             {set.is_active ? 'Active' : 'Inactive'}
@@ -253,7 +253,7 @@ function SetCard({
                 >
                   {editSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                 </button>
-                <button onClick={() => { setEditing(false); setEditName(set.name) }} className="p-1 text-zinc-500">
+                <button onClick={() => { setEditing(false); setEditName(set.name) }} className="p-1 text-slate-400 hover:text-slate-700">
                   <X className="w-3.5 h-3.5" />
                 </button>
               </>
@@ -261,26 +261,26 @@ function SetCard({
               <>
                 <button
                   onClick={() => setEditing(true)}
-                  className="p-1 text-zinc-500 hover:text-amber-400 transition-colors"
+                  className="p-1 text-slate-400 hover:text-amber-500 transition-colors"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={handleToggle}
                   disabled={toggling}
-                  className="p-1 text-zinc-500 hover:text-amber-400 transition-colors"
+                  className="p-1 text-slate-400 hover:text-amber-500 transition-colors"
                 >
                   {toggling ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   ) : set.is_active ? (
-                    <ToggleRight className="w-4 h-4 text-emerald-400" />
+                    <ToggleRight className="w-4 h-4 text-emerald-500" />
                   ) : (
                     <ToggleLeft className="w-4 h-4" />
                   )}
                 </button>
                 <button
                   onClick={() => setDeleteTarget(true)}
-                  className="p-1 text-zinc-500 hover:text-red-400 transition-colors"
+                  className="p-1 text-slate-400 hover:text-red-500 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -303,15 +303,15 @@ function SetCard({
 
       {/* delete dialog */}
       <AlertDialog open={deleteTarget} onOpenChange={setDeleteTarget}>
-        <AlertDialogContent className="bg-[#1a1a1a] border border-zinc-700">
+        <AlertDialogContent className="bg-white border border-slate-200 shadow-xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Delete "{set.name}"?</AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-400">
+            <AlertDialogTitle className="text-slate-900">Delete "{set.name}"?</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-500">
               This cannot be undone. Products using this set will retain their existing variant data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-zinc-800 text-zinc-300 border-zinc-700">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="bg-white text-slate-600 border-slate-300 hover:bg-slate-50">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-500 text-white border-0"
@@ -370,22 +370,22 @@ export default function AdminVariantsPage() {
     setSets(prev => prev.filter(s => s.id !== id))
 
   return (
-    <div className="p-6 min-h-screen text-white">
+    <div className="max-w-2xl space-y-6">
       {/* header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 bg-amber-500/10 rounded-lg border border-amber-500/20">
           <Ruler className="w-5 h-5 text-amber-400" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white">Variant Master</h1>
-          <p className="text-xs text-zinc-500">Manage reusable size sets and assign them to products</p>
+          <h1 className="text-xl font-bold text-slate-900">Variant Master</h1>
+          <p className="text-xs text-slate-400">Manage reusable size sets and assign them to products</p>
         </div>
       </div>
 
       {/* create new */}
       <div className="flex gap-2 mb-8">
         <input
-          className="flex-1 bg-[#1a1a1a] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:border-amber-500 focus:outline-none transition-colors"
+          className="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-amber-500 focus:outline-none transition-colors"
           placeholder="New set name (e.g. Clothing Sizes)"
           value={newName}
           onChange={e => setNewName(e.target.value)}
@@ -407,7 +407,7 @@ export default function AdminVariantsPage() {
           <Loader2 className="w-6 h-6 animate-spin text-amber-400" />
         </div>
       ) : sets.length === 0 ? (
-        <div className="text-center py-20 text-zinc-500">
+        <div className="text-center py-20 text-slate-400">
           <Ruler className="w-10 h-10 mx-auto mb-3 opacity-30" />
           <p className="text-sm">No variant sets yet. Create your first one above.</p>
         </div>

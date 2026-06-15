@@ -93,15 +93,15 @@ function PageSeoForm({
     const prevDesc   = form.meta_description || 'No description set.'
 
     return (
-        <div className="fixed inset-0 z-50 flex">
-            <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-            <div className="w-full max-w-lg bg-[#0c0c0c] border-l border-gray-800 overflow-y-auto flex flex-col">
+        <div className="fixed inset-0 z-60 flex">
+            <div className="flex-1 bg-slate-800/40 backdrop-blur-sm" onClick={onClose} />
+            <div className="w-full max-w-lg bg-white border-l border-slate-200 overflow-y-auto flex flex-col">
                 {/* Header */}
-                <div className="flex items-center justify-between p-5 border-b border-gray-800">
+                <div className="flex items-center justify-between p-5 border-b border-slate-200">
                     <div className="flex items-center gap-3">
                         <span className="text-2xl">{page.emoji}</span>
                         <div>
-                            <h2 className="text-white font-black text-lg">{page.label}</h2>
+                            <h2 className="text-slate-900 font-black text-">{page.label}</h2>
                             <p className="text-gray-500 text-xs font-mono">{page.path}</p>
                         </div>
                     </div>
@@ -111,7 +111,7 @@ function PageSeoForm({
                                 <Trash2 className="w-4 h-4" />
                             </button>
                         )}
-                        <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors p-2 rounded-xl hover:bg-white/5">
+                        <button onClick={onClose} className="text-gray-500 hover:text-slate-900 transition-colors p-2 rounded-xl hover:bg-white/5">
                             ✕
                         </button>
                     </div>
@@ -126,7 +126,7 @@ function PageSeoForm({
                             value={form.meta_title}
                             onChange={e => set('meta_title', e.target.value)}
                             placeholder={`${page.label} |`}
-                            className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
+                            className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all"
                         />
                         <CharCount value={form.meta_title} max={60} hint="Optimal: 50–60 chars" />
                     </div>
@@ -138,8 +138,8 @@ function PageSeoForm({
                             rows={3}
                             value={form.meta_description}
                             onChange={e => set('meta_description', e.target.value)}
-                            placeholder={`Discover authentic ${page.label.toLowerCase()} from UNIKQ LABEL...`}
-                            className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all resize-none"
+                            placeholder={`Discover authentic ${page.label.toLowerCase()} from KoffeeKup...`}
+                            className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all resize-none"
                         />
                         <CharCount value={form.meta_description} max={160} hint="Optimal: 150–160 chars" />
                     </div>
@@ -152,7 +152,7 @@ function PageSeoForm({
                             value={form.meta_keywords}
                             onChange={e => set('meta_keywords', e.target.value)}
                             placeholder="keyword1, keyword2, keyword3"
-                            className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
+                            className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all"
                         />
                         <p className="text-gray-600 text-xs mt-1">Comma-separated</p>
                     </div>
@@ -165,7 +165,7 @@ function PageSeoForm({
                             value={form.og_image}
                             onChange={e => set('og_image', e.target.value)}
                             placeholder="https://... or /uploads/..."
-                            className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
+                            className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all"
                         />
                     </div>
 
@@ -196,7 +196,7 @@ function PageSeoForm({
 
             {/* Confirm delete */}
             <AlertDialog open={confirmDel} onOpenChange={setConfirm}>
-                <AlertDialogContent className="bg-[#0e0e0e] border border-gray-800 text-white">
+                <AlertDialogContent className="bg-white border border-slate-200 shadow-xl text-slate-900">
                     <AlertDialogHeader>
                         <AlertDialogTitle>Clear SEO for {page.label}?</AlertDialogTitle>
                         <AlertDialogDescription className="text-gray-400">
@@ -204,7 +204,7 @@ function PageSeoForm({
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-white/5 border-gray-700 text-white hover:bg-white/10">Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="bg-white border-slate-300 text-slate-600 hover:bg-slate-50">Cancel</AlertDialogCancel>
                         <AlertDialogAction onClick={() => { setConfirm(false); onDelete?.() }} className="bg-red-600 hover:bg-red-500 text-white">
                             Delete
                         </AlertDialogAction>
@@ -266,7 +266,7 @@ export default function AdminSeoPage() {
             <div className="p-4 md:p-6 space-y-6">
                 {/* Header */}
                 <div>
-                    <h1 className="text-2xl font-black text-white flex items-center gap-2">
+                    <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
                         <Globe className="w-6 h-6 text-amber-500" /> SEO Management
                     </h1>
                     <p className="text-gray-500 text-sm mt-1">
@@ -276,7 +276,7 @@ export default function AdminSeoPage() {
 
                 {/* Progress bar */}
                 {!loading && (
-                    <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
                         <div
                             className="h-full bg-amber-500 rounded-full transition-all duration-700"
                             style={{ width: `${(configured / STATIC_PAGES.length) * 100}%` }}
@@ -302,8 +302,8 @@ export default function AdminSeoPage() {
                                     className={cn(
                                         'relative text-left p-4 rounded-2xl border transition-all group hover:scale-[1.02]',
                                         hasSeo
-                                            ? 'bg-[#0e0e0e] border-amber-500/20 hover:border-amber-500/40'
-                                            : 'bg-[#0e0e0e] border-gray-800 hover:border-gray-700'
+                                            ? 'bg-[#F8F9FD] border-amber-500/20 hover:border-amber-500/40'
+                                            : 'bg-[#F8F9FD] border-slate-200 hover:border-slate-300'
                                     )}
                                 >
                                     {/* Configured dot */}
@@ -313,7 +313,7 @@ export default function AdminSeoPage() {
                                     )} />
 
                                     <div className="text-3xl mb-3">{page.emoji}</div>
-                                    <p className="text-white font-black text-sm">{page.label}</p>
+                                    <p className="text-slate-900 font-black text-">{page.label}</p>
                                     <p className="text-gray-600 text-xs font-mono mt-0.5">{page.path}</p>
 
                                     <div className="mt-3">

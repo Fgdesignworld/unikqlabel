@@ -75,13 +75,15 @@ class HeroSlideController {
             $slide = HeroSlide::findById($id);
             self::ok(['slide' => $slide], 'Hero slide created successfully');
         } catch (Exception $e) {
-            self::error('Failed to create slide: ' . $e->getMessage(), 500);
+            error_log('HeroSlide create error: ' . $e->getMessage());
+            self::error('Failed to create slide. Please try again.', 500);
         }
     }
 
     /**
      * PUT /api/admin/hero-slides/{id}
      */
+
     public static function update(int $id): void {
         requireAuth();
 
@@ -100,7 +102,8 @@ class HeroSlideController {
             $updated = HeroSlide::findById($id);
             self::ok(['slide' => $updated], 'Hero slide updated successfully');
         } catch (Exception $e) {
-            self::error('Failed to update slide: ' . $e->getMessage(), 500);
+            error_log('HeroSlide update error: ' . $e->getMessage());
+            self::error('Failed to update slide. Please try again.', 500);
         }
     }
 

@@ -1,34 +1,39 @@
-
-
 import { Navbar } from "@/components/navbar"
 import { HeroSection } from "@/components/hero-section"
-import { CategorySection } from "@/components/category-section"
-import { BestSellers } from "@/components/best-sellers"
-import { TraditionSection } from "@/components/tradition-section"
-import { ReviewsSection } from "@/components/reviews-section"
-import { GallerySection } from "@/components/gallery-section"
-import { CTASection } from "@/components/cta-section"
 import { Footer } from "@/components/footer"
+import { TrustBar } from "@/components/aarvia/trust-bar"
+import { FeaturedCollections } from "@/components/aarvia/featured-collections"
+import { BestSellers } from "@/components/aarvia/best-sellers"
+import { IngredientPhilosophy } from "@/components/aarvia/ingredient-philosophy"
+import { SustainabilityStory } from "@/components/aarvia/sustainability-story"
+import { SolutionsHair } from "@/components/aarvia/solutions-hair"
+import { SolutionsBody } from "@/components/aarvia/solutions-body"
+import { TestimonialsSection } from "@/components/aarvia/testimonials-section"
+import { InstagramGallery } from "@/components/aarvia/instagram-gallery"
+import { NewsletterSection } from "@/components/aarvia/newsletter-section"
 import { useSeo } from "@/hooks/use-seo"
 
 export default function Home() {
-  useSeo({ pageType: 'home', pageSlug: 'home', fallbackTitle: 'UNIKQ LABEL — Premium Fashion • Everyday Royalty' })
+  useSeo({
+    pageType: 'home',
+    pageSlug: 'home',
+    fallbackTitle: 'Aarvia — Premium Botanical Wellness',
+  })
+
   return (
-    <main className="min-h-screen" style={{ background: 'var(--surface-page)' }}>
+    <main className="min-h-screen" style={{ background: '#F7F4ED' }}>
       <Navbar />
       <HeroSection />
-      <CategorySection />
-      <section id="bestsellers">
-        <BestSellers />
-      </section>
-      <section id="tradition">
-        <TraditionSection />
-      </section>
-      <ReviewsSection />
-      <GallerySection />
-      <section id="contact">
-        <CTASection />
-      </section>
+      <TrustBar />
+      <FeaturedCollections />
+      <BestSellers />
+      <IngredientPhilosophy />
+      <SustainabilityStory />
+      <SolutionsHair />
+      <SolutionsBody />
+      <TestimonialsSection />
+      <InstagramGallery />
+      <NewsletterSection />
       <Footer />
     </main>
   )

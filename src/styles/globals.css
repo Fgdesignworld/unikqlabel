@@ -123,3 +123,441 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADMIN PANEL — ULTRA PREMIUM WHITE THEME
+   CSS-cascade overrides for all dark Tailwind classes used inside admin.
+   NOTE: `#` in a CSS class selector must be written as \# to be valid.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+[data-admin="true"] {
+  --adm-bg-page:    #F4F6FB;
+  --adm-bg-card:    #FFFFFF;
+  --adm-bg-elevated:#F8F9FD;
+  --adm-bg-hover:   rgba(15,23,42,0.035);
+  --adm-border:     #E2E8F0;
+  --adm-border-md:  #CBD5E1;
+  --adm-text-hi:    #0F172A;
+  --adm-text-mid:   #475569;
+  --adm-text-lo:    #94A3B8;
+  --adm-accent:     #C9A45C;
+  --adm-shadow-md:  0 4px 20px rgba(15,23,42,0.08), 0 1px 4px rgba(15,23,42,0.04);
+  color-scheme: light;
+}
+
+/* ── Dark backgrounds → light ───────────────────────────────────────────── */
+[data-admin="true"] .bg-\[\#0a0a0a\],
+[data-admin="true"] .bg-\[\#0A0A0A\],
+[data-admin="true"] .bg-\[\#0d0d0d\],
+[data-admin="true"] .bg-\[\#0D0D0D\],
+[data-admin="true"] .bg-\[\#141414\]  { background-color: var(--adm-bg-page)     !important; }
+
+[data-admin="true"] .bg-\[\#0c0c0c\],
+[data-admin="true"] .bg-\[\#0C0C0C\],
+[data-admin="true"] .bg-\[\#0f0f0f\],
+[data-admin="true"] .bg-\[\#0F0F0F\]  { background-color: var(--adm-bg-card)     !important; }
+
+[data-admin="true"] .bg-\[\#0e0e0e\],
+[data-admin="true"] .bg-\[\#0E0E0E\]  { background-color: var(--adm-bg-elevated) !important; }
+
+[data-admin="true"] .bg-\[\#111\],
+[data-admin="true"] .bg-\[\#111111\],
+[data-admin="true"] .bg-\[\#151515\],
+[data-admin="true"] .bg-\[\#080808\]  { background-color: #F0F4FA               !important; }
+
+[data-admin="true"] .bg-\[\#1a1a1a\],
+[data-admin="true"] .bg-\[\#1A1A1A\],
+[data-admin="true"] .bg-\[\#141414\]  { background-color: #EEF1F8               !important; }
+
+/* transparent dark overlays */
+[data-admin="true"] .bg-black\/40     { background-color: rgba(15,23,42,0.04)    !important; }
+[data-admin="true"] .bg-white\/5      { background-color: #F0F4FA                !important; }
+[data-admin="true"] .bg-white\/4      { background-color: #F0F4FA                !important; }
+[data-admin="true"] .bg-white\/2      { background-color: #F8F9FD                !important; }
+[data-admin="true"] .bg-white\/\[0\.03\]  { background-color: rgba(15,23,42,0.02) !important; }
+[data-admin="true"] .bg-white\/\[0\.04\]  { background-color: rgba(15,23,42,0.03) !important; }
+[data-admin="true"] .bg-white\/\[0\.015\] { background-color: rgba(15,23,42,0.01) !important; }
+
+/* ── Borders ─────────────────────────────────────────────────────────────── */
+[data-admin="true"] .border-gray-800,
+[data-admin="true"] .border-gray-800\/50,
+[data-admin="true"] .border-gray-800\/60,
+[data-admin="true"] .border-gray-800\/30  { border-color: var(--adm-border)    !important; }
+[data-admin="true"] .border-gray-700      { border-color: var(--adm-border-md) !important; }
+[data-admin="true"] .border-white\/5,
+[data-admin="true"] .border-white\/10     { border-color: var(--adm-border)    !important; }
+[data-admin="true"] .border-zinc-800\/50  { border-color: var(--adm-border)    !important; }
+[data-admin="true"] .border-zinc-700      { border-color: var(--adm-border-md) !important; }
+[data-admin="true"] .divide-gray-800 > * + *  { border-color: var(--adm-border) !important; }
+
+/* ── Text — global override: dark text on white bg ───────────────────────── */
+[data-admin="true"] .text-white          { color: var(--adm-text-hi)  !important; }
+[data-admin="true"] .text-white\/40      { color: rgba(15,23,42,0.35) !important; }
+[data-admin="true"] .text-white\/60      { color: rgba(15,23,42,0.5)  !important; }
+[data-admin="true"] .text-gray-300       { color: var(--adm-text-mid) !important; }
+[data-admin="true"] .text-gray-400       { color: var(--adm-text-mid) !important; }
+[data-admin="true"] .text-gray-500       { color: var(--adm-text-lo)  !important; }
+[data-admin="true"] .text-gray-600       { color: #64748B             !important; }
+[data-admin="true"] .text-gray-700       { color: #475569             !important; }
+
+/* ── Restore white text ON explicitly colored surfaces ───────────────────── */
+/* Badges, buttons, pills that INTENTIONALLY use dark bg + white text */
+[data-admin="true"] .bg-red-600.text-white,
+[data-admin="true"] .bg-red-500.text-white,
+[data-admin="true"] .bg-rose-600.text-white,
+[data-admin="true"] .bg-rose-500.text-white,
+[data-admin="true"] .bg-amber-500.text-white,
+[data-admin="true"] .bg-amber-600.text-white { color: #ffffff !important; }
+
+/* Notification / count badge pills (rounded-full + colored bg) */
+[data-admin="true"] .rounded-full.bg-\[\#C9A45C\],
+[data-admin="true"] .rounded-full.bg-amber-500,
+[data-admin="true"] .rounded-full.bg-rose-500   { color: #ffffff !important; }
+
+/* Overlay hover states (dark scrim on images) */
+[data-admin="true"] .group-hover\:opacity-100.text-white { color: #ffffff !important; }
+[data-admin="true"] [class*="bg-black/"].text-white { color: #ffffff !important; }
+
+/* Colored icon-button bg with text-white inside */
+[data-admin="true"] .bg-\[\#25D366\]\/10.text-white { color: #16a34a !important; }
+
+/* ── Input / select / textarea fields ───────────────────────────────────── */
+/* Two selectors: one scoped to [data-admin], one using html[data-theme="light"] for fixed-position panels */
+[data-admin="true"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+[data-admin="true"] select,
+[data-admin="true"] textarea,
+html[data-theme="light"] [data-admin="true"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+html[data-theme="light"] [data-admin="true"] select,
+html[data-theme="light"] [data-admin="true"] textarea {
+  background-color: #FFFFFF   !important;
+  border-color:     var(--adm-border-md) !important;
+  color:            #0F172A   !important;
+}
+[data-admin="true"] input::placeholder,
+[data-admin="true"] textarea::placeholder { color: #94A3B8 !important; }
+[data-admin="true"] input:focus,
+[data-admin="true"] select:focus,
+[data-admin="true"] textarea:focus {
+  border-color: var(--adm-accent) !important;
+  box-shadow: 0 0 0 3px rgba(201,164,92,0.12) !important;
+  outline: none !important;
+}
+/* Select option list (OS-level) */
+[data-admin="true"] select option { background: #ffffff; color: #0F172A; }
+
+/* ── Progress bar tracks ─────────────────────────────────────────────────── */
+[data-admin="true"] .bg-gray-800          { background-color: #E2E8F0 !important; }
+[data-admin="true"] .bg-gray-800\/40,
+[data-admin="true"] .bg-gray-800\/60,
+[data-admin="true"] .bg-gray-800\/30,
+[data-admin="true"] .bg-gray-800\/50     { background-color: rgba(226,232,240,0.6) !important; }
+[data-admin="true"] .bg-gray-700          { background-color: #CBD5E1 !important; }
+[data-admin="true"] .bg-gray-700\/40      { background-color: rgba(203,213,225,0.5) !important; }
+[data-admin="true"] .bg-gray-900          { background-color: #F1F5F9 !important; }
+[data-admin="true"] .bg-gray-900\/40,
+[data-admin="true"] .bg-gray-900\/30,
+[data-admin="true"] .bg-gray-900\/50     { background-color: rgba(241,245,249,0.7) !important; }
+[data-admin="true"] .placeholder-gray-600 { color: #94A3B8 !important; }
+[data-admin="true"] .placeholder-gray-700 { color: #94A3B8 !important; }
+[data-admin="true"] .text-gray-300        { color: var(--adm-text-mid) !important; }
+[data-admin="true"] .hover\:bg-gray-700:hover  { background-color: #CBD5E1 !important; }
+[data-admin="true"] .hover\:bg-gray-800:hover  { background-color: #E2E8F0 !important; }
+
+/* ── Zinc / neutral class overrides ─────────────────────────────────────── */
+[data-admin="true"] .border-zinc-800\/50,
+[data-admin="true"] .border-zinc-800    { border-color: var(--adm-border)    !important; }
+[data-admin="true"] .border-zinc-700    { border-color: var(--adm-border-md) !important; }
+[data-admin="true"] .border-zinc-600    { border-color: var(--adm-border-md) !important; }
+[data-admin="true"] .text-zinc-400,
+[data-admin="true"] .text-zinc-500      { color: var(--adm-text-lo)  !important; }
+[data-admin="true"] .text-zinc-300      { color: var(--adm-text-mid) !important; }
+[data-admin="true"] .bg-zinc-800,
+[data-admin="true"] .bg-zinc-700\/40    { background-color: #F1F5F9 !important; }
+
+/* ── Hover states ────────────────────────────────────────────────────────── */
+[data-admin="true"] .hover\:bg-white\/5:hover      { background-color: var(--adm-bg-hover) !important; }
+[data-admin="true"] .hover\:bg-white\/\[0\.04\]:hover { background-color: var(--adm-bg-hover) !important; }
+[data-admin="true"] .hover\:bg-white\/\[0\.03\]:hover { background-color: rgba(15,23,42,0.02) !important; }
+[data-admin="true"] .hover\:bg-\[\#111\]:hover,
+[data-admin="true"] .hover\:bg-\[\#151515\]:hover   { background-color: #EDF1FA !important; }
+[data-admin="true"] .hover\:border-gray-700:hover   { border-color: var(--adm-border-md) !important; }
+[data-admin="true"] .hover\:text-white:hover         { color: var(--adm-text-hi) !important; }
+
+/* ── Shadows ─────────────────────────────────────────────────────────────── */
+[data-admin="true"] .shadow-2xl.shadow-black         { box-shadow: var(--adm-shadow-md) !important; }
+[data-admin="true"] .shadow-black\/80                { box-shadow: 0 20px 40px rgba(15,23,42,0.10) !important; }
+[data-admin="true"] .shadow-2xl.shadow-\[\#C9A45C\]\/5 { box-shadow: 0 8px 32px rgba(201,164,92,0.10) !important; }
+
+/* ── Dialog / Modal overlays ────────────────────────────────────────────── */
+[data-admin="true"] .bg-\[\#111111\]\/95,
+[data-admin="true"] .bg-\[\#111\]\/95  { background-color: rgba(255,255,255,0.97) !important; }
+
+/* ── Drag overlay ────────────────────────────────────────────────────────── */
+[data-admin="true"] [style*="backgroundColor: #1a1a1a"],
+[data-admin="true"] [style*="backgroundColor: '#1a1a1a'"] { background-color: #FFFFFF !important; }
+
+/* ── Ring focus ──────────────────────────────────────────────────────────── */
+[data-admin="true"] .ring-amber-500\/50 { --tw-ring-color: rgba(201,164,92,0.25) !important; }
+
+/* ── Scrollbar polish ────────────────────────────────────────────────────── */
+[data-admin="true"] ::-webkit-scrollbar { width: 5px; height: 5px; }
+[data-admin="true"] ::-webkit-scrollbar-track { background: transparent; }
+[data-admin="true"] ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 99px; }
+[data-admin="true"] ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AARVIA — ULTRA PREMIUM FRONTEND DESIGN SYSTEM
+   Forest Green × Luxury Gold × Ivory White
+   Target: Aesop · Apple · Rituals · L'Occitane
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Brand palette */
+  --aarvia-forest:      #1F4D3A;
+  --aarvia-forest-deep: #163829;
+  --aarvia-forest-mid:  #2D6B4F;
+  --aarvia-gold:        #C8A96B;
+  --aarvia-gold-light:  #E2C98A;
+  --aarvia-gold-dark:   #A88645;
+  --aarvia-ivory:       #F7F4ED;
+  --aarvia-ivory-dark:  #EDE9DF;
+  --aarvia-kraft:       #C8B08B;
+  --aarvia-charcoal:    #1A1A1A;
+  --aarvia-ink:         #2C2C2C;
+  --aarvia-stone:       #6B6B6B;
+  --aarvia-pebble:      #9A9A8F;
+
+  /* Typography */
+  --font-serif:     'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --font-body:      'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+
+  /* Surfaces */
+  --surface-page:   var(--aarvia-ivory);
+  --surface-card:   #FFFFFF;
+  --surface-alt:    var(--aarvia-ivory-dark);
+  --surface-dark:   var(--aarvia-charcoal);
+
+  /* Text tokens */
+  --text-primary:   var(--aarvia-charcoal);
+  --text-secondary: var(--aarvia-ink);
+  --text-muted:     var(--aarvia-stone);
+  --text-subtle:    var(--aarvia-pebble);
+  --text-on-dark:   var(--aarvia-ivory);
+
+  /* Animation easing */
+  --ease-luxury:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-swift:     cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Global font application ─────────────────────────────────────────────── */
+body {
+  font-family: var(--font-body);
+  background-color: var(--aarvia-ivory);
+  color: var(--aarvia-charcoal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Premium serif utility class ─────────────────────────────────────────── */
+.font-serif, .font-heading, .font-display {
+  font-family: var(--font-serif) !important;
+}
+.font-body {
+  font-family: var(--font-body) !important;
+}
+
+/* ── Luxury text gradient ─────────────────────────────────────────────────── */
+.text-gold-gradient {
+  background: linear-gradient(135deg, var(--aarvia-gold-light) 0%, var(--aarvia-gold) 50%, var(--aarvia-gold-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Premium button system ────────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 2.25rem;
+  background-color: var(--aarvia-forest);
+  color: var(--aarvia-ivory);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.4s var(--ease-luxury);
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--aarvia-gold)/0.15, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.btn-primary:hover {
+  background-color: var(--aarvia-forest-deep);
+  border-color: var(--aarvia-gold);
+  box-shadow: 0 4px 24px rgba(31,77,58,0.3), 0 1px 6px rgba(200,169,107,0.2);
+  transform: translateY(-1px);
+}
+.btn-primary:hover::after { opacity: 1; }
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8125rem 2rem;
+  background-color: transparent;
+  color: var(--aarvia-forest);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid var(--aarvia-forest);
+  cursor: pointer;
+  transition: all 0.4s var(--ease-luxury);
+}
+.btn-outline:hover {
+  background-color: var(--aarvia-forest);
+  color: var(--aarvia-ivory);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(31,77,58,0.2);
+}
+
+.btn-ghost-light {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8125rem 2rem;
+  background-color: rgba(247,244,237,0.12);
+  color: var(--aarvia-ivory);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid rgba(247,244,237,0.35);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: all 0.4s var(--ease-luxury);
+}
+.btn-ghost-light:hover {
+  background-color: rgba(247,244,237,0.22);
+  border-color: var(--aarvia-gold);
+  color: var(--aarvia-gold-light);
+}
+
+/* ── Luxury section divider ──────────────────────────────────────────────── */
+.section-divider {
+  width: 3rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--aarvia-gold), transparent);
+  margin: 1.25rem auto;
+}
+.section-label {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--aarvia-gold);
+}
+
+/* ── Card system ─────────────────────────────────────────────────────────── */
+.card-luxury {
+  background: var(--surface-card);
+  border: 1px solid rgba(200,169,107,0.12);
+  transition: all 0.5s var(--ease-luxury);
+}
+.card-luxury:hover {
+  border-color: rgba(200,169,107,0.35);
+  box-shadow: 0 20px 60px rgba(31,77,58,0.08), 0 4px 16px rgba(200,169,107,0.08);
+  transform: translateY(-4px);
+}
+
+/* ── Premium image overlay ───────────────────────────────────────────────── */
+.image-reveal {
+  overflow: hidden;
+}
+.image-reveal img {
+  transition: transform 0.8s var(--ease-luxury);
+}
+.image-reveal:hover img {
+  transform: scale(1.06);
+}
+
+/* ── Smooth scrollbar ────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(200,169,107,0.3); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(200,169,107,0.6); }
+
+/* ── Luxury underline link ───────────────────────────────────────────────── */
+.link-luxury {
+  position: relative;
+  color: var(--aarvia-forest);
+  font-weight: 500;
+  text-decoration: none;
+}
+.link-luxury::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--aarvia-gold);
+  transition: width 0.4s var(--ease-luxury);
+}
+.link-luxury:hover::after { width: 100%; }
+
+/* ── Aarvia scrollbar-hide ───────────────────────────────────────────────── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Gold shimmer animation ──────────────────────────────────────────────── */
+@keyframes gold-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.animate-gold-shimmer {
+  background: linear-gradient(90deg, var(--aarvia-gold-dark) 0%, var(--aarvia-gold-light) 40%, var(--aarvia-gold-dark) 80%);
+  background-size: 200% auto;
+  animation: gold-shimmer 3s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Float animation ─────────────────────────────────────────────────────── */
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+.animate-float { animation: float-gentle 5s ease-in-out infinite; }
+
+/* ── Fade up animation ───────────────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.7s var(--ease-luxury) forwards; }
+
+/* ── Luxury separator line ───────────────────────────────────────────────── */
+.line-gold {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--aarvia-gold) 50%, transparent 100%);
+  opacity: 0.4;
+}
+

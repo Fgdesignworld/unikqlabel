@@ -25,11 +25,19 @@ class CategoryController {
     // ─── Public ──────────────────────────────────────────────────────────────
 
     /**
-     * GET /api/categories — Public active categories
+     * GET /api/categories — Public active categories (flat)
      */
     public static function index(): void {
         $categories = Category::getActive();
         self::ok(['categories' => $categories]);
+    }
+
+    /**
+     * GET /api/categories/tree — Public category tree with subcategories
+     */
+    public static function tree(): void {
+        $tree = Category::getTree();
+        self::ok(['categories' => $tree]);
     }
 
     // ─── Admin ───────────────────────────────────────────────────────────────
@@ -79,6 +87,19 @@ class CategoryController {
             ? Category::generateSlug(trim($input['slug']))
             : Category::generateSlug($name);
 
+        // Validate parent_id: must be a real main category (no grandchildren)
+        if (!empty($input['parent_id'])) {
+            $parent = Category::findById((int)$input['parent_id']);
+            if (!$parent) {
+                self::error('Parent category not found');
+                return;
+            }
+            if (!empty($parent['parent_id'])) {
+                self::error('Cannot nest beyond 2 levels (no sub-subcategories)');
+                return;
+            }
+        }
+
         try {
             $id  = Category::create($input);
             $cat = Category::findById($id);
@@ -117,6 +138,23 @@ class CategoryController {
         // Auto-regen slug if name changed and slug not explicitly provided
         if (isset($input['name']) && !isset($input['slug'])) {
             $input['slug'] = Category::generateSlug($input['name']);
+        }
+
+        // Validate parent_id if being changed
+        if (array_key_exists('parent_id', $input) && !empty($input['parent_id'])) {
+            if ((int)$input['parent_id'] === $id) {
+                self::error('Category cannot be its own parent');
+                return;
+            }
+            $parent = Category::findById((int)$input['parent_id']);
+            if (!$parent) {
+                self::error('Parent category not found');
+                return;
+            }
+            if (!empty($parent['parent_id'])) {
+                self::error('Cannot nest beyond 2 levels');
+                return;
+            }
         }
 
         try {

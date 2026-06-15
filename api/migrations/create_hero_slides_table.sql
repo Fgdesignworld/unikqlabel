@@ -32,4 +32,4 @@ CREATE TABLE IF NOT EXISTS `hero_slides` (
 INSERT INTO `hero_slides`
   (title, subtitle, tagline, cta_primary_text, cta_primary_link, cta_secondary_text, cta_secondary_link, badge_text, badge_icon, category, is_active, sort_order)
 VALUES
-  ('Where Kings & Queens Reign', 'Bold. Structured. Built for kings who lead the streets.', 'Luxury Streetwear · Est. 2024', 'Shop Now', '/products', 'Explore Collections', '/#collections', 'New Arrivals', 'Crown', 'men', 1, 0);
+  ('Ancient Wellness, Modern Indulgence', 'Formulating clinical adaptogenic cookies to fuel mind, body, and cellular stamina. Built for high performance, baked with love.', 'Premium Wellness Cookies · Est. 2026', 'Shop Cookies', '/products', 'Our Ingredients', '/ingredients', 'High Performance', 'Crown', 'unisex', 1, 0);

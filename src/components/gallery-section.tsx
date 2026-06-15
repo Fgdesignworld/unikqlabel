@@ -6,10 +6,10 @@ import { Image } from "@/components/ui/image"
 const galleryImages = [
   { src: "/images/fashion-gallery-1.jpg", alt: "King Collection street style", span: "col-span-1 row-span-2" },
   { src: "/images/fashion-gallery-2.jpg", alt: "Queen Collection editorial", span: "col-span-1 row-span-1" },
-  { src: "/images/fashion-gallery-3.jpg", alt: "Couple in UNIKQ streetwear", span: "col-span-1 row-span-1" },
+  { src: "/images/fashion-gallery-3.jpg", alt: "Couple in KoffeeKup streetwear", span: "col-span-1 row-span-1" },
   { src: "/images/collection-king.jpg",   alt: "King Collection lookbook",   span: "col-span-1 row-span-1" },
   { src: "/images/collection-queen.jpg",  alt: "Queen Collection lookbook",  span: "col-span-1 row-span-2" },
-  { src: "/images/collection-essentials.jpg", alt: "UniKQ Essentials look",  span: "col-span-1 row-span-1" },
+  { src: "/images/collection-essentials.jpg", alt: "KoffeeKup Essentials look",  span: "col-span-1 row-span-1" },
 ]
 
 export function GallerySection() {

@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 // ─── Preview row ─────────────────────────────────────────────────────────────
 function PreviewRow({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
     return (
-        <div className="flex items-center justify-between py-2.5 border-b border-gray-800 last:border-0">
+        <div className="flex items-center justify-between py-2.5 border-b border-slate-200 last:border-0">
             <span className="text-gray-400 text-sm">{label}</span>
             <span className={cn('text-sm font-bold', highlight ? 'text-amber-400' : 'text-white')}>{value}</span>
         </div>
@@ -92,7 +92,7 @@ export default function AdminDeliveryPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-black text-white">Delivery Rules</h1>
+                    <h1 className="text-2xl font-black text-slate-900">Delivery Rules</h1>
                     <p className="text-gray-500 text-sm mt-1">Configure minimum order & delivery fees</p>
                 </div>
                 <button onClick={handleSave} disabled={saving || !dirty}
@@ -109,10 +109,10 @@ export default function AdminDeliveryPage() {
             )}
 
             {/* Rule form */}
-            <div className="bg-[#0e0e0e] border border-gray-800 rounded-2xl p-5 space-y-5">
-                <div className="flex items-center gap-2 pb-4 border-b border-gray-800">
+            <div className="bg-[#F8F9FD] border border-slate-200 rounded-2xl p-5 space-y-5">
+                <div className="flex items-center gap-2 pb-4 border-b border-slate-200">
                     <Truck className="w-5 h-5 text-amber-500" />
-                    <h2 className="text-white font-black">Delivery Configuration</h2>
+                    <h2 className="text-slate-900 font-black">Delivery Configuration</h2>
                 </div>
 
                 {/* Min order */}
@@ -124,7 +124,7 @@ export default function AdminDeliveryPage() {
                         <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
                         <input type="number" min={0} step={0.01} value={form.min_order_amount}
                             onChange={e => setField('min_order_amount', parseFloat(e.target.value) || 0)}
-                            className="w-full bg-white/4 border border-gray-700 rounded-xl pl-9 pr-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500/50 transition-all"
+                            className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:border-amber-500/50 transition-all"
                         />
                     </div>
                     <p className="text-gray-600 text-xs mt-1">Set to 0 to allow any order amount</p>
@@ -139,7 +139,7 @@ export default function AdminDeliveryPage() {
                         <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
                         <input type="number" min={0} step={0.01} value={form.delivery_fee}
                             onChange={e => setField('delivery_fee', parseFloat(e.target.value) || 0)}
-                            className="w-full bg-white/4 border border-gray-700 rounded-xl pl-9 pr-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500/50 transition-all"
+                            className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:border-amber-500/50 transition-all"
                         />
                     </div>
                 </div>
@@ -153,16 +153,16 @@ export default function AdminDeliveryPage() {
                         <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
                         <input type="number" min={0} step={0.01} value={form.free_delivery_above}
                             onChange={e => setField('free_delivery_above', parseFloat(e.target.value) || 0)}
-                            className="w-full bg-white/4 border border-gray-700 rounded-xl pl-9 pr-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500/50 transition-all"
+                            className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:border-amber-500/50 transition-all"
                         />
                     </div>
                     <p className="text-gray-600 text-xs mt-1">Set to 0 to always charge delivery fee</p>
                 </div>
 
                 {/* Active toggle */}
-                <div className="flex items-center justify-between bg-white/2 border border-gray-800 rounded-xl p-4">
+                <div className="flex items-center justify-between bg-white border border-slate-200 rounded-xl p-4">
                     <div>
-                        <p className="text-white text-sm font-bold">Enable Delivery Rules</p>
+                        <p className="text-slate-800 text-sm font-bold">Enable Delivery Rules</p>
                         <p className="text-gray-500 text-xs mt-0.5">When disabled, no delivery fee is charged</p>
                     </div>
                     <button type="button" onClick={() => setField('is_active', !form.is_active)}
@@ -187,7 +187,7 @@ export default function AdminDeliveryPage() {
                     { label: 'Delivery Fee', value: `₹${form.delivery_fee}`, color: 'text-amber-400' },
                     { label: 'Free Above', value: form.free_delivery_above > 0 ? `₹${form.free_delivery_above}` : 'Never free', color: 'text-green-400' },
                 ].map(s => (
-                    <div key={s.label} className="bg-[#0e0e0e] border border-gray-800 rounded-2xl p-4 text-center">
+                    <div key={s.label} className="bg-[#F8F9FD] border border-slate-200 rounded-2xl p-4 text-center">
                         <p className="text-gray-500 text-xs font-bold mb-1">{s.label}</p>
                         <p className={cn('text-lg font-black', s.color)}>{s.value}</p>
                     </div>
@@ -195,13 +195,13 @@ export default function AdminDeliveryPage() {
             </div>
 
             {/* Live simulator */}
-            <div className="bg-[#0e0e0e] border border-gray-800 rounded-2xl p-5">
-                <h3 className="text-white font-black mb-4">Rule Simulator</h3>
+            <div className="bg-[#F8F9FD] border border-slate-200 rounded-2xl p-5">
+                <h3 className="text-slate-900 font-black mb-4">Rule Simulator</h3>
                 <div className="relative mb-4">
                     <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
                     <input type="number" min={0} value={testAmount} onChange={e => setTestAmount(e.target.value)}
                         placeholder="Enter cart total to test..."
-                        className="w-full bg-white/4 border border-gray-700 rounded-xl pl-9 pr-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
+                        className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all"
                     />
                 </div>
 
@@ -210,7 +210,7 @@ export default function AdminDeliveryPage() {
                         <PreviewRow label="Cart Total" value={`₹${testSubtotal.toFixed(2)}`} />
                         <PreviewRow label="Delivery Fee" value={testBlocked ? '—' : `₹${testFee.toFixed(2)}`} highlight={testFee === 0 && !testBlocked} />
                         <PreviewRow label="Order Total" value={testBlocked ? 'Blocked' : `₹${(testSubtotal + testFee).toFixed(2)}`} />
-                        <div className="mt-3 pt-3 border-t border-gray-800">
+                        <div className="mt-3 pt-3 border-t border-slate-200">
                             {testBlocked ? (
                                 <div className="flex items-center gap-2 text-red-400 text-sm font-bold">
                                     <AlertTriangle className="w-4 h-4" />

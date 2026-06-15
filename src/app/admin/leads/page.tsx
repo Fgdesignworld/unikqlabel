@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -67,11 +67,11 @@ function StatCard({ label, value, icon: Icon, color, bg, border, sub }: {
   color: string; bg: string; border: string; sub?: string
 }) {
   return (
-    <div className={cn('bg-[#0c0c0c] border rounded-2xl p-4 md:p-5', border)}>
+    <div className={cn('bg-white border rounded-2xl p-4 md:p-5', border)}>
       <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center mb-3', bg)}>
         <Icon className={cn('w-5 h-5', color)} />
       </div>
-      <p className="text-xl md:text-2xl font-black text-white tracking-tight">{value}</p>
+      <p className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{value}</p>
       <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-0.5">{label}</p>
       {sub && <p className="text-[9px] text-gray-600 mt-1">{sub}</p>}
     </div>
@@ -114,7 +114,7 @@ function DailyChart({ data, loading }: { data: DailyStat[]; loading: boolean }) 
 
   if (loading || data.length === 0) {
     return (
-      <div className="bg-[#0c0c0c] border border-gray-800 rounded-2xl p-4 h-[110px] flex items-center justify-center">
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 h-[110px] flex items-center justify-center">
         {loading
           ? <div className="animate-spin w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full" />
           : <p className="text-xs text-gray-600">No chart data yet</p>}
@@ -123,11 +123,11 @@ function DailyChart({ data, loading }: { data: DailyStat[]; loading: boolean }) 
   }
 
   return (
-    <div className="bg-[#0c0c0c] border border-gray-800 rounded-2xl p-4 md:p-5">
+    <div className="bg-white border border-slate-200 rounded-2xl p-4 md:p-5">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <BarChart3 className="w-4 h-4 text-amber-400" />
-          <p className="text-xs font-black text-white">Daily Leads</p>
+          <p className="text-xs font-black text-slate-700">Daily Leads</p>
           <span className="text-[10px] text-gray-600">Last {data.length} days</span>
         </div>
         <div className="flex items-center gap-2">
@@ -136,7 +136,7 @@ function DailyChart({ data, loading }: { data: DailyStat[]; loading: boolean }) 
               {new Date(hoveredData.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}: {hoveredData.count} lead{hoveredData.count !== 1 ? 's' : ''}
             </span>
           )}
-          <span className="text-xs font-black text-white">{total}</span>
+          <span className="text-xs font-black text-slate-700">{total}</span>
           <span className="text-xs text-gray-600">total</span>
         </div>
       </div>
@@ -191,7 +191,7 @@ function FollowupCard({ fu, onView }: { fu: UpcomingFollowup; onView: (id: numbe
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col gap-3 p-4 bg-[#0f0f0f] border border-gray-800 rounded-2xl hover:border-amber-500/20 transition-all"
+      className="flex flex-col gap-3 p-4 bg-white border border-slate-200 rounded-2xl hover:border-amber-500/20 transition-all"
     >
       <div className="flex items-start gap-3">
         <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
@@ -199,7 +199,7 @@ function FollowupCard({ fu, onView }: { fu: UpcomingFollowup; onView: (id: numbe
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-bold text-white">{fu.name}</span>
+            <span className="text-sm font-bold text-slate-800">{fu.name}</span>
             <StatusBadge status={fu.status} />
             <ScoreBadge  score={fu.lead_score} />
           </div>
@@ -393,7 +393,7 @@ export default function AdminLeadsPage() {
             <MessageSquare className="w-5 h-5 text-amber-400" />
           </div>
           <div>
-            <h1 className="text-xl font-black text-white">Leads / Contacts</h1>
+            <h1 className="text-xl font-black text-slate-900">Leads / Contacts</h1>
             <p className="text-xs text-gray-500">{total} total leads</p>
           </div>
         </div>
@@ -405,7 +405,7 @@ export default function AdminLeadsPage() {
           >
             <Download className="w-3.5 h-3.5" /> Export CSV
           </a>
-          <button onClick={handleRefreshAll} className="p-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 transition-colors">
+          <button onClick={handleRefreshAll} className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200">
             <RefreshCw className="w-4 h-4 text-gray-400" />
           </button>
         </div>
@@ -430,10 +430,10 @@ export default function AdminLeadsPage() {
       <DailyChart data={dailyData} loading={chartLoading} />
 
       {/* â”€â”€ Main Tabs â”€â”€ */}
-      <div className="bg-[#0c0c0c] border border-gray-800 rounded-2xl overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
 
         {/* Tab header */}
-        <div className="flex border-b border-gray-800">
+        <div className="flex border-b border-slate-200">
           {([
             { key: 'leads',    label: 'All Leads',   Icon: Users,    badge: total },
             { key: 'followups', label: 'Follow-ups', Icon: Calendar, badge: upcomingTotal },
@@ -457,7 +457,7 @@ export default function AdminLeadsPage() {
                     ? 'bg-amber-500/20 text-amber-400'
                     : key === 'followups'
                       ? 'bg-red-500/20 text-red-400'
-                      : 'bg-gray-800 text-gray-500'
+                      : 'bg-slate-100 border-slate-200 text-slate-500'
                 )}>
                   {badge}
                 </span>
@@ -470,7 +470,7 @@ export default function AdminLeadsPage() {
         {activeTab === 'leads' && (
           <div>
             {/* Filters bar */}
-            <div className="flex items-center gap-2 p-4 flex-wrap border-b border-gray-800/50">
+            <div className="flex items-center gap-2 p-4 flex-wrap border-b border-slate-200/80">
               <div className="relative flex-1 min-w-48">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
                 <input
@@ -478,19 +478,19 @@ export default function AdminLeadsPage() {
                   placeholder="Search name, phone, emailâ€¦"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm bg-gray-900 border border-gray-800 text-white placeholder-gray-600 outline-none focus:border-amber-500/40"
+                  className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm bg-white border border-slate-200 text-slate-800 placeholder-slate-400 outline-none focus:border-amber-500/40"
                 />
               </div>
               <button
                 onClick={() => setShowFilters(v => !v)}
-                className={cn('flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold border transition-colors', showFilters ? 'bg-amber-500/15 border-amber-500/30 text-amber-400' : 'bg-gray-900 border-gray-800 text-gray-400 hover:text-white')}
+                className={cn('flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold border transition-colors', showFilters ? 'bg-amber-500/15 border-amber-500/30 text-amber-500' : 'bg-white border-slate-200 text-slate-500 hover:text-slate-800')}
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" />
                 Filters
                 {hasFilters && <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />}
               </button>
               {hasFilters && (
-                <button onClick={clearFilters} className="flex items-center gap-1 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-400 bg-gray-800 border border-gray-700 hover:bg-gray-700 transition-colors">
+                <button onClick={clearFilters} className="flex items-center gap-1 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-500 bg-white border border-slate-300 hover:bg-slate-50 transition-colors">
                   <X className="w-3 h-3" /> Clear
                 </button>
               )}
@@ -501,9 +501,9 @@ export default function AdminLeadsPage() {
               {showFilters && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden border-b border-gray-800/50"
+                  className="overflow-hidden border-b border-slate-200/80"
                 >
-                  <div className="flex flex-wrap gap-4 p-4 bg-gray-900/30">
+                  <div className="flex flex-wrap gap-4 p-4 bg-slate-50 border-b border-slate-200/80">
                     {[
                       { label: 'Status',       items: ['', 'new', 'contacted', 'converted', 'closed'],          val: statusFilter, set: setStatusFilter, fmt: (s: string) => s || 'All' },
                       { label: 'Score',        items: ['', 'hot', 'warm', 'cold'],                              val: scoreFilter,  set: setScoreFilter,  fmt: (s: string) => s || 'All' },
@@ -514,7 +514,7 @@ export default function AdminLeadsPage() {
                         <div className="flex gap-1.5 flex-wrap">
                           {group.items.map(s => (
                             <button key={s} onClick={() => group.set(s)}
-                              className={cn('px-3 py-1.5 rounded-lg text-xs font-bold border transition-all', group.val === s ? 'bg-amber-500/15 border-amber-500/30 text-amber-400' : 'bg-gray-900 border-gray-800 text-gray-500 hover:text-white')}>
+                              className={cn('px-3 py-1.5 rounded-lg text-xs font-bold border transition-all', group.val === s ? 'bg-amber-500/15 border-amber-500/30 text-amber-500' : 'bg-white border-slate-200 text-slate-500 hover:text-slate-800')}>
                               {group.fmt(s)}
                             </button>
                           ))}
@@ -538,82 +538,141 @@ export default function AdminLeadsPage() {
                 {hasFilters && <button className="mt-2 text-xs text-amber-400 underline" onClick={clearFilters}>Clear filters</button>}
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-800">
-                      {['Lead', 'Inquiry', 'Status', 'Score', 'Date', 'Actions'].map(h => (
-                        <th key={h} className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-gray-500">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {leads.map((lead) => (
-                      <tr
-                        key={lead.id}
-                        className="border-b border-gray-800/50 hover:bg-white/2 transition-colors cursor-pointer"
-                        onClick={() => setSelectedLead(lead)}
-                      >
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
-                              <span className="text-xs font-black text-amber-400">{lead.name[0]?.toUpperCase()}</span>
-                            </div>
-                            <div>
-                              <p className="text-sm font-bold text-white">{lead.name}</p>
-                              <p className="text-xs text-gray-500">{lead.phone}</p>
-                              {lead.email && <p className="text-[10px] text-gray-600 flex items-center gap-1"><Mail className="w-2.5 h-2.5" />{lead.email}</p>}
-                            </div>
+              <>
+                {/* ── Mobile card list (< md) ── */}
+                <div className="md:hidden divide-y divide-slate-200/60">
+                  {leads.map((lead) => (
+                    <div
+                      key={lead.id}
+                      className="p-4 space-y-3 active:bg-slate-50 transition-colors cursor-pointer"
+                      onClick={() => setSelectedLead(lead)}
+                    >
+                      {/* Row 1: avatar + name + badges */}
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                          <span className="text-sm font-black text-amber-400">{lead.name[0]?.toUpperCase()}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-slate-800 leading-tight">{lead.name}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{lead.phone}</p>
+                          {lead.email && <p className="text-[10px] text-gray-600 mt-0.5 truncate">{lead.email}</p>}
+                          <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                            <StatusBadge status={lead.status} />
+                            <ScoreBadge  score={lead.lead_score} />
+                            <span className="text-[10px] text-gray-500 bg-gray-800/60 px-2 py-0.5 rounded-full">
+                              {INQUIRY_LABELS[lead.inquiry_type] || lead.inquiry_type}
+                            </span>
                           </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="text-xs text-gray-400">{INQUIRY_LABELS[lead.inquiry_type] || lead.inquiry_type}</span>
-                        </td>
-                        <td className="px-4 py-3"><StatusBadge status={lead.status} /></td>
-                        <td className="px-4 py-3"><ScoreBadge  score={lead.lead_score} /></td>
-                        <td className="px-4 py-3">
-                          <span className="text-xs text-gray-500">{fmtDate(lead.created_at)}</span>
-                        </td>
-                        <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
-                          <div className="flex items-center gap-1.5">
-                            <a
-                              href={`https://wa.me/${String(lead.phone).replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${lead.name}!`)}`}
-                              target="_blank" rel="noreferrer"
-                              className="p-1.5 rounded-lg text-[#25D366] bg-[#25D366]/10 hover:bg-[#25D366]/20 transition-colors"
-                            >
-                              <WAIcon className="w-3.5 h-3.5" />
-                            </a>
-                            <a href={`tel:${lead.phone}`} className="p-1.5 rounded-lg text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 transition-colors">
-                              <Phone className="w-3.5 h-3.5" />
-                            </a>
-                            <button
-                              onClick={() => setSelectedLead(lead)}
-                              className="p-1.5 rounded-lg text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 transition-colors"
-                            >
-                              <Eye className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={() => setDeleteId(lead.id)}
-                              className="p-1.5 rounded-lg text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </td>
+                        </div>
+                        <span className="text-[10px] text-gray-600 shrink-0 mt-0.5">{fmtDate(lead.created_at)}</span>
+                      </div>
+                      {/* Row 2: action buttons */}
+                      <div className="flex items-center gap-2 pl-13" onClick={e => e.stopPropagation()}>
+                        <a
+                          href={`https://wa.me/${String(lead.phone).replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${lead.name}!`)}`}
+                          target="_blank" rel="noreferrer"
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[11px] font-bold text-[#25D366] bg-[#25D366]/10 border border-[#25D366]/20"
+                        >
+                          <WAIcon className="w-3 h-3" /> WA
+                        </a>
+                        <a href={`tel:${lead.phone}`} className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[11px] font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20">
+                          <Phone className="w-3 h-3" /> Call
+                        </a>
+                        <button
+                          onClick={() => setSelectedLead(lead)}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[11px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20"
+                        >
+                          <Eye className="w-3 h-3" /> View
+                        </button>
+                        <button
+                          onClick={() => setDeleteId(lead.id)}
+                          className="p-1.5 rounded-xl text-red-400 bg-red-500/10 border border-red-500/20 ml-auto"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* ── Desktop table (≥ md) ── */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-slate-200">
+                        {['Lead', 'Inquiry', 'Status', 'Score', 'Date', 'Actions'].map(h => (
+                          <th key={h} className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-gray-500">{h}</th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {leads.map((lead) => (
+                        <tr
+                          key={lead.id}
+                          className="border-b border-slate-200/80 hover:bg-slate-50 transition-colors cursor-pointer"
+                          onClick={() => setSelectedLead(lead)}
+                        >
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                                <span className="text-xs font-black text-amber-400">{lead.name[0]?.toUpperCase()}</span>
+                              </div>
+                              <div>
+                                <p className="text-sm font-bold text-slate-800">{lead.name}</p>
+                                <p className="text-xs text-gray-500">{lead.phone}</p>
+                                {lead.email && <p className="text-[10px] text-gray-600 flex items-center gap-1"><Mail className="w-2.5 h-2.5" />{lead.email}</p>}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="text-xs text-gray-400">{INQUIRY_LABELS[lead.inquiry_type] || lead.inquiry_type}</span>
+                          </td>
+                          <td className="px-4 py-3"><StatusBadge status={lead.status} /></td>
+                          <td className="px-4 py-3"><ScoreBadge  score={lead.lead_score} /></td>
+                          <td className="px-4 py-3">
+                            <span className="text-xs text-gray-500">{fmtDate(lead.created_at)}</span>
+                          </td>
+                          <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                            <div className="flex items-center gap-1.5">
+                              <a
+                                href={`https://wa.me/${String(lead.phone).replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${lead.name}!`)}`}
+                                target="_blank" rel="noreferrer"
+                                className="p-1.5 rounded-lg text-[#25D366] bg-[#25D366]/10 hover:bg-[#25D366]/20 transition-colors"
+                              >
+                                <WAIcon className="w-3.5 h-3.5" />
+                              </a>
+                              <a href={`tel:${lead.phone}`} className="p-1.5 rounded-lg text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 transition-colors">
+                                <Phone className="w-3.5 h-3.5" />
+                              </a>
+                              <button
+                                onClick={() => setSelectedLead(lead)}
+                                className="p-1.5 rounded-lg text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 transition-colors"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => setDeleteId(lead.id)}
+                                className="p-1.5 rounded-lg text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
 
             {/* Pagination */}
             {lastPage > 1 && (
-              <div className="flex items-center justify-between px-4 py-3 border-t border-gray-800">
+              <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200">
                 <p className="text-xs text-gray-500">Page {page} of {lastPage}</p>
                 <div className="flex gap-2">
-                  <button disabled={page <= 1}        onClick={() => fetchLeads(page - 1)} className="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-40 transition-colors"><ChevronLeft  className="w-4 h-4 text-gray-300" /></button>
-                  <button disabled={page >= lastPage} onClick={() => fetchLeads(page + 1)} className="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-40 transition-colors"><ChevronRight className="w-4 h-4 text-gray-300" /></button>
+                  <button disabled={page <= 1}        onClick={() => fetchLeads(page - 1)} className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-200 disabled:opacity-40 transition-colors"><ChevronLeft  className="w-4 h-4 text-slate-500" /></button>
+                  <button disabled={page >= lastPage} onClick={() => fetchLeads(page + 1)} className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-200 disabled:opacity-40 transition-colors"><ChevronRight className="w-4 h-4 text-slate-500" /></button>
                 </div>
               </div>
             )}
@@ -624,7 +683,7 @@ export default function AdminLeadsPage() {
         {activeTab === 'followups' && (
           <div>
             {/* 7-day strip */}
-            <div className="flex gap-2 p-4 overflow-x-auto border-b border-gray-800/50 scrollbar-none">
+            <div className="flex gap-2 p-4 overflow-x-auto border-b border-slate-200/80 scrollbar-none">
               {days7.map((day) => {
                 const isActive   = activeDayTab === day.date
                 const hasDue     = day.count > 0
@@ -637,8 +696,8 @@ export default function AdminLeadsPage() {
                       isActive
                         ? 'bg-amber-500/15 border-amber-500/35 text-amber-400'
                         : hasDue
-                          ? 'bg-gray-900 border-gray-700 text-gray-300 hover:border-amber-500/20'
-                          : 'border-gray-800 text-gray-600 hover:text-gray-400 hover:border-gray-700'
+                          ? 'bg-gray-100 border-slate-300 text-slate-600 hover:border-amber-500/20'
+                          : 'border-slate-200 text-gray-600 hover:text-gray-400 hover:border-slate-300'
                     )}
                   >
                     <span className="text-[11px] font-black whitespace-nowrap">{day.label}</span>
@@ -666,9 +725,9 @@ export default function AdminLeadsPage() {
                 <button
                   onClick={fetchUpcoming}
                   disabled={upcomingLoading}
-                  className="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-40 transition-colors"
+                  className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-200 disabled:opacity-40 transition-colors"
                 >
-                  <RefreshCw className={cn('w-3.5 h-3.5 text-gray-400', upcomingLoading && 'animate-spin')} />
+                  <RefreshCw className={cn('w-3.5 h-3.5 text-slate-500', upcomingLoading && 'animate-spin')} />
                 </button>
               </div>
               
@@ -720,21 +779,21 @@ export default function AdminLeadsPage() {
         {deleteId && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
             onClick={() => setDeleteId(null)}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
               onClick={e => e.stopPropagation()}
-              className="bg-[#0c0c0c] border border-gray-800 rounded-2xl p-6 max-w-sm w-full"
+              className="bg-white border border-slate-200 rounded-2xl p-6 max-w-sm w-full"
             >
               <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
                 <Trash2 className="w-5 h-5 text-red-400" />
               </div>
-              <h3 className="text-lg font-black text-white mb-1">Delete Lead?</h3>
+              <h3 className="text-lg font-black text-slate-900 mb-1">Delete Lead?</h3>
               <p className="text-sm text-gray-400 mb-5">This action cannot be undone.</p>
               <div className="flex gap-3">
-                <button onClick={() => setDeleteId(null)} className="flex-1 py-2.5 rounded-xl text-sm font-bold border border-gray-700 text-gray-400 hover:text-white transition-colors">Cancel</button>
+                <button onClick={() => setDeleteId(null)} className="flex-1 py-2.5 rounded-xl text-sm font-bold border border-slate-300 text-gray-400 hover:text-slate-900 transition-colors">Cancel</button>
                 <button onClick={handleDelete} disabled={deleting} className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-red-600 hover:bg-red-500 text-white disabled:opacity-60 transition-colors">
                   {deleting ? 'Deletingâ€¦' : 'Delete'}
                 </button>

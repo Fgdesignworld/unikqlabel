@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 /**
- * Axios instance for UNIKQ LABEL API
+ * Axios instance for KoffeeKup API
  * 
  * Base URL points to the PHP API server.
  * Update this when deploying to production.
@@ -43,7 +43,14 @@ api.interceptors.request.use(async (config) => {
 
 // Response error handler
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        // Pick up rotated CSRF token from response headers
+        const newToken = response.headers['x-csrf-token'];
+        if (newToken) {
+            csrfToken = newToken;
+        }
+        return response;
+    },
     async (error) => {
         const status = error.response?.status;
 

@@ -1,13 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { productService } from '@/services/productService'
 import { categoryService, type Category } from '@/services/categoryService'
-import { sizeVariantService, type SizeVariantSet } from '@/services/sizeVariantService'
-import { colorLibraryService, type LibraryColor } from '@/services/colorLibraryService'
 import { Image } from '@/components/ui/image'
-import type { SizeVariant, ColorVariant } from '@/data/products'
+import type { SizeVariant } from '@/data/products'
 import {
   ArrowLeft,
   Save,
@@ -21,12 +19,11 @@ import {
   Plus,
   Images,
   Ruler,
-  Palette,
-  BookOpen,
   Boxes,
 } from 'lucide-react'
 import { inventoryService, inventoryKey, type InventoryRow } from '@/services/inventoryService'
 import RichTextEditor from '@/components/admin/RichTextEditor'
+import { AdminSelect } from '@/components/admin/AdminSelect'
 
 export default function AdminProductFormPage() {
   const { id } = useParams()
@@ -52,38 +49,62 @@ export default function AdminProductFormPage() {
 
   const [variantRows, setVariantRows] = useState<{ weight: string; price: string }[]>([])
   const [sizeVariantRows, setSizeVariantRows] = useState<{ label: string; price: string }[]>([])
-  const [colorVariantRows, setColorVariantRows] = useState<{ color: string; hex: string; images: string[]; uploading: boolean }[]>([])
   const [gallery, setGallery] = useState<string[]>([])
   const [categories, setCategories] = useState<Category[]>([])
-  const [variantTab, setVariantTab] = useState<'size' | 'color'>('size')
+
+  const categoryOptions = React.useMemo(() => {
+    if (categories.length > 0) {
+      const list: { value: string; label: string; group?: string }[] = []
+      categories.forEach(cat => {
+        const subs = cat.subcategories?.filter(s => s.status === 'active') ?? []
+        if (subs.length > 0) {
+          subs.forEach(sub => {
+            list.push({
+              value: sub.slug,
+              label: sub.name,
+              group: cat.name,
+            })
+          })
+        } else {
+          list.push({
+            value: cat.slug,
+            label: cat.name,
+          })
+        }
+      })
+      return list
+    }
+    return ['men', 'women', 'unisex', 'limited'].map(c => ({
+      value: c,
+      label: c.charAt(0).toUpperCase() + c.slice(1),
+    }))
+  }, [categories])
 
   // ── Inventory ──────────────────────────────────────────────────
   const [inventoryMap, setInventoryMap]     = useState<Record<string, number>>({})
   const [inventorySaving, setInventorySaving] = useState(false)
   const [inventoryMsg, setInventoryMsg]     = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
 
-  // Library data for "load from library" pickers
-  const [variantSets, setVariantSets] = useState<SizeVariantSet[]>([])
-  const [libraryColors, setLibraryColors] = useState<LibraryColor[]>([])
-  const [enableVariants, setEnableVariants] = useState(true)
-  const [enableColors, setEnableColors] = useState(true)
-
   useEffect(() => {
     let cancelled = false
 
-    // Load library data (variant sets + colors) for pickers
-    sizeVariantService.getActive().then(sets => { if (!cancelled) setVariantSets(sets) }).catch(() => {})
-    colorLibraryService.getActive().then(cols => { if (!cancelled) setLibraryColors(cols) }).catch(() => {})
-
-    // Load categories for the dropdown
-    categoryService.getAll()
-      .then(cats => {
+    // Load categories (tree) for the dropdown
+    categoryService.getTree()
+      .then(tree => {
         if (cancelled) return
-        const active = cats.filter(c => c.status === 'active')
-        setCategories(active)
-        // On create, default to the first available category
-        if (!isEdit && active.length > 0) {
-          setForm(f => f.category === '' ? { ...f, category: active[0].slug } : f)
+        // Flatten into all active categories for default-value logic
+        const allActive: Category[] = []
+        tree.forEach(parent => {
+          if (parent.status === 'active') allActive.push(parent)
+          parent.subcategories?.forEach(sub => { if (sub.status === 'active') allActive.push(sub) })
+        })
+        setCategories(tree) // store tree for grouped rendering
+        // On create, default to first leaf category (sub if available, else parent)
+        if (!isEdit && allActive.length > 0) {
+          const firstLeaf = allActive.find(c => !c.parent_id && !(tree.find(t => t.id === c.id)?.subcategories?.length)) ||
+                            allActive.find(c => !!c.parent_id) ||
+                            allActive[0]
+          setForm(f => f.category === '' ? { ...f, category: firstLeaf.slug } : f)
         }
       })
       .catch(() => {/* silently ignore — fallback options shown */})
@@ -113,9 +134,6 @@ export default function AdminProductFormPage() {
           }
           if (Array.isArray((product as any).variants_json)) {
             setSizeVariantRows((product as any).variants_json.map((v: SizeVariant) => ({ label: v.label, price: v.price != null ? String(v.price) : '' })))
-          }
-          if (Array.isArray((product as any).color_variants_json)) {
-            setColorVariantRows((product as any).color_variants_json.map((v: ColorVariant) => ({ color: v.color, hex: v.hex, images: v.images, uploading: false })))
           }
           if (Array.isArray(product.gallery_images)) {
             setGallery(product.gallery_images)
@@ -153,8 +171,6 @@ export default function AdminProductFormPage() {
       discount_price: form.discount_price ? parseFloat(form.discount_price) : null,
       bestseller: form.bestseller ? 1 : 0,
       gallery_images: gallery.length > 0 ? gallery : null,
-      enable_variants: enableVariants ? 1 : 0,
-      enable_colors: enableColors ? 1 : 0,
     }
 
     // Guard: ensure a category is selected before submitting
@@ -174,16 +190,34 @@ export default function AdminProductFormPage() {
       ? filledSizeVariants.map(r => ({ label: r.label.trim(), price: r.price.trim() ? parseFloat(r.price) : null }))
       : null
 
-    const filledColorVariants = colorVariantRows.filter(r => r.color.trim())
-    data.color_variants_json = filledColorVariants.length > 0
-      ? filledColorVariants.map(r => ({ color: r.color.trim(), hex: r.hex || '#000000', images: r.images }))
-      : null
-
     try {
       if (isEdit) {
         await productService.update(Number(id), data)
       } else {
-        await productService.create(data)
+        const createdProduct = await productService.create(data)
+        if (createdProduct?.id) {
+          // Construct bulk stock rows for all combos
+          const sizes = filledSizeVariants.map(r => r.label.trim())
+          const colors: string[] = []
+          const combos: Array<{ size: string | null; color: string | null; key: string }> = []
+          if (sizes.length > 0 && colors.length > 0) {
+            sizes.forEach(s => colors.forEach(c => combos.push({ size: s, color: c, key: inventoryKey(s, c) })))
+          } else if (sizes.length > 0) {
+            sizes.forEach(s => combos.push({ size: s, color: null, key: inventoryKey(s, null) }))
+          } else if (colors.length > 0) {
+            colors.forEach(c => combos.push({ size: null, color: c, key: inventoryKey(null, c) }))
+          } else {
+            combos.push({ size: null, color: null, key: inventoryKey(null, null) })
+          }
+
+          const rows: InventoryRow[] = combos.map(c => ({
+            size: c.size,
+            color: c.color,
+            stock: inventoryMap[c.key] ?? 0
+          }))
+
+          await inventoryService.bulkSave(createdProduct.id, rows)
+        }
       }
       setSuccess(true)
       setTimeout(() => navigate('/admin/products'), 1500)
@@ -244,11 +278,11 @@ export default function AdminProductFormPage() {
         <div>
           <Link 
             to="/admin/products" 
-            className="inline-flex items-center gap-2 text-gray-500 hover:text-white transition-colors mb-2 text-sm font-medium"
+            className="inline-flex items-center gap-2 text-gray-500 hover:text-slate-900 transition-colors mb-2 text-sm font-medium"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Products
           </Link>
-          <h1 className="text-3xl font-black text-white tracking-tight">
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
             {isEdit ? 'Edit' : 'Create'} <span className="text-amber-500">Product</span>
           </h1>
         </div>
@@ -281,10 +315,10 @@ export default function AdminProductFormPage() {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-8">
           {/* Basic Info */}
-          <section className="bg-[#111] border border-gray-800 rounded-3xl p-8 relative overflow-hidden group">
+          <section className="bg-white border border-slate-200 rounded-3xl p-8 relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl -mr-16 -mt-16 group-hover:bg-amber-500/10 transition-colors" />
             
-            <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+            <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
               <span className="w-1.5 h-6 bg-amber-500 rounded-full" />
               General Information
             </h2>
@@ -296,7 +330,7 @@ export default function AdminProductFormPage() {
                   value={form.name} 
                   onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                   placeholder="e.g. Classic Black T-Shirt"
-                  className="w-full px-5 py-3 bg-[#0a0a0a] border border-gray-800 rounded-2xl text-white focus:outline-none focus:border-amber-500/50 transition-all placeholder:text-gray-700"
+                  className="w-full px-5 py-3 bg-[#F4F6FB] border border-slate-200 rounded-2xl text-slate-800 focus:outline-none focus:border-amber-500/50 transition-all placeholder:text-gray-700"
                   required
                 />
               </div>
@@ -313,28 +347,19 @@ export default function AdminProductFormPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-400 mb-2">Category *</label>
-                  <select 
-                    value={form.category} 
-                    onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                    className="w-full px-5 py-3 bg-[#0a0a0a] border border-gray-800 rounded-2xl text-white focus:outline-none focus:border-amber-500/50 appearance-none"
-                  >
-                    {categories.length > 0 ? (
-                      categories.map(cat => (
-                        <option key={cat.id} value={cat.slug}>{cat.name}</option>
-                      ))
-                    ) : (
-                      // Fallback while loading or if API unavailable
-                      ['men', 'women', 'unisex', 'limited'].map(c => (
-                        <option key={c} value={c}>{c}</option>
-                      ))
-                    )}
-                  </select>
+                  <AdminSelect
+                    value={form.category}
+                    onChange={val => setForm(f => ({ ...f, category: val }))}
+                    options={categoryOptions}
+                    placeholder="Select Category"
+                  />
+                  <p className="mt-1 text-xs text-gray-600">Select the main or sub category for this product</p>
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-400 mb-2">URL Slug</label>
                   <input 
                     placeholder="Auto-generated or custom"
-                    className="w-full px-5 py-3 bg-[#0a0a0a] border border-gray-800 rounded-2xl text-white/40 focus:outline-none cursor-not-allowed"
+                    className="w-full px-5 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-slate-400 focus:outline-none cursor-not-allowed"
                     disabled
                   />
                   <p className="mt-1 text-xs text-gray-600">Slug is managed by server for SEO</p>
@@ -344,10 +369,10 @@ export default function AdminProductFormPage() {
           </section>
 
           {/* Pricing & Variations */}
-          <section className="bg-[#111] border border-gray-800 rounded-3xl p-8 group relative overflow-hidden">
+          <section className="bg-white border border-slate-200 rounded-3xl p-8 group relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl -mr-16 -mt-16 group-hover:bg-amber-500/10 transition-colors" />
             
-            <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+            <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
               <span className="w-1.5 h-6 bg-amber-500 rounded-full" />
               Pricing & Configuration
             </h2>
@@ -371,292 +396,111 @@ export default function AdminProductFormPage() {
                     }}
                     inputMode="decimal"
                     pattern="^[0-9]*\.?[0-9]*$"
-                    className="w-full px-5 py-3 bg-[#0a0a0a] border border-gray-800 rounded-2xl text-white focus:outline-none focus:border-amber-500/50"
+                    className="w-full px-5 py-3 bg-[#F4F6FB] border border-slate-200 rounded-2xl text-slate-800 focus:outline-none focus:border-amber-500/50"
                     required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-400 mb-2">
-                    Discount Percentage (%)
-                    {/* <span className="ml-2 text-[10px] text-amber-500/60 font-normal normal-case">optional — applies to all variants</span> */}
+                    Offer Price (₹)
                   </label>
                   <input
-                    type="number"
-                    min="0"
-                    max="100"
+                    type="text"
                     value={form.discount_price}
-                    onChange={e => setForm(f => ({ ...f, discount_price: e.target.value }))}
-                    placeholder="e.g. 20 (means 20% off)"
-                    className="w-full px-5 py-3 bg-[#0a0a0a] border border-gray-800 rounded-2xl text-white focus:outline-none focus:border-amber-500/50 placeholder:text-gray-700"
+                    onChange={e => {
+                      const raw = e.target.value;
+                      // allow only digits and one decimal point
+                      let cleaned = raw.replace(/[^0-9.]/g, '');
+                      const firstDot = cleaned.indexOf('.');
+                      if (firstDot !== -1) {
+                        cleaned = cleaned.slice(0, firstDot + 1) + cleaned.slice(firstDot + 1).replace(/\./g, '');
+                      }
+                      setForm(f => ({ ...f, discount_price: cleaned }));
+                    }}
+                    inputMode="decimal"
+                    pattern="^[0-9]*\.?[0-9]*$"
+                    placeholder="e.g. 999 (direct sale price)"
+                    className="w-full px-5 py-3 bg-[#F4F6FB] border border-slate-200 rounded-2xl text-slate-800 focus:outline-none focus:border-amber-500/50 placeholder:text-gray-700"
                   />
-                  {form.discount_price && form.price && (
-                    <p className="mt-1 text-xs text-amber-400 font-semibold">
-                      {parseFloat(form.price)} - {Math.round((parseFloat(form.price) * (100 - parseFloat(form.discount_price))) / 100)} (sale price at {form.discount_price}% off)
-                    </p>
-                  )}
+                  {(() => {
+                    const priceNum = parseFloat(form.price);
+                    const offerNum = parseFloat(form.discount_price);
+                    if (priceNum > 0 && offerNum > 0 && offerNum < priceNum) {
+                      const discountPct = ((priceNum - offerNum) / priceNum) * 100;
+                      return (
+                        <p className="mt-1 text-xs text-amber-400 font-semibold">
+                          {priceNum} - {offerNum} (sale price at {discountPct.toFixed(2)}% off)
+                        </p>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
               </div>
             </div>
           </section>
 
-          {/* ── Variants Tabbed Interface ─── */}
-          <section className="bg-[#111] border border-gray-800 rounded-3xl overflow-hidden group relative">
+          {/* ── Product Variants ─── */}
+          <section className="bg-white border border-slate-200 rounded-3xl overflow-hidden group relative">
             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl -mr-16 -mt-16 group-hover:bg-amber-500/10 transition-colors" />
-            
-            {/* Tab Navigation */}
-            <div className="flex items-center gap-1 p-4 border-b border-gray-800 bg-[#0a0a0a]">
-              <button
-                type="button"
-                onClick={() => setVariantTab('size')}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all ${
-                  variantTab === 'size'
-                    ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-                    : 'text-gray-500 hover:text-white border border-transparent'
-                }`}
-              >
-                <Ruler className="w-4 h-4" />
-                Size Variants
-              </button>
-              <button
-                type="button"
-                onClick={() => setVariantTab('color')}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all ${
-                  variantTab === 'color'
-                    ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-                    : 'text-gray-500 hover:text-white border border-transparent'
-                }`}
-              >
-                <Palette className="w-4 h-4" />
-                Color Variants
-              </button>
+            {/* Header */}
+            <div className="flex items-center gap-3 px-8 py-5 border-b border-slate-200 bg-[#F4F6FB]">
+              <div className="w-8 h-8 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-center">
+                <Ruler className="w-4 h-4 text-amber-400" />
+              </div>
+              <div>
+                <h2 className="text-sm font-black text-slate-900">Size / Weight Variants</h2>
+                <p className="text-[10px] text-gray-600 mt-0.5">Add weight or size options (e.g. 100g, 200g). Each can have its own price.</p>
+              </div>
             </div>
-
-            {/* Tab Content */}
             <div className="p-6">
-              {variantTab === 'size' && (
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-xs text-gray-500 font-semibold mb-2">Label only shown on buttons. Price overrides base price on selection.</h3>
-                  </div>
-
-                  {/* ─ Pick from Variant Master ─ */}
-                  {variantSets.length > 0 && (
-                    <div className="p-3 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
-                      <div className="flex items-center gap-2 mb-2.5">
-                        <BookOpen className="w-3.5 h-3.5 text-amber-400" />
-                        <span className="text-xs text-amber-300 font-semibold">Pick from Variant Master</span>
+              <div className="space-y-2.5">
+                {sizeVariantRows.map((row, idx) => (
+                  <div key={idx} className="border border-slate-200 rounded-2xl p-3.5 space-y-2.5 relative">
+                    <button type="button" onClick={() => setSizeVariantRows(r => r.filter((_, i) => i !== idx))}
+                      className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center text-gray-700 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[9px] font-bold uppercase tracking-widest text-gray-600 block mb-1">Label</label>
+                        <input
+                          type="text"
+                          value={row.label}
+                          onChange={e => setSizeVariantRows(r => r.map((x, i) => i === idx ? { ...x, label: e.target.value } : x))}
+                          placeholder="100g, 200g, 500g…"
+                          className="w-full px-3 py-2 bg-[#F4F6FB] border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-amber-500/50 transition-all placeholder:text-gray-700"
+                        />
                       </div>
-                      <div className="flex flex-col gap-2.5">
-                        {variantSets.map(set => (
-                          <div key={set.id}>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-1.5">{set.name}</p>
-                            <div className="flex flex-wrap gap-2">
-                              {set.variants.map(v => {
-                                const already = sizeVariantRows.some(r => r.label === v.label)
-                                return (
-                                  <button
-                                    key={v.id}
-                                    type="button"
-                                    disabled={already}
-                                    onClick={() => {
-                                      if (already) return
-                                      setSizeVariantRows(r => [...r, {
-                                        label: v.label,
-                                        price: v.price_adjustment > 0 ? String(v.price_adjustment) : '',
-                                      }])
-                                    }}
-                                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs font-medium transition-all ${already
-                                      ? 'opacity-40 cursor-not-allowed border-zinc-700 text-zinc-500'
-                                      : 'border-zinc-700 hover:border-amber-500/50 text-white hover:bg-amber-500/5'
-                                    }`}
-                                  >
-                                    <span className="w-5 h-5 rounded-md bg-[#1a1a1a] border border-white/15 shrink-0 flex items-center justify-center text-[9px] font-black text-amber-400">
-                                      {v.label.slice(0, 3)}
-                                    </span>
-                                    {v.label}
-                                    {already && <Check className="w-3 h-3 text-emerald-400" />}
-                                  </button>
-                                )
-                              })}
-                            </div>
-                          </div>
-                        ))}
+                      <div>
+                        <label className="text-[9px] font-bold uppercase tracking-widest text-gray-600 block mb-1">Price ₹</label>
+                        <input
+                          type="number"
+                          value={row.price}
+                          onChange={e => setSizeVariantRows(r => r.map((x, i) => i === idx ? { ...x, price: e.target.value } : x))}
+                          placeholder="optional"
+                          className="w-full px-3 py-2 bg-[#F4F6FB] border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-amber-500/50 transition-all placeholder:text-gray-700"
+                        />
                       </div>
                     </div>
-                  )}
-
-                  <div className="space-y-2.5">
-                    {sizeVariantRows.map((row, idx) => (
-                      <div key={idx} className="border border-gray-800 rounded-2xl p-3.5 space-y-2.5 relative">
-                        <button type="button" onClick={() => setSizeVariantRows(r => r.filter((_, i) => i !== idx))}
-                          className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center text-gray-700 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <label className="text-[9px] font-bold uppercase tracking-widest text-gray-600 block mb-1">Size</label>
-                            <input
-                              type="text"
-                              value={row.label}
-                              onChange={e => setSizeVariantRows(r => r.map((x, i) => i === idx ? { ...x, label: e.target.value } : x))}
-                              placeholder="XS, S, M, L…"
-                              className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-800 rounded-lg text-white text-xs focus:outline-none focus:border-amber-500/50 transition-all placeholder:text-gray-700"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-[9px] font-bold uppercase tracking-widest text-gray-600 block mb-1">Price ₹</label>
-                            <input
-                              type="number"
-                              value={row.price}
-                              onChange={e => setSizeVariantRows(r => r.map((x, i) => i === idx ? { ...x, price: e.target.value } : x))}
-                              placeholder="optional"
-                              className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-800 rounded-lg text-white text-xs focus:outline-none focus:border-amber-500/50 transition-all placeholder:text-gray-700"
-                            />
-                          </div>
-                        </div>
-                </div>
-                  ))}
-
-                    <button
-                      type="button"
-                      onClick={() => setSizeVariantRows(r => [...r, { label: '', price: '' }])}
-                      className="w-full py-4 border-2 border-dashed border-gray-800 rounded-2xl text-gray-600 hover:text-amber-500 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all text-xs font-bold flex items-center justify-center gap-2"
-                    >
-                      <Plus className="w-4 h-4" />
-                      {sizeVariantRows.length === 0 ? 'Add size' : 'Add another'}
-                    </button>
                   </div>
-                </div>
-              )}
-
-              {variantTab === 'color' && (
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-xs text-gray-500 font-semibold mb-2">Each color can have its own images. Selecting a color swaps the gallery.</h3>
-                  </div>
-                  {/* ─ Pick from Color Library ─ */}
-                  {libraryColors.length > 0 && (
-                    <div className="p-3 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
-                      <div className="flex items-center gap-2 mb-2.5">
-                        <BookOpen className="w-3.5 h-3.5 text-amber-400" />
-                        <span className="text-xs text-amber-300 font-semibold">Pick from Color Library</span>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {libraryColors.map(c => {
-                          const already = colorVariantRows.some(r => r.color === c.name)
-                          return (
-                            <button
-                              key={c.id}
-                              type="button"
-                              disabled={already}
-                              onClick={() => {
-                                if (already) return
-                                setColorVariantRows(r => [...r, { color: c.name, hex: c.hex_code, images: [], uploading: false }])
-                              }}
-                              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs font-medium transition-all ${already
-                                ? 'opacity-40 cursor-not-allowed border-zinc-700 text-zinc-500'
-                                : 'border-zinc-700 hover:border-amber-500/50 text-white hover:bg-amber-500/5'
-                              }`}
-                            >
-                              <span className="w-3 h-3 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: c.hex_code }} />
-                              {c.name}
-                              {already && <Check className="w-3 h-3 text-emerald-400" />}
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-3">
-                    {colorVariantRows.map((row, idx) => (
-                      <div key={idx} className="border border-gray-800 rounded-2xl p-3.5 space-y-2.5 relative">
-                        <button type="button" onClick={() => setColorVariantRows(r => r.filter((_, i) => i !== idx))}
-                          className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center text-gray-700 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-
-                        <div className="grid grid-cols-[1fr_auto] gap-2 items-end">
-                          <div>
-                            <label className="text-[9px] font-bold uppercase tracking-widest text-gray-600 block mb-1">Color Name</label>
-                            <input type="text" value={row.color}
-                              onChange={e => setColorVariantRows(r => r.map((x, i) => i === idx ? { ...x, color: e.target.value } : x))}
-                              placeholder="Black, White…"
-                              className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-800 rounded-lg text-white text-xs focus:outline-none focus:border-amber-500/50 transition-all placeholder:text-gray-700"
-                            />
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <input type="color" value={row.hex || '#000000'}
-                              onChange={e => setColorVariantRows(r => r.map((x, i) => i === idx ? { ...x, hex: e.target.value } : x))}
-                              className="w-9 h-9 rounded-lg border border-gray-800 bg-transparent cursor-pointer p-0.5"
-                            />
-                            <input type="text" value={row.hex || '#000000'}
-                              onChange={e => setColorVariantRows(r => r.map((x, i) => i === idx ? { ...x, hex: e.target.value } : x))}
-                              className="w-20 px-2.5 py-2 bg-[#0a0a0a] border border-gray-800 rounded-lg text-white text-xs font-mono focus:outline-none focus:border-amber-500/50"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Image thumbnails */}
-                        {row.images.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5">
-                            {row.images.map((imgSrc, imgIdx) => (
-                              <div key={imgIdx} className="relative w-14 h-14 rounded-lg overflow-hidden border border-gray-800 group/img">
-                                <img src={imgSrc.startsWith('/api') ? imgSrc : `/api${imgSrc}`} alt="" className="w-full h-full object-cover" />
-                                <button type="button"
-                                  onClick={() => setColorVariantRows(r => r.map((x, i) => i === idx ? { ...x, images: x.images.filter((_, ii) => ii !== imgIdx) } : x))}
-                                  className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
-                                  <X className="w-3.5 h-3.5 text-red-400" />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        <div className="flex items-center gap-2">
-                          <button type="button"
-                            disabled={row.uploading}
-                            onClick={() => document.getElementById(`color-img-${idx}`)?.click()}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0a0a0a] border border-gray-800 rounded-lg text-gray-400 hover:text-amber-500 hover:border-amber-500/30 text-xs font-bold transition-all disabled:opacity-50">
-                            {row.uploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
-                            {row.uploading ? 'Uploading' : 'Add'}
-                          </button>
-                          <span className="text-[9px] text-gray-700">{row.images.length} img{row.images.length !== 1 ? 's' : ''}</span>
-                          <input id={`color-img-${idx}`} type="file" accept="image/*" multiple className="hidden"
-                            onChange={async (e) => {
-                              const files = Array.from(e.target.files || [])
-                              setColorVariantRows(r => r.map((x, i) => i === idx ? { ...x, uploading: true } : x))
-                              for (const file of files) {
-                                try {
-                                  const path = await productService.uploadImage(file)
-                                  setColorVariantRows(r => r.map((x, i) => i === idx ? { ...x, images: [...x.images, path] } : x))
-                                } catch { /* skip */ }
-                              }
-                              setColorVariantRows(r => r.map((x, i) => i === idx ? { ...x, uploading: false } : x))
-                              e.target.value = ''
-                            }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-
-                    <button type="button"
-                      onClick={() => setColorVariantRows(r => [...r, { color: '', hex: '#000000', images: [], uploading: false }])}
-                      className="w-full py-4 border-2 border-dashed border-gray-800 rounded-2xl text-gray-600 hover:text-amber-500 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all text-xs font-bold flex items-center justify-center gap-2">
-                      <Plus className="w-4 h-4" />
-                      {colorVariantRows.length === 0 ? 'Add color' : 'Add another'}
-                    </button>
-                  </div>
-                </div>
-              )}
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setSizeVariantRows(r => [...r, { label: '', price: '' }])}
+                  className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-gray-600 hover:text-amber-500 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all text-xs font-bold flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  {sizeVariantRows.length === 0 ? 'Add variant' : 'Add another'}
+                </button>
+              </div>
             </div>
           </section>
 
-          {/* ── Inventory Management (edit mode only) ── */}
-          {isEdit && (() => {
+{/* ── Inventory Management ── */}
+          {(() => {
             const sizes   = sizeVariantRows.filter(r => r.label.trim()).map(r => r.label.trim())
-            const colors  = colorVariantRows.filter(r => r.color.trim()).map(r => r.color.trim())
+            const colors: string[] = []
             // Build combinations
             const combos: Array<{ size: string | null; color: string | null; key: string }> = []
             if (sizes.length > 0 && colors.length > 0) {
@@ -673,17 +517,17 @@ export default function AdminProductFormPage() {
             const outOfStock = combos.filter(c => (inventoryMap[c.key] ?? 0) === 0).length
 
             return (
-              <section className="bg-[#111] border border-gray-800 rounded-3xl overflow-hidden group relative">
+              <section className="bg-white border border-slate-200 rounded-3xl overflow-hidden group relative">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl -mr-16 -mt-16 group-hover:bg-amber-500/10 transition-colors" />
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-8 py-5 border-b border-gray-800 bg-[#0a0a0a]">
+                <div className="flex items-center justify-between px-8 py-5 border-b border-slate-200 bg-[#F4F6FB]">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-center">
                       <Boxes className="w-4 h-4 text-amber-400" />
                     </div>
                     <div>
-                      <h2 className="text-sm font-black text-white">Inventory Management</h2>
+                      <h2 className="text-sm font-black text-slate-900">Inventory Management</h2>
                       <p className="text-[10px] text-gray-600 mt-0.5">
                         {combos.length} variant{combos.length !== 1 ? 's' : ''} &nbsp;·&nbsp;
                         <span className="text-amber-400">{totalStock} total stock</span>
@@ -697,15 +541,21 @@ export default function AdminProductFormPage() {
                         {inventoryMsg.text}
                       </span>
                     )}
-                    <button
-                      type="button"
-                      onClick={handleSaveInventory}
-                      disabled={inventorySaving}
-                      className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-black text-xs font-black rounded-xl transition-all"
-                    >
-                      {inventorySaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
-                      Save Stock
-                    </button>
+                    {isEdit ? (
+                      <button
+                        type="button"
+                        onClick={handleSaveInventory}
+                        disabled={inventorySaving}
+                        className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-black text-xs font-black rounded-xl transition-all"
+                      >
+                        {inventorySaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                        Save Stock
+                      </button>
+                    ) : (
+                      <span className="text-[10px] text-gray-500 font-semibold italic bg-gray-900/50 border border-slate-200/80 px-2.5 py-1.5 rounded-lg">
+                        Saved automatically with product
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -713,14 +563,14 @@ export default function AdminProductFormPage() {
                 <div className="p-6 overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-gray-800">
+                      <tr className="border-b border-slate-200">
                         {sizes.length > 0 && <th className="text-left pb-3 pr-4 text-[10px] font-black uppercase tracking-widest text-gray-600">Size</th>}
                         {colors.length > 0 && <th className="text-left pb-3 pr-4 text-[10px] font-black uppercase tracking-widest text-gray-600">Color</th>}
                         <th className="text-left pb-3 pr-4 text-[10px] font-black uppercase tracking-widest text-gray-600">Stock</th>
                         <th className="text-left pb-3 text-[10px] font-black uppercase tracking-widest text-gray-600">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-800/50">
+                    <tbody className="divide-y divide-slate-200/50">
                       {combos.map(combo => {
                         const stock = inventoryMap[combo.key] ?? 0
                         const isOos  = stock === 0
@@ -738,15 +588,7 @@ export default function AdminProductFormPage() {
                             )}
                             {colors.length > 0 && (
                               <td className="py-3 pr-4">
-                                {combo.color ? (
-                                  <div className="flex items-center gap-2">
-                                    {(() => {
-                                      const cv = colorVariantRows.find(r => r.color === combo.color)
-                                      return cv ? <span className="w-3.5 h-3.5 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: cv.hex }} /> : null
-                                    })()}
-                                    <span className="text-white text-xs font-semibold">{combo.color}</span>
-                                  </div>
-                                ) : <span className="text-gray-600 text-xs">—</span>}
+                                <span className="text-slate-700 text-xs font-semibold">{combo.color}</span>
                               </td>
                             )}
                             <td className="py-3 pr-6">
@@ -763,7 +605,7 @@ export default function AdminProductFormPage() {
                                     ? 'bg-red-500/10 border border-red-500/30 text-red-300 focus:border-red-400'
                                     : isLow
                                     ? 'bg-amber-500/10 border border-amber-500/30 text-amber-300 focus:border-amber-400'
-                                    : 'bg-[#0a0a0a] border border-gray-800 text-white focus:border-amber-500/50'
+                                    : 'bg-[#F4F6FB] border border-slate-200 text-slate-800 focus:border-amber-500/50'
                                 }`}
                               />
                             </td>
@@ -799,20 +641,21 @@ export default function AdminProductFormPage() {
         {/* Sidebar Controls */}
         <div className="space-y-8">
           {/* Status & Visibility */}
-          <section className="bg-[#111] border border-gray-800 rounded-3xl p-6">
+          <section className="bg-white border border-slate-200 rounded-3xl p-6">
             <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">Status</h2>
             
             <div className="space-y-4">
-              <label className="flex items-center justify-between p-4 bg-[#0a0a0a] border border-gray-800 rounded-2xl cursor-pointer group">
-                <span className="text-sm font-semibold text-white">Active Status</span>
-                <select 
+              <label className="flex items-center justify-between p-4 bg-[#F4F6FB] border border-slate-200 rounded-2xl cursor-pointer group">
+                <span className="text-sm font-semibold text-slate-800">Active Status</span>
+                <AdminSelect
                   value={form.status}
-                  onChange={e => setForm(f => ({ ...f, status: e.target.value as 'active' | 'inactive' }))}
-                  className="bg-transparent text-amber-500 text-sm font-bold focus:outline-none"
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
+                  onChange={val => setForm(f => ({ ...f, status: val as 'active' | 'inactive' }))}
+                  options={[
+                    { value: 'active', label: 'Active' },
+                    { value: 'inactive', label: 'Inactive' },
+                  ]}
+                  variant="inline"
+                />
               </label>
 
               <div className="grid grid-cols-1 gap-3">
@@ -821,9 +664,9 @@ export default function AdminProductFormPage() {
                 ].map((toggle) => (
                   <label 
                     key={toggle.key}
-                    className="flex items-center justify-between p-4 bg-[#0a0a0a] border border-gray-800 rounded-2xl cursor-pointer hover:border-amber-500/20 transition-all"
+                    className="flex items-center justify-between p-4 bg-[#F4F6FB] border border-slate-200 rounded-2xl cursor-pointer hover:border-amber-500/20 transition-all"
                   >
-                    <span className="text-sm font-semibold text-white">{toggle.label}</span>
+                    <span className="text-sm font-semibold text-slate-800">{toggle.label}</span>
                     <div className="relative inline-flex items-center cursor-pointer">
                       <input 
                         type="checkbox" 
@@ -836,54 +679,36 @@ export default function AdminProductFormPage() {
                   </label>
                 ))}
 
-                {/* Variant visibility toggles */}
-                <label className="flex items-center justify-between p-4 bg-[#0a0a0a] border border-gray-800 rounded-2xl cursor-pointer hover:border-amber-500/20 transition-all">
-                  <div className="flex items-center gap-2">
-                    <Ruler className="w-4 h-4 text-amber-500" />
-                    <span className="text-sm font-semibold text-white">Size Variants</span>
-                  </div>
-                  <div className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" checked={enableVariants} onChange={e => setEnableVariants(e.target.checked)} className="sr-only peer" />
-                    <div className="w-10 h-5 bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:inset-s-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
-                  </div>
-                </label>
 
-                <label className="flex items-center justify-between p-4 bg-[#0a0a0a] border border-gray-800 rounded-2xl cursor-pointer hover:border-amber-500/20 transition-all">
-                  <div className="flex items-center gap-2">
-                    <Palette className="w-4 h-4 text-amber-500" />
-                    <span className="text-sm font-semibold text-white">Color Variants</span>
-                  </div>
-                  <div className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" checked={enableColors} onChange={e => setEnableColors(e.target.checked)} className="sr-only peer" />
-                    <div className="w-10 h-5 bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:inset-s-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
-                  </div>
-                </label>
               </div>
             </div>
           </section>
 
           {/* Image Upload */}
-          <section className="bg-[#111] border border-gray-800 rounded-3xl p-6">
+          <section className="bg-white border border-slate-200 rounded-3xl p-6">
             <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">Image</h2>
             
             <div className="space-y-4">
               {form.image ? (
-                <div className="relative aspect-square rounded-2xl overflow-hidden border border-gray-800 group">
+                <div className="relative aspect-square rounded-2xl overflow-hidden border border-slate-200 group">
                   <Image src={form.image} alt="Preview" fill className="object-cover" />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                  {/* Mobile: buttons visible top-right, Desktop: hover overlay */}
+                  <div className="absolute top-2 right-2 sm:inset-0 sm:bg-slate-800/40 sm:opacity-0 sm:group-hover:opacity-100 sm:transition-opacity flex items-center gap-2 sm:justify-center">
                     <button 
                       type="button"
                       onClick={() => document.getElementById('image-upload')?.click()}
-                      className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+                      className="p-2 bg-amber-500 hover:bg-amber-400 sm:bg-white/10 sm:hover:bg-white/20 text-white rounded-full transition-colors shadow-lg"
+                      title="Change image"
                     >
-                      <Upload className="w-5 h-5 text-white" />
+                      <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                     <button 
                       type="button"
                       onClick={removeImage}
-                      className="p-2 bg-red-500/20 rounded-full hover:bg-red-500/30 transition-colors"
+                      className="p-2 bg-red-500 hover:bg-red-400 sm:bg-red-500/20 sm:hover:bg-red-500/30 text-white rounded-full transition-colors shadow-lg"
+                      title="Delete image"
                     >
-                      <Trash2 className="w-5 h-5 text-red-500" />
+                      <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 text-white sm:text-red-500" />
                     </button>
                   </div>
                 </div>
@@ -891,7 +716,7 @@ export default function AdminProductFormPage() {
                 <button
                   type="button"
                   onClick={() => document.getElementById('image-upload')?.click()}
-                  className="w-full aspect-square bg-[#0a0a0a] border-2 border-dashed border-gray-800 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all text-gray-600 hover:text-amber-500"
+                  className="w-full aspect-square bg-[#F4F6FB] border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all text-gray-600 hover:text-amber-500"
                 >
                   <ImageIcon className="w-10 h-10" />
                   <span className="text-sm font-bold tracking-tight">Upload Product Image</span>
@@ -909,7 +734,7 @@ export default function AdminProductFormPage() {
           </section>
 
           {/* Gallery Images */}
-          <section className="bg-[#111] border border-gray-800 rounded-3xl p-6">
+          <section className="bg-white border border-slate-200 rounded-3xl p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                 <Images className="w-4 h-4" /> Gallery
@@ -921,12 +746,12 @@ export default function AdminProductFormPage() {
             {gallery.length > 0 && (
               <div className="grid grid-cols-3 gap-2 mb-3">
                 {gallery.map((img, idx) => (
-                  <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-gray-800 group">
+                  <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 group">
                     <img src={img.startsWith('http') ? img : img.startsWith('/api/') ? img : `/api${img}`} alt={`Gallery ${idx+1}`} className="w-full h-full object-cover" />
                     <button
                       type="button"
                       onClick={() => setGallery(g => g.filter((_, i) => i !== idx))}
-                      className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                      className="absolute inset-0 bg-slate-800/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
                     >
                       <X className="w-5 h-5 text-red-400" />
                     </button>
@@ -939,7 +764,7 @@ export default function AdminProductFormPage() {
               <button
                 type="button"
                 onClick={() => document.getElementById('gallery-upload')?.click()}
-                className="w-full py-4 bg-[#0a0a0a] border-2 border-dashed border-gray-800 rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all text-gray-600 hover:text-amber-500 text-xs font-bold"
+                className="w-full py-4 bg-[#F4F6FB] border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all text-gray-600 hover:text-amber-500 text-xs font-bold"
               >
                 <Plus className="w-5 h-5" />
                 Add Gallery Image

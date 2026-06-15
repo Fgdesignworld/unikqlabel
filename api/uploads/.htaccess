@@ -1,0 +1,41 @@
+# ============================================================
+# SECURITY: Prevent PHP/script execution in uploads directory
+# ============================================================
+
+# Disable PHP engine entirely
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# Block all PHP-related file extensions
+<FilesMatch "\.(php|pht|phtml|php3|php4|php5|php7|php8|phps|cgi|pl|py|jsp|asp|aspx|sh|bash|shtml|shtm)$">
+    Require all denied
+</FilesMatch>
+
+# Block double extension attacks (e.g., file.php.jpg)
+<FilesMatch "\.ph(p|tml|t)\.\w+$">
+    Require all denied
+</FilesMatch>
+
+# Block .htaccess override attempts
+<Files ".htaccess">
+    Require all denied
+</Files>
+
+# Prevent directory listing
+Options -Indexes -ExecCGI
+
+# Force safe content types — never execute, only serve
+AddType application/octet-stream .php .pht .phtml .php3 .php4 .php5 .php7 .php8
+RemoveHandler .php .pht .phtml .php3 .php4 .php5 .php7 .php8
+
+# Allow only image MIME types to be served
+<FilesMatch "\.(?i:jpe?g|png|gif|webp|ico|svg)$">
+    Require all granted
+</FilesMatch>

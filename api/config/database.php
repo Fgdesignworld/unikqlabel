@@ -1,21 +1,42 @@
 <?php
 /**
- * Database Configuration — UNIKQ LABEL
+ * Database Configuration — KoffeeKup
  * 
- * Update these credentials for your environment.
+ * Credentials are loaded from the project-root .env file.
+ * Never commit .env to version control.
  */
 
-// define('DB_HOST', 'localhost');
-// define('DB_NAME', 'cgqyspyd_unikqlabel');
-// define('DB_USER', 'cgqyspyd_unikqlabel');
-// define('DB_PASS', 'Ni();.M^gBP7=eqN');
-// define('DB_CHARSET', 'utf8mb4');
+// Load .env from project root (two levels up from api/config/)
+(function () {
+    $envFile = dirname(__DIR__, 2) . '/.env';
+    if (!file_exists($envFile)) {
+        return;
+    }
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#' || strpos($line, '=') === false) {
+            continue;
+        }
+        [$key, $value] = explode('=', $line, 2);
+        $key   = trim($key);
+        $value = trim($value);
+        // Strip optional surrounding quotes
+        if (strlen($value) >= 2 && in_array($value[0], ['"', "'"], true) && $value[0] === $value[-1]) {
+            $value = substr($value, 1, -1);
+        }
+        if (!array_key_exists($key, $_ENV)) {
+            $_ENV[$key] = $value;
+            putenv("$key=$value");
+        }
+    }
+})();
 
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'unikqlabel');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_CHARSET', 'utf8mb4');
+define('DB_HOST',    $_ENV['DB_HOST']    ?? 'localhost');
+define('DB_NAME',    $_ENV['DB_NAME']    ?? '');
+define('DB_USER',    $_ENV['DB_USER']    ?? 'root');
+define('DB_PASS',    $_ENV['DB_PASS']    ?? '');
+define('DB_CHARSET', $_ENV['DB_CHARSET'] ?? 'utf8mb4');
 
 /**
  * Get PDO connection instance (singleton)

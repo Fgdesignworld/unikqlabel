@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { colorLibraryService, type LibraryColor } from '@/services/colorLibraryService'
 import { useToast } from '@/hooks/use-toast'
 import {
@@ -49,11 +49,11 @@ function ColorForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-[#111] border border-amber-500/30 rounded-xl p-4 space-y-3"
+      className="bg-white border border-amber-500/30 rounded-xl p-4 space-y-3"
     >
       <div className="flex items-center justify-between mb-1">
-        <p className="text-sm font-medium text-amber-400">{color ? 'Edit color' : 'New color'}</p>
-        <button type="button" onClick={onClose} className="text-zinc-500 hover:text-white transition-colors">
+        <p className="text-sm text-[#C9A45C] font-medium">{color ? 'Edit color' : 'New color'}</p>
+        <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-700 transition-colors">
           <X className="w-4 h-4" />
         </button>
       </div>
@@ -62,7 +62,7 @@ function ColorForm({
         {/* hex swatch + picker */}
         <label className="relative cursor-pointer shrink-0">
           <div
-            className="w-10 h-10 rounded-lg border-2 border-zinc-600 shadow-inner"
+            className="w-10 h-10 rounded-lg border-2 border-slate-300 shadow-inner"
             style={{ backgroundColor: hex }}
           />
           <input
@@ -75,7 +75,7 @@ function ColorForm({
 
         {/* name */}
         <input
-          className="flex-1 bg-[#1a1a1a] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:border-amber-500 focus:outline-none"
+          className="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-amber-500 focus:outline-none"
           placeholder="Color name (e.g. Midnight Black)"
           value={name}
           onChange={e => setName(e.target.value)}
@@ -84,7 +84,7 @@ function ColorForm({
 
         {/* hex input */}
         <input
-          className="w-28 bg-[#1a1a1a] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-amber-500 focus:outline-none uppercase"
+          className="w-28 bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 font-mono focus:border-amber-500 focus:outline-none uppercase"
           value={hex}
           onChange={e => {
             const v = e.target.value
@@ -98,7 +98,7 @@ function ColorForm({
         <button
           type="button"
           onClick={onClose}
-          className="px-3 py-1.5 text-sm text-zinc-400 hover:text-white border border-zinc-700 rounded-lg transition-colors"
+          className="px-3 py-1.5 text-sm text-slate-500 hover:text-slate-900 border border-slate-300 rounded-lg transition-colors"
         >
           Cancel
         </button>
@@ -169,20 +169,20 @@ function ColorTile({
         className={cn(
           'flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors',
           color.is_active
-            ? 'bg-[#1a1a1a] border-zinc-800'
-            : 'bg-[#141414] border-zinc-800/50 opacity-60'
+            ? 'bg-white border-slate-200'
+            : 'bg-slate-50 border-slate-200/60 opacity-60'
         )}
       >
         {/* swatch */}
         <div
-          className="w-8 h-8 rounded-lg shrink-0 border border-white/10 shadow-sm"
+          className="w-8 h-8 rounded-lg shrink-0 border border-slate-200 shadow-sm"
           style={{ backgroundColor: color.hex_code }}
         />
 
         {/* name + hex */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-white truncate">{color.name}</p>
-          <p className="text-xs text-zinc-500 font-mono uppercase">{color.hex_code}</p>
+          <p className="text-sm font-medium text-slate-800 truncate">{color.name}</p>
+          <p className="text-xs text-slate-400 font-mono uppercase">{color.hex_code}</p>
         </div>
 
         {/* status */}
@@ -190,8 +190,8 @@ function ColorTile({
           className={cn(
             'text-xs px-2 py-0.5 rounded-full',
             color.is_active
-              ? 'bg-emerald-500/15 text-emerald-400'
-              : 'bg-zinc-700/40 text-zinc-500'
+              ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+              : 'bg-slate-100 text-slate-400 border border-slate-200'
           )}
         >
           {color.is_active ? 'Active' : 'Inactive'}
@@ -201,26 +201,26 @@ function ColorTile({
         <div className="flex items-center gap-1">
           <button
             onClick={() => setEditing(true)}
-            className="p-1 text-zinc-500 hover:text-amber-400 transition-colors"
+            className="p-1 text-slate-400 hover:text-amber-500 transition-colors"
           >
             <Edit2 className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={handleToggle}
             disabled={toggling}
-            className="p-1 text-zinc-500 hover:text-amber-400 transition-colors"
+            className="p-1 text-slate-400 hover:text-amber-500 transition-colors"
           >
             {toggling ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
             ) : color.is_active ? (
-              <ToggleRight className="w-4 h-4 text-emerald-400" />
+              <ToggleRight className="w-4 h-4 text-emerald-500" />
             ) : (
               <ToggleLeft className="w-4 h-4" />
             )}
           </button>
           <button
             onClick={() => setDeleteTarget(true)}
-            className="p-1 text-zinc-500 hover:text-red-400 transition-colors"
+            className="p-1 text-slate-400 hover:text-red-500 transition-colors"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
@@ -228,15 +228,15 @@ function ColorTile({
       </div>
 
       <AlertDialog open={deleteTarget} onOpenChange={setDeleteTarget}>
-        <AlertDialogContent className="bg-[#1a1a1a] border border-zinc-700">
+        <AlertDialogContent className="bg-white border border-slate-200 shadow-xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Delete "{color.name}"?</AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-400">
+            <AlertDialogTitle className="text-slate-900">Delete "{color.name}"?</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-500">
               This will remove the color from the library. Products already using it will retain their color data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-zinc-800 text-zinc-300 border-zinc-700">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="bg-white text-slate-600 border-slate-300 hover:bg-slate-50">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-500 text-white border-0"
@@ -284,7 +284,7 @@ export default function AdminColorsPage() {
     setColors(prev => prev.filter(c => c.id !== id))
 
   return (
-    <div className="p-6 min-h-screen text-white">
+    <div className="max-w-2xl">
       {/* header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -292,8 +292,8 @@ export default function AdminColorsPage() {
             <Palette className="w-5 h-5 text-amber-400" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">Color Library</h1>
-            <p className="text-xs text-zinc-500">Global color palette — pick from these when editing products</p>
+            <h1 className="text-xl font-bold text-slate-900">Color Library</h1>
+            <p className="text-xs text-slate-400">Global color palette — pick from these when editing products</p>
           </div>
         </div>
         <button
@@ -318,14 +318,14 @@ export default function AdminColorsPage() {
           <Loader2 className="w-6 h-6 animate-spin text-amber-400" />
         </div>
       ) : colors.length === 0 ? (
-        <div className="text-center py-20 text-zinc-500">
+        <div className="text-center py-20 text-slate-400">
           <Palette className="w-10 h-10 mx-auto mb-3 opacity-30" />
           <p className="text-sm">No colors in library yet. Add your first one above.</p>
         </div>
       ) : (
         <div className="space-y-2">
           {/* active count */}
-          <p className="text-xs text-zinc-500 mb-3">
+          <p className="text-xs text-slate-400 mb-3">
             {colors.filter(c => c.is_active).length} active · {colors.length} total
           </p>
           {colors.map(c => (

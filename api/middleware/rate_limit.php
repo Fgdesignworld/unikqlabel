@@ -12,10 +12,12 @@
 define('RATE_LIMIT_DIR', __DIR__ . '/../storage/rate_limits');
 
 $RATE_LIMIT_CONFIG = [
-    'login'    => ['max' => 5,  'window' => 900],
-    'checkout' => ['max' => 10, 'window' => 3600],
-    'coupon'   => ['max' => 15, 'window' => 900],
-    'default'  => ['max' => 60, 'window' => 3600],
+    'login'          => ['max' => 5,  'window' => 900],
+    'checkout'       => ['max' => 10, 'window' => 3600],
+    'coupon'         => ['max' => 15, 'window' => 900],
+    'contact_submit' => ['max' => 5,  'window' => 300],
+    'review_submit'  => ['max' => 3,  'window' => 3600],
+    'default'        => ['max' => 60, 'window' => 3600],
 ];
 
 function checkRateLimit(string $action = 'default'): void {

@@ -1,242 +1,313 @@
-import { motion } from "framer-motion"
-import { Crown, Leaf, Award, Users, ArrowRight, Star, Zap, Shield } from "lucide-react"
+import { useRef } from "react"
+import { useScroll, useTransform, motion } from "framer-motion"
+import { Leaf, ArrowRight, Shield, FlaskConical, Heart, Recycle, Quote } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { PageHeader } from "@/components/page-header"
+import { NewsletterSection } from "@/components/aarvia/newsletter-section"
 import { useSeo } from "@/hooks/use-seo"
+import { StoryStackCards } from "@/components/aarvia/story-stack-cards"
 
-const pillars = [
+const PILLARS = [
+  { icon: Leaf, title: "Pure Botanicals", desc: "Every ingredient is plant-derived, ethically sourced, and free from synthetics. We trace every botanical from farm to formula." },
+  { icon: FlaskConical, title: "Science-Backed", desc: "Our formulations are developed with cosmetic scientists who understand efficacy. Nature's actives, validated by research." },
+  { icon: Heart, title: "Cruelty Free", desc: "Never tested on animals. Our commitment to ethical beauty means no compromises — every product is developed with compassion." },
+  { icon: Recycle, title: "Sustainable", desc: "Eco-conscious packaging, responsible sourcing, and a carbon-aware supply chain. We take our responsibility to the planet seriously." },
+  { icon: Shield, title: "Dermatologist Tested", desc: "Clinically validated for safety and efficacy across diverse skin and hair types. Gentle enough for daily rituals." },
+]
+
+const STATS = [
+  { v: "50+", l: "Botanical Actives" },
+  { v: "0", l: "Synthetic Ingredients" },
+  { v: "100%", l: "Cruelty Free" },
+  { v: "5+", l: "Countries Served" },
+]
+
+const STORY = [
   {
-    icon: Crown,
-    title: "Royal Craftsmanship",
-    description: "Every garment is tailored with precision and an eye for luxury detail that stands apart.",
+    badge: "The Beginning",
+    title: "Born from a Belief",
+    body: "Aarvia was founded on the conviction that nature offers everything we need to nourish, heal, and beautify. In a world of synthetic shortcuts, we chose the longer, honest path — pure botanical actives, thoughtful formulation, and absolute integrity.",
+    image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=600&auto=format&fit=crop"
   },
   {
-    icon: Leaf,
-    title: "Sustainable Fabrics",
-    description: "We choose eco-conscious materials that feel premium without compromising the planet.",
+    badge: "Our Process",
+    title: "Where Ritual Meets Science",
+    body: "We work closely with cosmetic scientists, herbalists, and sustainability experts to develop formulas that perform. Every ingredient is selected not just for its efficacy but for its provenance — we know exactly where everything comes from.",
+    image: "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=600&auto=format&fit=crop"
   },
   {
-    icon: Shield,
-    title: "Premium Quality",
-    description: "Rigorous quality checks ensure every piece meets royal standards before it reaches you.",
-  },
-  {
-    icon: Users,
-    title: "Inclusive Sizing",
-    description: "Designed for every body — because every king and queen deserves to feel regal.",
+    badge: "Our Future",
+    title: "A Brand for the Conscious Consumer",
+    body: "Aarvia is built for people who read labels. Who know that what they put on their body matters as much as what they put in it. We are growing a community of those who choose quality, transparency, and nature — without compromising on luxury.",
+    image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=600&auto=format&fit=crop"
   },
 ]
 
-const stats = [
-  { value: "2026", label: "Year Founded" },
-  { value: "2K+", label: "Happy Customers" },
-  { value: "100%", label: "Premium Quality" },
-  { value: "3", label: "Collections" },
-]
+const fadeUp = {
+  hidden: { opacity: 0, y: 35 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.08, duration: 0.8, ease: [0.22, 1, 0.36, 1] }
+  })
+}
 
-const sections = [
-  {
-    title: "Our Story",
-    image: "/images/about-lifestyle.jpg",
-    content:
-      "UNIKQ LABEL was born from a single belief: fashion should feel like royalty, not a compromise. Founded in 2026, we set out to create a brand that bridges the gap between high-end luxury and everyday streetwear. What began as a vision for bold, unapologetic self-expression has grown into a movement — worn by kings, queens, and everyone who dares to rule their own narrative.",
-    badge: "Est. 2026",
-  },
-  {
-    title: "Our Design Philosophy",
-    image: "/images/collection-king.jpg",
-    content:
-      "We draw inspiration from the intersection of royalty and street culture — the confidence of a crown balanced with the energy of the streets. Every collection begins with a mood board of contrasts: sharp tailoring meets relaxed silhouettes, gold hardware meets matte black fabric, minimalism meets bold statements. The result is a wardrobe that speaks without words.",
-    badge: "Streetwear × Luxury",
-  },
-  {
-    title: "Our Commitment",
-    image: "/images/collection-essentials.jpg",
-    content:
-      "UNIKQ LABEL is built on three pillars: quality, inclusivity, and sustainability. We use premium fabrics that age well and feel exceptional. Our sizing is intentionally inclusive because fashion has no fixed body type. And we work with conscious suppliers to ensure our supply chain reflects the values we wear on our sleeves — literally.",
-    badge: "Conscious Fashion",
-  },
-]
+// Scroll Word-by-Word Quote Reveal Component
+function PhilosophySection() {
+  const sectionRef = useRef<HTMLDivElement>(null)
+  
+  // Track scroll progress of philosophy block
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"]
+  })
 
-export default function AboutPage() {
-  useSeo({ pageType: 'page', pageSlug: 'about', fallbackTitle: 'About Us — UNIKQ LABEL' })
+  const quoteText = "True beauty is not manufactured; it is cultivated. We believe that by returning to pure, active botanicals, we restore the skin and hair's natural harmony."
+  const words = quoteText.split(" ")
 
   return (
-    <main className="min-h-screen" style={{ background: 'var(--surface-page)' }}>
+    <section 
+      ref={sectionRef} 
+      className="min-h-screen flex items-center justify-center bg-[#1F4D3A] py-28 relative overflow-hidden"
+    >
+      {/* Subtle background grain grid */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(200,169,107,0.9) 1px, transparent 0)', backgroundSize: '36px 36px' }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[160px] opacity-[0.04] pointer-events-none" style={{ background: '#C8A96B' }} />
+
+      <div className="max-w-5xl mx-auto px-6 text-center space-y-10 relative z-10">
+        <Quote className="w-12 h-12 mx-auto text-[#C8A96B] opacity-40 animate-pulse" />
+        
+        <h3 className="text-3xl md:text-5xl lg:text-6xl font-serif font-light leading-snug text-[#F7F4ED] tracking-wide max-w-4xl mx-auto">
+          {words.map((word, i) => {
+            const start = i / words.length * 0.4 + 0.15
+            const end = start + 0.12
+            const opacity = useTransform(scrollYProgress, [start, end], [0.15, 1])
+            
+            return (
+              <motion.span 
+                key={i} 
+                style={{ opacity }}
+                className="inline-block mr-3 md:mr-4 select-none"
+              >
+                {word}
+              </motion.span>
+            )
+          })}
+        </h3>
+        
+        <div className="w-16 h-[1.5px] bg-[#C8A96B] mx-auto mt-10" />
+        <p className="text-[10px] font-bold tracking-[0.4em] uppercase text-[#C8A96B]">
+          Aarvia Philosophy
+        </p>
+      </div>
+    </section>
+  )
+}
+
+export default function AboutPage() {
+  useSeo({ pageType: 'page', pageSlug: 'about', fallbackTitle: 'Our Story — Aarvia' })
+  
+  const heroRef = useRef<HTMLDivElement>(null)
+  
+  // Track scroll position for header/hero parallax scaling
+  const { scrollY } = useScroll()
+  const yHeroBg = useTransform(scrollY, [0, 500], [0, 150])
+  const scaleHeroBg = useTransform(scrollY, [0, 600], [1.02, 1.1])
+  const opacityHeroText = useTransform(scrollY, [0, 400], [1, 0])
+  const yHeroText = useTransform(scrollY, [0, 400], [0, 80])
+
+  return (
+    <main className="min-h-screen relative overflow-x-hidden" style={{ background: '#F7F4ED' }}>
       <Navbar />
-      <PageHeader
-        title="About UNIKQ LABEL"
-        subtitle="The story behind the crown — premium streetwear born from royal attitude"
-        backgroundImage="/images/about-lifestyle.jpg"
-      />
 
-      {/* ── Stats Row ── */}
-      <section className="px-4 py-16" style={{ background: 'rgba(212,175,55,0.03)', borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
-        <div className="container mx-auto max-w-5xl">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="text-center p-6 rounded-2xl"
-                style={{ background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.10)' }}
-              >
-                <p className="font-heading text-3xl md:text-4xl font-black mb-2" style={{
-                  background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white), var(--theme-color))',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}>{stat.value}</p>
-                <p className="font-body text-xs uppercase tracking-widest" style={{ color: 'var(--text-subtle)' }}>{stat.label}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ── Hero with Scroll Parallax Background ── */}
+      <section 
+        ref={heroRef}
+        className="relative overflow-hidden h-screen min-h-[600px] flex items-center justify-center bg-[#1F4D3A]"
+      >
+        {/* Parallax Background Div */}
+        <motion.div 
+          style={{ y: yHeroBg, scale: scaleHeroBg }}
+          className="absolute inset-0 w-full h-full pointer-events-none"
+        >
+          <div className="absolute inset-0 bg-cover bg-center brightness-[0.35] saturate-[0.8]" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=1200&auto=format&fit=crop')" }} />
+          <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(200,169,107,0.9) 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#1F4D3A]/20 via-transparent to-[#1F4D3A]/60" />
+        </motion.div>
 
-      {/* ── Pillars Grid ── */}
-      <section className="px-4 py-20">
-        <div className="container mx-auto max-w-7xl">
-          <motion.div
+        {/* Content Overlay */}
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full text-center relative z-10">
+          <motion.div 
+            style={{ opacity: opacityHeroText, y: yHeroText }} 
+            className="space-y-6"
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-14"
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
           >
-            <span className="section-badge mb-4 inline-block">What We Stand For</span>
-            <h2 className="font-heading text-4xl md:text-5xl font-black mt-3" style={{ color: 'var(--text-primary)' }}>
-              Our{' '}
-              <span style={{
-                background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white), var(--theme-color))',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>Values</span>
-            </h2>
-          </motion.div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {pillars.map((pillar, index) => (
-              <motion.div
-                key={pillar.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="p-7 rounded-2xl group hover:-translate-y-1 transition-all duration-300"
-                style={{
-                  background: 'var(--surface-card)',
-                  border: '1px solid rgba(212,175,55,0.08)',
-                  boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
-                }}
-              >
-                <div className="w-12 h-12 rounded-full flex items-center justify-center mb-5 group-hover:scale-110 transition-transform"
-                  style={{ background: 'rgba(212,175,55,0.10)', border: '1px solid rgba(212,175,55,0.20)' }}>
-                  <pillar.icon className="w-5 h-5 text-amber-500" />
-                </div>
-                <h3 className="font-heading text-lg font-bold mb-3" style={{ color: 'var(--text-primary)' }}>{pillar.title}</h3>
-                <p className="font-body text-sm leading-relaxed" style={{ color: 'var(--text-dim)' }}>{pillar.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Story Sections ── */}
-      {sections.map((section, index) => (
-        <section key={section.title} className="px-4 pb-20">
-          <div className="container mx-auto max-w-7xl">
-            <div className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-14 items-center`}>
-              {/* Image */}
-              <motion.div
-                initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="w-full lg:w-1/2 relative"
-              >
-                {/* Corner accents */}
-                <div className="absolute -top-4 -left-4 w-14 h-14 pointer-events-none"
-                  style={{ borderTop: '2px solid rgba(212,175,55,0.3)', borderLeft: '2px solid rgba(212,175,55,0.3)', borderRadius: '4px 0 0 0' }} />
-                <div className="absolute -bottom-4 -right-4 w-14 h-14 pointer-events-none"
-                  style={{ borderBottom: '2px solid rgba(212,175,55,0.3)', borderRight: '2px solid rgba(212,175,55,0.3)', borderRadius: '0 0 4px 0' }} />
-                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden"
-                  style={{ border: '1px solid rgba(212,175,55,0.12)', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}>
-                  <img src={section.image} alt={section.title} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(13,13,13,0.5) 0%, transparent 60%)' }} />
-                  <span className="absolute bottom-4 left-4 section-badge text-xs">{section.badge}</span>
-                </div>
-              </motion.div>
-
-              {/* Content */}
-              <motion.div
-                initial={{ opacity: 0, x: index % 2 === 0 ? 40 : -40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.15 }}
-                className="w-full lg:w-1/2"
-              >
-                <h2 className="font-heading text-3xl md:text-4xl font-black mb-5 leading-tight" style={{ color: 'var(--text-primary)' }}>
-                  {section.title}
-                </h2>
-                <div className="w-16 h-0.5 mb-6" style={{ background: 'linear-gradient(90deg, var(--theme-color), transparent)' }} />
-                <p className="font-body text-lg leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-                  {section.content}
-                </p>
-              </motion.div>
-            </div>
-          </div>
-        </section>
-      ))}
-
-      {/* ── CTA ── */}
-      <section className="px-4 pb-24">
-        <div className="container mx-auto max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="relative p-10 md:p-16 rounded-3xl text-center overflow-hidden"
-            style={{
-              background: 'var(--surface-card)',
-              border: '1px solid rgba(212,175,55,0.18)',
-              boxShadow: '0 40px 100px rgba(0,0,0,0.5)',
-            }}
-          >
-            {/* Background glow */}
-            <div className="absolute inset-0 pointer-events-none" style={{
-              backgroundImage: 'radial-gradient(ellipse at 50% 80%, rgba(212,175,55,0.15) 0%, transparent 60%)',
-            }} />
-            <Crown className="w-10 h-10 mx-auto mb-5 text-amber-500" />
-            <h3 className="font-heading text-3xl md:text-4xl font-black mb-4" style={{ color: 'var(--text-primary)' }}>
-              Wear the{' '}
-              <span style={{
-                background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 90%, white), var(--theme-color))',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>Crown</span>
-            </h3>
-            <p className="font-body text-base mb-9 max-w-lg mx-auto" style={{ color: 'var(--text-muted)' }}>
-              Join thousands of fashion royals who choose UNIKQ LABEL for their everyday kingdom.
+            <span className="text-[11px] font-bold tracking-[0.4em] uppercase block" style={{ color: '#C8A96B' }}>
+              Our Story
+            </span>
+            <h1 
+              className="text-5xl md:text-7xl lg:text-8xl leading-[1.15] font-light text-[#F7F4ED]"
+              style={{ fontFamily: "'Cormorant Garamond', serif" }}
+            >
+              Inspired by<br />
+              <span className="italic font-serif" style={{ color: '#C8A96B' }}>Nature's Wisdom</span>
+            </h1>
+            <p 
+              className="text-sm md:text-base max-w-lg mx-auto font-light leading-relaxed pt-2" 
+              style={{ color: 'rgba(247,244,237,0.72)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            >
+              A premium natural wellness and beauty ritual brand built on circular sourcing, plant science, and absolute ingredient integrity.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/products" className="btn-primary text-sm justify-center">
-                <Crown size={15} /> Shop Collections
-              </Link>
-              <Link to="/contact" className="btn-outline-gold text-sm justify-center">
-                Get in Touch <ArrowRight size={15} />
-              </Link>
-            </div>
           </motion.div>
+        </div>
+
+        {/* Premium Scroll down arrow indicator */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-3 cursor-pointer"
+          onClick={() => window.scrollTo({ top: window.innerHeight * 0.85, behavior: 'smooth' })}
+        >
+          <span className="text-[9px] font-bold tracking-[0.25em] uppercase text-[#F7F4ED]/60 select-none">
+            Scroll to Explore
+          </span>
+          <div className="w-[1px] h-10 bg-[#C8A96B]/20 relative overflow-hidden rounded-full">
+            <motion.div 
+              animate={{ y: ["-100%", "100%"] }}
+              transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+              className="w-full h-1/2 bg-[#C8A96B] absolute top-0"
+            />
+          </div>
+        </motion.div>
+      </section>
+
+      {/* ── Stats Section (Editorial Banner) ── */}
+      <section style={{ background: '#F7F4ED', borderBottom: '1px solid rgba(200,169,107,0.12)' }}>
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
+            {STATS.map(({ v, l }, i) => (
+              <motion.div 
+                key={l} 
+                custom={i} 
+                variants={fadeUp} 
+                initial="hidden" 
+                whileInView="visible" 
+                viewport={{ once: true, margin: "-40px" }} 
+                className="text-center space-y-1.5"
+              >
+                <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '3.5rem', fontWeight: 600, color: '#1F4D3A', lineHeight: 1 }}>{v}</p>
+                <div className="w-6 h-[1.5px] bg-[#C8A96B]/50 mx-auto" />
+                <p className="text-[10px] font-semibold tracking-[0.2em] uppercase" style={{ color: '#C8A96B' }}>{l}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
+      {/* ── Reusable Stacking Story Cards Section ── */}
+      <section className="relative bg-[#1A382A] pb-[30vh]">
+        <StoryStackCards cards={STORY} />
+      </section>
+
+      {/* ── Brand Philosophy Word Reveal ── */}
+      <PhilosophySection />
+
+      {/* ── Commitments/Pillars ── */}
+      <section className="py-28 lg:py-36 relative" style={{ background: '#F7F4ED' }}>
+        <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #1F4D3A 1px, transparent 0)', backgroundSize: '20px 20px' }} />
+        
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-20 space-y-3">
+            <motion.p 
+              initial={{ opacity: 0, y: 10 }} 
+              whileInView={{ opacity: 1, y: 0 }} 
+              viewport={{ once: true }}
+              className="text-[11px] font-bold tracking-[0.3em] uppercase" 
+              style={{ color: '#C8A96B' }}
+            >
+              Our Commitments
+            </motion.p>
+            <motion.h2 
+              initial={{ opacity: 0, y: 16 }} 
+              whileInView={{ opacity: 1, y: 0 }} 
+              viewport={{ once: true }} 
+              transition={{ delay: 0.06 }}
+              className="text-4xl md:text-5xl font-serif font-light text-[#1F4D3A]"
+            >
+              What We Stand For
+            </motion.h2>
+            <div className="w-12 h-1 bg-[#C8A96B] mx-auto mt-4 rounded-full" />
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
+            {PILLARS.map(({ icon: Icon, title, desc }, i) => (
+              <motion.div 
+                key={title} 
+                custom={i} 
+                variants={fadeUp} 
+                initial="hidden" 
+                whileInView="visible" 
+                viewport={{ once: true, margin: "-40px" }}
+                className="p-8 group relative transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_25px_50px_rgba(31,77,58,0.06)] bg-white rounded-2xl overflow-hidden flex flex-col justify-between"
+                style={{ border: '1px solid rgba(200,169,107,0.15)' }}
+              >
+                {/* Accent glow on hover */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#C8A96B]/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div>
+                  <div 
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-[#1F4D3A] group-hover:text-white transition-all duration-500"
+                    style={{ background: 'rgba(31,77,58,0.04)', border: '1px solid rgba(200,169,107,0.18)', color: '#1F4D3A' }}
+                  >
+                    <Icon className="w-5 h-5 transition-colors duration-300" />
+                  </div>
+                  <h3 className="font-semibold mb-4 leading-snug text-[#1F4D3A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.25rem' }}>{title}</h3>
+                  <p className="text-xs leading-relaxed text-[#7A7A72]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{desc}</p>
+                </div>
+                
+                {/* Small indicator */}
+                <span className="text-[10px] font-bold text-[#C8A96B] mt-6 select-none opacity-40 group-hover:opacity-100 transition-opacity">
+                  0{i + 1}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Premium CTA ── */}
+      <section className="py-24 relative overflow-hidden" style={{ background: '#1F4D3A' }}>
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(200,169,107,0.9) 1px, transparent 0)', backgroundSize: '28px 28px' }} />
+        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full blur-[140px] opacity-[0.06] pointer-events-none" style={{ background: '#C8A96B' }} />
+        
+        <div className="max-w-3xl mx-auto px-6 text-center space-y-8 relative z-10">
+          <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-[#C8A96B] block">
+            Begin Your Ritual
+          </span>
+          <h2 className="text-4xl md:text-5xl font-serif font-light text-[#F7F4ED] leading-tight">
+            Ready to Experience<br />
+            <span className="italic" style={{ color: '#C8A96B' }}>Pure Botanicals?</span>
+          </h2>
+          <p className="text-sm text-[#F7F4ED]/70 font-light max-w-md mx-auto leading-relaxed">
+            Discover our curated collections designed to nourish your skin and hair naturally.
+          </p>
+          <div className="pt-4">
+            <Link 
+              to="/shop"
+              className="inline-flex items-center gap-3 px-10 py-5 font-bold tracking-widest uppercase transition-all duration-300 hover:gap-5 hover:bg-[#b89859] active:scale-95 shadow-[0_10px_30px_rgba(0,0,0,0.15)] rounded-full text-[10px]"
+              style={{ background: '#C8A96B', color: '#1F4D3A' }}
+            >
+              Explore Collection <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <NewsletterSection />
       <Footer />
     </main>
   )

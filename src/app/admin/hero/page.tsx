@@ -25,16 +25,16 @@ const BADGE_ICONS = ['Crown', 'Zap', 'Star', 'Sparkles', 'Timer', 'ShoppingBag',
 
 const emptySlide = (): HeroSlide => ({
     title: '',
-    subtitle: '',
-    tagline: '',
-    cta_primary_text: 'Shop Now',
-    cta_primary_link: '/products',
-    cta_secondary_text: 'Explore Collections',
-    cta_secondary_link: '/#collections',
+    subtitle: null,
+    tagline: null,
+    cta_primary_text: null,
+    cta_primary_link: null,
+    cta_secondary_text: null,
+    cta_secondary_link: null,
     image: null,
     mobile_image: null,
-    badge_text: '',
-    badge_icon: 'Crown',
+    badge_text: null,
+    badge_icon: null,
     category: 'unisex',
     product_ids: [],
     price_label: '',
@@ -61,7 +61,19 @@ function FormInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
         <input
             {...props}
             className={cn(
-                "w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all",
+                "w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all",
+                props.className
+            )}
+        />
+    )
+}
+
+function FormTextarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+    return (
+        <textarea
+            {...props}
+            className={cn(
+                "w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all min-h-[90px] resize-y",
                 props.className
             )}
         />
@@ -122,21 +134,21 @@ function SlideForm({ slide, onSave, onClose }: {
     }
 
     const imgUrl = (src: string | null | undefined) =>
-        src ? (src.startsWith('/') ? `/api${src}` : src) : null
+        src ? (src.startsWith('/') && !src.startsWith('/api') ? `/api${src}` : src) : null
 
     return (
         <div className="fixed inset-0 z-50 flex">
-            <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-            <div className="w-full max-w-lg bg-[#0c0c0c] border-l border-gray-800 overflow-y-auto flex flex-col">
+            <div className="flex-1 bg-slate-800/40 backdrop-blur-sm" onClick={onClose} />
+            <div className="w-full max-w-lg bg-white border-l border-slate-200 overflow-y-auto flex flex-col">
                 {/* Header */}
-                <div className="flex items-center justify-between p-5 border-b border-gray-800 sticky top-0 bg-[#0c0c0c] z-10">
+                <div className="flex items-center justify-between p-5 border-b border-slate-200 sticky top-0 bg-white z-10">
                     <div>
-                        <h2 className="text-white font-black text-lg">
+                        <h2 className="text-slate-900 font-black text-">
                             {isEditing ? 'Edit Hero Slide' : 'New Hero Slide'}
                         </h2>
                         <p className="text-gray-500 text-xs mt-0.5">Hero section carousel management</p>
                     </div>
-                    <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/5">
+                    <button onClick={onClose} className="text-gray-500 hover:text-slate-900 transition-colors p-1 rounded-lg hover:bg-white/5">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
@@ -153,36 +165,33 @@ function SlideForm({ slide, onSave, onClose }: {
                     </Field>
 
                     {/* Subtitle */}
-                    <Field label="Subtitle">
-                        <textarea
-                            rows={2} value={form.subtitle ?? ''}
-                            onChange={e => set('subtitle', e.target.value)}
-                            placeholder="Bold. Structured. Built for kings who lead the streets."
-                            className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all resize-none"
+                    <Field label="Subtitle / Eyebrow (optional)">
+                        <FormTextarea
+                            value={form.subtitle ?? ''}
+                            onChange={e => set('subtitle', e.target.value || null)}
+                            placeholder="e.g. Premium Natural Wellness"
+                            rows={2}
                         />
                     </Field>
 
-                    {/* Tagline */}
-                    <Field label="Tagline">
-                        <FormInput
-                            type="text" value={form.tagline ?? ''}
-                            onChange={e => set('tagline', e.target.value)}
-                            placeholder="e.g. Luxury Streetwear · Est. 2026"
-                        />
-                    </Field>
+                    {/* CTA Primary */}
+                    <div className="grid grid-cols-2 gap-3">
+                        <Field label="CTA Button Text (optional)">
+                            <FormInput
+                                type="text" value={form.cta_primary_text ?? ''}
+                                onChange={e => set('cta_primary_text', e.target.value || null)}
+                                placeholder="e.g. Shop Collection"
+                            />
+                        </Field>
+                        <Field label="CTA Button Link (optional)">
+                            <FormInput
+                                type="text" value={form.cta_primary_link ?? ''}
+                                onChange={e => set('cta_primary_link', e.target.value || null)}
+                                placeholder="e.g. /products"
+                            />
+                        </Field>
+                    </div>
 
-                    {/* Category */}
-                    <Field label="Category" required>
-                        <select
-                            value={form.category}
-                            onChange={e => set('category', e.target.value as HeroSlide['category'])}
-                            className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500/50 transition-all"
-                        >
-                            {CATEGORIES.map(c => (
-                                <option key={c.value} value={c.value} className="bg-[#0c0c0c]">{c.label}</option>
-                            ))}
-                        </select>
-                    </Field>
 
                     {/* Desktop Image */}
                     <Field label="Desktop Image">
@@ -192,7 +201,7 @@ function SlideForm({ slide, onSave, onClose }: {
                         />
                         <div
                             onClick={() => fileRef.current?.click()}
-                            className="relative border-2 border-dashed border-gray-700 rounded-xl overflow-hidden cursor-pointer hover:border-amber-500/50 transition-all group"
+                            className="relative border-2 border-dashed border-slate-300 rounded-xl overflow-hidden cursor-pointer hover:border-amber-500/50 transition-all group"
                             style={{ minHeight: 120 }}
                         >
                             {imgUrl(form.image) ? (
@@ -204,7 +213,7 @@ function SlideForm({ slide, onSave, onClose }: {
                                 </div>
                             )}
                             {uploading === 'desktop' && (
-                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                <div className="absolute inset-0 bg-slate-800/40 flex items-center justify-center">
                                     <Loader2 className="w-6 h-6 text-amber-500 animate-spin" />
                                 </div>
                             )}
@@ -225,7 +234,7 @@ function SlideForm({ slide, onSave, onClose }: {
                         />
                         <div
                             onClick={() => mobileRef.current?.click()}
-                            className="relative border-2 border-dashed border-gray-700 rounded-xl overflow-hidden cursor-pointer hover:border-amber-500/50 transition-all group"
+                            className="relative border-2 border-dashed border-slate-300 rounded-xl overflow-hidden cursor-pointer hover:border-amber-500/50 transition-all group"
                             style={{ minHeight: 80 }}
                         >
                             {imgUrl(form.mobile_image) ? (
@@ -237,66 +246,13 @@ function SlideForm({ slide, onSave, onClose }: {
                                 </div>
                             )}
                             {uploading === 'mobile' && (
-                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                <div className="absolute inset-0 bg-slate-800/40 flex items-center justify-center">
                                     <Loader2 className="w-6 h-6 text-amber-500 animate-spin" />
                                 </div>
                             )}
                         </div>
                     </Field>
 
-                    {/* CTA Primary */}
-                    <div className="p-4 rounded-xl border border-gray-800 space-y-3">
-                        <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">Primary CTA Button</p>
-                        <div className="grid grid-cols-2 gap-3">
-                            <Field label="Button Text">
-                                <FormInput type="text" value={form.cta_primary_text ?? ''} onChange={e => set('cta_primary_text', e.target.value)} placeholder="Shop Now" />
-                            </Field>
-                            <Field label="Button Link">
-                                <FormInput type="text" value={form.cta_primary_link ?? ''} onChange={e => set('cta_primary_link', e.target.value)} placeholder="/products" />
-                            </Field>
-                        </div>
-                    </div>
-
-                    {/* CTA Secondary */}
-                    <div className="p-4 rounded-xl border border-gray-800 space-y-3">
-                        <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">Secondary CTA Button</p>
-                        <div className="grid grid-cols-2 gap-3">
-                            <Field label="Button Text">
-                                <FormInput type="text" value={form.cta_secondary_text ?? ''} onChange={e => set('cta_secondary_text', e.target.value)} placeholder="Explore Collections" />
-                            </Field>
-                            <Field label="Button Link">
-                                <FormInput type="text" value={form.cta_secondary_link ?? ''} onChange={e => set('cta_secondary_link', e.target.value)} placeholder="/#collections" />
-                            </Field>
-                        </div>
-                    </div>
-
-                    {/* Badge */}
-                    <div className="grid grid-cols-2 gap-3">
-                        <Field label="Badge Text">
-                            <FormInput type="text" value={form.badge_text ?? ''} onChange={e => set('badge_text', e.target.value)} placeholder="e.g. New Arrivals" />
-                        </Field>
-                        <Field label="Badge Icon">
-                            <select
-                                value={form.badge_icon ?? 'Crown'}
-                                onChange={e => set('badge_icon', e.target.value)}
-                                className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500/50"
-                            >
-                                {BADGE_ICONS.map(icon => (
-                                    <option key={icon} value={icon} className="bg-[#0c0c0c]">{icon}</option>
-                                ))}
-                            </select>
-                        </Field>
-                    </div>
-
-                    {/* Date range */}
-                    <div className="grid grid-cols-2 gap-3">
-                        <Field label="Start Date (optional)">
-                            <FormInput type="datetime-local" value={form.start_date ?? ''} onChange={e => set('start_date', e.target.value || null)} />
-                        </Field>
-                        <Field label="End Date (optional)">
-                            <FormInput type="datetime-local" value={form.end_date ?? ''} onChange={e => set('end_date', e.target.value || null)} />
-                        </Field>
-                    </div>
 
                     {/* Sort order */}
                     <div className="grid grid-cols-2 gap-3">
@@ -309,9 +265,9 @@ function SlideForm({ slide, onSave, onClose }: {
                     </div>
 
                     {/* Active toggle */}
-                    <div className="flex items-center justify-between p-4 rounded-xl border border-gray-800">
+                    <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200">
                         <div>
-                            <p className="text-white text-sm font-semibold">Active</p>
+                            <p className="text-slate-800 text-sm font-semibold">Active</p>
                             <p className="text-gray-500 text-xs">Show this slide on the homepage</p>
                         </div>
                         <button
@@ -329,7 +285,7 @@ function SlideForm({ slide, onSave, onClose }: {
                     {/* Footer action */}
                     <div className="flex gap-3 pt-2">
                         <button type="button" onClick={onClose}
-                            className="flex-1 py-3 rounded-xl border border-gray-700 text-gray-400 hover:text-white hover:border-gray-600 text-sm font-semibold transition-all">
+                            className="flex-1 py-3 rounded-xl border border-slate-300 text-gray-400 hover:text-slate-900 hover:border-gray-600 text-sm font-semibold transition-all">
                             Cancel
                         </button>
                         <button type="submit" disabled={saving}
@@ -418,22 +374,15 @@ export default function AdminHeroPage() {
     }
 
     const imgUrl = (src: string | null | undefined) =>
-        src ? (src.startsWith('/') ? `/api${src}` : src) : null
+        src ? (src.startsWith('/') && !src.startsWith('/api') ? `/api${src}` : src) : null
 
-    const catColor: Record<string, string> = {
-        men:      'bg-blue-500/20 text-blue-300',
-        women:    'bg-pink-500/20 text-pink-300',
-        unisex:   'bg-purple-500/20 text-purple-300',
-        trending: 'bg-green-500/20 text-green-300',
-        limited:  'bg-red-500/20 text-red-300',
-    }
 
     return (
         <div className="p-4 md:p-6 space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-white font-black text-2xl flex items-center gap-2">
+                    <h1 className="text-slate-900 font-black text- flex items-center gap-2">
                         <Layers className="w-6 h-6 text-amber-500" />
                         Hero Management
                     </h1>
@@ -456,15 +405,15 @@ export default function AdminHeroPage() {
                     { label: 'Scheduled',    value: slides.filter(s => s.start_date || s.end_date).length },
                     { label: 'Inactive',     value: slides.filter(s => !s.is_active).length },
                 ].map(stat => (
-                    <div key={stat.label} className="bg-[#111] border border-gray-800 rounded-xl p-4">
+                    <div key={stat.label} className="bg-white border border-slate-200 rounded-xl p-4">
                         <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">{stat.label}</p>
-                        <p className="text-white font-black text-2xl">{stat.value}</p>
+                        <p className="text-slate-900 font-black text-">{stat.value}</p>
                     </div>
                 ))}
             </div>
 
             {/* Slides list */}
-            <div className="bg-[#0c0c0c] border border-gray-800 rounded-2xl overflow-hidden">
+            <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
                 {loading ? (
                     <div className="flex items-center justify-center py-20">
                         <Loader2 className="w-7 h-7 text-amber-500 animate-spin" />
@@ -479,19 +428,17 @@ export default function AdminHeroPage() {
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="border-b border-gray-800">
+                                <tr className="border-b border-slate-200">
                                     <th className="text-left px-4 py-3 text-gray-500 text-xs font-bold uppercase tracking-wider">Order</th>
                                     <th className="text-left px-4 py-3 text-gray-500 text-xs font-bold uppercase tracking-wider">Preview</th>
                                     <th className="text-left px-4 py-3 text-gray-500 text-xs font-bold uppercase tracking-wider">Title</th>
-                                    <th className="text-left px-4 py-3 text-gray-500 text-xs font-bold uppercase tracking-wider">Category</th>
-                                    <th className="text-left px-4 py-3 text-gray-500 text-xs font-bold uppercase tracking-wider">Date Range</th>
                                     <th className="text-center px-4 py-3 text-gray-500 text-xs font-bold uppercase tracking-wider">Status</th>
                                     <th className="text-right px-4 py-3 text-gray-500 text-xs font-bold uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {slides.map((slide, idx) => (
-                                    <tr key={slide.id} className="border-b border-gray-800/50 hover:bg-white/2 transition-colors">
+                                    <tr key={slide.id} className="border-b border-slate-200/80 hover:bg-slate-50 transition-colors">
                                         {/* Order controls */}
                                         <td className="px-4 py-3">
                                             <div className="flex flex-col gap-0.5">
@@ -509,7 +456,7 @@ export default function AdminHeroPage() {
 
                                         {/* Image preview */}
                                         <td className="px-4 py-3">
-                                            <div className="w-20 h-12 rounded-lg overflow-hidden bg-gray-800 flex items-center justify-center border border-gray-700">
+                                            <div className="w-20 h-12 rounded-lg overflow-hidden bg-gray-800 flex items-center justify-center border border-slate-300">
                                                 {imgUrl(slide.image) ? (
                                                     <img src={imgUrl(slide.image)!} alt={slide.title} className="w-full h-full object-cover" />
                                                 ) : (
@@ -520,34 +467,7 @@ export default function AdminHeroPage() {
 
                                         {/* Title */}
                                         <td className="px-4 py-3">
-                                            <p className="text-white font-semibold text-sm">{slide.title}</p>
-                                            {slide.subtitle && (
-                                                <p className="text-gray-500 text-xs mt-0.5 max-w-xs truncate">{slide.subtitle}</p>
-                                            )}
-                                            {slide.badge_text && (
-                                                <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 bg-amber-500/15 text-amber-400 rounded font-semibold">
-                                                    {slide.badge_text}
-                                                </span>
-                                            )}
-                                        </td>
-
-                                        {/* Category */}
-                                        <td className="px-4 py-3">
-                                            <span className={cn('text-xs px-2 py-0.5 rounded-full font-semibold capitalize', catColor[slide.category] ?? 'bg-gray-700 text-gray-300')}>
-                                                {slide.category}
-                                            </span>
-                                        </td>
-
-                                        {/* Date range */}
-                                        <td className="px-4 py-3">
-                                            {slide.start_date || slide.end_date ? (
-                                                <div className="text-xs text-gray-500 space-y-0.5">
-                                                    {slide.start_date && <p>From: {new Date(slide.start_date).toLocaleDateString()}</p>}
-                                                    {slide.end_date   && <p>Until: {new Date(slide.end_date).toLocaleDateString()}</p>}
-                                                </div>
-                                            ) : (
-                                                <span className="text-gray-700 text-xs">Always</span>
-                                            )}
+                                            <p className="text-slate-800 font-semibold text-sm">{slide.title}</p>
                                         </td>
 
                                         {/* Status toggle */}
@@ -590,7 +510,7 @@ export default function AdminHeroPage() {
 
             {/* Delete confirmation */}
             <AlertDialog open={!!deleteId} onOpenChange={open => !open && setDeleteId(null)}>
-                <AlertDialogContent className="bg-[#0c0c0c] border border-gray-800 text-white">
+                <AlertDialogContent className="bg-white border border-slate-200 shadow-xl text-slate-900">
                     <AlertDialogHeader>
                         <AlertDialogTitle>Delete Slide?</AlertDialogTitle>
                         <AlertDialogDescription className="text-gray-400">
@@ -598,7 +518,7 @@ export default function AdminHeroPage() {
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-transparent border-gray-700 text-gray-400 hover:text-white hover:bg-white/5">Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="bg-transparent border-slate-300 text-gray-400 hover:text-slate-900 hover:bg-white/5">Cancel</AlertDialogCancel>
                         <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-500 text-white">Delete</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

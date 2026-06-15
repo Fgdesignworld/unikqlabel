@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { couponService, type Coupon, type CouponPayload } from '@/services/couponService'
 import { useToast } from '@/hooks/use-toast'
 import {
@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
+import { AdminSelect } from '@/components/admin/AdminSelect'
 
 // â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -136,19 +137,19 @@ function CouponForm({
   }
 
   const labelCls = 'block text-[10px] font-black uppercase tracking-widest text-amber-500/70 mb-1.5'
-  const inputCls = 'w-full px-4 py-2.5 rounded-xl bg-[#0d0d0d] border border-gray-800 text-white text-sm outline-none focus:border-amber-500/50 transition-colors placeholder-gray-700'
+  const inputCls = 'w-full px-4 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-800 text-sm outline-none focus:border-amber-500/50 transition-colors placeholder-slate-400'
 
   return (
     <Sheet open={open} onOpenChange={v => { if (!v) onClose() }}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-[440px] bg-[#0c0c0c] border-l border-gray-800 flex flex-col p-0 overflow-hidden"
+        className="w-full sm:max-w-[440px] bg-white border-l border-slate-200 flex flex-col p-0 overflow-hidden"
       >
         {/* Header */}
-        <SheetHeader className="px-6 py-5 border-b border-gray-800 shrink-0">
+        <SheetHeader className="px-6 py-5 border-b border-slate-200 shrink-0">
           <div className="flex items-center justify-between">
             <div>
-              <SheetTitle className="text-white font-black text-lg">
+              <SheetTitle className="text-slate-900 font-black text-">
                 {isEditing ? 'Edit Coupon' : 'New Coupon'}
               </SheetTitle>
               <p className="text-gray-500 text-xs mt-0.5">
@@ -180,17 +181,14 @@ function CouponForm({
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className={labelCls}>Type *</label>
-                <div className="relative">
-                  <select
-                    value={form.type}
-                    onChange={e => set('type', e.target.value)}
-                    className={cn(inputCls, 'appearance-none pr-8')}
-                  >
-                    <option value="percentage">Percentage (%)</option>
-                    <option value="fixed">Fixed (₹)</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-gray-600 pointer-events-none" />
-                </div>
+                <AdminSelect
+                  value={form.type}
+                  onChange={val => set('type', val)}
+                  options={[
+                    { value: 'percentage', label: 'Percentage (%)' },
+                    { value: 'fixed', label: 'Fixed (₹)' },
+                  ]}
+                />
               </div>
               <div>
                 <label className={labelCls}>Value * {form.type === 'percentage' ? '(%)' : '(₹)'}</label>
@@ -284,7 +282,7 @@ function CouponForm({
                   </button>
                 </PopoverTrigger>
                 <PopoverContent
-                  className="w-auto p-0 bg-[#0c0c0c] border border-gray-800 rounded-2xl shadow-2xl"
+                  className="w-auto p-0 bg-white border border-slate-200 rounded-2xl shadow-2xl"
                   align="start"
                 >
                   <CalendarPicker
@@ -303,10 +301,10 @@ function CouponForm({
             </div>
 
             {/* Active toggle */}
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-[#0d0d0d] border border-gray-800">
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-white border border-slate-200">
               <div>
-                <p className="text-sm font-bold text-white">Active</p>
-                <p className="text-xs text-gray-500 mt-0.5">Customers can use this coupon</p>
+                <p className="text-sm font-bold text-slate-800">Active</p>
+                <p className="text-xs text-slate-400 mt-0.5">Customers can use this coupon</p>
               </div>
               <button
                 type="button"
@@ -323,11 +321,11 @@ function CouponForm({
         </div>
 
         {/* Footer actions */}
-        <div className="shrink-0 px-6 py-4 border-t border-gray-800 flex gap-3">
+        <div className="shrink-0 px-6 py-4 border-t border-slate-200 flex gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 rounded-xl text-sm font-bold text-gray-400 border border-gray-800 hover:border-gray-600 hover:text-white transition-colors"
+            className="flex-1 py-3 rounded-xl text-sm font-bold text-gray-400 border border-slate-200 hover:border-gray-600 hover:text-slate-900 transition-colors"
           >
             Cancel
           </button>
@@ -429,14 +427,14 @@ export default function AdminCouponsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white">Coupons</h1>
+          <h1 className="text-2xl font-black text-slate-900">Coupons</h1>
           <p className="text-gray-500 text-sm mt-1">{coupons.length} coupon{coupons.length !== 1 ? 's' : ''} total</p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={load}
             disabled={loading}
-            className="p-2.5 rounded-xl border border-gray-800 text-gray-400 hover:text-white hover:border-gray-600 transition-colors"
+            className="p-2.5 rounded-xl border border-slate-200 text-gray-400 hover:text-slate-900 hover:border-gray-600 transition-colors"
           >
             <RefreshCw className={cn('w-4 h-4', loading && 'animate-spin')} />
           </button>
@@ -458,7 +456,7 @@ export default function AdminCouponsPage() {
           { label: 'Expired',       value: expiredCnt,      color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20' },
           { label: 'Total Usages',  value: totalUsed,       color: 'text-blue-400',   bg: 'bg-blue-500/10',   border: 'border-blue-500/20' },
         ].map(card => (
-          <div key={card.label} className={cn('bg-[#0c0c0c] border rounded-2xl p-4 md:p-5', card.border)}>
+          <div key={card.label} className={cn('bg-white border rounded-2xl p-4 md:p-5', card.border)}>
             <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center mb-3', card.bg)}>
               <Ticket className={cn('w-5 h-5', card.color)} />
             </div>
@@ -476,7 +474,7 @@ export default function AdminCouponsPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by coupon code..."
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-[#0c0c0c] border border-gray-800 text-white text-sm placeholder-gray-700 outline-none focus:border-amber-500/50 transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-800 text-sm placeholder-slate-400 outline-none focus:border-amber-500/50 transition-colors"
           />
         </div>
         <div className="flex gap-1.5">
@@ -488,7 +486,7 @@ export default function AdminCouponsPage() {
                 'px-3 py-2.5 rounded-xl text-xs font-bold capitalize transition-all',
                 filterStatus === f
                   ? 'bg-amber-500 text-black'
-                  : 'bg-[#0c0c0c] border border-gray-800 text-gray-400 hover:text-white hover:border-gray-600'
+                  : 'bg-white border border-slate-200 text-gray-400 hover:text-slate-900 hover:border-gray-600'
               )}
             >
               {f}
@@ -503,12 +501,12 @@ export default function AdminCouponsPage() {
           <div className="animate-spin w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-[#0c0c0c] border border-gray-800 rounded-2xl flex flex-col items-center justify-center py-20 gap-4">
+        <div className="bg-white border border-slate-200 rounded-2xl flex flex-col items-center justify-center py-20 gap-4">
           <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center">
             <Ticket className="w-8 h-8 text-amber-500/40" />
           </div>
           <div className="text-center">
-            <p className="text-white font-bold">No coupons found</p>
+            <p className="text-slate-800 font-bold">No coupons found</p>
             <p className="text-gray-600 text-sm mt-1">
               {search || filterStatus !== 'all' ? 'Try adjusting your filters' : 'Create your first coupon to get started'}
             </p>
@@ -521,18 +519,18 @@ export default function AdminCouponsPage() {
           )}
         </div>
       ) : (
-        <div className="bg-[#0c0c0c] border border-gray-800 rounded-2xl overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
           {/* Desktop table */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-800">
+                <tr className="border-b border-slate-200">
                   {['Code', 'Type / Value', 'Usage', 'Min Order', 'Expiry', 'Status', 'Actions'].map(h => (
                     <th key={h} className="text-left px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-gray-600">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800/60">
+              <tbody className="divide-y divide-slate-200/60">
                 {filtered.map(coupon => {
                   const expired = isExpired(coupon.expires_at)
                   const statusLabel = expired ? 'Expired' : coupon.is_active ? 'Active' : 'Inactive'
@@ -540,7 +538,7 @@ export default function AdminCouponsPage() {
                     ? 'text-orange-400 bg-orange-500/10 border-orange-500/20'
                     : coupon.is_active
                     ? 'text-green-400 bg-green-500/10 border-green-500/20'
-                    : 'text-gray-500 bg-gray-500/10 border-gray-700'
+                    : 'text-gray-500 bg-gray-500/10 border-slate-300'
 
                   return (
                     <tr key={coupon.id} className="group hover:bg-white/[0.015] transition-colors">
@@ -569,7 +567,7 @@ export default function AdminCouponsPage() {
                           )}>
                             {coupon.type === 'percentage' ? '%' : '₹'}
                           </span>
-                          <span className="text-white font-bold text-sm">
+                          <span className="text-slate-800 font-bold text-sm">
                             {coupon.type === 'percentage' ? `${coupon.value}%` : `₹${coupon.value}`}
                           </span>
                           {coupon.max_discount && coupon.type === 'percentage' && (
@@ -581,7 +579,7 @@ export default function AdminCouponsPage() {
                       {/* Usage */}
                       <td className="px-5 py-4">
                         <div>
-                          <span className="text-sm text-white font-bold">{coupon.used_count}</span>
+                          <span className="text-sm text-slate-800 font-bold">{coupon.used_count}</span>
                           <span className="text-gray-600 text-sm">{coupon.usage_limit ? ` / ${coupon.usage_limit}` : ' / ∞'}</span>
                           {coupon.usage_limit && (
                             <div className="mt-1.5 h-1 w-20 rounded-full bg-gray-800 overflow-hidden">
@@ -621,7 +619,7 @@ export default function AdminCouponsPage() {
                             onClick={() => handleToggle(coupon.id)}
                             disabled={toggling === coupon.id}
                             title={coupon.is_active ? 'Deactivate' : 'Activate'}
-                            className="p-2 rounded-xl hover:bg-white/5 transition-colors text-gray-600 hover:text-amber-400"
+                            className="p-2 rounded-xl hover:bg-slate-50 transition-colors text-gray-600 hover:text-amber-400"
                           >
                             {toggling === coupon.id
                               ? <Loader2 className="w-4 h-4 animate-spin" />
@@ -632,7 +630,7 @@ export default function AdminCouponsPage() {
                           </button>
                           <button
                             onClick={() => openEdit(coupon)}
-                            className="p-2 rounded-xl hover:bg-white/5 transition-colors text-gray-600 hover:text-white"
+                            className="p-2 rounded-xl hover:bg-slate-50 transition-colors text-gray-600 hover:text-white"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
@@ -652,7 +650,7 @@ export default function AdminCouponsPage() {
           </div>
 
           {/* Mobile cards */}
-          <div className="md:hidden divide-y divide-gray-800">
+          <div className="md:hidden divide-y divide-slate-200">
             {filtered.map(coupon => {
               const expired = isExpired(coupon.expires_at)
               const statusLabel = expired ? 'Expired' : coupon.is_active ? 'Active' : 'Inactive'
@@ -660,7 +658,7 @@ export default function AdminCouponsPage() {
                 ? 'text-orange-400 bg-orange-500/10 border-orange-500/20'
                 : coupon.is_active
                 ? 'text-green-400 bg-green-500/10 border-green-500/20'
-                : 'text-gray-500 bg-gray-500/10 border-gray-700'
+                : 'text-gray-500 bg-gray-500/10 border-slate-300'
 
               return (
                 <div key={coupon.id} className="p-4 space-y-3">
@@ -679,32 +677,32 @@ export default function AdminCouponsPage() {
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
                       <span className="text-gray-600 text-xs block mb-0.5">Discount</span>
-                      <p className="text-white font-bold">
+                      <p className="text-slate-800 font-bold">
                         {coupon.type === 'percentage' ? `${coupon.value}%` : `₹${coupon.value}`}
                       </p>
                     </div>
                     <div>
                       <span className="text-gray-600 text-xs block mb-0.5">Usage</span>
-                      <p className="text-white font-bold">{coupon.used_count}{coupon.usage_limit ? ` / ${coupon.usage_limit}` : ' / ∞'}</p>
+                      <p className="text-slate-800 font-bold">{coupon.used_count}{coupon.usage_limit ? ` / ${coupon.usage_limit}` : ' / ∞'}</p>
                     </div>
                     <div>
                       <span className="text-gray-600 text-xs block mb-0.5">Min Order</span>
-                      <p className="text-white font-bold">{coupon.min_order_amount ? `₹${coupon.min_order_amount}` : '—'}</p>
+                      <p className="text-slate-800 font-bold">{coupon.min_order_amount ? `₹${coupon.min_order_amount}` : '—'}</p>
                     </div>
                     <div>
                       <span className="text-gray-600 text-xs block mb-0.5">Expires</span>
-                      <p className={cn('font-bold', expired ? 'text-orange-400' : 'text-white')}>{formatDate(coupon.expires_at)}</p>
+                      <p className={cn('font-bold', expired ? 'text-orange-400' : 'text-slate-800')}>{formatDate(coupon.expires_at)}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 pt-1 border-t border-gray-800/60">
+                  <div className="flex items-center gap-2 pt-1 border-t border-slate-200">
                     <button onClick={() => handleToggle(coupon.id)} disabled={toggling === coupon.id}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border border-gray-800 text-gray-500 hover:text-amber-400 hover:border-amber-500/30 transition-colors">
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border border-slate-200 text-gray-500 hover:text-amber-400 hover:border-amber-500/30 transition-colors">
                       {toggling === coupon.id ? <Loader2 className="w-3 h-3 animate-spin" /> : coupon.is_active ? <ToggleRight className="w-3.5 h-3.5 text-amber-500" /> : <ToggleLeft className="w-3.5 h-3.5" />}
                       {coupon.is_active ? 'Deactivate' : 'Activate'}
                     </button>
                     <button onClick={() => openEdit(coupon)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600 transition-colors">
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border border-slate-200 text-gray-500 hover:text-slate-900 hover:border-gray-600 transition-colors">
                       <Edit2 className="w-3 h-3" />
                       Edit
                     </button>
@@ -730,7 +728,7 @@ export default function AdminCouponsPage() {
 
       {/* Delete Confirm Dialog */}
       <AlertDialog open={deleteId !== null} onOpenChange={open => { if (!open) setDeleteId(null) }}>
-        <AlertDialogContent className="bg-[#111] border border-gray-800 text-white">
+        <AlertDialogContent className="bg-white border border-slate-200 shadow-xl text-slate-900">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-red-500" />
@@ -741,7 +739,7 @@ export default function AdminCouponsPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-transparent border-gray-700 text-gray-300 hover:bg-white/5">
+            <AlertDialogCancel className="bg-transparent border-slate-300 text-gray-300 hover:bg-white/5">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-500 text-white border-0">

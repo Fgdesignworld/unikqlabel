@@ -42,8 +42,8 @@ function ToolBtn({
       className={cn(
         'p-1.5 rounded-lg transition-all text-sm',
         active
-          ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-          : 'text-gray-400 hover:text-white hover:bg-white/8 border border-transparent',
+          ? 'bg-amber-500/10 text-[#B8903E] border border-amber-500/20 font-bold'
+          : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 border border-transparent',
         disabled && 'opacity-30 cursor-not-allowed',
       )}
     >
@@ -54,7 +54,7 @@ function ToolBtn({
 
 // ── Separator ───────────────────────────────────────────────────
 function Sep() {
-  return <div className="w-px h-5 bg-gray-800 mx-0.5 shrink-0" />
+  return <div className="w-px h-5 bg-slate-200 mx-0.5 shrink-0" />
 }
 
 // ── Main component ───────────────────────────────────────────────
@@ -71,12 +71,14 @@ export default function RichTextEditor({
     extensions: [
       StarterKit.configure({
         heading: { levels: [2, 3] },
+        link: false,      // Disable default link — we'll add custom below
+        underline: false, // Disable default underline — we'll add custom below
       }),
       Underline,
       TextStyle,
       Link.configure({
         openOnClick: false,
-        HTMLAttributes: { class: 'text-amber-400 underline underline-offset-2' },
+        HTMLAttributes: { class: 'text-[#B8903E] underline underline-offset-2' },
       }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Placeholder.configure({
@@ -87,7 +89,7 @@ export default function RichTextEditor({
     content: value || '',
     editorProps: {
       attributes: {
-        class: 'prose prose-invert prose-sm max-w-none focus:outline-none min-h-[160px] text-gray-200 leading-relaxed',
+        class: 'prose prose-sm max-w-none focus:outline-none min-h-[160px] text-slate-800 leading-relaxed',
       },
     },
     onUpdate({ editor }) {
@@ -131,9 +133,9 @@ export default function RichTextEditor({
   if (!editor) return null
 
   return (
-    <div className={cn('flex flex-col rounded-2xl border border-gray-800 bg-[#0a0a0a] overflow-hidden focus-within:border-amber-500/40 transition-colors', className)}>
+    <div className={cn('flex flex-col rounded-2xl border border-slate-200 bg-white overflow-hidden focus-within:border-amber-500/40 transition-colors', className)}>
       {/* ── Toolbar ─────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-0.5 px-3 py-2 border-b border-gray-800 bg-[#0d0d0d]">
+      <div className="flex flex-wrap items-center gap-0.5 px-3 py-2 border-b border-slate-200 bg-slate-50/80">
 
         {/* History */}
         <ToolBtn title="Undo (Ctrl+Z)" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()}>
@@ -214,7 +216,7 @@ export default function RichTextEditor({
         </ToolBtn>
 
         {/* Character / word count */}
-        <span className="ml-auto text-[10px] text-gray-600 font-mono whitespace-nowrap">
+        <span className="ml-auto text-[10px] text-slate-400 font-mono whitespace-nowrap">
           {editor.storage.characterCount?.characters?.() ?? editor.getText().length} chars
         </span>
       </div>
@@ -229,47 +231,47 @@ export default function RichTextEditor({
         .ProseMirror p.is-editor-empty:first-child::before {
           content: attr(data-placeholder);
           float: left;
-          color: #4b5563;
+          color: #94a3b8;
           pointer-events: none;
           height: 0;
         }
-        .ProseMirror h2 { font-size: 1.25rem; font-weight: 800; color: #fff; margin: 1rem 0 0.5rem; }
-        .ProseMirror h3 { font-size: 1.05rem; font-weight: 700; color: #e5e7eb; margin: 0.75rem 0 0.375rem; }
-        .ProseMirror ul  { list-style: disc;    padding-left: 1.5rem; color: #d1d5db; }
-        .ProseMirror ol  { list-style: decimal; padding-left: 1.5rem; color: #d1d5db; }
+        .ProseMirror h2 { font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 1rem 0 0.5rem; }
+        .ProseMirror h3 { font-size: 1.05rem; font-weight: 700; color: #1e293b; margin: 0.75rem 0 0.375rem; }
+        .ProseMirror ul  { list-style: disc;    padding-left: 1.5rem; color: #334155; }
+        .ProseMirror ol  { list-style: decimal; padding-left: 1.5rem; color: #334155; }
         .ProseMirror li  { margin: 0.2rem 0; }
         .ProseMirror blockquote {
-          border-left: 3px solid #f59e0b; padding-left: 1rem;
-          color: #9ca3af; font-style: italic; margin: 0.75rem 0;
+          border-left: 3px solid #c9a45c; padding-left: 1rem;
+          color: #475569; font-style: italic; margin: 0.75rem 0;
         }
-        .ProseMirror hr { border: none; border-top: 1px solid #1f2937; margin: 1rem 0; }
-        .ProseMirror strong { color: #fff; }
-        .ProseMirror em { color: #d1d5db; }
+        .ProseMirror hr { border: none; border-top: 1px solid #e2e8f0; margin: 1rem 0; }
+        .ProseMirror strong { color: #0f172a; font-weight: 800; }
+        .ProseMirror em { color: #334155; }
         .ProseMirror code {
-          background: #1f2937; padding: 0.1rem 0.4rem;
-          border-radius: 4px; font-size: 0.85em; color: #f59e0b;
+          background: #f1f5f9; padding: 0.1rem 0.4rem;
+          border-radius: 4px; font-size: 0.85em; color: #b8903e;
         }
         .ProseMirror pre {
-          background: #111827; padding: 1rem; border-radius: 0.75rem;
+          background: #f8fafc; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 0.75rem;
           overflow-x: auto; margin: 0.75rem 0;
         }
-        .ProseMirror pre code { background: transparent; color: #e5e7eb; }
+        .ProseMirror pre code { background: transparent; color: #334155; }
       `}</style>
 
       {/* ── Link Modal Dialog ────────────────────────────────────── */}
       {linkModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-[#111] border border-gray-700 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 max-w-md w-full shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <LinkIcon className="w-5 h-5 text-amber-400" /> Add Link
+              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <LinkIcon className="w-5 h-5 text-amber-500" /> Add Link
               </h3>
               <button
                 onClick={() => {
                   setLinkModalOpen(false)
                   setLinkUrl('')
                 }}
-                className="p-1 rounded-lg hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
+                className="p-1 rounded-lg hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-700"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -277,7 +279,7 @@ export default function RichTextEditor({
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">URL</label>
+                <label className="block text-sm font-semibold text-slate-500 mb-2">URL</label>
                 <input
                   type="url"
                   value={linkUrl}
@@ -291,9 +293,9 @@ export default function RichTextEditor({
                   }}
                   placeholder="https://example.com"
                   autoFocus
-                  className="w-full px-4 py-2.5 bg-[#0a0a0a] border border-gray-700 rounded-xl text-white focus:outline-none focus:border-amber-500/50 transition-all text-sm"
+                  className="w-full px-4 py-2.5 bg-[#F4F6FB] border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-amber-500/50 transition-all text-sm"
                 />
-                <p className="text-xs text-gray-500 mt-1.5">Opens in a new tab when clicked</p>
+                <p className="text-xs text-slate-400 mt-1.5">Opens in a new tab when clicked</p>
               </div>
 
               <div className="flex gap-3 pt-2">
@@ -303,14 +305,14 @@ export default function RichTextEditor({
                     setLinkModalOpen(false)
                     setLinkUrl('')
                   }}
-                  className="flex-1 px-4 py-2.5 border border-gray-700 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all font-medium text-sm"
+                  className="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-all font-medium text-sm"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={handleLinkSubmit}
-                  className="flex-1 px-4 py-2.5 bg-amber-500 text-black rounded-xl hover:bg-amber-400 transition-all font-bold text-sm flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2.5 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-all font-bold text-sm flex items-center justify-center gap-2"
                 >
                   <Check className="w-4 h-4" /> Add Link
                 </button>
@@ -325,7 +327,7 @@ export default function RichTextEditor({
                   setLinkModalOpen(false)
                   setLinkUrl('')
                 }}
-                className="w-full px-4 py-2 text-xs text-gray-400 hover:text-red-400 border border-gray-800 rounded-lg transition-all hover:border-red-500/30"
+                className="w-full px-4 py-2 text-xs text-slate-400 hover:text-red-500 border border-slate-100 rounded-lg transition-all hover:border-red-500/30"
               >
                 Remove Link
               </button>

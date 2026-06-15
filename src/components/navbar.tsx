@@ -1,286 +1,261 @@
 import { useState, useEffect } from "react"
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'
 import { lockScroll, unlockScroll } from "@/lib/scroll-lock"
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, ShoppingBag, Crown, ChevronDown, Sun, Moon } from "lucide-react"
+import { ShoppingBag, Search, X, Leaf, ChevronRight, ArrowRight } from "lucide-react"
 import { useCart } from "@/context/cart-context"
-import { Image } from "@/components/ui/image"
 import { useSettings } from "@/context/settings-context"
-import { useTheme } from "@/context/theme-context"
 
 const navLinks = [
-  { name: "Home",        href: "/" },
-  { name: "Collections", href: "/products" },
-  { name: "Men",         href: "/men" },
-  { name: "Women",       href: "/women" },
-  { name: "About",       href: "/about" },
-  { name: "Contact",     href: "/contact" },
-  { name: "Track Order", href: "/track" },
+  { name: "Shop", href: "/shop" },
+  { name: "Hair Care", href: "/hair-care" },
+  { name: "Body Care", href: "/body-care" },
+  { name: "Our Story", href: "/our-story" },
+  { name: "Sustainability", href: "/sustainability" },
+  { name: "Contact", href: "/contact" },
+]
+
+const mobileMenuLinks = [
+  { name: "Shop All", href: "/shop", sub: "Explore the full collection" },
+  { name: "Hair Care", href: "/hair-care", sub: "Nourish and strengthen" },
+  { name: "Body Care", href: "/body-care", sub: "Rituals for the body" },
+  { name: "Our Story", href: "/our-story", sub: "Inspired by nature" },
+  { name: "Sustainability", href: "/sustainability", sub: "Eco-friendly commitment" },
+  { name: "Contact", href: "/contact", sub: "We are here to help" },
 ]
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [logoError, setLogoError] = useState(false)
   const pathname = useLocation().pathname
-  // Pages that have a dark full-bleed hero — navbar can safely use cream text before scroll
-  const isHeroPage = ['/', '/men', '/women', '/unisex', '/products', '/about', '/contact', '/track'].includes(pathname)
   const { totalItems, setIsCartOpen } = useCart()
   const { settings } = useSettings()
-  const { isDark, toggleTheme } = useTheme()
 
-  const siteName  = settings.site_name    || 'UNIKQ LABEL'
-  const logoSrc   = settings.logo_url
-    ? (settings.logo_url.startsWith('/') ? `/api${settings.logo_url}` : settings.logo_url)
+  const isHeroPage = ['/', '/about', '/products', '/contact', '/men', '/women', '/unisex', '/ingredients'].includes(pathname)
+
+  const siteName = settings.site_name || 'Aarvia'
+  const logoSrc = settings.logo_url
+    ? (settings.logo_url.startsWith('/') && !settings.logo_url.startsWith('/api') ? `/api${settings.logo_url}` : settings.logo_url)
     : '/logo.png'
-  const waNumber  = (settings.whatsapp || settings.phone || '918639424039').replace(/[^0-9]/g, '')
-  const waLink    = `https://wa.me/${waNumber}`
+
+  useEffect(() => { setLogoError(false) }, [settings.logo_url])
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 30)
-    window.addEventListener("scroll", handleScroll)
+    const handleScroll = () => setIsScrolled(window.scrollY > 60)
+    window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   useEffect(() => { setIsMobileMenuOpen(false) }, [pathname])
 
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      lockScroll('mobile-menu')
-    } else {
-      unlockScroll('mobile-menu')
-    }
-    return () => { unlockScroll('mobile-menu') }
+    if (isMobileMenuOpen) lockScroll('mobile-menu')
+    else unlockScroll('mobile-menu')
+    return () => unlockScroll('mobile-menu')
   }, [isMobileMenuOpen])
+
+  const navTextColor = isScrolled ? 'rgba(31,77,58,0.85)' : isHeroPage ? 'rgba(247,244,237,0.88)' : 'rgba(31,77,58,0.85)'
+  const activeNavColor = isScrolled ? '#1F4D3A' : isHeroPage ? '#C8A96B' : '#1F4D3A'
+  const isLightBg = isScrolled || !isHeroPage
 
   return (
     <>
       <motion.header
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className={`fixed top-0 left-0 w-full z-40 transition-all duration-400 ${isScrolled
-          ? "py-3 backdrop-blur-xl"
-          : "py-0 bg-transparent"
-        }`}
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="fixed top-0 left-0 w-full z-50 transition-all duration-500"
         style={isScrolled ? {
-          borderBottom: '1px solid rgba(212,175,55,0.12)',
-          background: isDark ? 'rgba(13,13,13,0.88)' : 'rgba(250,247,242,0.92)',
-          boxShadow: isDark ? '0 8px 40px rgba(0,0,0,0.6)' : '0 8px 30px rgba(26,23,20,0.1)',
-        } : {}}
+          background: 'rgba(247,244,237,0.97)',
+          backdropFilter: 'saturate(180%) blur(20px)',
+          WebkitBackdropFilter: 'saturate(180%) blur(20px)',
+          borderBottom: '1px solid rgba(200,169,107,0.2)',
+          boxShadow: '0 2px 40px rgba(31,77,58,0.06)',
+        } : {
+          background: isHeroPage
+            ? 'linear-gradient(180deg,rgba(0,0,0,0.35) 0%,transparent 100%)'
+            : 'rgba(247,244,237,0.92)',
+          backdropFilter: isHeroPage ? 'none' : 'blur(12px)',
+          borderBottom: isHeroPage ? 'none' : '1px solid rgba(200,169,107,0.15)',
+        }}
       >
-        <div className="w-full max-w-7xl mx-auto px-4 flex items-center justify-between">
-          {/* ── Logo ── */}
-          <Link to="/" className="flex items-center gap-3 group shrink-0">
-            <div className={`relative transition-all duration-300 ${isScrolled ? "w-auto h-12" : "w-auto h-14"} overflow-hidden`} style={{ borderRadius: 0, minHeight: isScrolled ? 40 : 50, marginTop: isScrolled ? 0 : 20 }}>
-              <div className="absolute inset-0" style={{
-                background: 'radial-gradient(circle, rgba(212,175,55,0.18) 0%, transparent 70%)',
-                filter: 'blur(8px)',
-              }} />
-              <Image src={logoSrc} alt={siteName} className="relative h-full w-auto object-contain" style={{ borderRadius: 0, height: isScrolled ? 40 : 50, width: 'auto' }} />
-            </div>
-
-          </Link>
-
-          {/* ── Desktop Nav ── */}
-          <div className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2"
-            style={{
-              background: ((isHeroPage && !isScrolled) || isDark) ? 'rgba(255,255,255,0.03)' : 'rgba(26,23,20,0.04)',
-              backdropFilter: 'blur(16px)',
-              border: '1px solid rgba(212,175,55,0.10)',
-              borderRadius: '9999px',
-              padding: '8px 24px',
-            }}>
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href
-              return (
-                <Link
-                  key={link.name}
-                  to={link.href}
-                  className={`text-[13px] px-3 py-1 tracking-widest font-medium uppercase transition-all relative group ${
-                    isActive ? "" : "hover:opacity-100"
-                  }`}
-                  style={{ color: isActive ? 'var(--theme-color)' : ((isHeroPage && !isScrolled) || isDark) ? 'rgba(245,240,232,0.65)' : 'rgba(26,23,20,0.65)' }}
-                >
-                  {link.name}
-                  <span className="absolute -bottom-0.5 left-0 h-[1.5px] rounded-full transition-all duration-300"
-                    style={{
-                      width: isActive ? '100%' : '0',
-                      background: 'linear-gradient(90deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 90%, white))',
-                    }}
-                  />
-                  {!isActive && (
-                    <span className="absolute -bottom-0.5 left-0 h-[1.5px] rounded-full transition-all duration-300 w-0 group-hover:w-full"
-                      style={{ background: 'linear-gradient(90deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 90%, white))' }} />
-                  )}
-                </Link>
-              )
-            })}
-          </div>
-
-          {/* ── Right Actions ── */}
-          <div className="flex items-center gap-2">
-            {/* Cart button */}
-            <button
-              onClick={() => setIsCartOpen(true)}
-              className="flex items-center justify-center w-9 h-9 rounded-full border transition-all relative group"
-              aria-label="Open cart"
-              style={{
-                background: 'rgba(212,175,55,0.06)',
-                borderColor: ((isHeroPage && !isScrolled) || isDark) ? 'rgba(212,175,55,0.2)' : 'rgba(26,23,20,0.15)',
-              }}
-            >
-              <ShoppingBag size={15} className="text-amber-500" />
-              {totalItems > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center shadow-lg"
-                  style={{ background: 'var(--theme-color)', color: '#0D0D0D' }}>
-                  {totalItems}
-                </span>
+        <div className="max-w-7xl mx-auto px-5 lg:px-8">
+          <div className={`flex items-center justify-between transition-all duration-500 ${isScrolled ? 'h-14 lg:h-16' : 'h-16 lg:h-20'}`}>
+            <Link to="/" className="flex items-center gap-2.5 group shrink-0">
+              {settings.logo_url && !logoError ? (
+                <img src={logoSrc} alt={siteName} onError={() => setLogoError(true)}
+                  className={`w-auto object-contain transition-all duration-500 group-hover:opacity-80 ${isScrolled ? 'h-[44px] lg:h-14' : 'h-[52px] lg:h-[68px]'}`}
+                  style={{ filter: !isLightBg ? 'brightness(0) invert(1)' : 'none' }} />
+              ) : (
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center"
+                    style={{ background: !isLightBg ? 'rgba(247,244,237,0.12)' : 'rgba(31,77,58,0.07)', border: '1px solid rgba(200,169,107,0.3)' }}>
+                    <Leaf className="w-4 h-4" style={{ color: !isLightBg ? '#C8A96B' : '#1F4D3A' }} />
+                  </div>
+                  <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: '1.25rem', fontWeight: 600, letterSpacing: '0.08em', color: !isLightBg ? '#F7F4ED' : '#1F4D3A' }}>
+                    {siteName}
+                  </span>
+                </div>
               )}
-            </button>
-
-            {/* Theme toggle */}
-            <button
-              onClick={toggleTheme}
-              className="hidden md:flex items-center justify-center w-9 h-9 rounded-full border transition-all"
-              aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-              style={{
-                background: isDark ? 'rgba(212,175,55,0.06)' : 'rgba(26,23,20,0.05)',
-                borderColor: isDark ? 'rgba(212,175,55,0.2)' : 'rgba(26,23,20,0.15)',
-              }}
-            >
-              {isDark
-                ? <Sun size={15} className="text-amber-500" />
-                : <Moon size={15} style={{ color: (isHeroPage && !isScrolled) ? 'var(--theme-color)' : 'rgba(26,23,20,0.7)' }} />
-              }
-            </button>
-
-            {/* Shop CTA */}
-            <Link
-              to="/products"
-              className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all"
-              style={{
-                background: 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 70%, black))',
-                color: '#0D0D0D',
-              }}
-            >
-              <Crown size={12} />
-              Shop
             </Link>
 
-            {/* Mobile Menu Toggle */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full border transition-all"
-              style={{ background: 'rgba(212,175,55,0.06)', borderColor: 'rgba(212,175,55,0.2)' }}
-            >
-              {isMobileMenuOpen
-                ? <X size={16} className="text-amber-500" />
-                : <Menu size={16} className="text-amber-500" />
-              }
-            </button>
+            <nav className="hidden lg:flex items-center gap-0.5">
+              {navLinks.map((link) => {
+                const isActive = pathname === link.href
+                return (
+                  <Link key={link.name} to={link.href} className="relative px-4 py-2 group">
+                    <span className="text-[11px] font-semibold tracking-[0.14em] uppercase transition-all duration-300"
+                      style={{ color: isActive ? activeNavColor : navTextColor }}>
+                      {link.name}
+                    </span>
+                    <span className="absolute bottom-0 left-4 right-4 h-px transition-all duration-500"
+                      style={{ background: `linear-gradient(90deg,transparent,${activeNavColor},transparent)`, transform: isActive ? 'scaleX(1)' : 'scaleX(0)', transformOrigin: 'center' }} />
+                    <span className="absolute bottom-0 left-4 right-4 h-px scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center"
+                      style={{ background: `linear-gradient(90deg,transparent,rgba(200,169,107,0.6),transparent)` }} />
+                  </Link>
+                )
+              })}
+            </nav>
+
+            <div className="flex items-center gap-1.5">
+              <button onClick={() => setIsSearchOpen(true)}
+                className="hidden md:flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 hover:scale-105"
+                style={{ background: !isLightBg ? 'rgba(247,244,237,0.1)' : 'rgba(31,77,58,0.05)', border: `1px solid ${!isLightBg ? 'rgba(247,244,237,0.18)' : 'rgba(200,169,107,0.2)'}` }}>
+                <Search className="w-3.5 h-3.5" style={{ color: !isLightBg ? '#F7F4ED' : '#1F4D3A' }} />
+              </button>
+
+              <button onClick={() => setIsCartOpen(true)}
+                className="flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 hover:scale-105 relative"
+                style={{ background: !isLightBg ? 'rgba(247,244,237,0.1)' : 'rgba(31,77,58,0.05)', border: `1px solid ${!isLightBg ? 'rgba(247,244,237,0.18)' : 'rgba(200,169,107,0.2)'}` }}
+                aria-label="Open cart">
+                <ShoppingBag className="w-3.5 h-3.5" style={{ color: !isLightBg ? '#F7F4ED' : '#1F4D3A' }} />
+                <AnimatePresence>
+                  {totalItems > 0 && (
+                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
+                      className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center"
+                      style={{ background: '#C8A96B', color: '#1A1A1A' }}>
+                      {totalItems}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </button>
+
+              <Link to="/products"
+                className="hidden lg:flex items-center gap-1.5 ml-2 px-5 py-2.5 transition-all duration-400 hover:-translate-y-px"
+                style={{
+                  background: !isLightBg ? 'rgba(200,169,107,0.15)' : '#1F4D3A',
+                  color: !isLightBg ? '#C8A96B' : '#F7F4ED',
+                  border: `1px solid ${!isLightBg ? 'rgba(200,169,107,0.4)' : 'transparent'}`,
+                  fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase',
+                  backdropFilter: !isLightBg ? 'blur(8px)' : 'none',
+                }}>
+                Shop Now
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+
+              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="lg:hidden flex flex-col items-center justify-center w-9 h-9 gap-1.25 rounded-full transition-all duration-300"
+                style={{ background: !isLightBg ? 'rgba(247,244,237,0.1)' : 'rgba(31,77,58,0.05)', border: `1px solid ${!isLightBg ? 'rgba(247,244,237,0.18)' : 'rgba(200,169,107,0.2)'}` }}>
+                <motion.span animate={{ rotate: isMobileMenuOpen ? 45 : 0, y: isMobileMenuOpen ? 6 : 0 }} className="block w-4 h-px rounded-full"
+                  style={{ background: !isLightBg ? '#F7F4ED' : '#1F4D3A' }} />
+                <motion.span animate={{ opacity: isMobileMenuOpen ? 0 : 1 }} className="block w-2.5 h-px rounded-full self-start ml-3"
+                  style={{ background: '#C8A96B' }} />
+                <motion.span animate={{ rotate: isMobileMenuOpen ? -45 : 0, y: isMobileMenuOpen ? -6 : 0 }} className="block w-4 h-px rounded-full"
+                  style={{ background: !isLightBg ? '#F7F4ED' : '#1F4D3A' }} />
+              </button>
+            </div>
           </div>
         </div>
-
-        {/* Gold accent line */}
-
       </motion.header>
 
-      {/* ── Mobile Menu ── */}
+      <AnimatePresence>
+        {isSearchOpen && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-60 flex items-start pt-28 px-6"
+            style={{ background: 'rgba(31,77,58,0.65)', backdropFilter: 'blur(16px)' }}>
+            <div className="w-full max-w-2xl mx-auto">
+              <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="relative">
+                <input autoFocus type="text" placeholder="Search products, ingredients..."
+                  className="w-full px-6 py-5 text-lg rounded-none border-b-2 outline-none bg-transparent"
+                  style={{ borderColor: '#C8A96B', color: '#F7F4ED', fontFamily: "'Plus Jakarta Sans',sans-serif", caretColor: '#C8A96B' }} />
+                <button onClick={() => setIsSearchOpen(false)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-white/10 transition-colors">
+                  <X className="w-5 h-5 text-[#F7F4ED]" />
+                </button>
+              </motion.div>
+              <p className="mt-4 text-sm text-[#F7F4ED]/50 tracking-widest uppercase" style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: '0.625rem' }}>Press Esc to close</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40 lg:hidden" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+              onClick={() => setIsMobileMenuOpen(false)} />
             <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 z-40 lg:hidden"
-              style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
-            />
-            <motion.div
-              initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] z-50 lg:hidden overflow-y-auto"
-              style={{ background: isDark ? '#0D0D0D' : '#faf7f2', borderLeft: '1px solid rgba(212,175,55,0.15)' }}
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between px-3 border-b"
-                style={{ borderColor: 'rgba(212,175,55,0.10)', background: 'rgba(212,175,55,0.03)' }}>
-                <Link to="/" className="flex items-center gap-3">
-                  <div className="overflow-hidden" style={{ borderRadius: 0, minHeight: 60, marginTop: isScrolled ? 0 : 20 }}>
-                    <Image src={logoSrc} alt={siteName} className="h-14 w-auto object-contain" style={{ borderRadius: 0, height: 50, width: 'auto' }} />
+              initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="fixed top-0 right-0 bottom-0 w-full max-w-90 z-50 lg:hidden flex flex-col overflow-hidden"
+              style={{ background: '#F7F4ED', borderLeft: '1px solid rgba(200,169,107,0.2)' }}>
+              <div className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: 'rgba(200,169,107,0.15)' }}>
+                <Link to="/" className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(31,77,58,0.07)', border: '1px solid rgba(200,169,107,0.25)' }}>
+                    <Leaf className="w-3.5 h-3.5" style={{ color: '#1F4D3A' }} />
                   </div>
+                  <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: '1.125rem', fontWeight: 600, letterSpacing: '0.06em', color: '#1F4D3A' }}>{siteName}</span>
                 </Link>
-                <button onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 rounded-full border border-amber-500/20 text-amber-500">
-                  <X className="w-4 h-4" />
+                <button onClick={() => setIsMobileMenuOpen(false)} className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[#1F4D3A]/5 transition-all" style={{ border: '1px solid rgba(200,169,107,0.2)' }}>
+                  <X className="w-4 h-4" style={{ color: '#1F4D3A' }} />
                 </button>
               </div>
 
-              {/* Links */}
-              <nav className="p-5">
-                <div className="space-y-1">
-                  {navLinks.map((link, index) => {
+              <nav className="flex-1 overflow-y-auto px-5 pt-6 pb-8">
+                <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-4 px-1" style={{ color: '#C8A96B' }}>Navigation</p>
+                <div className="space-y-0.5">
+                  {mobileMenuLinks.map((link, i) => {
                     const isActive = pathname === link.href
                     return (
-                      <motion.div key={link.name} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }}>
-                        <Link
-                          to={link.href}
-                          className="flex items-center justify-between py-3.5 px-4 rounded-xl transition-all font-medium text-sm uppercase tracking-wider"
-                          style={isActive
-                            ? { background: 'linear-gradient(135deg, color-mix(in srgb, var(--theme-color) 15%, transparent), color-mix(in srgb, var(--theme-color) 5%, transparent))', color: 'var(--theme-color)', borderLeft: '2px solid var(--theme-color)' }
-                            : { color: isDark ? 'rgba(245,240,232,0.7)' : 'rgba(26,23,20,0.7)' }
-                          }
-                        >
-                          <span>{link.name}</span>
-                          {isActive && <ChevronDown className="w-3 h-3 -rotate-90" />}
+                      <motion.div key={link.name} initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 + i * 0.04 }}>
+                        <Link to={link.href}
+                          className="flex items-center justify-between py-3.5 px-4 rounded-xl group transition-all duration-300 hover:bg-[#1F4D3A]/4"
+                          style={{ borderLeft: isActive ? '2px solid #C8A96B' : '2px solid transparent', background: isActive ? 'rgba(31,77,58,0.05)' : 'transparent' }}>
+                          <div>
+                            <p className="text-sm font-semibold" style={{ color: isActive ? '#1F4D3A' : '#2C2C2C' }}>{link.name}</p>
+                            <p className="text-[11px] mt-0.5" style={{ color: '#9A9A8F' }}>{link.sub}</p>
+                          </div>
+                          <ChevronRight className="w-4 h-4 opacity-25 group-hover:opacity-50 transition-opacity" style={{ color: '#1F4D3A' }} />
                         </Link>
                       </motion.div>
                     )
                   })}
                 </div>
-
-                {/* Mobile CTAs */}
-                <div className="mt-6 space-y-3">
-                  <button
-                    onClick={() => { setIsCartOpen(true); setIsMobileMenuOpen(false); }}
-                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-sm uppercase tracking-wider"
-                    style={{ background: 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 70%, black))', color: '#0D0D0D' }}
-                  >
-                    <ShoppingBag className="w-4 h-4" />
-                    Cart {totalItems > 0 && `(${totalItems})`}
-                  </button>
-                </div>
-
-                {/* Stats */}
-                {/* Mobile theme toggle */}
-                <div className="mt-4 flex items-center justify-between px-1">
-                  <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: isDark ? 'rgba(245,240,232,0.45)' : 'rgba(26,23,20,0.5)' }}>Theme</span>
-                  <button
-                    onClick={toggleTheme}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all"
-                    style={{
-                      background: isDark ? 'rgba(212,175,55,0.06)' : 'rgba(26,23,20,0.05)',
-                      borderColor: isDark ? 'rgba(212,175,55,0.2)' : 'rgba(26,23,20,0.15)',
-                      color: isDark ? 'var(--theme-color)' : 'rgba(26,23,20,0.7)',
-                    }}
-                  >
-                    {isDark ? <><Sun size={12} /> Light</> : <><Moon size={12} /> Dark</>}
-                  </button>
-                </div>
-
-                <div className="mt-6 pt-5 border-t" style={{ borderColor: 'rgba(212,175,55,0.08)' }}>
-                  <p className="text-[10px] tracking-widest uppercase mb-3 text-center" style={{ color: isDark ? 'rgba(245,240,232,0.35)' : 'rgba(26,23,20,0.4)' }}>Why UNIKQ</p>
+                <div className="mt-8 pt-6 border-t" style={{ borderColor: 'rgba(200,169,107,0.15)' }}>
+                  <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-4 px-1" style={{ color: '#C8A96B' }}>Our Promise</p>
                   <div className="grid grid-cols-2 gap-2">
-                    {[{ v: 'Premium', l: 'Quality' }, { v: 'Limited', l: 'Drops' }, { v: 'Unisex', l: 'Fashion' }, { v: 'Royal', l: 'Style' }].map(({ v, l }) => (
-                      <div key={l} className="text-center p-3 rounded-lg" style={{ background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.08)' }}>
-                        <p className="font-bold text-sm text-amber-500">{v}</p>
-                        <p className="text-[10px] mt-0.5" style={{ color: isDark ? 'rgba(245,240,232,0.5)' : 'rgba(26,23,20,0.5)' }}>{l}</p>
+                    {[{ v: '100%', l: 'Natural' }, { v: 'Cruelty', l: 'Free' }, { v: 'Premium', l: 'Quality' }, { v: 'Pure', l: 'Botanicals' }].map(({ v, l }) => (
+                      <div key={l} className="flex flex-col items-center p-3.5 rounded-xl" style={{ background: 'rgba(31,77,58,0.04)', border: '1px solid rgba(200,169,107,0.1)' }}>
+                        <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: '1rem', fontWeight: 700, color: '#1F4D3A' }}>{v}</span>
+                        <span className="text-[10px] font-medium mt-0.5 tracking-wider uppercase" style={{ color: '#9A9A8F' }}>{l}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               </nav>
+
+              <div className="px-5 py-5 border-t" style={{ borderColor: 'rgba(200,169,107,0.15)' }}>
+                <button onClick={() => { setIsCartOpen(true); setIsMobileMenuOpen(false) }}
+                  className="flex items-center justify-center gap-2 w-full py-4 rounded-xl font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
+                  style={{ background: '#1F4D3A', color: '#F7F4ED', fontSize: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                  <ShoppingBag className="w-4 h-4" />
+                  Bag{totalItems > 0 ? ` (${totalItems})` : ''}
+                </button>
+              </div>
             </motion.div>
           </>
         )}

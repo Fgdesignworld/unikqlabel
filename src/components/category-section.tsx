@@ -22,7 +22,7 @@ const collections = [
     tag: "Exclusively Hers",
   },
   {
-    name: "UniKQ Essentials",
+    name: "KoffeeKup Essentials",
     subtitle: "Unisex Line",
     image: "/images/collection-essentials.jpg",
     description: "Rule together, dress together",

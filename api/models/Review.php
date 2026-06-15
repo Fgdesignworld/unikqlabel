@@ -74,7 +74,12 @@ class Review {
      */
     public static function findByToken(string $token): ?array {
         $db = getDB();
-        $stmt = $db->prepare("SELECT * FROM reviews WHERE verification_token = :token LIMIT 1");
+        // Token expires after 7 days — matches the email's stated expiry
+        $stmt = $db->prepare(
+            "SELECT * FROM reviews WHERE verification_token = :token
+             AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+             LIMIT 1"
+        );
         $stmt->execute(['token' => $token]);
         $row = $stmt->fetch();
         return $row ?: null;

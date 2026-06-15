@@ -64,18 +64,18 @@ function PopupForm({ popup, onSave, onClose }: { popup?: PopupData, onSave: () =
         finally { setSaving(false) }
     }
 
-    const imageUrl = form.image ? (form.image.startsWith('/') ? `/api${form.image}` : form.image) : null
+    const imageUrl = form.image ? (form.image.startsWith('/') && !form.image.startsWith('/api') ? `/api${form.image}` : form.image) : null
 
     return (
-        <div className="fixed inset-0 z-50 flex">
-            <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-            <div className="w-full max-w-md bg-[#0c0c0c] border-l border-gray-800 overflow-y-auto flex flex-col">
-                <div className="flex items-center justify-between p-5 border-b border-gray-800">
+        <div className="fixed inset-0 z-60 flex">
+            <div className="flex-1 bg-slate-800/40 backdrop-blur-sm" onClick={onClose} />
+            <div className="w-full max-w-md bg-white border-l border-slate-200 overflow-y-auto flex flex-col">
+                <div className="flex items-center justify-between p-5 border-b border-slate-200">
                     <div>
-                        <h2 className="text-white font-black text-lg">{isEditing ? 'Edit Popup' : 'New Popup'}</h2>
+                        <h2 className="text-slate-900 font-black text-">{isEditing ? 'Edit Popup' : 'New Popup'}</h2>
                         <p className="text-gray-500 text-xs mt-0.5">Promotional modal shown to visitors</p>
                     </div>
-                    <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/5">
+                    <button onClick={onClose} className="text-gray-500 hover:text-slate-900 transition-colors p-1 rounded-lg hover:bg-white/5">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
@@ -85,7 +85,7 @@ function PopupForm({ popup, onSave, onClose }: { popup?: PopupData, onSave: () =
                     <div>
                         <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-2">Title <span className="text-red-400">*</span></label>
                         <input type="text" value={form.title} onChange={e => set('title', e.target.value)} required placeholder="e.g. 20% OFF on First Order!"
-                            className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
+                            className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all"
                         />
                     </div>
 
@@ -93,7 +93,7 @@ function PopupForm({ popup, onSave, onClose }: { popup?: PopupData, onSave: () =
                     <div>
                         <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-2">Description</label>
                         <textarea rows={3} value={form.description ?? ''} onChange={e => set('description', e.target.value)} placeholder="Limited time offer…"
-                            className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all resize-none"
+                            className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all resize-none"
                         />
                     </div>
 
@@ -101,7 +101,7 @@ function PopupForm({ popup, onSave, onClose }: { popup?: PopupData, onSave: () =
                     <div>
                         <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-2">Popup Image</label>
                         <div onClick={() => fileRef.current?.click()}
-                            className="relative w-full h-28 rounded-2xl border-2 border-dashed border-gray-700 hover:border-amber-500/50 bg-white/2 cursor-pointer flex items-center justify-center overflow-hidden transition-all group">
+                            className="relative w-full h-28 rounded-2xl border-2 border-dashed border-slate-300 hover:border-amber-500/50 bg-slate-50 cursor-pointer flex items-center justify-center overflow-hidden transition-all group">
                             {imageUrl ? (
                                 <>
                                     <img src={imageUrl} alt="preview" className="absolute inset-0 w-full h-full object-cover rounded-2xl" />
@@ -124,13 +124,13 @@ function PopupForm({ popup, onSave, onClose }: { popup?: PopupData, onSave: () =
                         <div>
                             <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-2">Button Text</label>
                             <input type="text" value={form.button_text ?? ''} onChange={e => set('button_text', e.target.value)} placeholder="Shop Now"
-                                className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
+                                className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all"
                             />
                         </div>
                         <div>
                             <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-2">Button Link</label>
                             <input type="text" value={form.button_link ?? ''} onChange={e => set('button_link', e.target.value)} placeholder="/products"
-                                className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
+                                className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all"
                             />
                         </div>
                     </div>
@@ -139,7 +139,7 @@ function PopupForm({ popup, onSave, onClose }: { popup?: PopupData, onSave: () =
                     <div>
                         <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-2">Show After (seconds)</label>
                         <input type="number" min={0} max={30} value={form.delay_seconds ?? 2} onChange={e => set('delay_seconds', parseInt(e.target.value) || 0)}
-                            className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500/50 transition-all"
+                            className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:border-amber-500/50 transition-all"
                         />
                         <p className="text-gray-600 text-xs mt-1">0 = show immediately</p>
                     </div>
@@ -148,7 +148,7 @@ function PopupForm({ popup, onSave, onClose }: { popup?: PopupData, onSave: () =
                     <div>
                         <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-2">Combo Price (₹)</label>
                         <input type="number" min={0} step={0.01} value={form.price ?? ''} onChange={e => set('price', e.target.value ? parseFloat(e.target.value) : null)} placeholder="899"
-                            className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
+                            className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all"
                         />
                         <p className="text-gray-600 text-xs mt-1">Optional: Set a price for the combo offer</p>
                     </div>
@@ -158,10 +158,10 @@ function PopupForm({ popup, onSave, onClose }: { popup?: PopupData, onSave: () =
                         <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-2">Header Color (Hex)</label>
                         <div className="flex gap-2">
                             <input type="color" value={form.header_background ?? '#b91c1c'} onChange={e => set('header_background', e.target.value)}
-                                className="w-12 h-10 rounded-lg border border-gray-700 cursor-pointer"
+                                className="w-12 h-10 rounded-lg border border-slate-300 cursor-pointer"
                             />
                             <input type="text" value={form.header_background ?? '#b91c1c'} onChange={e => set('header_background', e.target.value)}
-                                className="flex-1 bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
+                                className="flex-1 bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all"
                             />
                         </div>
                     </div>
@@ -171,9 +171,9 @@ function PopupForm({ popup, onSave, onClose }: { popup?: PopupData, onSave: () =
                         <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-2">Combo Items</label>
                         <div className="space-y-2 mb-3 max-h-48 overflow-y-auto">
                             {Array.isArray(form.items) && form.items.map((item, idx) => (
-                                <div key={idx} className="bg-white/2 border border-gray-700 rounded-lg p-3 flex items-center justify-between group">
+                                <div key={idx} className="bg-white border border-slate-300 rounded-lg p-3 flex items-center justify-between group">
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-white text-sm font-bold truncate">{item.name}</p>
+                                        <p className="text-slate-800 text-sm font-bold truncate">{item.name}</p>
                                         <p className="text-gray-500 text-xs">{item.weight}</p>
                                     </div>
                                     <button
@@ -192,14 +192,14 @@ function PopupForm({ popup, onSave, onClose }: { popup?: PopupData, onSave: () =
                                 placeholder="Item name"
                                 value={newItem.name}
                                 onChange={e => setNewItem({ ...newItem, name: e.target.value })}
-                                className="bg-white/4 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50"
+                                className="bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50"
                             />
                             <input
                                 type="text"
                                 placeholder="Weight (e.g. 250g)"
                                 value={newItem.weight}
                                 onChange={e => setNewItem({ ...newItem, weight: e.target.value })}
-                                className="bg-white/4 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50"
+                                className="bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50"
                             />
                         </div>
                         <button
@@ -210,7 +210,7 @@ function PopupForm({ popup, onSave, onClose }: { popup?: PopupData, onSave: () =
                                     setNewItem({ id: 0, name: '', weight: '', image: '' })
                                 }
                             }}
-                            className="w-full py-2 rounded-lg border border-gray-700 text-gray-400 hover:text-white text-sm font-bold transition-colors flex items-center justify-center gap-2"
+                            className="w-full py-2 rounded-lg border border-slate-300 text-gray-400 hover:text-slate-900 text-sm font-bold transition-colors flex items-center justify-center gap-2"
                         >
                             <Plus className="w-4 h-4" />
                             Add Item
@@ -218,9 +218,9 @@ function PopupForm({ popup, onSave, onClose }: { popup?: PopupData, onSave: () =
                     </div>
 
                     {/* Active toggle */}
-                    <div className="flex items-center justify-between bg-white/2 border border-gray-800 rounded-xl p-4">
+                    <div className="flex items-center justify-between bg-white border border-slate-200 rounded-xl p-4">
                         <div>
-                            <p className="text-white text-sm font-bold">Activate Popup</p>
+                            <p className="text-slate-800 text-sm font-bold">Activate Popup</p>
                             <p className="text-gray-500 text-xs mt-0.5">Only one popup can be active at a time</p>
                         </div>
                         <button type="button" onClick={() => set('is_active', !form.is_active)}
@@ -231,7 +231,7 @@ function PopupForm({ popup, onSave, onClose }: { popup?: PopupData, onSave: () =
 
                     {/* Actions */}
                     <div className="flex gap-3 pt-2">
-                        <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-gray-700 text-gray-400 text-sm font-bold hover:border-gray-600 hover:text-white transition-all">
+                        <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-slate-300 text-gray-400 text-sm font-bold hover:border-gray-600 hover:text-slate-900 transition-all">
                             Cancel
                         </button>
                         <button type="submit" disabled={saving || uploading} className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-sm font-black transition-all disabled:opacity-50 flex items-center justify-center gap-2">
@@ -289,7 +289,7 @@ export default function AdminPopupPage() {
         <div className="p-4 md:p-6 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-black text-white">Popup / Offers</h1>
+                    <h1 className="text-2xl font-black text-slate-900">Popup / Offers</h1>
                     <p className="text-gray-500 text-sm mt-1">Manage promotional modals shown to visitors</p>
                 </div>
                 <button onClick={() => { setEditTarget(undefined); setFormOpen(true) }}
@@ -310,7 +310,7 @@ export default function AdminPopupPage() {
             ) : popups.length === 0 ? (
                 <div className="flex flex-col items-center py-20 text-center">
                     <Megaphone className="w-12 h-12 text-gray-700 mb-4" />
-                    <p className="text-white font-bold text-lg">No popups yet</p>
+                    <p className="text-slate-800 font-bold text-lg">No popups yet</p>
                     <button onClick={() => { setEditTarget(undefined); setFormOpen(true) }}
                         className="mt-4 px-4 py-2 bg-amber-500 text-black text-sm font-black rounded-xl hover:bg-amber-400 transition-colors">
                         + Create Popup
@@ -320,13 +320,13 @@ export default function AdminPopupPage() {
                 <div className="grid sm:grid-cols-2 gap-4">
                     {popups.map(p => (
                         <div key={p.id} className={cn(
-                            'bg-[#0e0e0e] border rounded-2xl overflow-hidden group hover:border-gray-700 transition-all',
-                            p.is_active ? 'border-amber-500/30' : 'border-gray-800'
+                            'bg-[#F8F9FD] border rounded-2xl overflow-hidden group hover:border-slate-300 transition-all',
+                            p.is_active ? 'border-amber-500/30' : 'border-slate-200'
                         )}>
                             {/* Image */}
                             {p.image && (
                                 <div className="relative h-32 overflow-hidden">
-                                    <img src={p.image.startsWith('/') ? `/api${p.image}` : p.image} alt={p.title} className="w-full h-full object-cover" />
+                                    <img src={p.image.startsWith('/') && !p.image.startsWith('/api') ? `/api${p.image}` : p.image} alt={p.title} className="w-full h-full object-cover" />
                                     <div className="absolute inset-0 bg-linear-to-t from-[#0e0e0e] to-transparent" />
                                 </div>
                             )}
@@ -334,7 +334,7 @@ export default function AdminPopupPage() {
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-1">
-                                            <h3 className="text-white font-bold text-sm truncate">{p.title}</h3>
+                                            <h3 className="text-slate-800 font-bold text-sm truncate">{p.title}</h3>
                                             {p.is_active && (
                                                 <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0">LIVE</span>
                                             )}
@@ -359,12 +359,12 @@ export default function AdminPopupPage() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-800">
+                                <div className="flex items-center gap-1 mt-3 pt-3 border-t border-slate-200">
                                     {/* Toggle */}
                                     <button onClick={() => handleToggle(p)} disabled={toggling === p.id}
                                         title={p.is_active ? 'Deactivate' : 'Activate'}
                                         className={cn('p-2 rounded-xl transition-colors flex-1 flex items-center justify-center gap-1.5 text-xs font-bold border',
-                                            p.is_active ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' : 'bg-white/2 border-gray-800 text-gray-500 hover:text-white')}>
+                                            p.is_active ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' : 'bg-slate-50 border-slate-200 text-gray-500 hover:text-white')}>
                                         {toggling === p.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : p.is_active ? <ToggleRight className="w-3.5 h-3.5" /> : <ToggleLeft className="w-3.5 h-3.5" />}
                                         {p.is_active ? 'Active' : 'Inactive'}
                                     </button>
@@ -388,19 +388,19 @@ export default function AdminPopupPage() {
 
             {/* Preview modal */}
             {preview && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-sm bg-[#0e0e0e] border border-gray-800 rounded-3xl overflow-hidden">
+                <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+                    <div className="w-full max-w-sm bg-[#F8F9FD] border border-slate-200 rounded-3xl overflow-hidden">
                         {preview.image && (
                             <div className="relative w-full aspect-video">
-                                <img src={preview.image.startsWith('/') ? `/api${preview.image}` : preview.image} alt="" className="w-full h-full object-cover" />
+                                <img src={preview.image.startsWith('/') && !preview.image.startsWith('/api') ? `/api${preview.image}` : preview.image} alt="" className="w-full h-full object-cover" />
                             </div>
                         )}
                         <div className="p-6">
-                            <h3 className="text-xl font-black text-white">{preview.title}</h3>
+                            <h3 className="text-xl font-black text-slate-900">{preview.title}</h3>
                             {preview.description && <p className="text-gray-400 text-sm mt-2">{preview.description}</p>}
                             <div className="flex gap-3 mt-4">
                                 {preview.button_text && <span className="flex-1 py-2.5 bg-amber-500 text-black text-sm font-black rounded-xl text-center">{preview.button_text}</span>}
-                                <button onClick={() => setPreview(null)} className="flex-1 py-2.5 border border-gray-700 text-gray-400 text-sm font-bold rounded-xl">Close preview</button>
+                                <button onClick={() => setPreview(null)} className="flex-1 py-2.5 border border-slate-300 text-gray-400 text-sm font-bold rounded-xl">Close preview</button>
                             </div>
                         </div>
                     </div>
@@ -408,7 +408,7 @@ export default function AdminPopupPage() {
             )}
 
             <AlertDialog open={!!deleteTarget} onOpenChange={() => setDelTarget(null)}>
-                <AlertDialogContent className="bg-[#0e0e0e] border border-gray-800 text-white">
+                <AlertDialogContent className="bg-white border border-slate-200 shadow-xl text-slate-900">
                     <AlertDialogHeader>
                         <AlertDialogTitle>Delete Popup?</AlertDialogTitle>
                         <AlertDialogDescription className="text-gray-400">
@@ -416,7 +416,7 @@ export default function AdminPopupPage() {
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-white/5 border-gray-700 text-white hover:bg-white/10">Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="bg-white border-slate-300 text-slate-600 hover:bg-slate-50">Cancel</AlertDialogCancel>
                         <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-500 text-white">Delete</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

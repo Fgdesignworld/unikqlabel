@@ -45,7 +45,7 @@ export function TraditionSection() {
               style={{ border: '1px solid rgba(212,175,55,0.12)', boxShadow: '0 30px 80px rgba(0,0,0,0.7)' }}>
               <Image
                 src="/images/about-lifestyle.jpg"
-                alt="UNIKQ LABEL fashion lifestyle"
+                alt="KoffeeKup fashion lifestyle"
                 fill
                 className="object-cover"
               />
@@ -94,7 +94,7 @@ export function TraditionSection() {
             </h2>
 
             <p className="font-body text-lg leading-relaxed mb-5" style={{ color: 'var(--text-muted)' }}>
-              At <span className="text-amber-500" style={{ fontWeight: 600 }}>UNIKQ LABEL</span>, we believe fashion is a crown you
+              At <span className="text-amber-500" style={{ fontWeight: 600 }}>KoffeeKup</span>, we believe fashion is a crown you
               wear every day. Born from the spirit of royalty and the energy of the streets, we craft garments that speak power,
               confidence, and unapologetic self-expression.
             </p>

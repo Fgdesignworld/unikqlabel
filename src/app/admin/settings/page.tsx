@@ -4,7 +4,7 @@ import { useSettings } from '@/context/settings-context'
 import { useToast } from '@/hooks/use-toast'
 import {
     Save, Upload, Loader2, RefreshCw, Phone, Share2, Palette, Type,
-    Store, Search, ChevronDown, X as XIcon,
+    Store, Search, ChevronDown, X as XIcon, CreditCard,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -117,9 +117,9 @@ function FontSelect({ value, onChange }: { value: string; onChange: (f: string) 
             <button
                 type="button"
                 onClick={() => { setOpen(o => !o); setTimeout(() => document.getElementById('fs-search')?.focus(), 60) }}
-                className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 flex items-center justify-between text-sm transition-all hover:border-gray-600 focus:outline-none focus:border-amber-500/50"
+                className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 flex items-center justify-between text-sm transition-all hover:border-gray-600 focus:outline-none focus:border-amber-500/50"
             >
-                <span style={{ fontFamily: value || 'inherit' }} className={value ? 'text-white' : 'text-gray-600'}>
+                <span style={{ fontFamily: value || 'inherit' }} className={value ? 'text-slate-800' : 'text-gray-600'}>
                     {value || 'Select a font...'}
                 </span>
                 <div className="flex items-center gap-2 shrink-0">
@@ -130,20 +130,20 @@ function FontSelect({ value, onChange }: { value: string; onChange: (f: string) 
 
             {/* Dropdown */}
             {open && (
-                <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-[#111] border border-gray-700 rounded-xl shadow-2xl overflow-hidden">
+                <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-slate-300 rounded-xl shadow-2xl overflow-hidden">
                     {/* Search */}
-                    <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-800">
-                        <Search className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+                    <div className="flex items-center gap-2 border-b border-slate-100 px-3 py-2">
+                        <Search className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <input
                             id="fs-search"
                             type="text"
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             placeholder="Search fonts..."
-                            className="flex-1 bg-transparent text-white text-sm placeholder-gray-600 focus:outline-none"
+                            className="flex-1 bg-transparent text-slate-800 text-sm placeholder-slate-400 focus:outline-none"
                         />
                         {search && (
-                            <button type="button" onClick={() => setSearch('')} className="text-gray-500 hover:text-white shrink-0">
+                            <button type="button" onClick={() => setSearch('')} className="text-slate-400 hover:text-slate-700 shrink-0">
                                 <XIcon className="w-3.5 h-3.5" />
                             </button>
                         )}
@@ -164,7 +164,7 @@ function FontSelect({ value, onChange }: { value: string; onChange: (f: string) 
                                             'w-full text-left px-4 py-2.5 text-sm transition-colors',
                                             value === fontName
                                                 ? 'bg-amber-500/10 text-amber-400'
-                                                : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                                                : 'text-gray-300 hover:bg-slate-50 hover:text-white'
                                         )}
                                     >
                                         <span style={{ fontFamily: fontName }}>{fontName}</span>
@@ -181,8 +181,8 @@ function FontSelect({ value, onChange }: { value: string; onChange: (f: string) 
 
             {/* Live Preview */}
             {value && (
-                <div className="mt-2 p-3 bg-white/2 border border-gray-800 rounded-xl">
-                    <p style={{ fontFamily: value }} className="text-white text-lg">Aa Bb Cc 123</p>
+                <div className="mt-2 p-3 bg-white border border-slate-200 rounded-xl">
+                    <p style={{ fontFamily: value }} className="text-slate-800 text-lg">Aa Bb Cc 123</p>
                     <p style={{ fontFamily: value }} className="text-gray-400 text-sm mt-0.5">
                         The quick brown fox jumps over the lazy dog.
                     </p>
@@ -227,7 +227,7 @@ function LogoDrop({ value, onChange }: { value: string; onChange: (url: string) 
         if (file) doUpload(file)
     }
 
-    const imgSrc = value ? (value.startsWith('/') && !value.startsWith('//') ? `/api${value}` : value) : null
+    const imgSrc = value ? (value.startsWith('/') && !value.startsWith('/api') && !value.startsWith('//') ? `/api${value}` : value) : null
 
     return (
         <div className="space-y-2">
@@ -241,7 +241,7 @@ function LogoDrop({ value, onChange }: { value: string; onChange: (url: string) 
                     'relative w-full h-28 rounded-2xl border-2 border-dashed cursor-pointer transition-all flex items-center justify-center overflow-hidden group',
                     dragging
                         ? 'border-amber-500 bg-amber-500/5 scale-[1.01]'
-                        : 'border-gray-700 hover:border-amber-500/40 bg-white/2'
+                        : 'border-slate-300 hover:border-amber-500/40 bg-white/2'
                 )}
             >
                 {uploading ? (
@@ -252,9 +252,9 @@ function LogoDrop({ value, onChange }: { value: string; onChange: (url: string) 
                 ) : imgSrc ? (
                     <>
                         <img src={imgSrc} alt="logo" className="max-h-20 max-w-full object-contain" onError={e => (e.currentTarget.style.display = 'none')} />
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
+                        <div className="absolute inset-0 bg-slate-800/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
                             <Upload className="w-5 h-5 text-white" />
-                            <span className="text-white text-xs font-bold">Drag & drop or click to replace</span>
+                            <span className="text-slate-700 text-xs font-bold">Drag & drop or click to replace</span>
                         </div>
                     </>
                 ) : (
@@ -274,7 +274,7 @@ function LogoDrop({ value, onChange }: { value: string; onChange: (url: string) 
                 value={value}
                 onChange={e => onChange(e.target.value)}
                 placeholder="Or paste a URL..."
-                className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2 text-white text-xs placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
+                className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-slate-800 text-xs placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all"
             />
             <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={e => {
                 const file = e.target.files?.[0]
@@ -287,49 +287,58 @@ function LogoDrop({ value, onChange }: { value: string; onChange: (url: string) 
 
 // Section config
 const SECTIONS = [
-    { key: 'general',    label: 'General',      icon: Store,   fields: ['site_name','site_tagline','currency_symbol'] },
-    { key: 'contact',    label: 'Contact',       icon: Phone,   fields: ['phone','whatsapp','email','address'] },
-    { key: 'social',     label: 'Social Media',  icon: Share2,  fields: ['social_facebook','social_instagram','social_youtube','social_twitter'] },
-    { key: 'branding',   label: 'Branding',      icon: Palette, fields: ['theme_color','logo_url','favicon_url'] },
-    { key: 'typography', label: 'Typography',    icon: Type,    fields: ['font_heading','font_body'] },
+    { key: 'general',    label: 'General',      icon: Store,       fields: ['site_name','site_tagline','currency_symbol'] },
+    { key: 'contact',    label: 'Contact',       icon: Phone,       fields: ['phone','whatsapp','email','address'] },
+    { key: 'social',     label: 'Social Media',  icon: Share2,      fields: ['social_facebook','social_instagram','social_youtube','social_twitter'] },
+    { key: 'branding',   label: 'Branding',      icon: Palette,     fields: ['theme_color','logo_url','favicon_url'] },
+    { key: 'typography', label: 'Typography',    icon: Type,        fields: ['font_heading','font_body'] },
+    { key: 'payment',    label: 'Payment',       icon: CreditCard,  fields: ['cod_enabled','razorpay_display_name','razorpay_key_id','razorpay_key_secret'] },
 ] as const
 
 const FIELD_LABELS: Record<string, string> = {
-    site_name:        'Site Name',
-    site_tagline:     'Tagline',
-    currency_symbol:  'Currency Symbol',
-    logo_url:         'Logo URL',
-    favicon_url:      'Favicon URL',
-    phone:            'Phone Number',
-    whatsapp:         'WhatsApp Number',
-    email:            'Email Address',
-    address:          'Address',
-    social_facebook:  'Facebook URL',
-    social_instagram: 'Instagram URL',
-    social_youtube:   'YouTube URL',
-    social_twitter:   'Twitter / X URL',
-    theme_color:      'Theme Color (hex)',
-    header_bg:        'Header Background',
-    footer_bg:        'Footer Background',
-    font_heading:     'Heading Font',
-    font_body:        'Body Font',
+    site_name:               'Site Name',
+    site_tagline:            'Tagline',
+    currency_symbol:         'Currency Symbol',
+    logo_url:                'Logo URL',
+    favicon_url:             'Favicon URL',
+    phone:                   'Phone Number',
+    whatsapp:                'WhatsApp Number',
+    email:                   'Email Address',
+    address:                 'Address',
+    social_facebook:         'Facebook URL',
+    social_instagram:        'Instagram URL',
+    social_youtube:          'YouTube URL',
+    social_twitter:          'Twitter / X URL',
+    theme_color:             'Theme Color (hex)',
+    header_bg:               'Header Background',
+    footer_bg:               'Footer Background',
+    font_heading:            'Heading Font',
+    font_body:               'Body Font',
+    cod_enabled:             'Enable Cash on Delivery (COD)',
+    razorpay_display_name:   'Business Display Name',
+    razorpay_key_id:         'Razorpay Key ID (public)',
+    razorpay_key_secret:     'Razorpay Key Secret (private)',
 }
 
 const FIELD_PLACEHOLDERS: Record<string, string> = {
-    site_name:        'UNIKQ LABEL',
-    site_tagline:     'Premium Fashion • Everyday Royalty',
-    currency_symbol:  '₹',
-    phone:            '+91 98765 43210',
-    whatsapp:         '+91 98765 43210',
-    email:            'hello@unikqlabel.com',
-    address:          '123, Main Street, City',
-    social_facebook:  'https://facebook.com/...',
-    social_instagram: 'https://instagram.com/...',
-    social_youtube:   'https://youtube.com/...',
-    social_twitter:   'https://twitter.com/...',
-    theme_color:      '#f59e0b',
-    font_heading:     'Playfair Display',
-    font_body:        'Poppins',
+    site_name:              'KoffeeKup',
+    site_tagline:           'Premium Coffee & Delights',
+    currency_symbol:        '₹',
+    phone:                  '+91 98765 43210',
+    whatsapp:               '+91 98765 43210',
+    email:                  'hello@koffeekup.com',
+    address:                '123, Main Street, City',
+    social_facebook:        'https://facebook.com/...',
+    social_instagram:       'https://instagram.com/...',
+    social_youtube:         'https://youtube.com/...',
+    social_twitter:         'https://twitter.com/...',
+    theme_color:            '#f59e0b',
+    font_heading:           'Playfair Display',
+    font_body:              'Poppins',
+    cod_enabled:            '1',
+    razorpay_display_name:  'Koffeekup',
+    razorpay_key_id:        'rzp_live_xxxxxxxxxxxx',
+    razorpay_key_secret:    'Leave blank to keep existing secret',
 }
 
 function FieldInput({
@@ -341,6 +350,60 @@ function FieldInput({
     value: string
     onChange: (val: string) => void
 }) {
+    if (fieldKey === 'cod_enabled') {
+        const isEnabled = value === '1' || value === 'true';
+        return (
+            <div className="flex items-center gap-3">
+                <button
+                    type="button"
+                    onClick={() => onChange(isEnabled ? '0' : '1')}
+                    className={cn(
+                        "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none",
+                        isEnabled ? "bg-amber-500" : "bg-slate-300"
+                    )}
+                >
+                    <span
+                        className={cn(
+                            "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ease-in-out",
+                            isEnabled ? "translate-x-5" : "translate-x-0"
+                        )}
+                    />
+                </button>
+                <span className="text-xs text-gray-400">
+                    {isEnabled ? 'COD option will be shown on Checkout page' : 'COD option will be hidden on Checkout page'}
+                </span>
+            </div>
+        )
+    }
+
+    if (fieldKey === 'razorpay_key_secret') {
+        const isMasked = value === '••••••••'
+        return (
+            <div className="space-y-1.5">
+                <input
+                    type="password"
+                    value={value}
+                    onChange={e => onChange(e.target.value)}
+                    placeholder="Enter new secret to update…"
+                    autoComplete="new-password"
+                    className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all font-mono"
+                />
+                {isMasked && (
+                    <p className="text-green-500 text-xs flex items-center gap-1.5">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
+                        Secret is configured — leave unchanged to keep it
+                    </p>
+                )}
+                {!isMasked && value && (
+                    <p className="text-amber-400 text-xs flex items-center gap-1.5">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+                        New secret will be saved on next Save
+                    </p>
+                )}
+            </div>
+        )
+    }
+
     if (fieldKey === 'theme_color') {
         const handleColorChange = (newColor: string) => {
             onChange(newColor)
@@ -353,7 +416,7 @@ function FieldInput({
                     className="w-10 h-10 rounded-lg cursor-pointer border-0 bg-transparent p-0.5" />
                 <input type="text" value={value} onChange={e => handleColorChange(e.target.value)}
                     placeholder="#f59e0b"
-                    className="flex-1 bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm font-mono placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
+                    className="flex-1 bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm font-mono placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all"
                 />
             </div>
         )
@@ -371,7 +434,7 @@ function FieldInput({
         return (
             <textarea rows={2} value={value} onChange={e => onChange(e.target.value)}
                 placeholder={FIELD_PLACEHOLDERS[fieldKey] || ''}
-                className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all resize-none"
+                className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all resize-none"
             />
         )
     }
@@ -379,7 +442,7 @@ function FieldInput({
     return (
         <input type="text" value={value} onChange={e => onChange(e.target.value)}
             placeholder={FIELD_PLACEHOLDERS[fieldKey] || ''}
-            className="w-full bg-white/4 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
+            className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all"
         />
     )
 }
@@ -462,11 +525,11 @@ export default function AdminSettingsPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
-                    <h1 className="text-2xl font-black text-white">Global Settings</h1>
+                    <h1 className="text-2xl font-black text-slate-900">Global Settings</h1>
                     <p className="text-gray-500 text-sm mt-1">Control your site-wide configuration</p>
                 </div>
                 <div className="flex gap-2">
-                    <button onClick={load} className="flex items-center gap-2 px-3 py-2.5 border border-gray-700 text-gray-400 text-sm font-bold rounded-xl hover:border-gray-600 hover:text-white transition-all">
+                    <button onClick={load} className="flex items-center gap-2 px-3 py-2.5 border border-slate-300 text-gray-400 text-sm font-bold rounded-xl hover:border-gray-600 hover:text-slate-900 transition-all">
                         <RefreshCw className="w-4 h-4" />Reset
                     </button>
                     <button onClick={handleSave} disabled={saving || !dirty}
@@ -494,7 +557,7 @@ export default function AdminSettingsPage() {
                                     'flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-bold transition-all text-left',
                                     activeSection === s.key
                                         ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
-                                        : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
+                                        : 'text-gray-400 hover:text-slate-900 hover:bg-slate-50 border border-transparent'
                                 )}>
                                 <Icon className="w-4 h-4 shrink-0" />
                                 <span className="hidden sm:inline md:inline">{s.label}</span>
@@ -504,10 +567,10 @@ export default function AdminSettingsPage() {
                 </div>
 
                 {/* Form panel */}
-                <div className="flex-1 bg-[#0e0e0e] border border-gray-800 rounded-2xl p-5">
-                    <div className="flex items-center gap-2 mb-5 pb-4 border-b border-gray-800">
+                <div className="flex-1 bg-[#F8F9FD] border border-slate-200 rounded-2xl p-5">
+                    <div className="flex items-center gap-2 mb-5 pb-4 border-b border-slate-200">
                         <currentSection.icon className="w-5 h-5 text-amber-500" />
-                        <h2 className="text-white font-black">{currentSection.label}</h2>
+                        <h2 className="text-slate-900 font-black">{currentSection.label}</h2>
                     </div>
 
                     <div className="space-y-5">
@@ -526,13 +589,13 @@ export default function AdminSettingsPage() {
 
                         {/* Typography preview */}
                         {activeSection === 'typography' && (
-                            <div className="mt-5 p-4 bg-white/2 rounded-xl border border-gray-800">
+                            <div className="mt-5 p-4 bg-slate-50 rounded-xl border border-slate-200">
                                 <p className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-3">Preview</p>
-                                <p style={{ fontFamily: form.font_heading || 'Playfair Display' }} className="text-white text-xl mb-1">
-                                    {form.site_name || 'UNIKQ LABEL'}
+                                <p style={{ fontFamily: form.font_heading || 'Playfair Display' }} className="text-slate-800 text-xl mb-1">
+                                    {form.site_name || 'KoffeeKup'}
                                 </p>
                                 <p style={{ fontFamily: form.font_body || 'Poppins' }} className="text-gray-400 text-sm">
-                                    {form.site_tagline || 'Premium Fashion • Everyday Royalty'}
+                                    {form.site_tagline || 'Premium Coffee & Delights'}
                                 </p>
                                 <p className="text-gray-600 text-xs mt-2">Fonts from Google Fonts — applied live on the site</p>
                             </div>
@@ -540,24 +603,37 @@ export default function AdminSettingsPage() {
 
                         {/* Branding preview with theme color */}
                         {activeSection === 'branding' && (
-                            <div className="mt-5 p-4 bg-white/2 rounded-xl border border-gray-800">
+                            <div className="mt-5 p-4 bg-slate-50 rounded-xl border border-slate-200">
                                 <p className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-3">Theme Preview</p>
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-3">
                                         <div className="w-12 h-12 rounded-lg border-2" style={{ backgroundColor: form.theme_color || '#f59e0b', borderColor: form.theme_color || '#f59e0b' }} />
                                         <div>
-                                            <p className="text-white text-sm font-bold">Theme Color</p>
+                                            <p className="text-slate-800 text-sm font-bold">Theme Color</p>
                                             <p className="text-gray-500 text-xs">{form.theme_color || '#f59e0b'}</p>
                                         </div>
                                     </div>
                                     <div className="p-3 rounded-lg" style={{ backgroundColor: (form.theme_color || '#f59e0b') + '10', borderLeft: `3px solid ${form.theme_color || '#f59e0b'}` }}>
-                                        <p className="text-white text-sm font-bold">Sample Button</p>
+                                        <p className="text-slate-800 text-sm font-bold">Sample Button</p>
                                         <button className="mt-2 px-4 py-2 rounded-lg text-white font-bold text-sm transition-all hover:opacity-80" style={{ backgroundColor: form.theme_color || '#f59e0b' }}>
                                             Learn More
                                         </button>
                                     </div>
                                 </div>
                                 <p className="text-gray-600 text-xs mt-3">Theme color changes apply globally to admin and frontend after save</p>
+                            </div>
+                        )}
+                        {/* Payment gateway info */}
+                        {activeSection === 'payment' && (
+                            <div className="mt-5 p-4 bg-amber-500/5 rounded-xl border border-amber-500/20">
+                                <div className="flex items-start gap-3">
+                                    <CreditCard className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                                    <div className="space-y-1.5">
+                                        <p className="text-amber-400 text-xs font-bold">Razorpay Credentials</p>
+                                        <p className="text-gray-400 text-xs">Key ID starts with <span className="font-mono text-amber-600">rzp_live_</span> (production) or <span className="font-mono text-amber-600">rzp_test_</span> (test mode).</p>
+                                        <p className="text-gray-500 text-xs">The Key Secret is stored encrypted server-side and is never exposed to the browser. You can update it by typing a new value.</p>
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>

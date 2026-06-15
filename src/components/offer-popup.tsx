@@ -87,7 +87,7 @@ export function OfferPopup() {
     if (!popup || !mounted) return null
 
     const imageUrl = popup.image
-        ? popup.image.startsWith('/') ? `/api${popup.image}` : popup.image
+        ? popup.image.startsWith('/') && !popup.image.startsWith('/api') ? `/api${popup.image}` : popup.image
         : null
 
     const hasItems = popup.items && popup.items.length > 0
@@ -142,7 +142,7 @@ export function OfferPopup() {
                         <div className="mt-4 mb-4 space-y-2 max-h-56 overflow-y-auto">
                             {popup.items.map((item, idx) => {
                                 const itemImageUrl = item.image
-                                    ? item.image.startsWith('/') ? `/api${item.image}` : item.image
+                                    ? item.image.startsWith('/') && !item.image.startsWith('/api') ? `/api${item.image}` : item.image
                                     : null
 
                                 return (

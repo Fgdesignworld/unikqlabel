@@ -36,30 +36,59 @@ export interface Product {
 }
 
 export const products: Product[] = [
-  // Snacks & Sweets
   {
-    id: "nethi-sunnunda",
-    name: "Nethi Sunnunda",
-    price: 1000,
-    weight: "1kg",
-    image: "/images/nethi-sunnunda.jpg",
-    category: "limited",
-    description: "Traditional urad dal sweet with pure ghee",
+    id: "ashwagandha-cookies",
+    name: "Ashwagandha Cookies",
+    price: 450,
+    weight: "400g",
+    image: "/images/pv2.png", // Main luxury pack render
+    category: "cookies",
+    description: "Ancient wellness meets modern indulgence. Infused with premium Ashwagandha root extract to ease stress and enhance cognitive clarity. Rich, melt-in-your-mouth flavor.",
     rating: 4.9,
     bestseller: true,
+    numericId: 48,
     variants: [
-      { weight: "250g", price: 300 },
-      { weight: "500g", price: 550 },
-      { weight: "1kg", price: 1000 },
+      { weight: "400g", price: 450 },
+      { weight: "800g", price: 800 },
+    ],
+  },
+  {
+    id: "shilajit-cookies",
+    name: "Shilajit Cookies",
+    price: 499,
+    weight: "400g",
+    image: "/images/pv2.png", // Main luxury pack render
+    category: "cookies",
+    description: "Fuel your daily energy, stamina, and vitality. Infused with pure Himalayan Shilajit and healthy fats, these cookies provide clean, slow-burning strength.",
+    rating: 5.0,
+    bestseller: true,
+    numericId: 47,
+    variants: [
+      { weight: "400g", price: 499 },
+      { weight: "800g", price: 900 },
+    ],
+  },
+  {
+    id: "whey-protein-cookies",
+    name: "Whey Protein Cookies",
+    price: 399,
+    weight: "400g",
+    image: "/images/pv2.png", // Main luxury pack render
+    category: "cookies",
+    description: "Designed for recovery and active lifestyles. Packaged with 10g of pure whey protein per serving, dark chocolate chips, and gluten-free ragi.",
+    rating: 4.8,
+    bestseller: true,
+    numericId: 46,
+    variants: [
+      { weight: "400g", price: 399 },
+      { weight: "800g", price: 720 },
     ],
   }
 ]
 
 export const categories = [
-  { id: "men", name: "Men Collection",        description: "Premium menswear" },
-  { id: "women", name: "Women Collection",    description: "Elegant womenswear" },
-  { id: "unisex", name: "Unisex Collection",  description: "Unisex streetwear" },
-  // { id: "limited", name: "Limited Drops",     description: "Exclusive editions" },
+  { id: "cookies", name: "Wellness Cookies",        description: "Premium wellness cookies" },
+  { id: "limited", name: "Limited Drops",    description: "Exclusive batch drops" },
 ]
 
 export function getProductsByCategory(category: string): Product[] {

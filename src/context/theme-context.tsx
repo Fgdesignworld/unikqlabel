@@ -17,10 +17,10 @@ const ThemeContext = createContext<ThemeContextType>({
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
     try {
-      const stored = localStorage.getItem('unikq-theme')
+      const stored = localStorage.getItem('koffeekup-theme')
       if (stored === 'light' || stored === 'dark') return stored as Theme
     } catch {}
-    return 'dark'
+    return 'light'
   })
 
   useEffect(() => {
@@ -30,37 +30,41 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     // Imperatively set CSS variables so inline `style` props using var() also flip
     const vars = theme === 'light'
       ? {
-          '--background':    '#faf7f2',
-          '--foreground':    '#1a1714',
-          '--surface-page':  '#faf7f2',
-          '--surface-card':  '#ffffff',
-          '--surface-alt':   '#f5f1ea',
-          '--text-primary':  '#1a1714',
-          '--text-muted':    'rgba(26,23,20,0.65)',
-          '--text-dim':      'rgba(26,23,20,0.55)',
-          '--text-subtle':   'rgba(26,23,20,0.50)',
-          '--text-faint':    'rgba(26,23,20,0.45)',
-          '--text-ghost':    'rgba(26,23,20,0.35)',
-          '--text-trace':    'rgba(26,23,20,0.30)',
+          '--background':    '#F8F3EA',
+          '--foreground':    '#2A2A2A',
+          '--surface-page':  '#F8F3EA',
+          '--surface-card':  '#F5EBDD',
+          '--surface-alt':   '#FFF9F2',
+          '--text-primary':  '#2A2A2A',
+          '--text-muted':    '#6F6A63',
+          '--text-dim':      'rgba(42, 42, 42, 0.70)',
+          '--text-subtle':   'rgba(42, 42, 42, 0.60)',
+          '--text-faint':    'rgba(42, 42, 42, 0.50)',
+          '--text-ghost':    'rgba(42, 42, 42, 0.40)',
+          '--text-trace':    'rgba(42, 42, 42, 0.30)',
+          '--drop-shadow':   'rgba(26, 23, 20, 0.15)',
+          '--card-shadow':   '0 20px 40px -15px rgba(26, 23, 20, 0.08)',
         }
       : {
-          '--background':    '#0D0D0D',
-          '--foreground':    '#F5F0E8',
-          '--surface-page':  '#0D0D0D',
-          '--surface-card':  '#111111',
-          '--surface-alt':   '#1a1a1a',
-          '--text-primary':  '#F5F0E8',
-          '--text-muted':    'rgba(245,240,232,0.65)',
-          '--text-dim':      'rgba(245,240,232,0.55)',
-          '--text-subtle':   'rgba(245,240,232,0.50)',
-          '--text-faint':    'rgba(245,240,232,0.45)',
-          '--text-ghost':    'rgba(245,240,232,0.35)',
-          '--text-trace':    'rgba(245,240,232,0.30)',
+          '--background':    '#151515',
+          '--foreground':    '#F8F3EA',
+          '--surface-page':  '#151515',
+          '--surface-card':  '#1E1E1E',
+          '--surface-alt':   '#252525',
+          '--text-primary':  '#F8F3EA',
+          '--text-muted':    'rgba(248, 243, 234, 0.70)',
+          '--text-dim':      'rgba(248, 243, 234, 0.60)',
+          '--text-subtle':   'rgba(248, 243, 234, 0.50)',
+          '--text-faint':    'rgba(248, 243, 234, 0.45)',
+          '--text-ghost':    'rgba(248, 243, 234, 0.35)',
+          '--text-trace':    'rgba(248, 243, 234, 0.30)',
+          '--drop-shadow':   'rgba(0, 0, 0, 0.65)',
+          '--card-shadow':   '0 30px 60px -15px rgba(0, 0, 0, 0.5)',
         }
 
     Object.entries(vars).forEach(([k, v]) => html.style.setProperty(k, v))
 
-    try { localStorage.setItem('unikq-theme', theme) } catch {}
+    try { localStorage.setItem('koffeekup-theme', theme) } catch {}
   }, [theme])
 
   const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark')

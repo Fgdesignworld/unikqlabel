@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom'
@@ -52,7 +52,7 @@ function StatusChip({ label, variant }: { label: string; variant: 'ok' | 'low' |
     ok:   'bg-green-500/10 border-green-500/25 text-green-400',
     low:  'bg-amber-500/10 border-amber-500/25 text-amber-400',
     oos:  'bg-red-500/10   border-red-500/25   text-red-400',
-    none: 'bg-gray-800     border-gray-700     text-gray-500',
+    none: 'bg-gray-800     border-slate-300     text-gray-500',
   }
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-black uppercase tracking-wide ${styles[variant]}`}>
@@ -65,13 +65,13 @@ function StatCard({ icon: Icon, label, value, sub, color }: {
   icon: React.ElementType; label: string; value: number | string; sub?: string; color: string
 }) {
   return (
-    <div className={`flex items-start gap-3 p-4 rounded-2xl border bg-[#111] ${color}`}>
+    <div className={`flex items-start gap-3 p-4 rounded-2xl border bg-slate-50 ${color}`}>
       <div className={`p-2 rounded-xl border ${color} shrink-0`}>
         <Icon className="w-4 h-4" />
       </div>
       <div className="min-w-0">
         <p className="text-[10px] font-black uppercase tracking-widest text-gray-600 mb-0.5">{label}</p>
-        <p className="text-2xl font-black text-white leading-none">{value}</p>
+        <p className="text-2xl font-black text-slate-900 leading-none">{value}</p>
         {sub && <p className="text-[11px] text-gray-600 mt-0.5">{sub}</p>}
       </div>
     </div>
@@ -166,17 +166,17 @@ function InventoryDrawer({
   const inStockCount = combos.length - oosCount
 
   return (
-    <div className="fixed inset-0 z-50 flex">
-      <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="w-[60%] min-w-[480px] max-w-4xl bg-[#0c0c0c] border-l border-gray-800 flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-60 flex">
+      <div className="flex-1 bg-slate-800/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="w-full md:w-[60%] md:min-w-[480px] md:max-w-4xl bg-white border-l border-slate-200 flex flex-col overflow-hidden">
 
         {/* Header */}
-        <div className="flex items-center gap-4 px-6 py-4 border-b border-gray-800 shrink-0">
+        <div className="flex items-center gap-4 px-6 py-4 border-b border-slate-200 shrink-0">
           <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/10 shrink-0">
             <img src={resolveImg(product.image)} alt={product.name} className="w-full h-full object-cover" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-white font-black text-lg leading-tight truncate">{product.name}</h2>
+            <h2 className="text-slate-900 font-black text- leading-tight truncate">{product.name}</h2>
             <div className="flex items-center gap-3 mt-0.5">
               <p className="text-xs text-gray-500 capitalize">{product.category} · ID {product.id}</p>
               <Link
@@ -188,13 +188,13 @@ function InventoryDrawer({
               </Link>
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors p-2 rounded-xl hover:bg-white/5 shrink-0">
+          <button onClick={onClose} className="text-gray-500 hover:text-slate-900 transition-colors p-2 rounded-xl hover:bg-slate-50 shrink-0">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Live stat bar */}
-        <div className="grid grid-cols-4 gap-3 px-6 py-4 border-b border-gray-800/50 shrink-0">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 px-6 py-4 border-b border-slate-200/80 shrink-0">
           <StatCard icon={Boxes}        label="Total Stock"  value={totalStock}    sub="all variants"           color="border-amber-500/20  text-amber-400"  />
           <StatCard icon={CheckCircle2} label="In Stock"     value={inStockCount}  sub={`of ${combos.length}`}  color="border-green-500/20  text-green-400"  />
           <StatCard icon={XCircle}      label="Out of Stock" value={oosCount}      sub="variants"               color="border-red-500/20    text-red-400"    />
@@ -204,7 +204,7 @@ function InventoryDrawer({
         {/* Variant table */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {combos.length === 0 ? (
-            <div className="text-center py-16 border border-dashed border-gray-800 rounded-2xl">
+            <div className="text-center py-16 border border-dashed border-slate-200 rounded-2xl">
               <Layers className="w-10 h-10 mx-auto text-gray-800 mb-3" />
               <p className="text-gray-500 text-sm font-bold">No variants configured</p>
               <p className="text-gray-700 text-xs mt-1">Add size or colour variants to the product first.</p>
@@ -212,14 +212,14 @@ function InventoryDrawer({
           ) : (
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-800">
+                <tr className="border-b border-slate-200">
                   {sizes.length  > 0 && <th className="text-left pb-3 pr-4 text-[10px] font-black uppercase tracking-widest text-gray-600">Size</th>}
                   {colors.length > 0 && <th className="text-left pb-3 pr-4 text-[10px] font-black uppercase tracking-widest text-gray-600">Color</th>}
                   <th className="text-left pb-3 pr-6 text-[10px] font-black uppercase tracking-widest text-gray-600">Stock</th>
                   <th className="text-left pb-3 text-[10px] font-black uppercase tracking-widest text-gray-600">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800/40">
+              <tbody className="divide-y divide-slate-200/40">
                 {combos.map(combo => {
                   const stock = localMap[combo.key] ?? 0
                   const isOos = stock === 0
@@ -239,7 +239,7 @@ function InventoryDrawer({
                           {combo.color ? (
                             <div className="flex items-center gap-2">
                               {cv && <span className="w-3.5 h-3.5 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: cv.hex }} />}
-                              <span className="text-white text-sm font-semibold">{combo.color}</span>
+                              <span className="text-slate-800 text-sm font-semibold">{combo.color}</span>
                             </div>
                           ) : <span className="text-gray-600 text-xs">-</span>}
                         </td>
@@ -256,7 +256,7 @@ function InventoryDrawer({
                               ? 'bg-red-500/10 border border-red-500/30 text-red-300 focus:border-red-400'
                               : isLow
                               ? 'bg-amber-500/10 border border-amber-500/30 text-amber-300 focus:border-amber-400'
-                              : 'bg-[#0a0a0a] border border-gray-800 text-white focus:border-amber-500/50',
+                              : 'bg-[#F4F6FB] border border-slate-200 text-slate-800 focus:border-amber-500/50',
                           )}
                         />
                       </td>
@@ -289,7 +289,7 @@ function InventoryDrawer({
         </div>
 
         {/* Footer */}
-        <div className="shrink-0 px-6 py-4 border-t border-gray-800 flex items-center justify-between gap-4">
+        <div className="shrink-0 px-6 py-4 border-t border-slate-200 flex items-center justify-between gap-4">
           <p className="text-[11px] text-gray-600">
             {dirty ? <span className="text-amber-400 font-bold">Unsaved changes</span> : 'All changes saved'}
           </p>
@@ -300,7 +300,7 @@ function InventoryDrawer({
               'flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black transition-all',
               dirty && !saving
                 ? 'bg-amber-500 hover:bg-amber-400 text-black'
-                : 'bg-white/5 border border-gray-800 text-gray-600 cursor-not-allowed',
+                : 'bg-white border border-slate-200 text-gray-600 cursor-not-allowed',
             )}
           >
             {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -398,7 +398,7 @@ export default function AdminInventoryPage() {
       {/* Page header */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-black text-white flex items-center gap-2.5">
+          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2.5">
             <Boxes className="w-6 h-6 text-amber-500" /> Inventory
           </h1>
           {lastUpdated && (
@@ -410,7 +410,7 @@ export default function AdminInventoryPage() {
         <button
           onClick={() => load(true)}
           disabled={refreshing}
-          className="flex items-center gap-2 px-4 py-2 bg-[#111] border border-gray-800 hover:border-amber-500/30 text-white text-sm font-bold rounded-xl transition-all"
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:border-amber-500/30 text-slate-800 text-sm font-bold rounded-xl transition-all"
         >
           <RefreshCw className={cn('w-4 h-4', refreshing && 'animate-spin text-amber-500')} />
           Refresh
@@ -427,7 +427,7 @@ export default function AdminInventoryPage() {
 
       {/* Global stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard icon={Package}      label="Total Products"  value={totalProducts}   sub="in catalog"          color="border-gray-700      text-gray-400"   />
+        <StatCard icon={Package}      label="Total Products"  value={totalProducts}   sub="in catalog"          color="border-slate-300      text-gray-400"   />
         <StatCard icon={Boxes}        label="Total Stock"     value={globalStock}     sub="units across all"    color="border-amber-500/20  text-amber-400"  />
         <StatCard icon={XCircle}      label="OOS Products"    value={productsWithOos} sub="need restocking"     color="border-red-500/20    text-red-400"    />
         <StatCard icon={TrendingDown} label="Low Stock"       value={productsWithLow} sub="has <=10 unit variant" color="border-orange-500/20 text-orange-400" />
@@ -442,7 +442,7 @@ export default function AdminInventoryPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search products..."
-            className="w-full bg-[#111] border border-gray-800 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white placeholder-gray-600 outline-none focus:border-amber-500/40 transition-all"
+            className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-amber-500/40 transition-all"
           />
         </div>
         {([
@@ -458,7 +458,7 @@ export default function AdminInventoryPage() {
               'px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wide border transition-all',
               filterStatus === f.key
                 ? f.active
-                : 'bg-transparent border-gray-800 text-gray-600 hover:border-gray-700 hover:text-gray-400',
+                : 'bg-transparent border-slate-200 text-gray-600 hover:border-slate-300 hover:text-gray-400',
             )}
           >
             {f.label}
@@ -467,89 +467,143 @@ export default function AdminInventoryPage() {
       </div>
 
       {/* Products table */}
-      <div className="bg-[#0c0c0c] border border-gray-800 rounded-2xl overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
         {filtered.length === 0 ? (
           <div className="text-center py-16 text-gray-600 text-sm">
             {search ? `No products match "${search}"` : 'No products found.'}
           </div>
         ) : (
-          <table className="w-full">
-            <thead className="border-b border-gray-800">
-              <tr>
-                <th className="text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest text-gray-600">Product</th>
-                <th className="text-center px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-600">Variants</th>
-                <th className="text-center px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-600">Total Stock</th>
-                <th className="text-center px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-600">OOS</th>
-                <th className="text-center px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-600">Low</th>
-                <th className="text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-600">Status</th>
-                <th className="text-right px-5 py-3 text-[10px] font-black uppercase tracking-widest text-gray-600">Action</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            {/* ── Mobile card list (< md) ── */}
+            <div className="md:hidden divide-y divide-slate-200/60">
               {filtered.map(s => {
                 const allOos = s.hasInventory && s.oosCount === s.variantCount && s.variantCount > 0
-                const stockColor = !s.hasInventory ? 'text-gray-600' : allOos ? 'text-red-400' : s.lowCount > 0 ? 'text-amber-400' : 'text-white'
+                const stockColor = !s.hasInventory ? 'text-gray-600' : allOos ? 'text-red-400' : s.lowCount > 0 ? 'text-amber-400' : 'text-slate-800'
                 return (
-                  <tr
+                  <div
                     key={s.product.id}
-                    className="border-b border-gray-800/60 hover:bg-white/[0.02] transition-colors cursor-pointer"
+                    className="flex items-center gap-3 p-4 active:bg-slate-50 transition-colors cursor-pointer"
                     onClick={() => setOpenId(s.product.id)}
                   >
-                    <td className="py-3 pl-5 pr-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 shrink-0 rounded-xl overflow-hidden border border-white/10">
-                          <img src={resolveImg(s.product.image)} alt={s.product.name} className="w-full h-full object-cover" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold text-white truncate">{s.product.name}</p>
-                          <p className="text-[11px] text-gray-600 capitalize">{s.product.category}</p>
-                        </div>
+                    <div className="w-12 h-12 shrink-0 rounded-xl overflow-hidden border border-white/10">
+                      <img src={resolveImg(s.product.image)} alt={s.product.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-slate-800 truncate">{s.product.name}</p>
+                      <p className="text-[11px] text-gray-600 capitalize mb-1">{s.product.category}</p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`text-xs font-black tabular-nums ${stockColor}`}>
+                          {s.hasInventory ? `${s.totalStock} pcs` : 'No data'}
+                        </span>
+                        {s.variantCount > 0 && (
+                          <span className="text-[10px] text-gray-600">{s.variantCount} variants</span>
+                        )}
+                        {!s.hasInventory ? (
+                          <StatusChip label="No data" variant="none" />
+                        ) : allOos ? (
+                          <StatusChip label="All OOS" variant="oos" />
+                        ) : s.oosCount > 0 ? (
+                          <StatusChip label={`${s.oosCount} OOS`} variant="oos" />
+                        ) : s.lowCount > 0 ? (
+                          <StatusChip label={`${s.lowCount} Low`} variant="low" />
+                        ) : (
+                          <StatusChip label="OK" variant="ok" />
+                        )}
                       </div>
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      <span className="text-sm font-bold text-gray-400">{s.variantCount || '-'}</span>
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      <span className={`text-lg font-black tabular-nums ${stockColor}`}>
-                        {s.hasInventory ? s.totalStock : '-'}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      {s.oosCount > 0
-                        ? <span className="text-sm font-bold text-red-400">{s.oosCount}</span>
-                        : <span className="text-sm text-gray-700">-</span>}
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      {s.lowCount > 0
-                        ? <span className="text-sm font-bold text-amber-400">{s.lowCount}</span>
-                        : <span className="text-sm text-gray-700">-</span>}
-                    </td>
-                    <td className="py-3 px-4">
-                      {!s.hasInventory ? (
-                        <StatusChip label="No data" variant="none" />
-                      ) : allOos ? (
-                        <StatusChip label="All OOS" variant="oos" />
-                      ) : s.oosCount > 0 ? (
-                        <StatusChip label={`${s.oosCount} OOS`} variant="oos" />
-                      ) : s.lowCount > 0 ? (
-                        <StatusChip label={`${s.lowCount} Low`} variant="low" />
-                      ) : (
-                        <StatusChip label="OK" variant="ok" />
-                      )}
-                    </td>
-                    <td className="py-3 pl-4 pr-5 text-right">
-                      <button
-                        onClick={e => { e.stopPropagation(); setOpenId(s.product.id) }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 rounded-lg text-xs font-bold transition-all"
-                      >
-                        <BarChart3 className="w-3.5 h-3.5" /> Manage
-                      </button>
-                    </td>
-                  </tr>
+                    </div>
+                    <button
+                      onClick={e => { e.stopPropagation(); setOpenId(s.product.id) }}
+                      className="shrink-0 flex items-center gap-1.5 px-3 py-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl text-xs font-bold"
+                    >
+                      <BarChart3 className="w-3.5 h-3.5" />
+                      <span className="hidden xs:inline">Manage</span>
+                    </button>
+                  </div>
                 )
               })}
-            </tbody>
-          </table>
+            </div>
+
+            {/* ── Desktop table (≥ md) ── */}
+            <div className="hidden md:block">
+              <table className="w-full">
+                <thead className="border-b border-slate-200">
+                  <tr>
+                    <th className="text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest text-gray-600">Product</th>
+                    <th className="text-center px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-600">Variants</th>
+                    <th className="text-center px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-600">Total Stock</th>
+                    <th className="text-center px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-600">OOS</th>
+                    <th className="text-center px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-600">Low</th>
+                    <th className="text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-600">Status</th>
+                    <th className="text-right px-5 py-3 text-[10px] font-black uppercase tracking-widest text-gray-600">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map(s => {
+                    const allOos = s.hasInventory && s.oosCount === s.variantCount && s.variantCount > 0
+                    const stockColor = !s.hasInventory ? 'text-gray-600' : allOos ? 'text-red-400' : s.lowCount > 0 ? 'text-amber-400' : 'text-slate-800'
+                    return (
+                      <tr
+                        key={s.product.id}
+                        className="border-b border-slate-200 hover:bg-white/[0.02] transition-colors cursor-pointer"
+                        onClick={() => setOpenId(s.product.id)}
+                      >
+                        <td className="py-3 pl-5 pr-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 shrink-0 rounded-xl overflow-hidden border border-white/10">
+                              <img src={resolveImg(s.product.image)} alt={s.product.name} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-bold text-slate-800 truncate">{s.product.name}</p>
+                              <p className="text-[11px] text-gray-600 capitalize">{s.product.category}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span className="text-sm font-bold text-gray-400">{s.variantCount || '-'}</span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span className={`text-lg font-black tabular-nums ${stockColor}`}>
+                            {s.hasInventory ? s.totalStock : '-'}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          {s.oosCount > 0
+                            ? <span className="text-sm font-bold text-red-400">{s.oosCount}</span>
+                            : <span className="text-sm text-gray-700">-</span>}
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          {s.lowCount > 0
+                            ? <span className="text-sm font-bold text-amber-400">{s.lowCount}</span>
+                            : <span className="text-sm text-gray-700">-</span>}
+                        </td>
+                        <td className="py-3 px-4">
+                          {!s.hasInventory ? (
+                            <StatusChip label="No data" variant="none" />
+                          ) : allOos ? (
+                            <StatusChip label="All OOS" variant="oos" />
+                          ) : s.oosCount > 0 ? (
+                            <StatusChip label={`${s.oosCount} OOS`} variant="oos" />
+                          ) : s.lowCount > 0 ? (
+                            <StatusChip label={`${s.lowCount} Low`} variant="low" />
+                          ) : (
+                            <StatusChip label="OK" variant="ok" />
+                          )}
+                        </td>
+                        <td className="py-3 pl-4 pr-5 text-right">
+                          <button
+                            onClick={e => { e.stopPropagation(); setOpenId(s.product.id) }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 rounded-lg text-xs font-bold transition-all"
+                          >
+                            <BarChart3 className="w-3.5 h-3.5" /> Manage
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

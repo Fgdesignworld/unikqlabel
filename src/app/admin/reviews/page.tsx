@@ -1,7 +1,8 @@
-﻿'use client'
+'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { createPortal } from 'react-dom'
 import {
   Star, Trash2, Check, X, Loader2, Filter,
   ShieldCheck, Clock, CheckCircle, XCircle, Plus, Pencil,
@@ -15,6 +16,7 @@ import {
 } from '@/services/reviewService'
 import { productService, type ApiProduct } from '@/services/productService'
 import { useToast } from '@/hooks/use-toast'
+import { AdminSelect } from '@/components/admin/AdminSelect'
 
 const STATUS_FILTERS = ['all', 'pending', 'approved', 'rejected'] as const
 type StatusFilter = (typeof STATUS_FILTERS)[number]
@@ -109,38 +111,54 @@ function ConfirmationDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onCancel}>
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    setMounted(true)
+    return () => setMounted(false)
+  }, [])
+
+  if (!mounted) return null
+
+  return createPortal(
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-[6px]"
+      onClick={onCancel}
+    >
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-sm bg-[#111] border border-gray-800 rounded-2xl p-6 shadow-2xl"
+        exit={{ opacity: 0, scale: 0.95, y: 16 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+        className="w-full max-w-sm bg-slate-50/95 border border-[#C9A45C]/20 rounded-2xl p-6 shadow-2xl shadow-[#C9A45C]/5 backdrop-blur-md"
         onClick={e => e.stopPropagation()}
       >
-        <h2 className="text-white font-black text-lg mb-2">{title}</h2>
+        <h2 className="text-slate-900 font-black text- mb-2 tracking-wide font-sans">{title}</h2>
         <p className="text-gray-400 text-sm mb-6 leading-relaxed">{message}</p>
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 py-2.5 rounded-xl text-sm font-bold border border-gray-700 text-gray-400 hover:text-white hover:border-gray-600 transition-all"
+            className="flex-1 py-2.5 rounded-xl text-sm font-bold border border-slate-200 text-gray-400 hover:text-slate-900 hover:border-gray-750 transition-all hover:bg-white/5"
           >
             {cancelText}
           </button>
           <button
             onClick={onConfirm}
             className={cn(
-              'flex-1 py-2.5 rounded-xl text-sm font-black transition-all',
+              'flex-1 py-2.5 rounded-xl text-sm font-black transition-all shadow-lg',
               isDangerous
                 ? 'bg-red-600 hover:bg-red-500 text-white'
-                : 'bg-amber-500 hover:bg-amber-400 text-black',
+                : 'bg-[#C9A45C] hover:bg-[#D4B16A] text-black shadow-[#C9A45C]/10',
             )}
           >
             {confirmText}
           </button>
         </div>
       </motion.div>
-    </div>
+    </motion.div>,
+    document.body
   )
 }
 
@@ -173,6 +191,13 @@ function ReviewFormModal({ mode, initial, products, onClose, onSaved }: ReviewFo
   const set = (k: keyof AdminReviewPayload, v: AdminReviewPayload[typeof k]) =>
     setForm(f => ({ ...f, [k]: v }))
 
+  const productOptions = useMemo(() => {
+    return products.map(p => ({
+      value: p.id,
+      label: p.name,
+    }))
+  }, [products])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.product_id || !form.name.trim() || !form.email.trim() || !form.comment.trim()) {
@@ -197,19 +222,34 @@ function ReviewFormModal({ mode, initial, products, onClose, onSaved }: ReviewFo
     }
   }
 
-  const inputCls = 'w-full bg-[#0d0d0d] border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-all appearance-none'
+  const inputCls = 'w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-500/50 transition-all appearance-none'
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onClose}>
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    setMounted(true)
+    return () => setMounted(false)
+  }, [])
+
+  if (!mounted) return null
+
+  return createPortal(
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-[6px]"
+      onClick={onClose}
+    >
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-lg bg-[#111] border border-gray-800 rounded-2xl p-6 shadow-2xl"
+        exit={{ opacity: 0, scale: 0.95, y: 16 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+        className="w-full max-w-lg bg-slate-50/95 border border-[#C9A45C]/20 rounded-2xl p-6 shadow-2xl shadow-[#C9A45C]/5 backdrop-blur-md"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-white font-black text-lg">
+          <h2 className="text-slate-900 font-black text- tracking-wide font-sans">
             {mode === 'create' ? 'Add Review' : 'Edit Review'}
           </h2>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-400 transition-all">
@@ -221,17 +261,12 @@ function ReviewFormModal({ mode, initial, products, onClose, onSaved }: ReviewFo
           {/* Product */}
           <div>
             <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-1.5">Product *</label>
-            <select
-              value={form.product_id}
-              onChange={e => set('product_id', Number(e.target.value))}
-              className={inputCls}
-              style={{ colorScheme: 'dark' }}
-            >
-              <option value={0} disabled>Select product...</option>
-              {products.map(p => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
+            <AdminSelect
+              value={form.product_id || ''}
+              onChange={val => set('product_id', Number(val))}
+              options={productOptions}
+              placeholder="Select product..."
+            />
           </div>
 
           {/* Name + Email */}
@@ -268,34 +303,43 @@ function ReviewFormModal({ mode, initial, products, onClose, onSaved }: ReviewFo
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-1.5">Status</label>
-              <select value={form.status} onChange={e => set('status', e.target.value as 'pending' | 'approved' | 'rejected')} className={inputCls} style={{ colorScheme: 'dark' }}>
-                <option value="approved">Approved</option>
-                <option value="pending">Pending</option>
-                <option value="rejected">Rejected</option>
-              </select>
+              <AdminSelect
+                value={form.status}
+                onChange={val => set('status', val as 'pending' | 'approved' | 'rejected')}
+                options={[
+                  { value: 'approved', label: 'Approved' },
+                  { value: 'pending', label: 'Pending' },
+                  { value: 'rejected', label: 'Rejected' },
+                ]}
+              />
             </div>
             <div>
               <label className="text-gray-400 text-xs font-bold uppercase tracking-wider block mb-1.5">Verified</label>
-              <select value={form.is_verified} onChange={e => set('is_verified', Number(e.target.value) as 0 | 1)} className={inputCls} style={{ colorScheme: 'dark' }}>
-                <option value={1}>Yes</option>
-                <option value={0}>No</option>
-              </select>
+              <AdminSelect
+                value={form.is_verified}
+                onChange={val => set('is_verified', Number(val) as 0 | 1)}
+                options={[
+                  { value: 1, label: 'Yes' },
+                  { value: 0, label: 'No' },
+                ]}
+              />
             </div>
           </div>
 
           {/* Actions */}
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-bold border border-gray-700 text-gray-400 hover:text-white hover:border-gray-600 transition-all">
+            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-bold border border-slate-300 text-gray-400 hover:text-slate-900 hover:border-gray-600 transition-all">
               Cancel
             </button>
-            <button type="submit" disabled={saving} className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-black bg-amber-500 hover:bg-amber-400 text-black transition-all disabled:opacity-50">
+            <button type="submit" disabled={saving} className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-black bg-[#C9A45C] hover:bg-[#D4B16A] text-black transition-all disabled:opacity-50 shadow-lg shadow-[#C9A45C]/10">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
               {saving ? 'Saving...' : (mode === 'create' ? 'Add Review' : 'Save Changes')}
             </button>
           </div>
         </form>
       </motion.div>
-    </div>
+    </motion.div>,
+    document.body
   )
 }
 
@@ -304,7 +348,7 @@ function ReviewSkeleton() {
   return (
     <div className="space-y-3">
       {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="bg-[#111] border border-gray-800 rounded-2xl p-5 animate-pulse">
+        <div key={i} className="bg-white border border-slate-200 rounded-2xl p-5 animate-pulse">
           <div className="flex items-start gap-3">
             <div className="w-9 h-9 rounded-full bg-gray-800 shrink-0" />
             <div className="flex-1 space-y-2">
@@ -330,22 +374,22 @@ function RevPagination({ page, lastPage, total, perPage, onPage }: {
   const start = Math.max(0, Math.min(page - 3, lastPage - 5))
   const pages = Array.from({ length: lastPage }, (_, i) => i + 1).slice(start, start + 5)
   return (
-    <div className="flex items-center justify-between pt-3 border-t border-gray-800/50">
+    <div className="flex items-center justify-between pt-3 border-t border-slate-200/80">
       <p className="text-xs text-gray-600">Showing {from}\u2013{to} of {total}</p>
       <div className="flex items-center gap-1">
         <button onClick={() => onPage(page - 1)} disabled={page === 1}
-          className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+          className="w-8 h-8 flex items-center justify-center rounded-xl border border-slate-200 text-gray-500 hover:text-slate-900 hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
           <ChevronLeft className="w-4 h-4" />
         </button>
         {pages.map(p => (
           <button key={p} onClick={() => onPage(p)}
             className={cn('w-8 h-8 rounded-xl text-xs font-black transition-all',
-              p === page ? 'bg-amber-500 text-black' : 'border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600')}>
+              p === page ? 'bg-amber-500 text-black' : 'border border-slate-200 text-gray-500 hover:text-slate-900 hover:border-gray-600')}>
             {p}
           </button>
         ))}
         <button onClick={() => onPage(page + 1)} disabled={page === lastPage}
-          className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-800 text-gray-500 hover:text-white hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+          className="w-8 h-8 flex items-center justify-center rounded-xl border border-slate-200 text-gray-500 hover:text-slate-900 hover:border-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -446,7 +490,7 @@ export default function AdminReviewsPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-black text-white">Reviews</h1>
+          <h1 className="text-2xl font-black text-slate-900">Reviews</h1>
           <p className="text-gray-500 text-sm mt-0.5">Manage customer product reviews</p>
         </div>
         <div className="flex items-center gap-3">
@@ -466,7 +510,7 @@ export default function AdminReviewsPage() {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-1 bg-[#111] border border-gray-800 rounded-2xl p-1 w-fit flex-wrap">
+      <div className="flex gap-1 bg-white border border-slate-200 rounded-2xl p-1 w-fit flex-wrap">
         {STATUS_FILTERS.map(s => (
           <button
             key={s}
@@ -499,7 +543,7 @@ export default function AdminReviewsPage() {
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.97 }}
-                className="bg-[#111] border border-gray-800 rounded-2xl p-5"
+                className="bg-white border border-slate-200 rounded-2xl p-5"
               >
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                   {/* Reviewer info */}
@@ -509,7 +553,7 @@ export default function AdminReviewsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                        <span className="text-white text-sm font-bold">{review.name}</span>
+                        <span className="text-slate-800 text-sm font-bold">{review.name}</span>
                         {review.is_verified && (
                           <span className="flex items-center gap-0.5 text-[9px] text-emerald-400 font-bold uppercase">
                             <ShieldCheck className="w-3 h-3" /> Verified
@@ -538,7 +582,7 @@ export default function AdminReviewsPage() {
                     {/* Edit */}
                     <button
                       onClick={() => setModal({ mode: 'edit', review })}
-                      className="w-8 h-8 flex items-center justify-center rounded-xl bg-gray-800 hover:bg-amber-500/15 text-gray-500 hover:text-amber-400 transition-all border border-gray-700"
+                      className="w-8 h-8 flex items-center justify-center rounded-xl bg-gray-800 hover:bg-amber-500/15 text-gray-500 hover:text-amber-400 transition-all border border-slate-300"
                     >
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
@@ -563,7 +607,7 @@ export default function AdminReviewsPage() {
                 </div>
 
                 {review.comment && (
-                  <p className="mt-3 text-gray-400 text-sm leading-relaxed border-t border-gray-800 pt-3">
+                  <p className="mt-3 text-gray-400 text-sm leading-relaxed border-t border-slate-200 pt-3">
                     {review.comment}
                   </p>
                 )}

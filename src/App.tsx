@@ -1,4 +1,12 @@
-import { Routes, Route } from 'react-router-dom';
+// GA4 — global type safety for window.gtag
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+  }
+}
+
+import { useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 
 import RootLayout from '@/app/layout';
 
@@ -8,10 +16,12 @@ import CheckoutPage from '@/app/checkout/page';
 import ContactPage from '@/app/contact/page';
 import ProductsPage from '@/app/products/page';
 import ProductDetailPage from '@/app/products/detail';
-import MenPage from '@/app/men/page';
-import WomenPage from '@/app/women/page';
-import UnisexPage from '@/app/unisex/page';
 import TrackOrderPage from '@/app/track/page';
+import HairCarePage from '@/app/hair-care/page';
+import BodyCarePage from '@/app/body-care/page';
+import BestSellersPage from '@/app/best-sellers/page';
+import SustainabilityPage from '@/app/sustainability/page';
+import FaqPage from '@/app/faq/page';
 
 // Admin pages
 import AdminLoginPage from '@/app/admin/login/page';
@@ -29,26 +39,38 @@ import AdminNotificationsPage from '@/app/admin/notifications/page';
 import AdminReviewsPage from '@/app/admin/reviews/page'
 import AdminCustomersPage from '@/app/admin/customers/page'
 import AdminHeroPage from '@/app/admin/hero/page';
-import AdminVariantsPage from '@/app/admin/variants/page';
-import AdminColorsPage from '@/app/admin/colors/page';
 import AdminLeadsPage from '@/app/admin/leads/page';
 import AdminCouponsPage from '@/app/admin/coupons/page';
 import AdminInventoryPage from '@/app/admin/inventory/page';
 import AdminAccountPage from '@/app/admin/account/page';
 
 export default function App() {
+  // GA4 — track page views on every SPA route change
+  const location = useLocation();
+  useEffect(() => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('config', 'G-Q3R84P7LCB', {
+        page_path: location.pathname,
+      });
+    }
+  }, [location]);
+
   return (
     <Routes>
       {/* Public routes */}
       <Route element={<RootLayout><HomePage /></RootLayout>} path="/" />
       <Route path="/about" element={<RootLayout><AboutPage /></RootLayout>} />
+      <Route path="/our-story" element={<RootLayout><AboutPage /></RootLayout>} />
       <Route path="/checkout" element={<RootLayout><CheckoutPage /></RootLayout>} />
       <Route path="/contact" element={<RootLayout><ContactPage /></RootLayout>} />
-      <Route path="/men" element={<RootLayout><MenPage /></RootLayout>} />
-      <Route path="/women" element={<RootLayout><WomenPage /></RootLayout>} />
-      <Route path="/unisex" element={<RootLayout><UnisexPage /></RootLayout>} />
+      <Route path="/hair-care" element={<RootLayout><HairCarePage /></RootLayout>} />
+      <Route path="/body-care" element={<RootLayout><BodyCarePage /></RootLayout>} />
+      <Route path="/best-sellers" element={<RootLayout><BestSellersPage /></RootLayout>} />
+      <Route path="/sustainability" element={<RootLayout><SustainabilityPage /></RootLayout>} />
+      <Route path="/faq" element={<RootLayout><FaqPage /></RootLayout>} />
       <Route path="/track" element={<RootLayout><TrackOrderPage /></RootLayout>} />
       <Route path="/products" element={<RootLayout><ProductsPage /></RootLayout>} />
+      <Route path="/shop" element={<RootLayout><ProductsPage /></RootLayout>} />
       <Route path="/products/:slug" element={<RootLayout><ProductDetailPage /></RootLayout>} />
 
       {/* Admin routes */}
@@ -68,8 +90,6 @@ export default function App() {
         <Route path="reviews" element={<AdminReviewsPage />} />
         <Route path="customers" element={<AdminCustomersPage />} />
         <Route path="hero" element={<AdminHeroPage />} />
-        <Route path="variants" element={<AdminVariantsPage />} />
-        <Route path="colors" element={<AdminColorsPage />} />
         <Route path="leads" element={<AdminLeadsPage />} />
         <Route path="coupons" element={<AdminCouponsPage />} />
         <Route path="inventory" element={<AdminInventoryPage />} />

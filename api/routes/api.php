@@ -14,11 +14,10 @@ require_once __DIR__ . '/../controllers/SettingsController.php';
 require_once __DIR__ . '/../controllers/PopupController.php';
 require_once __DIR__ . '/../controllers/DeliveryController.php';
 require_once __DIR__ . '/../controllers/ReviewController.php';
-require_once __DIR__ . '/../controllers/SizeVariantController.php';
-require_once __DIR__ . '/../controllers/ColorLibraryController.php';
 require_once __DIR__ . '/../controllers/ContactController.php';
 require_once __DIR__ . '/../controllers/CouponController.php';
 require_once __DIR__ . '/../controllers/InventoryController.php';
+require_once __DIR__ . '/../controllers/PaymentController.php';
 
 function handleRequest(): void {
     $method = $_SERVER['REQUEST_METHOD'];
@@ -32,16 +31,21 @@ function handleRequest(): void {
     require_once __DIR__ . '/../middleware/rate_limit.php';
     require_once __DIR__ . '/../middleware/csrf.php';
     
+    // Global rate limit — only on state-changing requests (POST/PUT/DELETE).
+    // GET requests are NOT globally rate-limited here; sensitive actions
+    // (login, checkout, coupon, contact) have their own tighter limits below.
+    if (in_array($method, ['POST', 'PUT', 'DELETE'])) {
+        checkRateLimit('default');
+    }
+
     // CSRF Protection for state-changing methods
     if (in_array($method, ['POST', 'PUT', 'DELETE'])) {
         requireCsrf();
     }
 
-    // If empty, show API info
+    // If empty, show minimal API info (no sensitive details)
     if ($uri === '' || $uri === '/') {
         echo json_encode([
-            'name'    => 'Lakshmi Home Foods API',
-            'version' => '1.0.0',
             'status'  => 'running'
         ]);
         return;
@@ -60,6 +64,12 @@ function handleRequest(): void {
     // GET /products/{slug} — Public product detail
     if ($method === 'GET' && preg_match('#^/products/([a-z0-9\-]+)$#', $uri, $m)) {
         ProductController::showPublic($m[1]);
+        return;
+    }
+
+    // GET /categories/tree — Public hierarchical category tree
+    if ($method === 'GET' && $uri === '/categories/tree') {
+        CategoryController::tree();
         return;
     }
 
@@ -111,9 +121,29 @@ function handleRequest(): void {
         return;
     }
 
-    // POST /checkout
+    // POST /checkout (COD orders — existing flow unchanged)
     if ($method === 'POST' && $uri === '/checkout') {
         OrderController::store();
+        return;
+    }
+
+    // ── Razorpay Online Payment Routes ──────────────────────────────────────
+
+    // POST /payment/create-order — Create pending order + Razorpay order
+    if ($method === 'POST' && $uri === '/payment/create-order') {
+        PaymentController::createOrder();
+        return;
+    }
+
+    // POST /payment/verify — Verify Razorpay signature + mark order paid
+    if ($method === 'POST' && $uri === '/payment/verify') {
+        PaymentController::verifyPayment();
+        return;
+    }
+
+    // POST /payment/cancel — Mark pending payment order as failed (popup dismissed)
+    if ($method === 'POST' && $uri === '/payment/cancel') {
+        PaymentController::cancelOrder();
         return;
     }
 
@@ -148,20 +178,6 @@ function handleRequest(): void {
     // POST /reviews
     if ($method === 'POST' && $uri === '/reviews') {
         ReviewController::store();
-        return;
-    }
-
-    // GET /variant-sets  (public — active sets with variants for product form)
-    if ($method === 'GET' && $uri === '/variant-sets') {
-        $ctrl = new SizeVariantController();
-        $ctrl->publicIndex();
-        return;
-    }
-
-    // GET /colors  (public — active colors for product form)
-    if ($method === 'GET' && $uri === '/colors') {
-        $ctrl = new ColorLibraryController();
-        $ctrl->publicIndex();
         return;
     }
 
@@ -616,98 +632,6 @@ function handleRequest(): void {
     // DELETE /admin/hero-slides/{id}
     if ($method === 'DELETE' && preg_match('#^/admin/hero-slides/(\d+)$#', $uri, $matches)) {
         HeroSlideController::destroy((int) $matches[1]);
-        return;
-    }
-
-    // ========================================
-    // ADMIN VARIANT SET ROUTES
-    // ========================================
-
-    // GET /admin/variant-sets
-    if ($method === 'GET' && $uri === '/admin/variant-sets') {
-        $ctrl = new SizeVariantController();
-        $ctrl->index();
-        return;
-    }
-
-    // POST /admin/variant-sets
-    if ($method === 'POST' && $uri === '/admin/variant-sets') {
-        $ctrl = new SizeVariantController();
-        $ctrl->store();
-        return;
-    }
-
-    // GET /admin/variant-sets/{id}/variants
-    if ($method === 'GET' && preg_match('#^/admin/variant-sets/(\d+)/variants$#', $uri, $m)) {
-        $ctrl = new SizeVariantController();
-        $ctrl->variants((int)$m[1]);
-        return;
-    }
-
-    // POST /admin/variant-sets/{id}/variants  (bulk save)
-    if ($method === 'POST' && preg_match('#^/admin/variant-sets/(\d+)/variants$#', $uri, $m)) {
-        $ctrl = new SizeVariantController();
-        $ctrl->saveVariants((int)$m[1]);
-        return;
-    }
-
-    // PUT /admin/variant-sets/{id}
-    if ($method === 'PUT' && preg_match('#^/admin/variant-sets/(\d+)$#', $uri, $m)) {
-        $ctrl = new SizeVariantController();
-        $ctrl->update((int)$m[1]);
-        return;
-    }
-
-    // DELETE /admin/variant-sets/{id}
-    if ($method === 'DELETE' && preg_match('#^/admin/variant-sets/(\d+)$#', $uri, $m)) {
-        $ctrl = new SizeVariantController();
-        $ctrl->destroy((int)$m[1]);
-        return;
-    }
-
-    // ========================================
-    // ADMIN COLOR LIBRARY ROUTES
-    // ========================================
-
-    // GET /admin/colors
-    if ($method === 'GET' && $uri === '/admin/colors') {
-        $ctrl = new ColorLibraryController();
-        $ctrl->index();
-        return;
-    }
-
-    // POST /admin/colors
-    if ($method === 'POST' && $uri === '/admin/colors') {
-        $ctrl = new ColorLibraryController();
-        $ctrl->store();
-        return;
-    }
-
-    // PUT /admin/colors/{id}
-    if ($method === 'PUT' && preg_match('#^/admin/colors/(\d+)$#', $uri, $m)) {
-        $ctrl = new ColorLibraryController();
-        $ctrl->update((int)$m[1]);
-        return;
-    }
-
-    // DELETE /admin/colors/{id}
-    if ($method === 'DELETE' && preg_match('#^/admin/colors/(\d+)$#', $uri, $m)) {
-        $ctrl = new ColorLibraryController();
-        $ctrl->destroy((int)$m[1]);
-        return;
-    }
-
-    // GET /admin/products/{id}/color-images
-    if ($method === 'GET' && preg_match('#^/admin/products/(\d+)/color-images$#', $uri, $m)) {
-        $ctrl = new ColorLibraryController();
-        $ctrl->getProductColors((int)$m[1]);
-        return;
-    }
-
-    // POST /admin/products/{id}/color-images
-    if ($method === 'POST' && preg_match('#^/admin/products/(\d+)/color-images$#', $uri, $m)) {
-        $ctrl = new ColorLibraryController();
-        $ctrl->saveProductColors((int)$m[1]);
         return;
     }
 
