@@ -24,6 +24,7 @@ import {
 import { inventoryService, inventoryKey, type InventoryRow } from '@/services/inventoryService'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import { AdminSelect } from '@/components/admin/AdminSelect'
+import { useImageCompress } from '@/hooks/use-image-compress'
 
 export default function AdminProductFormPage() {
   const { id } = useParams()
@@ -51,6 +52,10 @@ export default function AdminProductFormPage() {
   const [sizeVariantRows, setSizeVariantRows] = useState<{ label: string; price: string }[]>([])
   const [gallery, setGallery] = useState<string[]>([])
   const [categories, setCategories] = useState<Category[]>([])
+
+  // ── Image compression ─────────────────────────────────────────────────
+  const imgCompress     = useImageCompress({ maxSizeKB: 300, maxWidthPx: 2000 })
+  const galleryCompress = useImageCompress({ maxSizeKB: 300, maxWidthPx: 2000 })
 
   const categoryOptions = React.useMemo(() => {
     if (categories.length > 0) {
@@ -247,13 +252,18 @@ export default function AdminProductFormPage() {
     }
   }
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {    const file = e.target.files?.[0]
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
     if (!file) return
-
+    e.target.value = ''
     try {
-      const path = await productService.uploadImage(file)
+      const compressed = await imgCompress.compress(file)
+      imgCompress.markUploading()
+      const path = await productService.uploadImage(compressed)
+      imgCompress.markDone()
       setForm(prev => ({ ...prev, image: path }))
-    } catch (err) {
+    } catch {
+      imgCompress.markError()
       setError('Image upload failed')
     }
   }
@@ -715,13 +725,25 @@ export default function AdminProductFormPage() {
               ) : (
                 <button
                   type="button"
-                  onClick={() => document.getElementById('image-upload')?.click()}
-                  className="w-full aspect-square bg-[#F4F6FB] border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all text-gray-600 hover:text-amber-500"
+                  onClick={() => !imgCompress.busy && document.getElementById('image-upload')?.click()}
+                  disabled={imgCompress.busy}
+                  className="w-full aspect-square bg-[#F4F6FB] border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all text-gray-600 hover:text-amber-500 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  <ImageIcon className="w-10 h-10" />
-                  <span className="text-sm font-bold tracking-tight">Upload Product Image</span>
-                  <span className="text-[10px] uppercase">JPG, PNG, WEBP (Max 5MB)</span>
+                  {imgCompress.busy
+                    ? <Loader2 className="w-10 h-10 animate-spin text-amber-500" />
+                    : <ImageIcon className="w-10 h-10" />}
+                  <span className="text-sm font-bold tracking-tight">
+                    {imgCompress.status === 'compressing' ? 'Compressing…'
+                      : imgCompress.status === 'uploading' ? 'Uploading…'
+                      : 'Upload Product Image'}
+                  </span>
+                  <span className="text-[10px] uppercase">JPG · PNG · WEBP · Auto-compressed</span>
                 </button>
+              )}
+              {imgCompress.info && (
+                <p className="mt-1.5 flex items-center justify-center gap-1 text-[10px] font-bold text-green-600">
+                  <Check className="w-3 h-3" /> {imgCompress.info}
+                </p>
               )}
               <input 
                 id="image-upload" 
@@ -763,11 +785,16 @@ export default function AdminProductFormPage() {
             {gallery.length < 6 && (
               <button
                 type="button"
-                onClick={() => document.getElementById('gallery-upload')?.click()}
-                className="w-full py-4 bg-[#F4F6FB] border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all text-gray-600 hover:text-amber-500 text-xs font-bold"
+                onClick={() => !galleryCompress.busy && document.getElementById('gallery-upload')?.click()}
+                disabled={galleryCompress.busy}
+                className="w-full py-4 bg-[#F4F6FB] border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all text-gray-600 hover:text-amber-500 text-xs font-bold disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <Plus className="w-5 h-5" />
-                Add Gallery Image
+                {galleryCompress.busy
+                  ? <Loader2 className="w-5 h-5 animate-spin text-amber-500" />
+                  : <Plus className="w-5 h-5" />}
+                {galleryCompress.status === 'compressing' ? 'Compressing…'
+                  : galleryCompress.status === 'uploading' ? 'Uploading…'
+                  : 'Add Gallery Image'}
               </button>
             )}
             <input
@@ -777,16 +804,24 @@ export default function AdminProductFormPage() {
               multiple
               onChange={async (e) => {
                 const files = Array.from(e.target.files || [])
+                e.target.value = ''
                 for (const file of files.slice(0, 6 - gallery.length)) {
                   try {
-                    const path = await productService.uploadImage(file)
+                    const compressed = await galleryCompress.compress(file)
+                    galleryCompress.markUploading()
+                    const path = await productService.uploadImage(compressed)
+                    galleryCompress.markDone()
                     setGallery(g => [...g, path])
                   } catch { /* skip failed */ }
                 }
-                e.target.value = ''
               }}
               className="hidden"
             />
+            {galleryCompress.info && (
+              <p className="mt-1.5 flex items-center justify-center gap-1 text-[10px] font-bold text-green-600">
+                <Check className="w-3 h-3" /> {galleryCompress.info}
+              </p>
+            )}
             <p className="mt-2 text-[10px] text-gray-600 text-center">First gallery image appears on product card hover</p>
           </section>
         </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { heroSlideService, type HeroSlide } from '@/services/heroSlideService'
+import { useImageCompress } from '@/hooks/use-image-compress'
 import { useToast } from '@/hooks/use-toast'
 import {
     Plus, Edit2, Trash2, ToggleLeft, ToggleRight, Upload,
@@ -94,6 +95,7 @@ function SlideForm({ slide, onSave, onClose }: {
     const [form, setForm]       = useState<HeroSlide>(slide ? { ...slide } : emptySlide())
     const [uploading, setUploading] = useState<'desktop' | 'mobile' | null>(null)
     const [saving, setSaving]   = useState(false)
+    const heroCompress = useImageCompress({ maxSizeKB: 400, maxWidthPx: 2400 })
 
     const set = <K extends keyof HeroSlide>(key: K, val: HeroSlide[K]) =>
         setForm(p => ({ ...p, [key]: val }))
@@ -101,9 +103,13 @@ function SlideForm({ slide, onSave, onClose }: {
     const handleImageUpload = async (file: File, kind: 'desktop' | 'mobile') => {
         setUploading(kind)
         try {
-            const url = await heroSlideService.uploadImage(file)
+            const compressed = await heroCompress.compress(file)
+            heroCompress.markUploading()
+            const url = await heroSlideService.uploadImage(compressed)
+            heroCompress.markDone()
             kind === 'desktop' ? set('image', url) : set('mobile_image', url)
         } catch {
+            heroCompress.markError()
             toast({ title: 'Upload failed', variant: 'destructive' })
         } finally {
             setUploading(null)
@@ -212,18 +218,26 @@ function SlideForm({ slide, onSave, onClose }: {
                                     <span className="text-gray-500 text-xs">Click to upload desktop image</span>
                                 </div>
                             )}
-                            {uploading === 'desktop' && (
-                                <div className="absolute inset-0 bg-slate-800/40 flex items-center justify-center">
+                            {(uploading === 'desktop' || heroCompress.status === 'compressing') && (
+                                <div className="absolute inset-0 bg-slate-800/40 flex items-center justify-center gap-2">
                                     <Loader2 className="w-6 h-6 text-amber-500 animate-spin" />
+                                    {heroCompress.status === 'compressing' && (
+                                        <span className="text-white text-xs font-bold">Compressing…</span>
+                                    )}
                                 </div>
                             )}
                         </div>
-                        {form.image && (
-                            <button type="button" onClick={() => set('image', null)}
-                                className="mt-1.5 text-xs text-red-400 hover:text-red-300 transition-colors flex items-center gap-1">
-                                <X className="w-3 h-3" /> Remove image
-                            </button>
-                        )}
+                        <div className="mt-1.5 flex items-center justify-between">
+                            {form.image && (
+                                <button type="button" onClick={() => set('image', null)}
+                                    className="text-xs text-red-400 hover:text-red-300 transition-colors flex items-center gap-1">
+                                    <X className="w-3 h-3" /> Remove image
+                                </button>
+                            )}
+                            <span className="text-[10px] text-gray-400 ml-auto">
+                                {heroCompress.info && !uploading ? `✓ ${heroCompress.info} · ` : ''}Auto-compressed · max 400 KB
+                            </span>
+                        </div>
                     </Field>
 
                     {/* Mobile Image */}
@@ -245,12 +259,16 @@ function SlideForm({ slide, onSave, onClose }: {
                                     <span className="text-gray-500 text-xs">Upload mobile image</span>
                                 </div>
                             )}
-                            {uploading === 'mobile' && (
-                                <div className="absolute inset-0 bg-slate-800/40 flex items-center justify-center">
+                            {(uploading === 'mobile' || heroCompress.status === 'compressing') && (
+                                <div className="absolute inset-0 bg-slate-800/40 flex items-center justify-center gap-2">
                                     <Loader2 className="w-6 h-6 text-amber-500 animate-spin" />
+                                    {heroCompress.status === 'compressing' && (
+                                        <span className="text-white text-xs font-bold">Compressing…</span>
+                                    )}
                                 </div>
                             )}
                         </div>
+                        <p className="mt-1 text-[10px] text-gray-400 text-right">Auto-compressed · max 400 KB</p>
                     </Field>
 
 

@@ -65,17 +65,20 @@ export default function ProductsPage() {
       <Navbar />
       
       {/* Page Hero */}
-      <div className="relative pt-20" style={{ background: '#1F4D3A', minHeight: '220px', display: 'flex', alignItems: 'flex-end', paddingBottom: '0' }}>
+      <div className="relative pt-20" style={{ background: '#1F4D3A', minHeight: '200px', display: 'flex', alignItems: 'flex-end', paddingBottom: '0' }}>
         <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(200,169,107,0.9) 1px, transparent 0)', backgroundSize: '24px 24px' }} />
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full pb-12 pt-16">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase mb-3" style={{ color: '#C8A96B' }}>Collections</p>
-          <h1 className="text-4xl md:text-5xl leading-tight font-serif font-light text-[#F7F4ED]">
-            All Rituals & Products
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full pb-8 pt-10">
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase mb-2" style={{ color: '#C8A96B' }}>Home Wellness</p>
+          <h1 className="text-4xl md:text-5xl leading-tight font-serif font-light text-[#F7F4ED] mb-2">
+            Home Wellness Collection
           </h1>
+          <p className="text-sm font-light max-w-xl" style={{ color: 'rgba(247,244,237,0.7)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            Nature-inspired solutions designed for everyday home care.
+          </p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 pb-24 pt-8">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 pb-12 pt-4">
 
         {/* ── Main Category Tabs ── */}
         <section className="pb-4 pt-2 border-b" style={{ borderColor: 'rgba(200,169,107,0.15)' }}>

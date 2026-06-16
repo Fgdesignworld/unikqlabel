@@ -37,58 +37,99 @@ export interface Product {
 
 export const products: Product[] = [
   {
-    id: "ashwagandha-cookies",
-    name: "Ashwagandha Cookies",
-    price: 450,
-    weight: "400g",
-    image: "/images/pv2.png", // Main luxury pack render
-    category: "cookies",
-    description: "Ancient wellness meets modern indulgence. Infused with premium Ashwagandha root extract to ease stress and enhance cognitive clarity. Rich, melt-in-your-mouth flavor.",
+    id: "neem-lemongrass-floor-cleaner",
+    name: "Neem & Lemongrass Floor Cleaner",
+    price: 299,
+    weight: "1 Litre",
+    image: "/images/pv2.png",
+    category: "home-wellness",
+    description: "Formulated with the power of Neem and Lemongrass extracts to clean floors naturally, leaving a fresh botanical aroma and maintaining a hygienic home wellness environment.",
     rating: 4.9,
     bestseller: true,
-    numericId: 48,
+    numericId: 101,
     variants: [
-      { weight: "400g", price: 450 },
-      { weight: "800g", price: 800 },
+      { weight: "1 Litre", price: 299 }
     ],
+    sizeVariants: [
+      { label: "1 Litre", price: 299 }
+    ]
   },
   {
-    id: "shilajit-cookies",
-    name: "Shilajit Cookies",
-    price: 499,
-    weight: "400g",
-    image: "/images/pv2.png", // Main luxury pack render
-    category: "cookies",
-    description: "Fuel your daily energy, stamina, and vitality. Infused with pure Himalayan Shilajit and healthy fats, these cookies provide clean, slow-burning strength.",
-    rating: 5.0,
-    bestseller: true,
-    numericId: 47,
-    variants: [
-      { weight: "400g", price: 499 },
-      { weight: "800g", price: 900 },
-    ],
-  },
-  {
-    id: "whey-protein-cookies",
-    name: "Whey Protein Cookies",
-    price: 399,
-    weight: "400g",
-    image: "/images/pv2.png", // Main luxury pack render
-    category: "cookies",
-    description: "Designed for recovery and active lifestyles. Packaged with 10g of pure whey protein per serving, dark chocolate chips, and gluten-free ragi.",
+    id: "lemon-fresh-dishwashing-liquid",
+    name: "Lemon Fresh Dishwashing Liquid",
+    price: 199,
+    weight: "1 Litre",
+    image: "/images/pv2.png",
+    category: "home-wellness",
+    description: "Tough on grease, gentle on hands. Infused with natural lemon extract for a fresh citrus scent and sparkling clean dishes.",
     rating: 4.8,
     bestseller: true,
-    numericId: 46,
+    numericId: 102,
     variants: [
-      { weight: "400g", price: 399 },
-      { weight: "800g", price: 720 },
+      { weight: "1 Litre", price: 199 }
     ],
+    sizeVariants: [
+      { label: "1 Litre", price: 199 }
+    ]
+  },
+  {
+    id: "neem-tulsi-hand-wash",
+    name: "Neem & Tulsi Hand Wash",
+    price: 149,
+    weight: "500 ml",
+    image: "/images/pv2.png",
+    category: "home-wellness",
+    description: "A gentle, nature-inspired hand wash enriched with Neem and Tulsi extracts to cleanse, soothe, and refresh your hands everyday.",
+    rating: 4.9,
+    bestseller: false,
+    numericId: 103,
+    variants: [
+      { weight: "500 ml", price: 149 }
+    ],
+    sizeVariants: [
+      { label: "500 ml", price: 149 }
+    ]
+  },
+  {
+    id: "fresh-linen-laundry-liquid",
+    name: "Fresh Linen Laundry Liquid",
+    price: 349,
+    weight: "1 Litre",
+    image: "/images/pv2.png",
+    category: "home-wellness",
+    description: "Gentle on fabrics, tough on dirt. Keeps your clothes feeling fresh and soft, infused with a clean linen scent.",
+    rating: 4.7,
+    bestseller: false,
+    numericId: 104,
+    variants: [
+      { weight: "1 Litre", price: 349 }
+    ],
+    sizeVariants: [
+      { label: "1 Litre", price: 349 }
+    ]
+  },
+  {
+    id: "citrus-fresh-multi-purpose-cleaner",
+    name: "Citrus Fresh Multi-Purpose Cleaner",
+    price: 179,
+    weight: "500 ml",
+    image: "/images/pv2.png",
+    category: "home-wellness",
+    description: "Clean surfaces effortlessly. Safe for countertops, glass, tile, and wood, infused with refreshing citrus essential oils.",
+    rating: 4.8,
+    bestseller: true,
+    numericId: 105,
+    variants: [
+      { weight: "500 ml", price: 179 }
+    ],
+    sizeVariants: [
+      { label: "500 ml", price: 179 }
+    ]
   }
 ]
 
 export const categories = [
-  { id: "cookies", name: "Wellness Cookies",        description: "Premium wellness cookies" },
-  { id: "limited", name: "Limited Drops",    description: "Exclusive batch drops" },
+  { id: "home-wellness", name: "Home Wellness", description: "Nature-inspired solutions designed for everyday home care." },
 ]
 
 export function getProductsByCategory(category: string): Product[] {

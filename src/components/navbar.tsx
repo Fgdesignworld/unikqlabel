@@ -1,26 +1,25 @@
-import { useState, useEffect } from "react"
-import { Link } from 'react-router-dom'
+import { useState, useEffect, useMemo } from "react"
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { lockScroll, unlockScroll } from "@/lib/scroll-lock"
-import { useLocation } from 'react-router-dom'
+import { products as staticProducts, type Product } from "@/data/products"
+import { productService } from "@/services/productService"
 import { motion, AnimatePresence } from "framer-motion"
 import { ShoppingBag, Search, X, Leaf, ChevronRight, ArrowRight } from "lucide-react"
 import { useCart } from "@/context/cart-context"
 import { useSettings } from "@/context/settings-context"
 
 const navLinks = [
-  { name: "Shop", href: "/shop" },
-  { name: "Hair Care", href: "/hair-care" },
-  { name: "Body Care", href: "/body-care" },
+  { name: "Home Wellness", href: "/shop" },
   { name: "Our Story", href: "/our-story" },
+  { name: "Blog", href: "/blog" },
   { name: "Sustainability", href: "/sustainability" },
   { name: "Contact", href: "/contact" },
 ]
 
 const mobileMenuLinks = [
-  { name: "Shop All", href: "/shop", sub: "Explore the full collection" },
-  { name: "Hair Care", href: "/hair-care", sub: "Nourish and strengthen" },
-  { name: "Body Care", href: "/body-care", sub: "Rituals for the body" },
+  { name: "Home Wellness", href: "/shop", sub: "Natural home care solutions" },
   { name: "Our Story", href: "/our-story", sub: "Inspired by nature" },
+  { name: "Blog", href: "/blog", sub: "Wellness insights & guides" },
   { name: "Sustainability", href: "/sustainability", sub: "Eco-friendly commitment" },
   { name: "Contact", href: "/contact", sub: "We are here to help" },
 ]
@@ -29,10 +28,50 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
   const [logoError, setLogoError] = useState(false)
   const pathname = useLocation().pathname
+  const navigate = useNavigate()
   const { totalItems, setIsCartOpen } = useCart()
   const { settings } = useSettings()
+  const [allProducts, setAllProducts] = useState<Product[]>(staticProducts)
+
+  // Fetch dynamic products from database
+  useEffect(() => {
+    productService.getPublicProducts()
+      .then(data => {
+        if (data && data.length > 0) {
+          setAllProducts(data as Product[])
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const filteredProducts = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim()
+    if (!q) return []
+    return allProducts.filter(p => p.name.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q)).slice(0, 5)
+  }, [searchQuery, allProducts])
+
+  const handleSearchSubmit = () => {
+    if (searchQuery.trim()) {
+      navigate(`/shop?q=${encodeURIComponent(searchQuery.trim())}`)
+      setIsSearchOpen(false)
+      setSearchQuery('')
+    }
+  }
+
+  useEffect(() => {
+    if (!isSearchOpen) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsSearchOpen(false)
+        setSearchQuery('')
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isSearchOpen])
 
   const isHeroPage = ['/', '/about', '/products', '/contact', '/men', '/women', '/unisex', '/ingredients'].includes(pathname)
 
@@ -120,12 +159,101 @@ export function Navbar() {
               })}
             </nav>
 
-            <div className="flex items-center gap-1.5">
-              <button onClick={() => setIsSearchOpen(true)}
-                className="hidden md:flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 hover:scale-105"
-                style={{ background: !isLightBg ? 'rgba(247,244,237,0.1)' : 'rgba(31,77,58,0.05)', border: `1px solid ${!isLightBg ? 'rgba(247,244,237,0.18)' : 'rgba(200,169,107,0.2)'}` }}>
-                <Search className="w-3.5 h-3.5" style={{ color: !isLightBg ? '#F7F4ED' : '#1F4D3A' }} />
-              </button>
+            <div className="flex items-center gap-1.5 relative">
+              {!isSearchOpen && (
+                <button onClick={() => setIsSearchOpen(true)}
+                  className="hidden md:flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 hover:scale-105"
+                  style={{ background: !isLightBg ? 'rgba(247,244,237,0.1)' : 'rgba(31,77,58,0.05)', border: `1px solid ${!isLightBg ? 'rgba(247,244,237,0.18)' : 'rgba(200,169,107,0.2)'}` }}>
+                  <Search className="w-3.5 h-3.5" style={{ color: !isLightBg ? '#F7F4ED' : '#1F4D3A' }} />
+                </button>
+              )}
+
+              <AnimatePresence>
+                {isSearchOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, x: 20 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, x: 20 }}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 z-50 flex items-center bg-[#F7F4ED] border border-[#C8A96B] px-3.5 py-2 rounded-full w-80 lg:w-[400px]"
+                    style={{ transformOrigin: 'right center' }}
+                  >
+                    <Search className="w-4 h-4 text-[#1F4D3A] opacity-60 mr-2.5 shrink-0" />
+                    <input
+                      autoFocus
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search products, ingredients..."
+                      className="bg-transparent text-xs text-[#1F4D3A] outline-none w-full font-sans"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleSearchSubmit()
+                        }
+                      }}
+                    />
+                    {searchQuery && (
+                      <button onClick={() => setSearchQuery('')} className="p-1 text-[#1F4D3A] opacity-60 hover:opacity-100 shrink-0 cursor-pointer">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    <button onClick={() => { setIsSearchOpen(false); setSearchQuery('') }} className="p-1 ml-1.5 border-l border-[#C8A96B]/30 pl-2 text-[#1F4D3A] opacity-60 hover:opacity-100 shrink-0 cursor-pointer">
+                      <X className="w-4 h-4" />
+                    </button>
+
+                    {/* Dropdown Results */}
+                    {searchQuery.trim().length > 0 && (
+                      <div className="absolute top-[calc(100%+12px)] right-0 w-full bg-[#F7F4ED] border border-[#C8A96B] shadow-2xl rounded-2xl overflow-hidden z-50 flex flex-col py-3">
+                        {/* Matching Products */}
+                        {filteredProducts.length > 0 ? (
+                          <>
+                            <div className="px-4 py-1.5 text-[10px] font-bold tracking-wider text-[#C8A96B] uppercase border-b border-[#C8A96B]/15 pb-2 mb-2">
+                              Products Found ({filteredProducts.length})
+                            </div>
+                            <div className="max-h-60 overflow-y-auto px-2">
+                              {filteredProducts.map(p => (
+                                <Link
+                                  key={p.id}
+                                  to={`/products/${p.id}`}
+                                  onClick={() => { setIsSearchOpen(false); setSearchQuery('') }}
+                                  className="flex items-center gap-3.5 px-3 py-2.5 hover:bg-[#1F4D3A]/5 transition-colors group rounded-xl"
+                                >
+                                  <div className="w-10 h-10 rounded-lg bg-[#1F4D3A]/5 overflow-hidden shrink-0 border border-[#C8A96B]/15">
+                                    <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-semibold text-[#1F4D3A] truncate">{p.name}</p>
+                                    <p className="text-[10px] text-[#6A6A60]">{p.weight}</p>
+                                  </div>
+                                                                  {p.discount_price && p.discount_price > 0 && p.discount_price < p.price ? (
+                                    <div className="flex flex-col items-end shrink-0 leading-none gap-0.5">
+                                      <span className="text-xs font-bold text-[#1F4D3A]">₹{p.discount_price}</span>
+                                      <span className="text-[9px] text-[#9A9A8F] line-through">₹{p.price}</span>
+                                    </div>
+                                  ) : (
+                                    <span className="text-xs font-bold text-[#1F4D3A] shrink-0">₹{p.price}</span>
+                                  )}
+                                </Link>
+                              ))}
+                            </div>
+                            <div className="border-t border-[#C8A96B]/10 mt-2.5 pt-2.5 px-3.5">
+                              <button
+                                onClick={handleSearchSubmit}
+                                className="w-full text-center py-3 text-[10px] font-bold tracking-widest uppercase bg-[#1F4D3A] text-[#F7F4ED] hover:opacity-90 transition-all rounded-xl cursor-pointer"
+                              >
+                                View All Results
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="px-4 py-8 text-center text-xs text-[#6A6A60]">
+                            No products matching "{searchQuery}"
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <button onClick={() => setIsCartOpen(true)}
                 className="flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 hover:scale-105 relative"
@@ -171,26 +299,7 @@ export function Navbar() {
         </div>
       </motion.header>
 
-      <AnimatePresence>
-        {isSearchOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-60 flex items-start pt-28 px-6"
-            style={{ background: 'rgba(31,77,58,0.65)', backdropFilter: 'blur(16px)' }}>
-            <div className="w-full max-w-2xl mx-auto">
-              <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="relative">
-                <input autoFocus type="text" placeholder="Search products, ingredients..."
-                  className="w-full px-6 py-5 text-lg rounded-none border-b-2 outline-none bg-transparent"
-                  style={{ borderColor: '#C8A96B', color: '#F7F4ED', fontFamily: "'Plus Jakarta Sans',sans-serif", caretColor: '#C8A96B' }} />
-                <button onClick={() => setIsSearchOpen(false)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-white/10 transition-colors">
-                  <X className="w-5 h-5 text-[#F7F4ED]" />
-                </button>
-              </motion.div>
-              <p className="mt-4 text-sm text-[#F7F4ED]/50 tracking-widest uppercase" style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: '0.625rem' }}>Press Esc to close</p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Search overlay removed in favor of floating absolute header search */}
 
       <AnimatePresence>
         {isMobileMenuOpen && (

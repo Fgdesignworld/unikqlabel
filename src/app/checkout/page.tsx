@@ -31,6 +31,7 @@ import {
 import { WhatsAppIcon } from '@/components/icons/whatsapp'
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
+import { cn } from '@/lib/utils'
 import { useCart } from "@/context/cart-context"
 import { useSettings } from "@/context/settings-context"
 import { useDelivery } from "@/hooks/use-delivery"
@@ -103,7 +104,7 @@ export default function CheckoutPage() {
     setIsHydrated(true)
   }, [])
 
-  const isCodEnabled = settings.cod_enabled !== '0'
+  const isCodEnabled = settings?.cod_enabled !== '0'
 
   // Force online payment if COD is disabled in global settings
   useEffect(() => {
@@ -549,12 +550,11 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
     setCouponInput('')
   }
 
-
   if (!isHydrated) {
     return (
       <main className="min-h-screen flex items-center justify-center" style={{ background: 'var(--surface-page)' }}>
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-amber-500" />
+          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-[#1F4D3A] dark:text-[#C8A96B]" />
           <p className="font-body" style={{ color: 'var(--text-dim)' }}>Loading checkout...</p>
         </div>
       </main>
@@ -566,7 +566,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
   }
 
   return (
-    <main className="min-h-screen bg-[#F8F3EA] dark:bg-[#0a0a0a] text-neutral-800 dark:text-[#fef3e2] transition-colors duration-300">
+    <main className="min-h-screen bg-[#F7F4ED] dark:bg-[#121212] text-[#1F4D3A] dark:text-[#F7F4ED] transition-colors duration-300">
       <Navbar />
 
       <div className="pt-24 pb-20 px-4">
@@ -580,7 +580,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
             >
               <button
                 onClick={() => step === "review" ? setStep("details") : navigate(-1)}
-                className="flex items-center gap-2 font-body text-xs uppercase tracking-widest font-black transition-all text-neutral-500 hover:text-amber-800 dark:text-neutral-400 dark:hover:text-amber-400 cursor-pointer"
+                className="flex items-center gap-2 font-body text-xs uppercase tracking-widest font-bold transition-all text-neutral-500 hover:text-[#1F4D3A] dark:text-neutral-400 dark:hover:text-[#C8A96B] cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
                 {step === "review" ? "Back to Details" : "Continue Shopping"}
@@ -610,27 +610,33 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                 return (
                   <div key={label} className="flex items-center gap-2 sm:gap-3">
                     <div
-                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm font-heading transition-all duration-300"
-                      style={isActive
-                        ? { 
-                            background: 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 85%, black))', 
-                            color: '#0D0D0D', 
-                            boxShadow: isCurrent ? '0 0 0 2px var(--theme-color), 0 0 0 4px var(--surface-page)' : 'none' 
-                          }
-                        : { 
-                            background: 'rgba(212,175,55,0.05)', 
-                            color: 'var(--text-faint)', 
-                            border: '1px solid rgba(212,175,55,0.15)' 
-                          }
-                      }
+                      className={cn(
+                        "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm font-heading transition-all duration-300 border",
+                        isActive
+                          ? "bg-[#1F4D3A] !text-white border-[#1F4D3A] dark:bg-[#C8A96B] dark:!text-[#1A1A1A] dark:border-[#C8A96B]"
+                          : "bg-white/80 dark:bg-white/5 border-[#C8A96B]/25 text-neutral-400 dark:text-neutral-500"
+                      )}
+                      style={isActive && isCurrent ? { boxShadow: '0 0 0 2px #C8A96B' } : undefined}
                     >
                       {stepIndex}
                     </div>
-                    <span className="font-body text-xs sm:text-sm font-bold tracking-wide" style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-faint)' }}>
+                    <span
+                      className={cn(
+                        "font-body text-xs sm:text-sm font-bold tracking-wide",
+                        isActive ? "text-[#1F4D3A] dark:text-[#F7F4ED]" : "text-neutral-400 dark:text-neutral-500"
+                      )}
+                    >
                       {label}
                     </span>
                     {index < 2 && (
-                      <div className="w-8 sm:w-16 h-0.5 rounded-full transition-all duration-500" style={{ background: isActive && stepIndex < (step === 'review' ? 2 : 1) ? 'var(--theme-color)' : 'rgba(212,175,55,0.10)' }} />
+                      <div
+                        className={cn(
+                          "w-8 sm:w-16 h-0.5 rounded-full transition-all duration-500",
+                          isActive && stepIndex < (step === 'review' ? 2 : 1)
+                            ? "bg-[#1F4D3A] dark:bg-[#C8A96B]"
+                            : "bg-[#C8A96B]/15 dark:bg-white/10"
+                        )}
+                      />
                     )}
                   </div>
                 )
@@ -643,7 +649,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-16 px-6 bg-[#fcfaf7] dark:bg-[#120f0d]/60 border border-[#e8dfd1] dark:border-white/5 rounded-3xl max-w-2xl mx-auto shadow-xl"
+              className="text-center py-16 px-6 bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/20 dark:border-white/10 rounded-2xl max-w-2xl mx-auto shadow-xl"
             >
               <motion.div
                 initial={{ scale: 0 }}
@@ -653,7 +659,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
               >
                 <CheckCircle2 className="w-10 h-10 text-green-500" />
               </motion.div>
-              <h1 className="font-serif text-3xl font-bold mb-3 text-neutral-800 dark:text-[#fef3e2]">
+              <h1 className="font-serif text-3xl font-normal mb-3 text-[#1F4D3A] dark:text-[#F7F4ED]">
                 Order Placed Successfully!
               </h1>
               <p className="font-body text-sm max-w-md mx-auto mb-6 text-neutral-600 dark:text-white/60">
@@ -662,13 +668,13 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                   : 'Our team will contact you soon for order and delivery confirmations.'
                 }
               </p>
-              <div className="flex items-center justify-center gap-2 font-body text-sm max-w-md mx-auto mb-10 text-neutral-600 dark:text-white/60 bg-amber-500/5 dark:bg-amber-500/5 py-3 px-4 rounded-xl border border-amber-500/10">
+              <div className="flex items-center justify-center gap-2 font-body text-sm max-w-md mx-auto mb-10 text-[#1F4D3A]/70 dark:text-[#F7F4ED]/80 bg-[#1F4D3A]/5 dark:bg-[#C8A96B]/5 py-3.5 px-4 rounded-lg border border-[#1F4D3A]/10 dark:border-[#C8A96B]/15">
                 <span className="font-medium">For details or support, WhatsApp:</span>
                 <a 
                   href={`https://wa.me/${(settings?.whatsapp || settings?.phone || '919601874404').replace(/[^0-9]/g, '')}`} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="font-bold hover:text-green-500 transition-colors flex items-center gap-1 text-amber-800 dark:text-amber-400"
+                  className="font-bold hover:text-green-500 transition-colors flex items-center gap-1 text-[#1F4D3A] dark:text-[#C8A96B]"
                 >
                   <WhatsAppIcon className="w-4 h-4" />
                   {settings?.whatsapp || settings?.phone || '+91 96018 74404'}
@@ -685,15 +691,14 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                       })
                     }
                   }}
-                  className="w-full flex items-center justify-center gap-2 px-5 py-3 text-xs uppercase tracking-wider font-extrabold rounded-xl transition-all hover:bg-amber-500/20 border border-amber-800/20 dark:border-amber-500/20 text-amber-800 dark:text-amber-400 hover:border-amber-800/40 dark:hover:border-amber-500/40 bg-amber-500/10 cursor-pointer hover:scale-102 duration-200"
+                  className="w-full flex items-center justify-center gap-2 px-5 py-3 text-xs uppercase tracking-wider font-bold rounded-lg transition-all hover:bg-[#1F4D3A]/5 dark:hover:bg-[#C8A96B]/5 border border-[#1F4D3A]/20 dark:border-[#C8A96B]/20 text-[#1F4D3A] dark:text-[#C8A96B] bg-transparent cursor-pointer hover:scale-102 duration-200"
                 >
                   <FileText className="w-4 h-4" />
                   Download Invoice
                 </button>
                 <Link
                   to="/products"
-                  className="w-full flex items-center justify-center gap-2 px-5 py-3 text-xs uppercase tracking-wider font-extrabold rounded-xl transition-all hover:opacity-95 shadow-md shadow-amber-500/10 cursor-pointer hover:scale-102 duration-200"
-                  style={{ background: 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 80%, black))', color: '#0D0D0D' }}
+                  className="w-full flex items-center justify-center gap-2 px-5 py-3 text-xs uppercase tracking-wider font-bold rounded-lg transition-all hover:opacity-95 bg-[#1F4D3A] text-white hover:bg-[#163829] dark:bg-[#C8A96B] dark:text-[#1A1A1A] dark:hover:bg-[#E2C98A] cursor-pointer hover:scale-102 duration-200"
                 >
                   Continue Shopping
                 </Link>
@@ -710,9 +715,9 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="rounded-3xl p-6 md:p-8 bg-[#fcfaf7] dark:bg-[#120f0d]/60 border border-[#e8dfd1] dark:border-white/5 shadow-md shadow-black/5 dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)]"
+                    className="rounded-2xl p-6 md:p-8 bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/15 dark:border-white/5 shadow-sm"
                   >
-                    <h1 className="font-serif text-2xl font-bold mb-1 text-neutral-800 dark:text-[#fef3e2]">
+                    <h1 className="font-serif text-2xl font-normal mb-1 text-[#1F4D3A] dark:text-[#F7F4ED]">
                       Delivery Details
                     </h1>
                     <p className="font-body text-xs mb-8 text-neutral-500 dark:text-white/40">
@@ -722,7 +727,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                     <div className="space-y-5">
                       {/* Full Name */}
                       <div>
-                        <label className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest mb-1.5 font-body text-amber-800 dark:text-amber-400/90">
+                        <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest mb-1.5 font-body text-[#1F4D3A] dark:text-[#C8A96B]">
                           <User className="w-3.5 h-3.5" />
                           Full Name *
                         </label>
@@ -731,8 +736,8 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                           value={customerDetails.name}
                           onChange={(e) => handleInputChange("name", e.target.value)}
                           placeholder="Enter your full name"
-                          className="w-full px-4 py-3.5 rounded-xl font-body text-sm bg-neutral-100/60 dark:bg-white/3 border outline-none transition-all shadow-inner focus:border-amber-500/60 dark:focus:border-amber-500/60 focus:bg-white dark:focus:bg-black/20 text-neutral-800 dark:text-[#fef3e2]"
-                          style={{ borderColor: errors.name ? '#ef4444' : 'rgba(212,175,55,0.15)' }}
+                          className="w-full px-4 py-3.5 rounded-lg font-body text-sm bg-[#F7F4ED]/50 dark:bg-[#121212] border outline-none transition-all focus:border-[#1F4D3A] dark:focus:border-[#C8A96B] focus:bg-white dark:focus:bg-[#1A1A1A] text-[#1F4D3A] dark:text-[#F7F4ED]"
+                          style={{ borderColor: errors.name ? '#ef4444' : 'rgba(200,169,107,0.25)' }}
                         />
                         {errors.name && (
                           <p className="text-red-500 text-xs mt-1 font-body font-semibold">{errors.name}</p>
@@ -741,7 +746,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
 
                       {/* Phone Number */}
                       <div>
-                        <label className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest mb-1.5 font-body text-amber-800 dark:text-amber-400/90">
+                        <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest mb-1.5 font-body text-[#1F4D3A] dark:text-[#C8A96B]">
                           <Phone className="w-3.5 h-3.5" />
                           Phone Number *
                         </label>
@@ -750,8 +755,8 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                           value={customerDetails.phone}
                           onChange={(e) => handleInputChange("phone", e.target.value.replace(/\D/g, "").slice(0, 10))}
                           placeholder="Enter 10-digit phone number"
-                          className="w-full px-4 py-3.5 rounded-xl font-body text-sm bg-neutral-100/60 dark:bg-white/3 border outline-none transition-all shadow-inner focus:border-amber-500/60 dark:focus:border-amber-500/60 focus:bg-white dark:focus:bg-black/20 text-neutral-800 dark:text-[#fef3e2]"
-                          style={{ borderColor: errors.phone ? '#ef4444' : 'rgba(212,175,55,0.15)' }}
+                          className="w-full px-4 py-3.5 rounded-lg font-body text-sm bg-[#F7F4ED]/50 dark:bg-[#121212] border outline-none transition-all focus:border-[#1F4D3A] dark:focus:border-[#C8A96B] focus:bg-white dark:focus:bg-[#1A1A1A] text-[#1F4D3A] dark:text-[#F7F4ED]"
+                          style={{ borderColor: errors.phone ? '#ef4444' : 'rgba(200,169,107,0.25)' }}
                         />
                         {errors.phone && (
                           <p className="text-red-500 text-xs mt-1 font-body font-semibold">{errors.phone}</p>
@@ -760,7 +765,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
 
                       {/* Delivery Address */}
                       <div>
-                        <label className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest mb-1.5 font-body text-amber-800 dark:text-amber-400/90">
+                        <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest mb-1.5 font-body text-[#1F4D3A] dark:text-[#C8A96B]">
                           <MapPin className="w-3.5 h-3.5" />
                           Delivery Address *
                         </label>
@@ -769,8 +774,8 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                           onChange={(e) => handleInputChange("address", e.target.value)}
                           placeholder="Flat/House No., Building, Street, Area, Landmark"
                           rows={3}
-                          className="w-full px-4 py-3.5 rounded-xl font-body text-sm bg-neutral-100/60 dark:bg-white/3 border outline-none resize-none transition-all shadow-inner focus:border-amber-500/60 dark:focus:border-amber-500/60 focus:bg-white dark:focus:bg-black/20 text-neutral-800 dark:text-[#fef3e2]"
-                          style={{ borderColor: errors.address ? '#ef4444' : 'rgba(212,175,55,0.15)' }}
+                          className="w-full px-4 py-3.5 rounded-lg font-body text-sm bg-[#F7F4ED]/50 dark:bg-[#121212] border outline-none resize-none transition-all focus:border-[#1F4D3A] dark:focus:border-[#C8A96B] focus:bg-white dark:focus:bg-[#1A1A1A] text-[#1F4D3A] dark:text-[#F7F4ED]"
+                          style={{ borderColor: errors.address ? '#ef4444' : 'rgba(200,169,107,0.25)' }}
                         />
                         {errors.address && (
                           <p className="text-red-500 text-xs mt-1 font-body font-semibold">{errors.address}</p>
@@ -780,7 +785,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                       {/* City & Pincode */}
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest mb-1.5 font-body text-amber-800 dark:text-amber-400/90">
+                          <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest mb-1.5 font-body text-[#1F4D3A] dark:text-[#C8A96B]">
                             <Building2 className="w-3.5 h-3.5" />
                             City *
                           </label>
@@ -789,13 +794,13 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                             value={customerDetails.city}
                             onChange={(e) => handleInputChange("city", e.target.value)}
                             placeholder="City"
-                            className="w-full px-4 py-3.5 rounded-xl font-body text-sm bg-neutral-100/60 dark:bg-white/3 border outline-none transition-all shadow-inner focus:border-amber-500/60 dark:focus:border-amber-500/60 focus:bg-white dark:focus:bg-black/20 text-neutral-800 dark:text-[#fef3e2]"
-                            style={{ borderColor: errors.city ? '#ef4444' : 'rgba(212,175,55,0.15)' }}
+                            className="w-full px-4 py-3.5 rounded-lg font-body text-sm bg-[#F7F4ED]/50 dark:bg-[#121212] border outline-none transition-all focus:border-[#1F4D3A] dark:focus:border-[#C8A96B] focus:bg-white dark:focus:bg-[#1A1A1A] text-[#1F4D3A] dark:text-[#F7F4ED]"
+                            style={{ borderColor: errors.city ? '#ef4444' : 'rgba(200,169,107,0.25)' }}
                           />
                           {errors.city && <p className="text-red-500 text-xs mt-1 font-body font-semibold">{errors.city}</p>}
                         </div>
                         <div>
-                          <label className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest mb-1.5 font-body text-amber-800 dark:text-amber-400/90">
+                          <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest mb-1.5 font-body text-[#1F4D3A] dark:text-[#C8A96B]">
                             <MapPinned className="w-3.5 h-3.5" />
                             Pincode *
                           </label>
@@ -804,8 +809,8 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                             value={customerDetails.pincode}
                             onChange={(e) => handleInputChange("pincode", e.target.value.replace(/\D/g, "").slice(0, 6))}
                             placeholder="6-digit PIN"
-                            className="w-full px-4 py-3.5 rounded-xl font-body text-sm bg-neutral-100/60 dark:bg-white/3 border outline-none transition-all shadow-inner focus:border-amber-500/60 dark:focus:border-amber-500/60 focus:bg-white dark:focus:bg-black/20 text-neutral-800 dark:text-[#fef3e2]"
-                            style={{ borderColor: errors.pincode ? '#ef4444' : 'rgba(212,175,55,0.15)' }}
+                            className="w-full px-4 py-3.5 rounded-lg font-body text-sm bg-[#F7F4ED]/50 dark:bg-[#121212] border outline-none transition-all focus:border-[#1F4D3A] dark:focus:border-[#C8A96B] focus:bg-white dark:focus:bg-[#1A1A1A] text-[#1F4D3A] dark:text-[#F7F4ED]"
+                            style={{ borderColor: errors.pincode ? '#ef4444' : 'rgba(200,169,107,0.25)' }}
                           />
                           {errors.pincode && <p className="text-red-500 text-xs mt-1 font-body font-semibold">{errors.pincode}</p>}
                         </div>
@@ -813,7 +818,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
 
                       {/* Order Notes */}
                       <div>
-                        <label className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest mb-1.5 font-body text-amber-800 dark:text-amber-400/90">
+                        <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest mb-1.5 font-body text-[#1F4D3A] dark:text-[#C8A96B]">
                           <FileText className="w-3.5 h-3.5" />
                           Order Notes (Optional)
                         </label>
@@ -822,14 +827,13 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                           onChange={(e) => handleInputChange("notes", e.target.value)}
                           placeholder="Any special instructions for your delivery..."
                           rows={2}
-                          className="w-full px-4 py-3.5 rounded-xl font-body text-sm bg-neutral-100/60 dark:bg-white/3 border border-[#e8dfd1] dark:border-white/10 outline-none resize-none transition-all shadow-inner focus:border-amber-500/60 dark:focus:border-amber-500/60 focus:bg-white dark:focus:bg-black/20 text-neutral-800 dark:text-[#fef3e2]"
+                          className="w-full px-4 py-3.5 rounded-lg font-body text-sm bg-[#F7F4ED]/50 dark:bg-[#121212] border border-[#C8A96B]/25 dark:border-white/10 outline-none resize-none transition-all focus:border-[#1F4D3A] dark:focus:border-[#C8A96B] focus:bg-white dark:focus:bg-[#1A1A1A] text-[#1F4D3A] dark:text-[#F7F4ED]"
                         />
                       </div>
 
                       <button
                         onClick={handleProceedToReview}
-                        className="w-full py-4 text-xs font-black uppercase tracking-wider text-[#0f0f0f] rounded-xl hover:shadow-lg hover:shadow-amber-500/20 transition-all cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.01] duration-300"
-                        style={{ background: 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 70%, black))' }}
+                        className="w-full py-4 text-xs font-bold uppercase tracking-wider !text-white bg-[#1F4D3A] hover:bg-[#163829] dark:bg-[#C8A96B] dark:!text-[#1A1A1A] dark:hover:bg-[#E2C98A] rounded-lg hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.01] duration-300"
                       >
                         Continue to Review
                       </button>
@@ -844,56 +848,56 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                     className="space-y-5"
                   >
                     {/* Delivery Info */}
-                    <div className="rounded-3xl p-6 bg-[#fcfaf7] dark:bg-[#120f0d]/60 border border-[#e8dfd1] dark:border-white/5 shadow-md shadow-black/5 dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
+                    <div className="rounded-2xl p-6 bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/15 dark:border-white/5 shadow-sm">
                       <div className="flex items-center justify-between mb-4">
-                        <h2 className="font-serif text-lg font-bold text-neutral-800 dark:text-[#fef3e2]">
+                        <h2 className="font-serif text-lg font-normal text-[#1F4D3A] dark:text-[#F7F4ED]">
                           Delivery Information
                         </h2>
                         <button
                           onClick={() => setStep("details")}
-                          className="font-body text-xs uppercase tracking-widest font-black transition-colors text-amber-800 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 cursor-pointer"
+                          className="font-body text-xs uppercase tracking-widest font-bold transition-colors text-[#C8A96B] hover:text-[#1F4D3A] dark:hover:text-[#F7F4ED] cursor-pointer"
                         >
                           Edit
                         </button>
                       </div>
                       <div className="space-y-2 font-body text-sm text-neutral-600 dark:text-white/60">
-                        <p><span className="font-bold text-neutral-800 dark:text-[#fef3e2]">Name:</span> {customerDetails.name}</p>
-                        <p><span className="font-bold text-neutral-800 dark:text-[#fef3e2]">Phone:</span> {customerDetails.phone}</p>
-                        <p><span className="font-bold text-neutral-800 dark:text-[#fef3e2]">Address:</span> {customerDetails.address}</p>
-                        <p><span className="font-bold text-neutral-800 dark:text-[#fef3e2]">City:</span> {customerDetails.city} - {customerDetails.pincode}</p>
+                        <p><span className="font-bold text-[#1F4D3A] dark:text-[#F7F4ED]">Name:</span> {customerDetails.name}</p>
+                        <p><span className="font-bold text-[#1F4D3A] dark:text-[#F7F4ED]">Phone:</span> {customerDetails.phone}</p>
+                        <p><span className="font-bold text-[#1F4D3A] dark:text-[#F7F4ED]">Address:</span> {customerDetails.address}</p>
+                        <p><span className="font-bold text-[#1F4D3A] dark:text-[#F7F4ED]">City:</span> {customerDetails.city} - {customerDetails.pincode}</p>
                         {customerDetails.notes && (
-                          <p><span className="font-bold text-neutral-800 dark:text-[#fef3e2]">Notes:</span> {customerDetails.notes}</p>
+                          <p><span className="font-bold text-[#1F4D3A] dark:text-[#F7F4ED]">Notes:</span> {customerDetails.notes}</p>
                         )}
                       </div>
                     </div>
 
                     {/* Order Items (Review) */}
-                    <div className="rounded-3xl p-6 bg-[#fcfaf7] dark:bg-[#120f0d]/60 border border-[#e8dfd1] dark:border-white/5 shadow-md shadow-black/5 dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
-                      <h2 className="font-serif text-lg font-bold mb-4 text-neutral-800 dark:text-[#fef3e2]">
+                    <div className="rounded-2xl p-6 bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/15 dark:border-white/5 shadow-sm">
+                      <h2 className="font-serif text-lg font-normal mb-4 text-[#1F4D3A] dark:text-[#F7F4ED]">
                         Order Items ({items.length})
                       </h2>
                       <div className="space-y-3">
                         {items.map((item) => (
-                          <div key={item.id} className="flex gap-4 p-4 bg-white/40 dark:bg-white/2 rounded-2xl border border-white/8 dark:border-white/5 shadow-[0_2px_12px_rgba(0,0,0,0.01)] transition-all hover:border-amber-500/20 relative group">
-                            <div className="relative w-16 h-16 bg-neutral-100 dark:bg-[#1a1613] rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-1.5 border border-white/5 shadow-inner">
+                          <div key={item.id} className="flex gap-4 p-4 bg-[#F7F4ED]/50 dark:bg-[#121212] rounded-lg border border-[#C8A96B]/15 dark:border-white/5 shadow-[0_2px_12px_rgba(0,0,0,0.01)] transition-all hover:border-[#1F4D3A]/20 relative group">
+                            <div className="relative w-16 h-16 bg-white dark:bg-[#1a1613] rounded-lg overflow-hidden shrink-0 flex items-center justify-center p-1.5 border border-[#C8A96B]/10 dark:border-white/5 shadow-inner">
                               <img src={item.image} alt={item.name} className="w-[90%] h-[90%] object-contain select-none transition-transform duration-300 group-hover:scale-105" />
                             </div>
                             <div className="flex-1 min-w-0 pr-2">
-                              <h3 className="font-bold text-sm text-neutral-800 dark:text-[#fef3e2] truncate mb-0.5 leading-tight">{item.name}</h3>
+                              <h3 className="font-bold text-sm text-[#1F4D3A] dark:text-[#F7F4ED] truncate mb-0.5 leading-tight">{item.name}</h3>
                               {(item.size || item.color) && (
                                 <div className="flex flex-wrap gap-1 mb-1.5">
                                   {item.size && (
-                                    <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-800 dark:text-amber-400 border border-amber-800/20 dark:border-amber-500/20">Size: {item.size}</span>
+                                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#1F4D3A]/5 text-[#1F4D3A] dark:bg-[#C8A96B]/10 dark:text-[#C8A96B] border border-[#1F4D3A]/15 dark:border-[#C8A96B]/15">Size: {item.size}</span>
                                   )}
                                   {item.color && (
-                                    <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-neutral-500/10 text-neutral-500 dark:bg-white/10 dark:text-white/70">Color: {item.color}</span>
+                                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-neutral-500/10 text-neutral-500 dark:bg-white/10 dark:text-white/70">Color: {item.color}</span>
                                   )}
                                 </div>
                               )}
                               <div className="flex items-center gap-2">
-                                <p className="font-mono text-sm font-extrabold text-amber-800 dark:text-amber-400">{settings?.currency_symbol || '₹'}{(item.price * item.quantity).toLocaleString('en-IN')}</p>
+                                <p className="font-mono text-sm font-bold text-[#C8A96B]">{settings?.currency_symbol || '₹'}{(item.price * item.quantity).toLocaleString('en-IN')}</p>
                                 {item.originalPrice && (
-                                  <p className="font-mono text-xs line-through text-neutral-400 dark:text-neutral-500">{settings?.currency_symbol || '₹'}{(item.originalPrice * item.quantity).toLocaleString('en-IN')}</p>
+                                  <p className="font-mono text-xs line-through text-[#1F4D3A]/30 dark:text-neutral-500">{settings?.currency_symbol || '₹'}{(item.originalPrice * item.quantity).toLocaleString('en-IN')}</p>
                                 )}
                               </div>
                             </div>
@@ -901,17 +905,17 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                               <button onClick={() => removeItem(item.id)} className="p-1.5 text-neutral-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all cursor-pointer">
                                 <Trash2 className="w-4 h-4" />
                               </button>
-                              <div className="flex items-center p-0.5 border border-white/8 dark:border-white/5 bg-black/15 dark:bg-white/4 rounded-xl shadow-sm">
-                                <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all text-[#fef3e2] hover:text-amber-400 cursor-pointer">
-                                  <Minus className="w-3.5 h-3.5 text-amber-500" />
+                              <div className="flex items-center p-0.5 border border-[#C8A96B]/20 dark:border-white/10 bg-[#F7F4ED] dark:bg-black/20 rounded-lg shadow-sm">
+                                <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all text-[#1F4D3A] dark:text-[#F7F4ED] hover:text-[#C8A96B] cursor-pointer">
+                                  <Minus className="w-3.5 h-3.5 text-[#1F4D3A] dark:text-[#C8A96B]" />
                                 </button>
-                                <span className="text-neutral-800 dark:text-[#fef3e2] font-mono text-xs font-bold w-6 text-center">{item.quantity}</span>
+                                <span className="text-[#1F4D3A] dark:text-[#F7F4ED] font-mono text-xs font-bold w-6 text-center">{item.quantity}</span>
                                 <button
                                   onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                   disabled={item.maxStock !== undefined && item.quantity >= item.maxStock}
-                                  className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all text-[#fef3e2] hover:text-amber-400 disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer"
+                                  className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all text-[#1F4D3A] dark:text-[#F7F4ED] hover:text-[#C8A96B] disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer"
                                 >
-                                  <Plus className="w-3.5 h-3.5 text-amber-500" />
+                                  <Plus className="w-3.5 h-3.5 text-[#1F4D3A] dark:text-[#C8A96B]" />
                                 </button>
                               </div>
                             </div>
@@ -930,8 +934,8 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
 
                     {/* Payment Method Selector */}
                     {isCodEnabled && (
-                      <div className="rounded-3xl p-6 bg-[#fcfaf7] dark:bg-[#120f0d]/60 border border-[#e8dfd1] dark:border-white/5 shadow-md shadow-black/5 dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
-                        <p className="font-serif text-lg font-bold mb-4 text-neutral-800 dark:text-[#fef3e2]">
+                      <div className="rounded-2xl p-6 bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/15 dark:border-white/5 shadow-sm">
+                        <p className="font-serif text-lg font-normal mb-4 text-[#1F4D3A] dark:text-[#F7F4ED]">
                           Payment Method
                         </p>
                         <div className="grid grid-cols-2 gap-4">
@@ -939,20 +943,20 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                           <button
                             type="button"
                             onClick={() => setPaymentMethod('razorpay')}
-                            className="flex flex-col items-center gap-2.5 p-4 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden select-none hover:scale-[1.02] duration-300"
+                            className="flex flex-col items-center gap-2.5 p-4 rounded-lg border-2 transition-all cursor-pointer relative overflow-hidden select-none hover:scale-[1.02] duration-300"
                             style={paymentMethod === 'razorpay'
-                              ? { borderColor: 'var(--theme-color)', background: 'rgba(212,175,55,0.08)' }
-                              : { borderColor: 'rgba(212,175,55,0.12)', background: 'transparent' }}
+                              ? { borderColor: '#1F4D3A', background: 'rgba(31,77,58,0.04)' }
+                              : { borderColor: 'rgba(200,169,107,0.25)', background: 'transparent' }}
                           >
-                            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke={paymentMethod === 'razorpay' ? 'var(--theme-color)' : 'var(--text-dim)'} strokeWidth="1.8">
+                            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke={paymentMethod === 'razorpay' ? '#1F4D3A' : '#C8A96B'} strokeWidth="1.8">
                               <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
                               <line x1="1" y1="10" x2="23" y2="10"/>
                             </svg>
-                            <span className="font-body text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-[#fef3e2]">
+                            <span className="font-body text-xs font-bold uppercase tracking-wider text-[#1F4D3A] dark:text-[#F7F4ED]">
                               Pay Online
                             </span>
                             {paymentMethod === 'razorpay' && (
-                              <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-800/20 dark:border-amber-500/25 text-amber-800 dark:text-amber-400">
+                              <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#1F4D3A]/5 border border-[#1F4D3A]/15 text-[#1F4D3A] dark:bg-[#C8A96B]/10 dark:text-[#C8A96B]">
                                 Card · UPI · Wallet
                               </span>
                             )}
@@ -962,22 +966,22 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                           <button
                             type="button"
                             onClick={() => setPaymentMethod('cod')}
-                            className="flex flex-col items-center gap-2.5 p-4 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden select-none hover:scale-[1.02] duration-300"
+                            className="flex flex-col items-center gap-2.5 p-4 rounded-lg border-2 transition-all cursor-pointer relative overflow-hidden select-none hover:scale-[1.02] duration-300"
                             style={paymentMethod === 'cod'
-                              ? { borderColor: 'var(--theme-color)', background: 'rgba(212,175,55,0.08)' }
-                              : { borderColor: 'rgba(212,175,55,0.12)', background: 'transparent' }}
+                              ? { borderColor: '#1F4D3A', background: 'rgba(31,77,58,0.04)' }
+                              : { borderColor: 'rgba(200,169,107,0.25)', background: 'transparent' }}
                           >
-                            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke={paymentMethod === 'cod' ? 'var(--theme-color)' : 'var(--text-dim)'} strokeWidth="1.8">
+                            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke={paymentMethod === 'cod' ? '#1F4D3A' : '#C8A96B'} strokeWidth="1.8">
                               <rect x="1" y="6" width="15" height="10" rx="1"/>
                               <path d="M16 10h3l3 4H16"/>
                               <circle cx="5.5" cy="18.5" r="2.5"/>
                               <circle cx="18.5" cy="18.5" r="2.5"/>
                             </svg>
-                            <span className="font-body text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-[#fef3e2]">
+                            <span className="font-body text-xs font-bold uppercase tracking-wider text-[#1F4D3A] dark:text-[#F7F4ED]">
                               Cash on Delivery
                             </span>
                             {paymentMethod === 'cod' && (
-                              <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-800/20 dark:border-amber-500/25 text-amber-800 dark:text-amber-400">
+                              <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#1F4D3A]/5 border border-[#1F4D3A]/15 text-[#1F4D3A] dark:bg-[#C8A96B]/10 dark:text-[#C8A96B]">
                                 Pay at Doorstep
                               </span>
                             )}
@@ -986,17 +990,16 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                       </div>
                     )}
 
-                    {/* Place Order CTA Buttons */}
+                     {/* Place Order CTA Buttons */}
                     {paymentMethod === 'razorpay' ? (
                       <button
                         onClick={handleRazorpayPayment}
                         disabled={isSubmitting}
-                        className="w-full py-4 text-xs font-black uppercase tracking-wider text-[#0f0f0f] rounded-xl hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:scale-[1.01] duration-300 cursor-pointer shadow-md shadow-amber-500/10 animate-fade-in"
-                        style={{ background: 'var(--theme-color)' }}
+                        className="w-full py-4 text-xs font-bold uppercase tracking-wider !text-white bg-[#1F4D3A] hover:bg-[#163829] dark:bg-[#C8A96B] dark:!text-[#1A1A1A] dark:hover:bg-[#E2C98A] rounded-lg hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:scale-[1.01] duration-300 cursor-pointer shadow-md shadow-[#1F4D3A]/10 animate-fade-in"
                       >
                         {isSubmitting ? (
                           <>
-                            <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                            <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                             Processing Payment...
                           </>
                         ) : (
@@ -1010,7 +1013,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                       <button
                         onClick={handlePlaceOrder}
                         disabled={isSubmitting}
-                        className="w-full py-4 bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl hover:shadow-lg hover:shadow-[#25D366]/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:scale-[1.01] duration-300 cursor-pointer shadow-md shadow-emerald-500/10 animate-fade-in"
+                        className="w-full py-4 bg-[#25D366] hover:bg-[#20ba5a] !text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:shadow-lg hover:shadow-[#25D366]/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:scale-[1.01] duration-300 cursor-pointer shadow-md shadow-emerald-500/10 animate-fade-in"
                       >
                         {isSubmitting ? (
                           <>
@@ -1036,44 +1039,44 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="rounded-3xl p-6 bg-[#fcfaf7] dark:bg-[#120f0d]/60 border border-[#e8dfd1] dark:border-white/5 shadow-md shadow-black/5 dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)]"
+                    className="rounded-2xl p-6 bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/15 dark:border-white/5 shadow-sm"
                   >
-                    <h2 className="font-serif text-lg font-bold mb-4 flex items-center gap-2 text-neutral-800 dark:text-[#fef3e2]">
-                      <ShoppingBag className="w-5 h-5 text-amber-500" />
+                    <h2 className="font-serif text-lg font-normal mb-4 flex items-center gap-2 text-[#1F4D3A] dark:text-[#F7F4ED]">
+                      <ShoppingBag className="w-5 h-5 text-[#1F4D3A] dark:text-[#C8A96B]" />
                       Order Summary
                     </h2>
 
-                    <div className="space-y-2 mb-5 max-h-[360px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-amber-500/15 scrollbar-track-transparent">
+                    <div className="space-y-2 mb-5 max-h-[360px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-[#C8A96B]/20 scrollbar-track-transparent">
                       {items.map((item) => {
                         const savedAmount = item.discountPercent && item.originalPrice 
                           ? Math.round((item.originalPrice - item.price) * item.quantity)
                           : 0
                         return (
-                          <div key={item.id} className="flex gap-3 items-center p-2.5 rounded-2xl bg-white/40 dark:bg-white/2 border border-white/8 dark:border-white/5">
-                            <div className="relative w-11 h-11 bg-neutral-100 dark:bg-[#1a1613] rounded-lg overflow-hidden shrink-0 flex items-center justify-center p-1 border border-white/5 shadow-inner">
+                          <div key={item.id} className="flex gap-3 items-center p-2.5 rounded-lg bg-[#F7F4ED]/40 dark:bg-[#121212] border border-[#C8A96B]/15 dark:border-white/5">
+                            <div className="relative w-11 h-11 bg-white dark:bg-[#1a1613] rounded-lg overflow-hidden shrink-0 flex items-center justify-center p-1 border border-[#C8A96B]/10 dark:border-white/5 shadow-inner">
                               <img src={item.image} alt={item.name} className="w-[90%] h-[90%] object-contain" />
                             </div>
                             <div className="flex-1 min-w-0 pr-1">
-                              <h3 className="font-bold text-xs text-neutral-800 dark:text-[#fef3e2] truncate mb-0.5 leading-tight">{item.name}</h3>
+                              <h3 className="font-bold text-xs text-[#1F4D3A] dark:text-[#F7F4ED] truncate mb-0.5 leading-tight">{item.name}</h3>
                               {(item.size || item.color) && (
                                 <div className="flex flex-wrap gap-1 mb-1 leading-none">
-                                  {item.size  && <span className="text-[8px] font-black uppercase tracking-wider px-1 py-0.5 rounded bg-amber-500/10 text-amber-800 dark:text-amber-400 border border-amber-800/10 dark:border-amber-500/10">{item.size}</span>}
-                                  {item.color && <span className="text-[8px] font-black uppercase tracking-wider px-1 py-0.5 rounded bg-neutral-500/10 text-neutral-500 dark:bg-white/10 dark:text-white/70">{item.color}</span>}
+                                  {item.size  && <span className="text-[8px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-[#1F4D3A]/5 text-[#1F4D3A] dark:bg-[#C8A96B]/10 dark:text-[#C8A96B] border border-[#1F4D3A]/10 dark:border-[#C8A96B]/10">{item.size}</span>}
+                                  {item.color && <span className="text-[8px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-neutral-500/10 text-neutral-500 dark:bg-white/10 dark:text-white/70">{item.color}</span>}
                                 </div>
                               )}
                               <div className="flex items-center justify-between">
-                                <span className="font-body text-[10px] text-neutral-400 dark:text-white/40">
+                                <span className="font-body text-[10px] text-neutral-500 dark:text-white/40">
                                   Qty {item.quantity}
                                 </span>
                                 <div className="flex items-center gap-1.5 leading-none">
-                                  <span className="font-mono text-xs font-bold text-amber-800 dark:text-amber-400">{settings?.currency_symbol || '₹'}{(item.price * item.quantity).toLocaleString('en-IN')}</span>
+                                  <span className="font-mono text-xs font-bold text-[#C8A96B]">{settings?.currency_symbol || '₹'}{(item.price * item.quantity).toLocaleString('en-IN')}</span>
                                   {item.discountPercent && (
-                                    <span className="text-[8px] font-black bg-red-500/10 border border-red-500/20 text-red-500 px-1 py-0.5 rounded">-{item.discountPercent}%</span>
+                                    <span className="text-[8px] font-bold bg-red-500/10 border border-red-500/20 text-red-500 px-1 py-0.5 rounded">-{item.discountPercent}%</span>
                                   )}
                                 </div>
                               </div>
                               {savedAmount > 0 && (
-                                <p className="font-body text-[9px] font-bold text-green-500 mt-0.5">Saved {settings?.currency_symbol || '₹'}{savedAmount}</p>
+                                <p className="font-body text-[9px] font-bold text-green-600 mt-0.5">Saved {settings?.currency_symbol || '₹'}{savedAmount}</p>
                               )}
                             </div>
                           </div>
@@ -1081,7 +1084,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                       })}
                     </div>
 
-                    <div className="pt-4 space-y-3.5 border-t border-white/8 dark:border-white/5">
+                    <div className="pt-4 space-y-3.5 border-t border-[#C8A96B]/20 dark:border-white/5">
 
                       {/* Coupon Section */}
                       <div>
@@ -1096,7 +1099,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                             >
                               <div className="flex gap-2">
                                         <div className="relative flex-1">
-                                          <Tag className="absolute left-3 top-3 w-3.5 h-3.5 text-amber-800/70 dark:text-amber-400/70" />
+                                          <Tag className="absolute left-3 top-3.5 w-3.5 h-3.5 text-[#1F4D3A] dark:text-[#C8A96B]" />
                                           <input
                                             type="text"
                                             value={couponInput}
@@ -1107,15 +1110,14 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                                             onKeyDown={e => e.key === 'Enter' && handleApplyCoupon()}
                                             placeholder="COUPON CODE"
                                             maxLength={30}
-                                            className="w-full pl-8 pr-3 py-2.5 rounded-xl font-mono text-xs font-bold bg-neutral-100/60 dark:bg-white/3 border outline-none transition-all text-neutral-800 dark:text-[#fef3e2] placeholder-neutral-500 dark:placeholder-white/40"
-                                            style={{ borderColor: couponError ? '#ef4444' : 'rgba(212,175,55,0.3)' }}
+                                            className="w-full pl-8 pr-3 py-2.5 rounded-lg font-mono text-xs font-bold bg-[#F7F4ED]/50 dark:bg-[#121212] border outline-none transition-all text-[#1F4D3A] dark:text-[#F7F4ED] placeholder-[#1F4D3A]/30 dark:placeholder-white/30"
+                                            style={{ borderColor: couponError ? '#ef4444' : 'rgba(200, 169, 107, 0.25)' }}
                                           />
                                         </div>
                                         <button
                                           onClick={handleApplyCoupon}
                                           disabled={couponLoading || !couponInput.trim()}
-                                          className="px-4 py-2.5 rounded-xl text-xs font-black transition-all disabled:opacity-50 flex items-center gap-1.5 shrink-0 cursor-pointer hover:bg-amber-500/20 text-amber-800 dark:text-amber-400"
-                                          style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)' }}
+                                          className="px-4 py-2.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50 flex items-center gap-1.5 shrink-0 cursor-pointer bg-[#C8A96B]/10 hover:bg-[#C8A96B]/20 border border-[#C8A96B]/25 text-[#1F4D3A] dark:text-[#C8A96B]"
                                         >
                                   {couponLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Apply'}
                                 </button>
@@ -1133,15 +1135,15 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                               initial={{ opacity: 0, scale: 0.97 }}
                               animate={{ opacity: 1, scale: 1 }}
                               exit={{ opacity: 0, scale: 0.97 }}
-                              className="flex items-center justify-between p-3 rounded-xl bg-green-500/10 border border-green-500/20"
+                              className="flex items-center justify-between p-3 rounded-lg bg-green-500/10 border border-green-500/20"
                             >
                               <div className="flex items-center gap-2">
                                 <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center border border-green-500/30">
                                   <Check className="w-3.5 h-3.5 text-green-500" />
                                 </div>
                                 <div>
-                                  <p className="font-mono text-xs font-black text-green-500">{appliedCoupon.code}</p>
-                                  <p className="text-[10px] text-green-500/70 font-body">You save {settings?.currency_symbol || '₹'}{appliedCoupon.discount}</p>
+                                  <p className="font-mono text-xs font-bold text-green-600">{appliedCoupon.code}</p>
+                                  <p className="text-[10px] text-green-600/70 font-body">You save {settings?.currency_symbol || '₹'}{appliedCoupon.discount}</p>
                                 </div>
                               </div>
                               <button
@@ -1169,33 +1171,33 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                         }, 0)
                         return totalSaved > 0 ? (
                           <div className="flex items-center justify-between text-xs">
-                            <span className="font-body text-green-500">Discount Saved</span>
-                            <span className="font-mono text-green-500 font-bold">-{settings?.currency_symbol || '₹'}{totalSaved.toLocaleString('en-IN')}</span>
+                            <span className="font-body text-green-600">Discount Saved</span>
+                            <span className="font-mono text-green-600 font-bold">-{settings?.currency_symbol || '₹'}{totalSaved.toLocaleString('en-IN')}</span>
                           </div>
                         ) : null
                       })()}
                       {couponDiscount > 0 && (
                         <div className="flex items-center justify-between text-xs">
-                          <span className="font-body text-green-500 font-semibold">Coupon ({appliedCoupon?.code})</span>
-                          <span className="font-mono text-green-500 font-bold">-{settings?.currency_symbol || '₹'}{couponDiscount.toLocaleString('en-IN')}</span>
+                          <span className="font-body text-green-600 font-semibold">Coupon ({appliedCoupon?.code})</span>
+                          <span className="font-mono text-green-600 font-bold">-{settings?.currency_symbol || '₹'}{couponDiscount.toLocaleString('en-IN')}</span>
                         </div>
                       )}
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-body text-neutral-500 dark:text-white/50">Delivery</span>
                         {deliveryCharge === 0 && deliveryRule.free_delivery_above > 0 ? (
-                          <span className="font-body text-green-500 font-black uppercase text-[10px] tracking-wider leading-none">Free</span>
+                          <span className="font-body text-green-600 font-bold uppercase text-[10px] tracking-wider leading-none">Free</span>
                         ) : (
                           <span className="font-mono text-neutral-800 dark:text-[#fef3e2] font-semibold">{settings?.currency_symbol || '₹'}{deliveryCharge}</span>
                         )}
                       </div>
                       {totalPrice < deliveryRule.free_delivery_above && deliveryRule.free_delivery_above > 0 && (
-                        <div className="p-2.5 rounded-lg bg-amber-500/5 border border-amber-500/15 text-[10px] text-amber-800 dark:text-amber-400 font-bold leading-normal">
+                        <div className="p-2.5 rounded-lg bg-[#1F4D3A]/5 border border-[#1F4D3A]/15 text-[10px] text-[#1F4D3A] dark:text-[#F7F4ED]/90 font-bold leading-normal">
                           Add {settings?.currency_symbol || '₹'}{Math.ceil(deliveryRule.free_delivery_above - totalPrice)} more for free delivery
                         </div>
                       )}
-                      <div className="flex items-center justify-between pt-3 border-t border-white/8 dark:border-white/5">
-                        <span className="font-black text-xs uppercase tracking-wider text-neutral-800 dark:text-[#fef3e2]">Total</span>
-                        <span className="font-heading text-2xl font-black bg-gradient-to-r from-amber-800 to-amber-600 dark:from-amber-400 dark:to-amber-200 bg-clip-text text-transparent">
+                      <div className="flex items-center justify-between pt-3 border-t border-[#C8A96B]/20 dark:border-white/5">
+                        <span className="font-bold text-xs uppercase tracking-wider text-[#1F4D3A] dark:text-[#F7F4ED]">Total</span>
+                        <span className="font-serif text-2xl font-normal text-[#1F4D3A] dark:text-[#C8A96B] font-mono">
                           {settings?.currency_symbol || '₹'}{finalTotal.toLocaleString('en-IN')}
                         </span>
                       </div>
@@ -1215,7 +1217,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                       { icon: Clock,   text: 'Delivery within 2-3 business days' },
                     ].map(({ icon: Icon, text }) => (
                       <div key={text} className="flex items-center gap-3 font-body text-xs text-neutral-500 dark:text-white/40">
-                        <Icon className="w-4 h-4 flex-shrink-0 text-amber-700 dark:text-amber-400" />
+                        <Icon className="w-4 h-4 flex-shrink-0 text-[#1F4D3A] dark:text-[#C8A96B]" />
                         <span>{text}</span>
                       </div>
                     ))}

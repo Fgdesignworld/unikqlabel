@@ -148,10 +148,12 @@
 }
 
 /* ─── Custom scrollbar ─── */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #0D0D0D; }
-::-webkit-scrollbar-thumb { background: var(--theme-color); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { opacity: 0.8; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #1F4D3A; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #163829; }
+html[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #C8A96B; }
+html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #A88645; }
 
 /* Hide scrollbar utility */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
@@ -488,7 +490,7 @@ html[data-theme="light"] body {
 }
 
 /* ── Scrollbar ── */
-html[data-theme="light"] ::-webkit-scrollbar-track { background: #F5EBDD; }
+html[data-theme="light"] ::-webkit-scrollbar-track { background: transparent; }
 
 /* ── Page background classes ── */
 html[data-theme="light"] .bg-\[\#0a0a0a\]  { background-color: #F8F3EA !important; }

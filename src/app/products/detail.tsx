@@ -53,13 +53,13 @@ function RatingBar({ label, count, total }: { label: string; count: number; tota
   const pct = total > 0 ? (count / total) * 100 : 0
   return (
     <div className="flex items-center gap-2.5 text-xs">
-      <span className="text-[#1F4D3A]/50 w-4 shrink-0 font-semibold">{label}</span>
+      <span className="text-[#1F4D3A]/80 w-4 shrink-0 font-semibold">{label}</span>
       <Star className="w-3 h-3 text-[#C8A96B] fill-[#C8A96B] shrink-0" />
-      <div className="flex-1 h-1.5 bg-[#1F4D3A]/8 rounded-full overflow-hidden">
+      <div className="flex-1 h-1.5 bg-[#1F4D3A]/15 rounded-full overflow-hidden">
         <motion.div className="h-full rounded-full" style={{ background: `linear-gradient(90deg, ${GRN}, ${GOLD})` }}
           initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.6, delay: 0.1 }} />
       </div>
-      <span className="text-[#1F4D3A]/40 w-5 text-right font-medium">{count}</span>
+      <span className="text-[#1F4D3A]/75 w-5 text-right font-medium">{count}</span>
     </div>
   )
 }
@@ -92,7 +92,7 @@ function ReviewCard({ review }: { review: Review }) {
           </div>
           <div>
             <p className="text-[#1F4D3A] text-sm font-semibold">{review.name}</p>
-            <p className="text-[#1F4D3A]/40 text-[10px] mt-0.5">{date}</p>
+            <p className="text-[#555555] text-[10px] mt-0.5">{date}</p>
           </div>
         </div>
         <div className="flex flex-col items-end gap-1">
@@ -104,7 +104,7 @@ function ReviewCard({ review }: { review: Review }) {
           )}
         </div>
       </div>
-      <p className="text-[#1F4D3A]/70 text-sm leading-relaxed">{review.comment}</p>
+      <p className="text-[#333333] text-sm leading-relaxed">{review.comment}</p>
     </motion.div>
   )
 }
@@ -162,7 +162,7 @@ function ReviewsSection({ productId }: { productId: number | null }) {
         <div className="flex flex-col items-center justify-center sm:border-r sm:border-[#C8A96B]/15 sm:pr-8 shrink-0 gap-2">
           <span className="text-5xl font-serif font-light text-[#1F4D3A]">{avgDisplay}</span>
           <StarRow rating={stats?.average ?? 0} size="md" />
-          <span className="text-[#1F4D3A]/40 text-xs mt-1 font-medium">{totalReviews} review{totalReviews !== 1 ? 's' : ''}</span>
+          <span className="text-[#555555] text-xs mt-1 font-medium">{totalReviews} review{totalReviews !== 1 ? 's' : ''}</span>
         </div>
         {totalReviews > 0 && stats ? (
           <div className="flex-1 space-y-2.5 justify-center flex flex-col">
@@ -173,8 +173,8 @@ function ReviewsSection({ productId }: { productId: number | null }) {
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 py-4">
             <Flower className="w-8 h-8 text-[#C8A96B]/40" />
-            <p className="text-[#1F4D3A]/50 text-sm text-center font-medium">No reviews yet.</p>
-            <p className="text-[#1F4D3A]/35 text-xs text-center">Be the first to share your experience!</p>
+            <p className="text-[#444444] text-sm text-center font-medium">No reviews yet.</p>
+            <p className="text-[#666666] text-xs text-center">Be the first to share your experience!</p>
           </div>
         )}
       </div>
@@ -220,34 +220,34 @@ function ReviewsSection({ productId }: { productId: number | null }) {
             <form onSubmit={handleSubmit} className="bg-white border border-[#C8A96B]/25 rounded-2xl p-6 space-y-5 shadow-sm">
               <div>
                 <h3 className="text-[#1F4D3A] font-serif text-lg font-medium">Share Your Experience</h3>
-                <p className="text-[#1F4D3A]/50 text-xs mt-1">Your review will appear after email verification.</p>
+                <p className="text-[#1F4D3A]/70 text-xs mt-1">Your review will appear after email verification.</p>
               </div>
               <div>
-                <label className="text-[#1F4D3A]/60 text-xs font-semibold uppercase tracking-wider block mb-2">Your Rating *</label>
+                <label className="text-[#333333] text-xs font-semibold uppercase tracking-wider block mb-2">Your Rating *</label>
                 <StarPicker value={form.rating} onChange={v => setForm(f => ({ ...f, rating: v }))} />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-[#1F4D3A]/60 text-xs font-semibold uppercase tracking-wider block mb-1.5">Name *</label>
+                  <label className="text-[#333333] text-xs font-semibold uppercase tracking-wider block mb-1.5">Name *</label>
                   <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                     placeholder="Your name"
-                    className="w-full bg-[#F7F4ED] border border-[#C8A96B]/25 rounded-xl px-4 py-2.5 text-[#1F4D3A] text-sm placeholder-[#1F4D3A]/30 focus:outline-none focus:border-[#1F4D3A]/50 transition-all" />
+                    className="w-full bg-[#F7F4ED] border border-[#C8A96B]/25 rounded-xl px-4 py-2.5 text-[#1F4D3A] text-sm placeholder-[#888888] focus:outline-none focus:border-[#1F4D3A]/50 transition-all" />
                 </div>
                 <div>
-                  <label className="text-[#1F4D3A]/60 text-xs font-semibold uppercase tracking-wider block mb-1.5">Email *</label>
+                  <label className="text-[#333333] text-xs font-semibold uppercase tracking-wider block mb-1.5">Email *</label>
                   <input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                     placeholder="your@email.com"
-                    className="w-full bg-[#F7F4ED] border border-[#C8A96B]/25 rounded-xl px-4 py-2.5 text-[#1F4D3A] text-sm placeholder-[#1F4D3A]/30 focus:outline-none focus:border-[#1F4D3A]/50 transition-all" />
+                    className="w-full bg-[#F7F4ED] border border-[#C8A96B]/25 rounded-xl px-4 py-2.5 text-[#1F4D3A] text-sm placeholder-[#888888] focus:outline-none focus:border-[#1F4D3A]/50 transition-all" />
                 </div>
               </div>
               <div>
-                <label className="text-[#1F4D3A]/60 text-xs font-semibold uppercase tracking-wider block mb-1.5">Your Review *</label>
+                <label className="text-[#333333] text-xs font-semibold uppercase tracking-wider block mb-1.5">Your Review *</label>
                 <textarea value={form.comment} onChange={e => setForm(f => ({ ...f, comment: e.target.value }))}
                   placeholder="How did this product transform your skin routine?" rows={4}
-                  className="w-full bg-[#F7F4ED] border border-[#C8A96B]/25 rounded-xl px-4 py-2.5 text-[#1F4D3A] text-sm placeholder-[#1F4D3A]/30 focus:outline-none focus:border-[#1F4D3A]/50 transition-all resize-none" />
+                  className="w-full bg-[#F7F4ED] border border-[#C8A96B]/25 rounded-xl px-4 py-2.5 text-[#1F4D3A] text-sm placeholder-[#888888] focus:outline-none focus:border-[#1F4D3A]/50 transition-all resize-none" />
               </div>
               <div className="flex items-center justify-between gap-4">
-                <p className="text-[#1F4D3A]/40 text-[11px] flex items-center gap-1">
+                <p className="text-[#666666] text-[11px] flex items-center gap-1">
                   <ShieldCheck className="w-3 h-3 text-[#C8A96B]" /> Verification email will be sent
                 </p>
                 <button type="submit" disabled={submitting}
@@ -266,14 +266,14 @@ function ReviewsSection({ productId }: { productId: number | null }) {
         <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-[#1F4D3A]" /></div>
       ) : reviews.length > 0 ? (
         <div className="space-y-4">
-          <p className="text-[#1F4D3A]/50 text-xs font-semibold uppercase tracking-wider">{totalReviews} Verified Review{totalReviews !== 1 ? 's' : ''}</p>
+          <p className="text-[#555555] text-xs font-semibold uppercase tracking-wider">{totalReviews} Verified Review{totalReviews !== 1 ? 's' : ''}</p>
           {reviews.map(r => <ReviewCard key={r.id} review={r} />)}
         </div>
       ) : submitState !== 'success' && !formVisible && (
         <div className="text-center py-12 border border-dashed border-[#C8A96B]/25 rounded-2xl">
           <Sparkles className="w-8 h-8 mx-auto mb-3 text-[#C8A96B]/40" />
-          <p className="text-[#1F4D3A]/50 text-sm font-medium">No reviews yet</p>
-          <p className="text-[#1F4D3A]/35 text-xs mt-1">Be the first to review this product!</p>
+          <p className="text-[#444444] text-sm font-medium">No reviews yet</p>
+          <p className="text-[#666666] text-xs mt-1">Be the first to review this product!</p>
         </div>
       )}
     </div>
@@ -444,7 +444,7 @@ export default function ProductDetailPage() {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="w-10 h-10 animate-spin" style={{ color: GRN }} />
-            <p className="text-sm font-medium" style={{ color: `${GRN}70` }}>Loading product…</p>
+            <p className="text-sm font-medium" style={{ color: '#4A5568' }}>Loading product…</p>
           </div>
         </div>
         <Footer />
@@ -463,7 +463,7 @@ export default function ProductDetailPage() {
           </div>
           <div>
             <h1 className="text-2xl font-serif font-light mb-2" style={{ color: GRN }}>Product Not Found</h1>
-            <p className="text-sm" style={{ color: `${GRN}60` }}>This product may have been removed or is unavailable.</p>
+            <p className="text-sm" style={{ color: '#555555' }}>This product may have been removed or is unavailable.</p>
           </div>
           <Link to="/products"
             className="flex items-center gap-2 px-7 py-3 rounded-full text-sm font-semibold transition-all duration-300"
@@ -590,17 +590,17 @@ export default function ProductDetailPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-20">
 
         {/* ── Breadcrumb ── */}
-        <nav className="flex items-center gap-1.5 text-[11px] mb-8 flex-wrap" style={{ color: `${GRN}50` }}>
+        <nav className="flex items-center gap-1.5 text-[11px] mb-8 flex-wrap" style={{ color: '#555555' }}>
           <Link to="/" className="hover:text-[#C8A96B] transition-colors">Home</Link>
           <ChevronRight className="w-3 h-3 shrink-0" />
           <Link to="/products" className="hover:text-[#C8A96B] transition-colors">Collections</Link>
           <ChevronRight className="w-3 h-3 shrink-0" />
           <Link to={`/products?category=${product.category}`} className="hover:text-[#C8A96B] transition-colors capitalize">{product.category}</Link>
           <ChevronRight className="w-3 h-3 shrink-0" />
-          <span className="truncate max-w-[180px]" style={{ color: `${GRN}80` }}>{product.name}</span>
+          <span className="truncate max-w-[180px] font-semibold" style={{ color: GRN }}>{product.name}</span>
           <button onClick={handleShare} aria-label="Share product"
             className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all cursor-pointer"
-            style={{ background: `${GRN}08`, border: `1px solid ${GOLD}30`, color: `${GRN}70` }}>
+            style={{ background: `${GRN}08`, border: `1px solid ${GOLD}30`, color: '#333333' }}>
             <Share2 className="w-3 h-3" /> Share
           </button>
         </nav>
@@ -749,7 +749,7 @@ export default function ProductDetailPage() {
                     <Star className="w-3.5 h-3.5 fill-[#C8A96B]" />
                   </div>
                   <span style={{ color: `${GRN}30` }}>|</span>
-                  <span className="font-medium" style={{ color: `${GRN}60` }}>{count} verified review{count !== 1 ? 's' : ''}</span>
+                  <span className="font-medium" style={{ color: '#555555' }}>{count} verified review{count !== 1 ? 's' : ''}</span>
                 </div>
               )
             })()}
@@ -762,7 +762,7 @@ export default function ProductDetailPage() {
                 </span>
                 {showDiscount && (
                   <>
-                    <span className="text-lg line-through" style={{ color: `${GRN}35` }}>
+                    <span className="text-lg line-through" style={{ color: '#888888' }}>
                       {currency}{basePrice.toLocaleString('en-IN')}
                     </span>
                     <span className="text-xs font-bold px-2.5 py-0.5 rounded-full"
@@ -772,7 +772,7 @@ export default function ProductDetailPage() {
                   </>
                 )}
               </div>
-              <p className="text-[10px] uppercase tracking-widest mt-2 font-semibold" style={{ color: `${GRN}35` }}>
+              <p className="text-[10px] uppercase tracking-widest mt-2 font-semibold" style={{ color: '#777777' }}>
                 inclusive of all taxes
               </p>
             </div>
@@ -780,7 +780,7 @@ export default function ProductDetailPage() {
             {/* Color Variants */}
             {product.colorVariants && product.colorVariants.length > 0 && (
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: `${GRN}60` }}>
+                <p className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#444444' }}>
                   Shade: <span className="normal-case font-bold" style={{ color: GOLD }}>
                     {selectedColor ? selectedColor.color : 'Select a shade'}
                   </span>
@@ -814,7 +814,7 @@ export default function ProductDetailPage() {
             {sizeVariants.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: `${GRN}60` }}>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: '#444444' }}>
                     Size / Volume: <span className="normal-case font-bold" style={{ color: GOLD }}>
                       {selectedSizeVariant !== null ? sizeVariants[selectedSizeVariant].label : 'Not selected'}
                     </span>
@@ -851,7 +851,7 @@ export default function ProductDetailPage() {
             {/* Weight variants — only if no size variants */}
             {sizeVariants.length === 0 && variants.length > 1 && (
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: `${GRN}60` }}>Pack Size</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#444444' }}>Pack Size</p>
                 <div className="flex flex-wrap gap-2">
                   {variants.map((v, idx) => (
                     <button key={v.weight} onClick={() => setSelectedVariant(idx)}
@@ -896,20 +896,20 @@ export default function ProductDetailPage() {
             <div className="space-y-4 pt-2">
               {/* Qty stepper */}
               <div className="flex items-center gap-3">
-                <span className="text-[11px] font-semibold uppercase tracking-wider w-10" style={{ color: `${GRN}50` }}>Qty</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wider w-10" style={{ color: '#555555' }}>Qty</span>
                 <div className="flex items-center rounded-full overflow-hidden border"
                   style={{ background: 'white', borderColor: `${GOLD}25` }}>
                   <button onClick={() => setQuantity(q => Math.max(1, q - 1))}
                     className="w-10 h-10 flex items-center justify-center transition-colors text-lg leading-none cursor-pointer"
-                    style={{ color: `${GRN}60` }}>−</button>
+                    style={{ color: '#444444' }}>−</button>
                   <span className="w-9 text-center font-semibold text-sm select-none" style={{ color: GRN }}>{quantity}</span>
                   <button onClick={() => setQuantity(q => Math.min(maxQty, q + 1))}
                     disabled={currentStock !== null && quantity >= maxQty}
                     className="w-10 h-10 flex items-center justify-center transition-colors text-lg leading-none disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer"
-                    style={{ color: `${GRN}60` }}>+</button>
+                    style={{ color: '#444444' }}>+</button>
                 </div>
                 {quantity > 1 && (
-                  <span className="text-xs font-medium" style={{ color: `${GRN}45` }}>
+                  <span className="text-xs font-medium" style={{ color: '#555555' }}>
                     = {currency}{(currentPrice * quantity).toLocaleString('en-IN')}
                   </span>
                 )}
@@ -923,7 +923,7 @@ export default function ProductDetailPage() {
                   disabled={isAdded || stockStatus.disabled || colorRequired || sizeRequired}
                   className={cn('flex items-center justify-center gap-2 py-3.5 rounded-full font-semibold text-sm tracking-wide transition-all duration-300 border-2 cursor-pointer')}
                   style={(stockStatus.disabled || colorRequired || sizeRequired)
-                    ? { background: `${GRN}06`, borderColor: `${GRN}15`, color: `${GRN}30`, cursor: 'not-allowed' }
+                    ? { background: `${GRN}08`, borderColor: `${GRN}20`, color: '#888888', cursor: 'not-allowed' }
                     : isAdded
                       ? { background: '#16a34a', borderColor: '#16a34a', color: 'white' }
                       : { background: GRN, borderColor: GRN, color: CREAM }}>
@@ -939,7 +939,7 @@ export default function ProductDetailPage() {
                   disabled={stockStatus.disabled || colorRequired || sizeRequired}
                   className="flex items-center justify-center gap-2 py-3.5 rounded-full font-semibold text-sm tracking-wide transition-all duration-300 border-2 cursor-pointer"
                   style={(stockStatus.disabled || colorRequired || sizeRequired)
-                    ? { borderColor: `${GRN}15`, color: `${GRN}25`, cursor: 'not-allowed' }
+                    ? { borderColor: `${GRN}20`, color: '#999999', cursor: 'not-allowed' }
                     : { borderColor: GRN, color: GRN, background: 'transparent' }}>
                   <Zap className="w-4 h-4" style={{ color: GOLD }} /> Buy Now
                 </motion.button>
@@ -964,7 +964,7 @@ export default function ProductDetailPage() {
                 </div>
                 <div>
                   <p className="text-xs font-semibold" style={{ color: GRN }}>{item.title}</p>
-                  <p className="text-[10px] mt-0.5" style={{ color: `${GRN}50` }}>{item.desc}</p>
+                  <p className="text-[10px] mt-0.5" style={{ color: '#555555' }}>{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -981,7 +981,7 @@ export default function ProductDetailPage() {
                   <f.icon className="w-4 h-4" style={{ color: f.color }} />
                 </div>
                 <span className="text-[9px] font-bold leading-tight tracking-wide uppercase" style={{ color: f.color }}>{f.label}</span>
-                <span className="text-[9px] leading-tight" style={{ color: `${f.color}70` }}>{f.desc}</span>
+                <span className="text-[9px] leading-tight" style={{ color: '#555555' }}>{f.desc}</span>
               </div>
             ))}
           </div>
@@ -994,7 +994,7 @@ export default function ProductDetailPage() {
               <button key={tab.key} onClick={() => setActiveTab(tab.key)}
                 className={cn('flex items-center gap-2 px-6 py-4 text-sm font-semibold transition-all border-b-2 -mb-px cursor-pointer')}
                 style={{
-                  color: activeTab === tab.key ? GRN : `${GRN}40`,
+                  color: activeTab === tab.key ? GRN : '#777777',
                   borderColor: activeTab === tab.key ? GRN : 'transparent',
                 }}>
                 <tab.icon className="w-4 h-4" />
@@ -1022,7 +1022,7 @@ export default function ProductDetailPage() {
                       <h3 className="text-xs font-bold uppercase tracking-wider mb-4 flex items-center gap-2" style={{ color: GOLD }}>
                         <FileText className="w-3.5 h-3.5" /> About this Product
                       </h3>
-                      <div className="text-sm leading-relaxed" style={{ color: `${GRN}80` }}
+                      <div className="text-sm leading-relaxed" style={{ color: '#333333' }}
                         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.description) }} />
                     </div>
                   )}
@@ -1032,7 +1032,7 @@ export default function ProductDetailPage() {
                     <p className="text-xs font-bold uppercase tracking-wider mb-4 flex items-center gap-2" style={{ color: GOLD }}>
                       <Sparkles className="w-3.5 h-3.5" /> How to Use
                     </p>
-                    <ol className="space-y-2 text-xs leading-relaxed" style={{ color: `${GRN}65` }}>
+                    <ol className="space-y-2 text-xs leading-relaxed" style={{ color: '#444444' }}>
                       <li className="flex gap-2"><span className="font-bold shrink-0" style={{ color: GOLD }}>01</span> Cleanse your face with a gentle cleanser and pat dry.</li>
                       <li className="flex gap-2"><span className="font-bold shrink-0" style={{ color: GOLD }}>02</span> Apply a small amount to fingertips and warm between palms.</li>
                       <li className="flex gap-2"><span className="font-bold shrink-0" style={{ color: GOLD }}>03</span> Gently press and massage onto face and neck in upward strokes.</li>
@@ -1045,7 +1045,7 @@ export default function ProductDetailPage() {
                     <p className="text-xs font-bold uppercase tracking-wider mb-4 flex items-center gap-2" style={{ color: GOLD }}>
                       <Award className="w-3.5 h-3.5" /> The Aarvia Difference
                     </p>
-                    <ul className="space-y-2 text-xs leading-relaxed" style={{ color: `${GRN}65` }}>
+                    <ul className="space-y-2 text-xs leading-relaxed" style={{ color: '#444444' }}>
                       <li className="flex gap-2"><span style={{ color: GOLD }}>✦</span> Cold-pressed, unrefined botanical actives at therapeutic concentrations</li>
                       <li className="flex gap-2"><span style={{ color: GOLD }}>✦</span> Zero fillers — every ingredient serves a skin-wellness purpose</li>
                       <li className="flex gap-2"><span style={{ color: GOLD }}>✦</span> Dermatologically tested, pH-balanced formulation</li>
@@ -1158,9 +1158,9 @@ export default function ProductDetailPage() {
                       ].map((row, i) => (
                         <tr key={row.size} style={{ borderBottom: i < 3 ? `1px solid ${GOLD}12` : 'none' }}>
                           <td className="px-4 py-3 font-medium text-sm" style={{ color: GRN }}>{row.size}</td>
-                          <td className="px-4 py-3 text-center text-sm" style={{ color: `${GRN}70` }}>{row.volume}</td>
-                          <td className="px-4 py-3 text-center text-sm" style={{ color: `${GRN}70` }}>{row.uses}</td>
-                          <td className="px-4 py-3 text-center text-sm" style={{ color: `${GRN}70` }}>{row.lasts}</td>
+                          <td className="px-4 py-3 text-center text-sm" style={{ color: '#444444' }}>{row.volume}</td>
+                          <td className="px-4 py-3 text-center text-sm" style={{ color: '#444444' }}>{row.uses}</td>
+                          <td className="px-4 py-3 text-center text-sm" style={{ color: '#444444' }}>{row.lasts}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1170,7 +1170,7 @@ export default function ProductDetailPage() {
                 {/* Storage details */}
                 <div className="rounded-xl p-4 space-y-2" style={{ background: `${GRN}06`, border: `1px solid ${GRN}12` }}>
                   <p className="text-xs font-bold uppercase tracking-wider" style={{ color: GRN }}>🌿 Storage & Shelf Life</p>
-                  <ul className="space-y-1.5 text-xs leading-relaxed" style={{ color: `${GRN}65` }}>
+                  <ul className="space-y-1.5 text-xs leading-relaxed" style={{ color: '#444444' }}>
                     <li>• Store in a cool, dry place away from direct sunlight and heat</li>
                     <li>• Keep tightly sealed after every use to preserve potency</li>
                     <li>• Best used within 12 months of opening</li>
@@ -1181,7 +1181,7 @@ export default function ProductDetailPage() {
                 {/* Tip */}
                 <div className="rounded-xl p-4 space-y-1.5" style={{ background: `${GOLD}10`, border: `1px solid ${GOLD}25` }}>
                   <p className="text-xs font-bold uppercase tracking-wider" style={{ color: GRN }}>✦ Pro Tip</p>
-                  <p className="text-xs leading-relaxed" style={{ color: `${GRN}70` }}>
+                  <p className="text-xs leading-relaxed" style={{ color: '#444444' }}>
                     For optimal absorption, apply on freshly cleansed, slightly damp skin. Layer thinnest to thickest consistency and always finish with SPF during the day.
                   </p>
                 </div>

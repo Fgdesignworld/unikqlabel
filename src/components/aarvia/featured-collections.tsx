@@ -5,10 +5,10 @@ import { ArrowRight } from "lucide-react"
 import { categoryService, type Category } from "@/services/categoryService"
 
 const FALLBACK_COLLECTIONS = [
-  { name: "Hair Care", sub: "Nourish & Strengthen", href: "/hair-care", color: "#1F4D3A" },
-  { name: "Body Care", sub: "Ritual for the Body", href: "/body-care", color: "#2A5C45" },
-  { name: "Best Sellers", sub: "Most Loved Formulas", href: "/best-sellers", color: "#345E4A" },
-  { name: "Gift Sets", sub: "Curated with Love", href: "/shop", color: "#1B4432" },
+  { name: "Herbal Floor Cleaner", sub: "Neem & Lemongrass Inspired", href: "/shop", color: "#1F4D3A" },
+  { name: "Dishwashing Liquid", sub: "Lemon Fresh", href: "/shop", color: "#2A5C45" },
+  { name: "Hand Wash", sub: "Neem & Tulsi Inspired", href: "/shop", color: "#345E4A" },
+  { name: "Laundry Liquid", sub: "Fresh Linen", href: "/shop", color: "#1B4432" },
 ]
 
 function imgUrl(src: string | null | undefined) {
@@ -45,15 +45,15 @@ export function FeaturedCollections() {
               viewport={{ once: true }} transition={{ duration: 0.5 }}
               className="text-[11px] font-bold tracking-[0.26em] uppercase mb-3"
               style={{ color: '#C8A96B' }}>
-              Our Collections
+              Home Wellness
             </motion.p>
             <motion.h2
               initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.05 }}
               className="text-4xl md:text-5xl leading-tight"
               style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600, color: '#1F4D3A' }}>
-              Crafted for<br />
-              <span style={{ color: '#C8A96B', fontStyle: 'italic' }}>Every Ritual</span>
+              Home Wellness for<br />
+              <span style={{ color: '#C8A96B', fontStyle: 'italic' }}>Everyday Living</span>
             </motion.h2>
           </div>
           <motion.div

@@ -13,9 +13,40 @@ export function HeroSection() {
 
   useEffect(() => {
     let active = true
+    const fallbackSlide: HeroSlide = {
+      id: 1,
+      title: "AARVIA™",
+      subtitle: "Inspired by Nature",
+      description: "Nature-inspired products thoughtfully crafted to support cleaner homes, fresher spaces, and better living.",
+      cta_primary_text: "Shop Collection",
+      cta_primary_link: "/shop",
+      cta_secondary_text: "Contact Us",
+      cta_secondary_link: "/contact",
+      image: null,
+      mobile_image: null,
+      status: 'active',
+      sort_order: 0,
+      created_at: '',
+      updated_at: ''
+    }
+
     heroSlideService.getPublic()
-      .then(data => { if (active) { setSlides(data); setLoading(false) } })
-      .catch(() => { if (active) setLoading(false) })
+      .then(data => {
+        if (active) {
+          if (data && data.length > 0) {
+            setSlides(data)
+          } else {
+            setSlides([fallbackSlide])
+          }
+          setLoading(false)
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setSlides([fallbackSlide])
+          setLoading(false)
+        }
+      })
     return () => { active = false }
   }, [])
 
@@ -65,8 +96,8 @@ export function HeroSection() {
             </motion.div>
           ) : (
             <motion.div key="default-bg" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #1A3D2E 0%, #0D2018 40%, #1F4D3A 70%, #162B22 100%)' }}>
-              <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(ellipse at 25% 35%, rgba(200,169,107,0.12) 0%, transparent 55%), radial-gradient(ellipse at 75% 70%, rgba(31,77,58,0.4) 0%, transparent 50%)' }} />
+              className="absolute inset-0 w-full h-full">
+              <img src="/images/hero-bg.jpg" alt="Aarvia" className="w-full h-full object-cover object-center" />
               <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(247,244,237,0.6) 1px, transparent 0)', backgroundSize: '28px 28px' }} />
             </motion.div>
           )}
@@ -74,7 +105,7 @@ export function HeroSection() {
 
         {/* Gradient overlay — always present */}
         <div className="absolute inset-0 z-10 pointer-events-none"
-          style={{ background: 'linear-gradient(105deg, rgba(10,28,20,0.75) 0%, rgba(10,28,20,0.45) 50%, rgba(10,28,20,0.2) 100%)' }} />
+          style={{ background: 'linear-gradient(105deg, rgba(10,28,20,0.8) 0%, rgba(10,28,20,0.5) 50%, rgba(10,28,20,0.2) 100%)' }} />
         <div className="absolute bottom-0 left-0 right-0 h-40 z-10 pointer-events-none"
           style={{ background: 'linear-gradient(0deg, rgba(247,244,237,0.08) 0%, transparent 100%)' }} />
       </div>
@@ -91,7 +122,7 @@ export function HeroSection() {
               <Leaf className="w-4 h-4 opacity-70" style={{ color: '#C8A96B' }} />
               <span className="text-[11px] font-semibold tracking-[0.28em] uppercase"
                 style={{ color: 'rgba(200,169,107,0.85)' }}>
-                {loading ? 'Premium Natural Wellness' : currentSlide?.subtitle}
+                {loading ? 'Inspired by Nature' : currentSlide?.subtitle}
               </span>
               <span className="block h-px w-10 opacity-40" style={{ background: '#C8A96B' }} />
             </motion.div>
@@ -100,7 +131,7 @@ export function HeroSection() {
           {/* Headline */}
           <motion.h1
             custom={1} variants={textVariants} initial="hidden" animate="visible"
-            className="mb-6 leading-[1.05]"
+            className="mb-4 leading-[1.05]"
             style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}>
             <AnimatePresence mode="wait">
               <motion.span key={`title-${currentIdx}`}
@@ -108,31 +139,39 @@ export function HeroSection() {
                 exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.6 }}
                 className="block">
                 <span className="block text-5xl md:text-7xl lg:text-8xl" style={{ color: '#F7F4ED' }}>
-                  {loading ? 'Nature Refined.' : (currentSlide?.title || 'Nature Refined.')}
+                  {loading ? 'AARVIA™' : (currentSlide?.title || 'AARVIA™')}
                 </span>
-                {!currentSlide?.title && (
-                  <span className="block text-5xl md:text-7xl lg:text-8xl italic mt-1"
+                {(!currentSlide || currentSlide.title === 'AARVIA™') && (
+                  <span className="block text-3xl md:text-5xl lg:text-6xl italic mt-3"
                     style={{ color: 'rgba(200,169,107,0.9)' }}>
-                    Luxury Reimagined.
+                    Home Wellness for Everyday Living
                   </span>
                 )}
               </motion.span>
             </AnimatePresence>
           </motion.h1>
 
+          {/* Description */}
+          <motion.p
+            custom={1.5} variants={textVariants} initial="hidden" animate="visible"
+            className="text-sm md:text-base mb-8 leading-relaxed max-w-xl"
+            style={{ color: 'rgba(247,244,237,0.8)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            {currentSlide?.description || "Nature-inspired products thoughtfully crafted to support cleaner homes, fresher spaces, and better living."}
+          </motion.p>
+
           {/* CTAs */}
           <motion.div custom={2} variants={textVariants} initial="hidden" animate="visible"
             className="flex flex-wrap items-center gap-4">
-            <Link to={currentSlide?.cta_primary_link || '/products'}
+            <Link to={currentSlide?.cta_primary_link || '/shop'}
               className="group flex items-center gap-2.5 px-8 py-4 rounded-none font-semibold tracking-wider transition-all duration-400 hover:gap-4"
-              style={{ background: '#C8A96B', color: '#1A2E1F', fontSize: '0.75rem', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+              style={{ background: '#C8A96B', color: '#1F4D3A', fontSize: '0.75rem', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
               {currentSlide?.cta_primary_text || 'Shop Collection'}
               <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
             </Link>
-            <Link to="/about"
+            <Link to={currentSlide?.cta_secondary_link || '/contact'}
               className="group flex items-center gap-2 px-8 py-4 rounded-none font-semibold tracking-wider transition-all duration-400"
               style={{ background: 'transparent', color: '#F7F4ED', fontSize: '0.75rem', letterSpacing: '0.14em', textTransform: 'uppercase', border: '1px solid rgba(247,244,237,0.3)' }}>
-              Our Story
+              {currentSlide?.cta_secondary_text || 'Contact Us'}
               <span className="block w-4 h-px" style={{ background: 'rgba(247,244,237,0.5)' }} />
             </Link>
           </motion.div>

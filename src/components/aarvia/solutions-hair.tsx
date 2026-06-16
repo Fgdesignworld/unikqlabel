@@ -1,12 +1,13 @@
 import { motion } from "framer-motion"
-import { ArrowRight, Sparkles, Check } from "lucide-react"
+import { ArrowRight, Check, Package } from "lucide-react"
 import { Link } from "react-router-dom"
 
-const BENEFITS = [
-  "Cleanses gently without stripping natural lipids",
-  "Infused with rosemary and ginger to stimulate hair growth",
-  "Free from synthetics, silicones, and sulfates",
-  "Restores silkiness and controls frizz naturally",
+const KIT_ITEMS = [
+  "Herbal Floor Cleaner (Neem & Lemongrass Inspired)",
+  "Lemon Fresh Dishwashing Liquid (1 Litre)",
+  "Neem & Tulsi Hand Wash (500 ml)",
+  "Fresh Linen Laundry Liquid (1 Litre)",
+  "Citrus Fresh Multi-Purpose Cleaner (500 ml)",
 ]
 
 export function SolutionsHair() {
@@ -20,42 +21,46 @@ export function SolutionsHair() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="relative overflow-hidden aspect-[4/3] lg:order-1 border"
+            className="relative overflow-hidden aspect-[4/3] border rounded-3xl shadow-xl"
             style={{ borderColor: "rgba(200,169,107,0.3)" }}
           >
             <img
-              src="https://images.unsplash.com/photo-1527799822367-a2505d993e51?q=80&w=600&auto=format&fit=crop"
-              alt="Premium Hair Care Solution"
+              src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=800&auto=format&fit=crop"
+              alt="Home Wellness Starter Kit"
               className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#1F4D3A]/50 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#1F4D3A]/60 to-transparent pointer-events-none" />
+            <div className="absolute top-4 left-4 px-3 py-1 text-[10px] font-bold tracking-widest uppercase rounded-full"
+              style={{ background: "#C8A96B", color: "#1F4D3A" }}>
+              Home wellness essentials
+            </div>
           </motion.div>
 
           {/* Right - text content */}
-          <div className="lg:order-2">
+          <div>
             <span className="text-[11px] font-bold tracking-[0.26em] uppercase mb-4 block" style={{ color: "#C8A96B" }}>
-              Botanical Restoration
+              Aarvia™ Collections
             </span>
             <h2
-              className="text-4xl md:text-5xl font-serif font-normal mb-6 leading-tight"
+              className="text-4xl md:text-5xl font-serif font-normal mb-6 leading-tight flex items-center gap-3"
               style={{ color: "#F7F4ED" }}
             >
-              Hair Care Solutions<br />
-              <span className="italic" style={{ color: "#C8A96B" }}>Crafted for Vitality</span>
+              Home Wellness<br />
+              <span className="italic" style={{ color: "#C8A96B" }}>Starter Kit</span>
             </h2>
             <p
               className="text-base leading-relaxed mb-8"
               style={{ color: "rgba(247,244,237,0.7)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
-              Nourish your hair from root to tip. Our active botanical shampoos and scalp oils are designed to work in harmony with your body, stimulating follicles and restoring natural strength.
+              A complete collection thoughtfully crafted for everyday home care. Supports cleaner homes, fresher spaces, and better living naturally.
             </p>
 
             {/* List */}
             <div className="space-y-3 mb-10">
-              {BENEFITS.map((item, idx) => (
+              {KIT_ITEMS.map((item, idx) => (
                 <div key={idx} className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(200,169,107,0.15)" }}>
-                    <Check className="w-3.5 h-3.5" style={{ color: "#C8A96B" }} />
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 animate-pulse" style={{ background: "rgba(200,169,107,0.2)" }}>
+                    <Check className="w-3 h-3" style={{ color: "#C8A96B" }} />
                   </div>
                   <span className="text-sm font-light text-[#F7F4ED]">{item}</span>
                 </div>
@@ -63,11 +68,11 @@ export function SolutionsHair() {
             </div>
 
             <Link
-              to="/hair-care"
-              className="inline-flex items-center gap-2.5 font-semibold tracking-wider transition-all hover:gap-4"
-              style={{ color: "#C8A96B", fontSize: "0.75rem", letterSpacing: "0.14em", textTransform: "uppercase" }}
+              to="/shop"
+              className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full font-semibold tracking-wider transition-all hover:gap-4 hover:shadow-lg cursor-pointer"
+              style={{ background: "#C8A96B", color: "#1F4D3A", fontSize: "0.75rem", letterSpacing: "0.14em", textTransform: "uppercase" }}
             >
-              Shop Hair Solutions <ArrowRight className="w-3.5 h-3.5" />
+              Shop Collection <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>

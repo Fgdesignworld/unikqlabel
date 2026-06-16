@@ -1,15 +1,19 @@
 import { motion } from "framer-motion"
-import { ArrowRight, Sparkles, Check } from "lucide-react"
-import { Link } from "react-router-dom"
-
-const BENEFITS = [
-  "Formulated with cold-pressed botanical oils",
-  "Infuses skin with essential lipids and vitamins",
-  "Free from synthetics, artificial colors, and microplastics",
-  "Deeply hydrates and restores skin cell elasticity",
-]
+import { Sparkles, Send, Mail } from "lucide-react"
+import { useState } from "react"
 
 export function SolutionsBody() {
+  const [email, setEmail] = useState("")
+  const [submitted, setSubmitted] = useState(false)
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (email.trim()) {
+      setSubmitted(true)
+      setEmail("")
+    }
+  }
+
   return (
     <section className="py-24" style={{ background: "#F7F4ED", borderTop: "1px solid rgba(200,169,107,0.12)" }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -17,41 +21,73 @@ export function SolutionsBody() {
           {/* Left - text content */}
           <div>
             <span className="text-[11px] font-bold tracking-[0.26em] uppercase mb-4 block" style={{ color: "#C8A96B" }}>
-              Nourishing Body Rituals
+              Future Releases
             </span>
             <h2
               className="text-4xl md:text-5xl font-serif font-normal mb-6 leading-tight"
               style={{ color: "#1F4D3A" }}
             >
-              Body Care Solutions<br />
-              <span className="italic" style={{ color: "#C8A96B" }}>For Skin Restoration</span>
+              Coming Soon<br />
+              <span className="italic" style={{ color: "#C8A96B" }}>Personal Care Collections</span>
             </h2>
             <p
-              className="text-base leading-relaxed mb-8"
+              className="text-base leading-relaxed mb-8 max-w-xl"
               style={{ color: "#6A6A60", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
-              Experience the ritual of complete body nourishment. Our cold-pressed botanical body washes, exfoliating scrubs, and botanical body oils work together to restore hydration and soften the skin.
+              Our research team is carefully crafting pure botanical formulations for your daily self-care rituals. Launching soon to elevate your wellness journey.
             </p>
 
             {/* List */}
-            <div className="space-y-3 mb-10">
-              {BENEFITS.map((item, idx) => (
-                <div key={idx} className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(31,77,58,0.06)" }}>
-                    <Check className="w-3.5 h-3.5" style={{ color: "#1F4D3A" }} />
-                  </div>
-                  <span className="text-sm font-light text-[#6A6A60]">{item}</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+              {[
+                { title: "Hair Care", items: ["Shampoo", "Hair Oil"], emoji: "🌿" },
+                { title: "Skin Care", items: ["Face Wash", "Herbal Soap"], emoji: "✨" },
+                { title: "Bath Care", items: ["Body Wash"], emoji: "🧼" },
+              ].map((cat, idx) => (
+                <div key={idx} className="p-5 bg-white border border-[#C8A96B]/20 rounded-2xl shadow-sm">
+                  <span className="text-2xl mb-2 block">{cat.emoji}</span>
+                  <h4 className="font-serif font-semibold text-base mb-2" style={{ color: "#1F4D3A" }}>{cat.title}</h4>
+                  <ul className="space-y-1">
+                    {cat.items.map((item, i) => (
+                      <li key={i} className="text-xs text-[#6A6A60] flex items-center gap-1.5">
+                        <span className="w-1 h-1 rounded-full bg-[#C8A96B]" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               ))}
             </div>
 
-            <Link
-              to="/body-care"
-              className="inline-flex items-center gap-2.5 font-semibold tracking-wider transition-all hover:gap-4"
-              style={{ color: "#1F4D3A", fontSize: "0.75rem", letterSpacing: "0.14em", textTransform: "uppercase" }}
-            >
-              Shop Body Solutions <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            {/* Newsletter input inside section */}
+            <div className="max-w-md">
+              {submitted ? (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 bg-[#1F4D3A]/5 border border-[#1F4D3A]/10 rounded-xl">
+                  <p className="text-xs font-semibold" style={{ color: "#1F4D3A" }}>✨ Thank you! You've joined our personal care VIP list.</p>
+                </motion.div>
+              ) : (
+                <form onSubmit={handleSubmit} className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1F4D3A]/40" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      required
+                      className="w-full bg-white border border-[#C8A96B]/35 rounded-full pl-11 pr-4 py-3 text-xs focus:outline-none focus:border-[#1F4D3A] transition-colors"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="px-6 py-3 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer hover:shadow-md"
+                    style={{ background: "#1F4D3A", color: "#F7F4ED" }}
+                  >
+                    Subscribe <Send className="w-3 h-3" />
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
 
           {/* Right - image block */}
@@ -60,15 +96,18 @@ export function SolutionsBody() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="relative overflow-hidden aspect-[4/3] border"
+            className="relative overflow-hidden aspect-[4/3] border rounded-3xl shadow-xl"
             style={{ borderColor: "rgba(200,169,107,0.15)" }}
           >
             <img
-              src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=600&auto=format&fit=crop"
-              alt="Premium Body Care Solution"
+              src="https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=800&auto=format&fit=crop"
+              alt="Botanical Personal Care Preview"
               className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#1F4D3A]/20 to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase bg-white/95 text-[#1F4D3A] backdrop-blur-md shadow-sm border border-[#C8A96B]/30">
+              <Sparkles className="w-3 h-3 text-[#C8A96B]" /> Pure botanicals coming soon
+            </div>
           </motion.div>
         </div>
       </div>

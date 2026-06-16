@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { categoryService, type Category, type CategoryPayload } from '@/services/categoryService'
 import { useToast } from '@/hooks/use-toast'
+import { useImageCompress } from '@/hooks/use-image-compress'
 import {
   Plus, Edit2, Trash2, Search, Tag, ToggleLeft, ToggleRight,
   Upload, X, Check, Loader2, Image as ImageIcon, RefreshCw,
@@ -54,6 +55,7 @@ function CategoryForm({
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [slugEdited, setSlugEdited] = useState(false)
+  const catCompress = useImageCompress({ maxSizeKB: 300, maxWidthPx: 1200 })
 
   const parentOptions = useMemo(() => {
     return parentCategories.map(p => ({
@@ -73,11 +75,16 @@ function CategoryForm({
   const handleImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+    e.target.value = ''
     setUploading(true)
     try {
-      const url = await categoryService.uploadImage(file)
+      const compressed = await catCompress.compress(file)
+      catCompress.markUploading()
+      const url = await categoryService.uploadImage(compressed)
+      catCompress.markDone()
       setForm(prev => ({ ...prev, image: url }))
     } catch {
+      catCompress.markError()
       toast({ title: 'Upload failed', variant: 'destructive' })
     } finally {
       setUploading(false)
@@ -205,12 +212,27 @@ function CategoryForm({
             ) : (
               <button
                 type="button"
-                onClick={() => fileRef.current?.click()}
-                className="w-full h-24 sm:h-32 bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-amber-500/50 hover:bg-amber-500/5 transition-all text-gray-600 hover:text-amber-500"
+                onClick={() => !catCompress.busy && !uploading && fileRef.current?.click()}
+                disabled={catCompress.busy || uploading}
+                className="w-full h-24 sm:h-32 bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-amber-500/50 hover:bg-amber-500/5 transition-all text-gray-600 hover:text-amber-500 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {uploading ? <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin text-amber-500" /> : <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6" />}
-                <span className="text-xs font-medium">{uploading ? 'Uploading...' : 'Click to upload image'}</span>
+                {(catCompress.busy || uploading)
+                  ? <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin text-amber-500" />
+                  : <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6" />}
+                <span className="text-xs font-medium">
+                  {catCompress.status === 'compressing' ? 'Compressing…'
+                    : uploading ? 'Uploading…'
+                    : 'Click to upload image'}
+                </span>
+                {!catCompress.busy && !uploading && (
+                  <span className="text-[10px] text-gray-400">Auto-compressed · JPG/PNG/WEBP</span>
+                )}
               </button>
+            )}
+            {catCompress.info && !uploading && (
+              <p className="mt-1 flex items-center gap-1 text-[10px] font-bold text-green-600">
+                <Check className="w-3 h-3" /> {catCompress.info}
+              </p>
             )}
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImage} />
           </div>

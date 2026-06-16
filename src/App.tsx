@@ -22,6 +22,9 @@ import BodyCarePage from '@/app/body-care/page';
 import BestSellersPage from '@/app/best-sellers/page';
 import SustainabilityPage from '@/app/sustainability/page';
 import FaqPage from '@/app/faq/page';
+import BlogPage from '@/app/blog/page';
+import BlogDetailPage from '@/app/blog/detail';
+
 
 // Admin pages
 import AdminLoginPage from '@/app/admin/login/page';
@@ -43,6 +46,8 @@ import AdminLeadsPage from '@/app/admin/leads/page';
 import AdminCouponsPage from '@/app/admin/coupons/page';
 import AdminInventoryPage from '@/app/admin/inventory/page';
 import AdminAccountPage from '@/app/admin/account/page';
+import AdminBlogListPage from '@/app/admin/blog/page';
+import AdminBlogFormPage from '@/app/admin/blog/form-page';
 
 export default function App() {
   // GA4 — track page views on every SPA route change
@@ -69,6 +74,8 @@ export default function App() {
       <Route path="/sustainability" element={<RootLayout><SustainabilityPage /></RootLayout>} />
       <Route path="/faq" element={<RootLayout><FaqPage /></RootLayout>} />
       <Route path="/track" element={<RootLayout><TrackOrderPage /></RootLayout>} />
+      <Route path="/blog" element={<RootLayout><BlogPage /></RootLayout>} />
+      <Route path="/blog/:slug" element={<RootLayout><BlogDetailPage /></RootLayout>} />
       <Route path="/products" element={<RootLayout><ProductsPage /></RootLayout>} />
       <Route path="/shop" element={<RootLayout><ProductsPage /></RootLayout>} />
       <Route path="/products/:slug" element={<RootLayout><ProductDetailPage /></RootLayout>} />
@@ -94,6 +101,9 @@ export default function App() {
         <Route path="coupons" element={<AdminCouponsPage />} />
         <Route path="inventory" element={<AdminInventoryPage />} />
         <Route path="account" element={<AdminAccountPage />} />
+        <Route path="blog" element={<AdminBlogListPage />} />
+        <Route path="blog/new" element={<AdminBlogFormPage />} />
+        <Route path="blog/:id" element={<AdminBlogFormPage />} />
       </Route>
     </Routes>
   );

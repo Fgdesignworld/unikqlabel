@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react"
+import { useSearchParams } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { Search, X, ChevronDown, SlidersHorizontal, ArrowUpDown, Percent, Star, Loader2, Crown } from "lucide-react"
+import { Search, X, ChevronDown, SlidersHorizontal, ArrowUpDown, Percent, Star, Loader2, Crown, Leaf } from "lucide-react"
 import { ProductCard } from "@/components/product-card"
 import type { Product } from "@/data/products"
 import type { Category } from "@/services/categoryService"
@@ -188,7 +189,7 @@ export interface ProductFiltersProps {
 export function ProductFilters({
   products,
   loading,
-  searchPlaceholder = 'Search styles, collections…',
+  searchPlaceholder = 'Search products, collections…',
   subcategories = [],
   allLabel = 'All',
   activeSubcategory = '',
@@ -196,12 +197,35 @@ export function ProductFilters({
   emptyIcon,
   emptyMessage = 'Collection coming soon.',
 }: ProductFiltersProps) {
-  const [search, setSearch] = useState('')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [search, setSearch] = useState(searchParams.get('q') || '')
   const [sortBy, setSortBy] = useState<SortOption>('relevance')
   const [selectedSizes, setSelectedSizes] = useState<Set<string>>(new Set())
   const [onlyDiscount, setOnlyDiscount] = useState(false)
   const [hideOutOfStock, setHideOutOfStock] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
+
+  // Sync search state -> URL parameter
+  useEffect(() => {
+    const urlQ = searchParams.get('q') || ''
+    if (urlQ !== search) {
+      const nextParams = new URLSearchParams(searchParams)
+      if (search) {
+        nextParams.set('q', search)
+      } else {
+        nextParams.delete('q')
+      }
+      setSearchParams(nextParams)
+    }
+  }, [search, searchParams, setSearchParams])
+
+  // Sync URL parameter -> search state
+  useEffect(() => {
+    const urlQ = searchParams.get('q') || ''
+    if (urlQ !== search) {
+      setSearch(urlQ)
+    }
+  }, [searchParams])
 
   // Price bounds computed from effective (post-discount) prices
   const priceBounds = useMemo<[number, number]>(() => {
@@ -213,13 +237,11 @@ export function ProductFilters({
   const [minPrice, setMinPrice] = useState<number>(0)
   const [maxPrice, setMaxPrice] = useState<number>(9999)
 
-  // Reset price bounds when products load
+  // Reset price bounds when products load or priceBounds changes
   useEffect(() => {
-    if (products.length > 0) {
-      setMinPrice(prev => prev === 0 ? priceBounds[0] : prev)
-      setMaxPrice(prev => prev === 9999 ? priceBounds[1] : prev)
-    }
-  }, [products.length, priceBounds])
+    setMinPrice(priceBounds[0])
+    setMaxPrice(priceBounds[1])
+  }, [priceBounds])
 
   // Extract all available sizes
   const allSizes = useMemo(() => {
@@ -268,6 +290,21 @@ export function ProductFilters({
   const activeFilterCount = (minPrice > priceBounds[0] || maxPrice < priceBounds[1] ? 1 : 0) + selectedSizes.size + (onlyDiscount ? 1 : 0) + (hideOutOfStock ? 1 : 0)
   const hasActiveFilters = !!search || activeFilterCount > 0 || sortBy !== 'relevance' || !!activeSubcategory
 
+  const isCategoryEmpty = useMemo(() => {
+    if (products.length === 0) return true
+    if (activeSubcategory) {
+      return !products.some(p => p.category === activeSubcategory)
+    }
+    return false
+  }, [products, activeSubcategory])
+
+  const showComingSoon = useMemo(() => {
+    if (filtered.length !== 0) return false
+    const hasSearch = !!search.trim()
+    const hasCustomFilters = selectedSizes.size > 0 || onlyDiscount || hideOutOfStock || (minPrice > priceBounds[0] || maxPrice < priceBounds[1])
+    return !hasSearch && !hasCustomFilters
+  }, [filtered.length, search, selectedSizes.size, onlyDiscount, hideOutOfStock, minPrice, maxPrice, priceBounds])
+
   const clearFilters = useCallback(() => {
     setSearch('')
     setSortBy('relevance')
@@ -282,7 +319,7 @@ export function ProductFilters({
   return (
     <>
       {/* ── Search + Sort Bar ── */}
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-3 mb-3">
         <div className="relative group flex-1">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none transition-colors text-[#1F4D3A]/40 group-focus-within:text-[#C8A96B]" />
           <input
@@ -290,7 +327,7 @@ export function ProductFilters({
             placeholder={searchPlaceholder}
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full h-[45px] pl-11 pr-10 rounded-xl text-sm transition-all outline-none bg-white/40 backdrop-blur-sm border border-[#C8A96B]/20 focus:border-[#1F4D3A] focus:bg-white text-[#1F4D3A] placeholder-[#1F4D3A]/45"
+            className="w-full h-[45px] pl-11 pr-10 rounded-xl text-sm transition-all outline-none bg-white/40 backdrop-blur-sm border border-[#C8A96B]/20 focus:border-[#1F4D3A] focus:bg-white text-[#1F4D3A] placeholder-[#888888]"
           />
           {search && (
             <button onClick={() => setSearch('')}
@@ -304,13 +341,13 @@ export function ProductFilters({
 
       {/* ── Subcategory Pills ── */}
       {subcategories.length > 0 && (
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1 mb-3">
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1 mb-2">
           <button
             onClick={() => onSubcategoryChange?.('')}
             className={`shrink-0 px-5 py-2 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300 hover:scale-102 cursor-pointer border ${
               !activeSubcategory
                 ? 'bg-[#1F4D3A] text-[#F7F4ED] border-[#1F4D3A] shadow-sm shadow-[#1F4D3A]/10'
-                : 'bg-[#1F4D3A]/5 hover:bg-[#1F4D3A]/10 text-[#1F4D3A]/70 hover:text-[#1F4D3A] border-transparent'
+                : 'bg-[#1F4D3A]/5 hover:bg-[#1F4D3A]/10 text-[#444444] hover:text-[#1F4D3A] border-transparent'
             }`}
           >
             {allLabel}
@@ -323,7 +360,7 @@ export function ProductFilters({
                 className={`shrink-0 px-5 py-2 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300 hover:scale-102 cursor-pointer border ${
                   isActive
                     ? 'bg-[#1F4D3A] text-[#F7F4ED] border-[#1F4D3A] shadow-sm shadow-[#1F4D3A]/10'
-                    : 'bg-[#1F4D3A]/5 hover:bg-[#1F4D3A]/10 text-[#1F4D3A]/70 hover:text-[#1F4D3A] border-transparent'
+                    : 'bg-[#1F4D3A]/5 hover:bg-[#1F4D3A]/10 text-[#444444] hover:text-[#1F4D3A] border-transparent'
                 }`}
               >
                 {sub.name}
@@ -334,7 +371,7 @@ export function ProductFilters({
       )}
 
       {/* ── Filter Toggle + Quick Filters ── */}
-      <div className="flex items-center gap-2 flex-wrap mb-4">
+      <div className="flex items-center gap-2 flex-wrap mb-3">
         <button onClick={() => setShowFilters(!showFilters)}
           className="h-[45px] flex items-center gap-2 px-4 rounded-xl text-xs font-semibold transition-all duration-300 cursor-pointer active:scale-95 border"
           style={{
@@ -383,20 +420,20 @@ export function ProductFilters({
               {/* Price Range */}
               <div className="p-4 rounded-xl bg-white/40 border border-[#C8A96B]/20">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="font-body text-[10px] font-bold uppercase tracking-widest text-[#1F4D3A]/60">Price Range</p>
+                  <p className="font-body text-[10px] font-bold uppercase tracking-widest text-[#333333]">Price Range</p>
                 </div>
                 <DualRangeSlider min={priceBounds[0]} max={priceBounds[1]} lo={minPrice} hi={maxPrice}
                   onChange={(lo, hi) => { setMinPrice(lo); setMaxPrice(hi) }} />
                 <div className="flex items-center gap-2 mt-3">
                   <div className="flex-1 relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-[#1F4D3A]/40">₹</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold" style={{ color: '#555555' }}>₹</span>
                     <input type="number" value={minPrice}
                       onChange={e => { const v = Math.max(priceBounds[0], Math.min(Number(e.target.value) || 0, maxPrice - 1)); setMinPrice(v) }}
                       className="w-full pl-7 pr-2 py-2 rounded-lg text-xs font-semibold text-center outline-none bg-[#1F4D3A]/3 border border-[#C8A96B]/15 text-[#1F4D3A]" />
                   </div>
-                  <span className="text-[10px] font-bold text-[#1F4D3A]/40">to</span>
+                  <span className="text-[10px] font-bold" style={{ color: '#555555' }}>to</span>
                   <div className="flex-1 relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-[#1F4D3A]/40">₹</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold" style={{ color: '#555555' }}>₹</span>
                     <input type="number" value={maxPrice}
                       onChange={e => { const v = Math.min(priceBounds[1], Math.max(Number(e.target.value) || 0, minPrice + 1)); setMaxPrice(v) }}
                       className="w-full pl-7 pr-2 py-2 rounded-lg text-xs font-semibold text-center outline-none bg-[#1F4D3A]/3 border border-[#C8A96B]/15 text-[#1F4D3A]" />
@@ -407,7 +444,7 @@ export function ProductFilters({
               {/* Size Filter */}
               {allSizes.length > 0 && (
                 <div className="p-4 rounded-xl bg-white/40 border border-[#C8A96B]/20">
-                  <p className="font-body text-[10px] font-bold uppercase tracking-widest mb-3 text-[#1F4D3A]/60">Variants / Sizes</p>
+                  <p className="font-body text-[10px] font-bold uppercase tracking-widest mb-3 text-[#333333]">Variants / Sizes</p>
                   <div className="flex flex-wrap gap-2">
                     {allSizes.map(size => {
                       const active = selectedSizes.has(size)
@@ -435,7 +472,7 @@ export function ProductFilters({
       <AnimatePresence>
         {hasActiveFilters && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="flex items-center gap-2 flex-wrap mb-5">
+            className="flex items-center gap-2 flex-wrap mb-3">
             {search && <FilterChip label={`"${search}"`} onRemove={() => setSearch('')} />}
             {activeSubcategory && (
               <FilterChip
@@ -464,8 +501,8 @@ export function ProductFilters({
 
       {/* ── Results Meta ── */}
       {!loading && (
-        <div className="flex items-center justify-between mb-6 min-h-6">
-          <span className="font-body text-xs text-[#1F4D3A]/60">
+        <div className="flex items-center justify-between mb-3">
+          <span className="font-body text-xs" style={{ color: '#555555' }}>
             {filtered.length} product{filtered.length !== 1 ? 's' : ''} found
           </span>
         </div>
@@ -473,19 +510,76 @@ export function ProductFilters({
 
       {/* ── Grid ── */}
       {loading ? (
-        <div className="flex items-center justify-center py-20">
+        <div className="flex items-center justify-center py-12">
           <Loader2 className="w-10 h-10 animate-spin text-[#1F4D3A]" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-20">
-          {emptyIcon || <Crown className="w-12 h-12 mx-auto mb-4 text-[#C8A96B]/30" />}
-          <p className="font-body text-lg mb-4 text-[#1F4D3A]/60">
-            {hasActiveFilters ? 'No products match your filters.' : emptyMessage}
-          </p>
-          {hasActiveFilters && (
-            <button onClick={clearFilters} className="px-6 py-2.5 rounded-full text-xs font-semibold bg-[#1F4D3A] hover:bg-[#C8A96B] text-[#F7F4ED] hover:text-[#1F4D3A] transition-all duration-300 shadow-md cursor-pointer">Clear Filters</button>
-          )}
-        </div>
+        (isCategoryEmpty || showComingSoon) ? (
+          /* ── Coming Soon empty state ── */
+          <div className="flex flex-col items-center justify-center py-0 px-6 text-center">
+            {/* Decorative ring */}
+            <div className="relative mb-5">
+              <div className="w-20 h-20 rounded-full flex items-center justify-center"
+                style={{ background: 'linear-gradient(135deg, rgba(31,77,58,0.06) 0%, rgba(200,169,107,0.08) 100%)', border: '1px solid rgba(200,169,107,0.2)' }}>
+                <div className="w-14 h-14 rounded-full flex items-center justify-center"
+                  style={{ background: 'linear-gradient(135deg, rgba(31,77,58,0.08) 0%, rgba(200,169,107,0.12) 100%)', border: '1px solid rgba(200,169,107,0.25)' }}>
+                  <Leaf className="w-5 h-5" style={{ color: '#1F4D3A', opacity: 0.6 }} />
+                </div>
+              </div>
+              {/* Orbit dot */}
+              <span className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full" style={{ background: '#C8A96B', opacity: 0.7 }} />
+            </div>
+
+            {/* Label */}
+            <p className="text-[11px] font-bold tracking-[0.28em] uppercase mb-2.5" style={{ color: '#C8A96B', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              Coming Soon
+            </p>
+
+            {/* Headline */}
+            <h3 className="text-2xl md:text-3xl leading-tight mb-2"
+              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600, color: '#1F4D3A' }}>
+              Something Beautiful<br />
+              <span style={{ fontStyle: 'italic', color: '#C8A96B' }}>Is on Its Way</span>
+            </h3>
+
+            {/* Sub-text */}
+            <p className="text-xs leading-relaxed max-w-sm mb-6"
+              style={{ color: '#555555', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              We're carefully curating this collection. Check back soon — or explore our other categories while you wait.
+            </p>
+
+            {/* Divider dots */}
+            <div className="flex items-center gap-2 mb-6">
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'rgba(200,169,107,0.4)' }} />
+              <span className="w-8 h-px" style={{ background: 'rgba(200,169,107,0.3)' }} />
+              <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#C8A96B', opacity: 0.6 }} />
+              <span className="w-8 h-px" style={{ background: 'rgba(200,169,107,0.3)' }} />
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'rgba(200,169,107,0.4)' }} />
+            </div>
+
+            {/* CTA */}
+            {emptyIcon ? emptyIcon : (
+              <button onClick={clearFilters}
+                className="inline-flex items-center gap-2 px-8 py-3.5 text-[11px] font-bold tracking-[0.14em] uppercase transition-all hover:opacity-90 active:scale-[0.98] cursor-pointer"
+                style={{ background: '#1F4D3A', color: '#F7F4ED' }}>
+                Browse All Products
+              </button>
+            )}
+          </div>
+        ) : (
+          /* ── Filter mismatch state ── */
+          <div className="text-center py-12">
+            <Crown className="w-8 h-8 mx-auto mb-3" style={{ color: 'rgba(200,169,107,0.35)' }} />
+            <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#555555', fontSize: '0.875rem' }} className="mb-4">
+              No products match your filters.
+            </p>
+            <button onClick={clearFilters}
+              className="px-6 py-2.5 text-[11px] font-semibold tracking-widest uppercase transition-all hover:opacity-80 cursor-pointer"
+              style={{ background: '#1F4D3A', color: '#F7F4ED' }}>
+              Clear Filters
+            </button>
+          </div>
+        )
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
           {filtered.map((product, index) => (

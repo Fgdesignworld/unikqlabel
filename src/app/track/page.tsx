@@ -47,12 +47,12 @@ interface TrackedOrder {
 
 // ─── Status config ────────────────────────────────────────────────────────────
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string; icon: React.ElementType; step: number }> = {
-  pending:    { label: 'Pending',    color: '#fbbf24', bg: 'rgba(251,191,36,0.1)',   border: 'rgba(251,191,36,0.25)',  icon: Clock,     step: 1 },
-  confirmed:  { label: 'Confirmed',  color: '#60a5fa', bg: 'rgba(96,165,250,0.1)',   border: 'rgba(96,165,250,0.25)',  icon: Check,     step: 2 },
-  processing: { label: 'Processing', color: '#c084fc', bg: 'rgba(192,132,252,0.1)',  border: 'rgba(192,132,252,0.25)', icon: Package,   step: 3 },
-  shipped:    { label: 'Shipped',    color: '#22d3ee', bg: 'rgba(34,211,238,0.1)',   border: 'rgba(34,211,238,0.25)',  icon: Truck,     step: 4 },
-  delivered:  { label: 'Delivered',  color: '#4ade80', bg: 'rgba(74,222,128,0.1)',   border: 'rgba(74,222,128,0.25)',  icon: Check,     step: 5 },
-  cancelled:  { label: 'Cancelled',  color: '#f87171', bg: 'rgba(248,113,113,0.1)',  border: 'rgba(248,113,113,0.25)', icon: XCircle,   step: 0 },
+  pending:    { label: 'Pending',    color: '#C8A96B', bg: 'rgba(200,169,107,0.08)', border: 'rgba(200,169,107,0.2)',  icon: Clock,     step: 1 },
+  confirmed:  { label: 'Confirmed',  color: '#2D6B4F', bg: 'rgba(45,107,79,0.08)',    border: 'rgba(45,107,79,0.2)',     icon: Check,     step: 2 },
+  processing: { label: 'Processing', color: '#8A9A86', bg: 'rgba(138,154,134,0.08)', border: 'rgba(138,154,134,0.2)',  icon: Package,   step: 3 },
+  shipped:    { label: 'Shipped',    color: '#4A6F5D', bg: 'rgba(74,111,93,0.08)',   border: 'rgba(74,111,93,0.2)',    icon: Truck,     step: 4 },
+  delivered:  { label: 'Delivered',  color: '#2D6B4F', bg: 'rgba(45,107,79,0.08)',    border: 'rgba(45,107,79,0.2)',    icon: Check,     step: 5 },
+  cancelled:  { label: 'Cancelled',  color: '#B25A5A', bg: 'rgba(178,90,90,0.08)',   border: 'rgba(178,90,90,0.2)',    icon: XCircle,   step: 0 },
 }
 
 const STEPS = [
@@ -76,8 +76,8 @@ function StatusStepper({ status }: { status: string }) {
   const currentStep = cfg.step
   if (status === 'cancelled') {
     return (
-      <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold"
-        style={{ background: STATUS_CONFIG.cancelled.bg, border: `1px solid ${STATUS_CONFIG.cancelled.border}`, color: STATUS_CONFIG.cancelled.color }}>
+      <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold border"
+        style={{ background: STATUS_CONFIG.cancelled.bg, borderColor: STATUS_CONFIG.cancelled.border, color: STATUS_CONFIG.cancelled.color }}>
         <XCircle className="w-4 h-4" /> Order Cancelled
       </div>
     )
@@ -91,22 +91,27 @@ function StatusStepper({ status }: { status: string }) {
         return (
           <div key={step.key} className="flex items-center min-w-0">
             <div className="flex flex-col items-center gap-1 min-w-13">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all"
-                style={{
-                  background: done ? 'var(--theme-color)' : 'var(--surface-alt)',
-                  border: active ? '2px solid var(--theme-color)' : done ? '2px solid var(--theme-color)' : '2px solid rgba(255,255,255,0.1)',
-                  boxShadow: active ? '0 0 12px rgba(212,175,55,0.4)' : 'none',
-                }}>
-                <Icon className="w-3.5 h-3.5" style={{ color: done ? '#0D0D0D' : 'var(--text-trace)' }} />
+              <div className={cn(
+                "w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all border",
+                done 
+                  ? "bg-[#1F4D3A] !text-[#F7F4ED] border-[#1F4D3A] dark:bg-[#C8A96B] dark:!text-[#1A1A1A] dark:border-[#C8A96B]" 
+                  : "bg-white/80 dark:bg-white/5 border-[#C8A96B]/25 text-neutral-400 dark:text-neutral-500"
+              )}
+                style={active ? { boxShadow: '0 0 12px rgba(200,169,107,0.3)' } : undefined}>
+                <Icon className="w-3.5 h-3.5" />
               </div>
-              <span className="text-[9px] font-bold uppercase tracking-wider text-center leading-tight"
-                style={{ color: done ? 'var(--theme-color)' : 'var(--text-trace)' }}>
+              <span className={cn(
+                "text-[9px] font-bold uppercase tracking-wider text-center leading-tight mt-1",
+                done ? "text-[#1F4D3A] dark:text-[#C8A96B]" : "text-neutral-400 dark:text-neutral-500"
+              )}>
                 {step.label}
               </span>
             </div>
             {i < STEPS.length - 1 && (
-              <div className="h-0.5 flex-1 mx-1 mb-4 rounded-full min-w-3"
-                style={{ background: i + 1 < currentStep ? 'var(--theme-color)' : 'rgba(255,255,255,0.08)' }} />
+              <div className={cn(
+                "h-0.5 flex-1 mx-1 mb-4 rounded-full min-w-3",
+                i + 1 < currentStep ? "bg-[#1F4D3A] dark:bg-[#C8A96B]" : "bg-[#C8A96B]/15 dark:bg-white/10"
+              )} />
             )}
           </div>
         )
@@ -126,33 +131,33 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.06 }}
-      className="rounded-2xl overflow-hidden"
-      style={{ background: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.06)' }}
+      className="rounded-lg overflow-hidden bg-white dark:bg-[#1A1A1A]"
+      style={{ border: '1px solid rgba(200,169,107,0.2)' }}
     >
       {/* Header row */}
       <button
         onClick={() => setExpanded(e => !e)}
-        className="w-full flex items-center gap-3 p-4 text-left hover:bg-white/2 transition-colors"
+        className="w-full flex items-center gap-3 p-4 text-left hover:bg-neutral-50/50 dark:hover:bg-white/2 transition-colors"
       >
         {/* Status dot + icon */}
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
+        <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border"
+          style={{ background: cfg.bg, borderColor: cfg.border }}>
           <Icon className="w-4 h-4" style={{ color: cfg.color }} />
         </div>
 
         {/* Invoice + date */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-black text-sm" style={{ color: 'var(--text-primary)' }}>{order.invoice_number}</span>
-            <span className="px-2 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider"
-              style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}>
+            <span className="font-bold text-sm text-[#1F4D3A] dark:text-[#F7F4ED]">{order.invoice_number}</span>
+            <span className="px-2 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider border"
+              style={{ background: cfg.bg, borderColor: cfg.border, color: cfg.color }}>
               {cfg.label}
             </span>
           </div>
           <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-            <span className="text-[11px]" style={{ color: 'var(--text-ghost)' }}>{fmtDate(order.created_at)} • {fmtTime(order.created_at)}</span>
+            <span className="text-[11px] text-neutral-500 dark:text-white/40">{fmtDate(order.created_at)} • {fmtTime(order.created_at)}</span>
             {order.city && (
-              <span className="flex items-center gap-1 text-[11px]" style={{ color: 'var(--text-ghost)' }}>
+              <span className="flex items-center gap-1 text-[11px] text-neutral-500 dark:text-white/40">
                 <MapPin className="w-2.5 h-2.5" /> {order.city}
               </span>
             )}
@@ -161,11 +166,11 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
 
         {/* Total */}
         <div className="text-right shrink-0">
-          <p className="text-amber-400 font-black text-base">{currency}{Number(order.total).toLocaleString('en-IN')}</p>
-          <p className="text-[10px]" style={{ color: 'var(--text-ghost)' }}>{order.items?.length || 0} item{(order.items?.length || 0) !== 1 ? 's' : ''}</p>
+          <p className="text-[#C8A96B] font-bold text-base">{currency}{Number(order.total).toLocaleString('en-IN')}</p>
+          <p className="text-[10px] text-neutral-400 dark:text-white/30">{order.items?.length || 0} item{(order.items?.length || 0) !== 1 ? 's' : ''}</p>
         </div>
 
-        {expanded ? <ChevronUp className="w-4 h-4 text-gray-600 shrink-0" /> : <ChevronDown className="w-4 h-4 text-gray-600 shrink-0" />}
+        {expanded ? <ChevronUp className="w-4 h-4 text-gray-500 shrink-0" /> : <ChevronDown className="w-4 h-4 text-gray-500 shrink-0" />}
       </button>
 
       {/* Expanded detail */}
@@ -178,7 +183,7 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
             transition={{ duration: 0.25 }}
             className="overflow-hidden"
           >
-            <div className="px-4 pb-4 space-y-4" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+            <div className="px-4 pb-4 space-y-4 border-t border-[#C8A96B]/15 dark:border-white/5">
               {/* Stepper */}
               <div className="pt-4">
                 <StatusStepper status={order.status} />
@@ -186,51 +191,47 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
 
               {/* Items */}
               <div className="space-y-2">
-                <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-trace)' }}>Items Ordered</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#1F4D3A] dark:text-[#C8A96B]">Items Ordered</p>
                 {(order.items || []).map((item, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl"
-                    style={{ background: 'var(--surface-alt)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-[#F7F4ED]/40 dark:bg-[#121212] border border-[#C8A96B]/15 dark:border-white/5">
                     {/* Image or placeholder */}
                     {item.image_url ? (
                       <img src={item.image_url} alt={item.product_name}
-                        className="w-12 h-12 rounded-lg object-cover shrink-0"
-                        style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+                        className="w-12 h-12 rounded-lg object-cover shrink-0 bg-white"
+                        style={{ border: '1px solid rgba(200,169,107,0.15)' }}
                         onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0"
-                        style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.1)' }}>
-                        <Package className="w-5 h-5 text-amber-500/40" />
+                      <div className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0 bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/15 dark:border-white/5">
+                        <Package className="w-5 h-5 text-[#1F4D3A]/30 dark:text-[#C8A96B]/30" />
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm truncate" style={{ color: 'var(--text-primary)' }}>{item.product_name}</p>
+                      <p className="font-bold text-sm truncate text-[#1F4D3A] dark:text-[#F7F4ED]">{item.product_name}</p>
                       <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                         {item.size_label && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-                            style={{ background: 'rgba(217,119,6,0.15)', color: '#fbbf24', border: '1px solid rgba(217,119,6,0.2)' }}>
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#1F4D3A]/5 text-[#1F4D3A] dark:bg-[#C8A96B]/10 dark:text-[#C8A96B] border border-[#1F4D3A]/15 dark:border-[#C8A96B]/15">
                             {item.size_label}
                           </span>
                         )}
                         {item.color_name && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-                            style={{ background: 'rgba(148,163,184,0.1)', color: '#94a3b8', border: '1px solid rgba(148,163,184,0.15)' }}>
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-neutral-100 text-neutral-600 dark:bg-white/10 dark:text-white/70 border border-neutral-200 dark:border-white/5">
                             {item.color_name}
                           </span>
                         )}
                         {!item.size_label && !item.color_name && (
-                          <span className="text-[10px]" style={{ color: 'var(--text-ghost)' }}>—</span>
+                          <span className="text-[10px] text-neutral-400">—</span>
                         )}
                       </div>
                     </div>
                     <div className="text-right shrink-0">
                       {item.original_price && Number(item.original_price) > Number(item.price) ? (
                         <>
-                          <p className="text-[10px] line-through" style={{ color: 'var(--text-trace)' }}>
+                          <p className="text-[10px] line-through text-neutral-400 dark:text-neutral-500">
                             {currency}{Number(item.original_price * item.qty).toLocaleString('en-IN')}
                           </p>
-                          <p className="text-amber-400 font-bold text-sm">{currency}{Number(item.total).toLocaleString('en-IN')}</p>
-                          <p className="text-[10px] font-bold" style={{ color: '#4ade80' }}>
+                          <p className="text-[#C8A96B] font-bold text-sm">{currency}{Number(item.total).toLocaleString('en-IN')}</p>
+                          <p className="text-[10px] font-bold text-green-600 dark:text-green-500">
                             SAVE {currency}{(Number(item.original_price) - Number(item.price)) * Number(item.qty) < 1
                               ? ((Number(item.original_price) - Number(item.price)) * Number(item.qty)).toFixed(2)
                               : Math.round((Number(item.original_price) - Number(item.price)) * Number(item.qty))}
@@ -238,8 +239,8 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
                         </>
                       ) : (
                         <>
-                          <p className="text-amber-400 font-bold text-sm">{currency}{Number(item.total).toLocaleString('en-IN')}</p>
-                          <p className="text-[10px]" style={{ color: 'var(--text-ghost)' }}>×{item.qty} @ {currency}{Number(item.price).toLocaleString('en-IN')}</p>
+                          <p className="text-[#C8A96B] font-bold text-sm">{currency}{Number(item.total).toLocaleString('en-IN')}</p>
+                          <p className="text-[10px] text-neutral-400 dark:text-white/40">×{item.qty} @ {currency}{Number(item.price).toLocaleString('en-IN')}</p>
                         </>
                       )}
                     </div>
@@ -248,36 +249,36 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
               </div>
 
               {/* Summary */}
-              <div className="rounded-xl p-3 space-y-2" style={{ background: 'var(--surface-alt)', border: '1px solid rgba(255,255,255,0.04)' }}>
+              <div className="rounded-lg p-3 space-y-2 bg-[#F7F4ED]/50 dark:bg-[#121212] border border-[#C8A96B]/15 dark:border-white/5">
                 <div className="flex justify-between text-[12px]">
-                  <span style={{ color: 'var(--text-subtle)' }}>Subtotal</span>
-                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{currency}{Number(order.subtotal).toLocaleString('en-IN')}</span>
+                  <span className="text-neutral-500 dark:text-white/40">Subtotal</span>
+                  <span className="font-semibold text-[#1F4D3A] dark:text-[#F7F4ED]">{currency}{Number(order.subtotal).toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-[12px]">
-                  <span style={{ color: 'var(--text-subtle)' }}>Delivery</span>
-                  <span style={{ color: Number(order.delivery) === 0 ? '#4ade80' : 'var(--text-primary)' }}>
+                  <span className="text-neutral-500 dark:text-white/40">Delivery</span>
+                  <span className={Number(order.delivery) === 0 ? 'text-green-600 dark:text-green-500 font-bold' : 'text-[#1F4D3A] dark:text-[#F7F4ED]'}>
                     {Number(order.delivery) === 0 ? 'FREE' : `${currency}${Number(order.delivery).toLocaleString('en-IN')}`}
                   </span>
                 </div>
                 {Number(order.discount_amount) > 0 && (
                   <div className="flex justify-between text-[12px]">
-                    <span style={{ color: 'var(--text-subtle)' }}>
-                      Coupon{order.coupon_code ? <span style={{ color: '#fbbf24' }}> ({order.coupon_code})</span> : ''}
+                    <span className="text-neutral-500 dark:text-white/40">
+                      Coupon{order.coupon_code ? <span className="text-[#C8A96B]"> ({order.coupon_code})</span> : ''}
                     </span>
-                    <span className="font-semibold" style={{ color: '#4ade80' }}>
+                    <span className="font-semibold text-green-600 dark:text-green-500">
                       -{currency}{Number(order.discount_amount).toLocaleString('en-IN')}
                     </span>
                   </div>
                 )}
                 {order.payment_method && (
                   <div className="flex justify-between text-[12px]">
-                    <span style={{ color: 'var(--text-subtle)' }}>Payment</span>
-                    <span className="font-semibold uppercase" style={{ color: 'var(--text-primary)' }}>{order.payment_method}</span>
+                    <span className="text-neutral-500 dark:text-white/40">Payment</span>
+                    <span className="font-semibold uppercase text-[#1F4D3A] dark:text-[#F7F4ED]">{order.payment_method}</span>
                   </div>
                 )}
-                <div className="flex justify-between pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                  <span className="font-black text-sm" style={{ color: 'var(--text-primary)' }}>Total</span>
-                  <span className="text-amber-400 font-black text-base">{currency}{Number(order.total).toLocaleString('en-IN')}</span>
+                <div className="flex justify-between pt-2 border-t border-[#C8A96B]/15 dark:border-white/5">
+                  <span className="font-bold text-sm text-[#1F4D3A] dark:text-[#F7F4ED]">Total</span>
+                  <span className="text-[#C8A96B] font-bold text-base">{currency}{Number(order.total).toLocaleString('en-IN')}</span>
                 </div>
               </div>
             </div>
@@ -290,7 +291,7 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function TrackOrderPage() {
-  useSeo({ pageType: 'page', pageSlug: 'track', fallbackTitle: 'Track Your Order — KoffeeKup' })
+  useSeo({ pageType: 'page', pageSlug: 'track', fallbackTitle: 'Track Your Order — Aarvia' })
   const { settings } = useSettings()
   const currency = settings?.currency_symbol || '₹'
 
@@ -346,7 +347,7 @@ export default function TrackOrderPage() {
   }
 
   return (
-    <main className="min-h-screen" style={{ background: 'var(--surface-page)' }}>
+    <main className="min-h-screen bg-[#F7F4ED] dark:bg-[#121212] text-[#1F4D3A] dark:text-[#F7F4ED] transition-colors duration-300">
       <Navbar />
       <PageHeader
         title="Track Order"
@@ -362,11 +363,10 @@ export default function TrackOrderPage() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="rounded-2xl p-6 mb-8"
-            style={{ background: 'var(--surface-card)', border: '1px solid rgba(212,175,55,0.12)', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}
+            className="rounded-2xl p-6 md:p-8 mb-8 bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/15 dark:border-white/5 shadow-sm"
           >
             {/* Tab switcher */}
-            <div className="flex rounded-xl p-1 mb-6" style={{ background: 'var(--surface-alt)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="flex rounded-xl p-1 mb-6 bg-[#F7F4ED]/80 dark:bg-[#121212] border border-[#C8A96B]/15 dark:border-white/5">
               {([
                 { key: 'phone',   label: 'Mobile Number', icon: Phone },
                 { key: 'invoice', label: 'Invoice Number', icon: FileText },
@@ -375,13 +375,11 @@ export default function TrackOrderPage() {
                   key={key}
                   onClick={() => { setTab(key); setError(null) }}
                   className={cn(
-                    'flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-bold uppercase tracking-wider transition-all',
+                    'flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer',
+                    tab === key
+                      ? 'bg-[#1F4D3A] text-white dark:bg-[#C8A96B] dark:text-[#1A1A1A] shadow-sm'
+                      : 'text-neutral-500 hover:text-[#1F4D3A] dark:text-neutral-400 dark:hover:text-[#C8A96B]'
                   )}
-                  style={tab === key ? {
-                    background: 'linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.08))',
-                    border: '1px solid rgba(212,175,55,0.3)',
-                    color: 'var(--theme-color)',
-                  } : { color: 'var(--text-ghost)', border: '1px solid transparent' }}
                 >
                   <Icon className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">{label}</span>
@@ -396,9 +394,9 @@ export default function TrackOrderPage() {
                 {tab === 'phone' ? (
                   <>
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                      <Phone className="w-4 h-4" style={{ color: 'rgba(212,175,55,0.5)' }} />
-                      <span className="text-sm font-bold" style={{ color: 'var(--text-ghost)' }}>+91</span>
-                      <span className="w-px h-4" style={{ background: 'rgba(255,255,255,0.1)' }} />
+                      <Phone className="w-4 h-4 text-[#1F4D3A] dark:text-[#C8A96B]" />
+                      <span className="text-sm font-bold text-[#1F4D3A] dark:text-[#F7F4ED]">+91</span>
+                      <span className="w-px h-4 bg-[#C8A96B]/30" />
                     </div>
                     <input
                       type="tel"
@@ -408,37 +406,27 @@ export default function TrackOrderPage() {
                       placeholder="Enter 10-digit mobile number"
                       value={phoneInput}
                       onChange={e => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                      className="w-full pl-22 pr-12 py-4 rounded-xl text-sm font-medium outline-none transition-all"
-                      style={{
-                        background: 'var(--surface-alt)',
-                        border: '1px solid rgba(212,175,55,0.2)',
-                        color: 'var(--text-primary)',
-                      }}
+                      className="w-full pl-22 pr-12 py-3.5 rounded-lg font-body text-sm bg-[#F7F4ED]/50 dark:bg-[#121212] border border-[#C8A96B]/25 dark:border-white/10 outline-none transition-all focus:border-[#1F4D3A] dark:focus:border-[#C8A96B] focus:bg-white dark:focus:bg-[#1A1A1A] text-[#1F4D3A] dark:text-[#F7F4ED]"
                     />
                   </>
                 ) : (
                   <>
                     <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                      <FileText className="w-4 h-4" style={{ color: 'rgba(212,175,55,0.5)' }} />
+                      <FileText className="w-4 h-4 text-[#1F4D3A] dark:text-[#C8A96B]" />
                     </div>
                     <input
                       type="text"
                       placeholder="e.g. KK-643770"
                       value={invoiceInput}
                       onChange={e => setInvoiceInput(e.target.value.toUpperCase())}
-                      className="w-full pl-10 pr-12 py-4 rounded-xl text-sm font-medium outline-none transition-all uppercase tracking-wider"
-                      style={{
-                        background: 'var(--surface-alt)',
-                        border: '1px solid rgba(212,175,55,0.2)',
-                        color: 'var(--text-primary)',
-                      }}
+                      className="w-full pl-10 pr-12 py-3.5 rounded-lg font-body text-sm bg-[#F7F4ED]/50 dark:bg-[#121212] border border-[#C8A96B]/25 dark:border-white/10 outline-none transition-all focus:border-[#1F4D3A] dark:focus:border-[#C8A96B] focus:bg-white dark:focus:bg-[#1A1A1A] text-[#1F4D3A] dark:text-[#F7F4ED] uppercase tracking-wider"
                     />
                   </>
                 )}
                 {(phoneInput || invoiceInput) && (
                   <button type="button" onClick={clear}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full transition-colors"
-                    style={{ color: 'var(--text-ghost)' }}>
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full transition-colors text-neutral-400 hover:text-[#1F4D3A] dark:text-neutral-500 dark:hover:text-[#C8A96B]"
+                  >
                     <X className="w-3.5 h-3.5" />
                   </button>
                 )}
@@ -446,8 +434,8 @@ export default function TrackOrderPage() {
 
               {error && (
                 <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm"
-                  style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', color: '#fca5a5' }}>
+                  className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm"
+                  style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}>
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   {error}
                 </motion.div>
@@ -456,11 +444,7 @@ export default function TrackOrderPage() {
               <button
                 type="submit"
                 disabled={loading || (tab === 'phone' ? phoneInput.length !== 10 : invoiceInput.length < 3)}
-                className="w-full flex items-center justify-center gap-2 py-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{
-                  background: 'linear-gradient(135deg, var(--theme-color), color-mix(in srgb, var(--theme-color) 70%, black))',
-                  color: '#0D0D0D',
-                }}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer bg-[#1F4D3A] hover:bg-[#163829] !text-white dark:bg-[#C8A96B] dark:hover:bg-[#E2C98A] dark:!text-[#1A1A1A]"
               >
                 {loading ? (
                   <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}>
@@ -474,7 +458,7 @@ export default function TrackOrderPage() {
             </form>
 
             {/* Hint */}
-            <p className="text-center text-[11px] mt-4" style={{ color: 'var(--text-trace)' }}>
+            <p className="text-center text-[11px] mt-4 text-neutral-500 dark:text-neutral-400">
               {tab === 'phone'
                 ? 'Enter the mobile number you used when placing your order'
                 : 'Find your invoice number in the PDF or WhatsApp confirmation message'}
@@ -489,19 +473,18 @@ export default function TrackOrderPage() {
                   {/* No orders */}
                   {(orders === null || orders.length === 0) && !error && (
                     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-                      className="text-center py-16 rounded-2xl"
-                      style={{ background: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                      <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                        style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.12)' }}>
-                        <ShoppingBag className="w-7 h-7 text-amber-500/40" />
+                      className="text-center py-16 rounded-2xl bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/15 dark:border-white/5 shadow-sm"
+                    >
+                      <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-[#F7F4ED] dark:bg-[#121212] border border-[#C8A96B]/20 dark:border-white/10">
+                        <ShoppingBag className="w-7 h-7 text-[#1F4D3A] dark:text-[#C8A96B]" />
                       </div>
-                      <p className="font-bold text-lg mb-1" style={{ color: 'var(--text-primary)' }}>No Orders Found</p>
-                      <p className="text-sm" style={{ color: 'var(--text-ghost)' }}>
+                      <p className="font-serif text-lg font-normal mb-1 text-[#1F4D3A] dark:text-[#F7F4ED]">No Orders Found</p>
+                      <p className="text-sm text-neutral-600 dark:text-white/60">
                         {tab === 'phone'
                           ? "We couldn't find any orders for this mobile number."
                           : "No order matches this invoice number."}
                       </p>
-                      <p className="text-xs mt-2" style={{ color: 'var(--text-trace)' }}>
+                      <p className="text-xs mt-2 text-neutral-400 dark:text-neutral-500">
                         Please check and try again
                       </p>
                     </motion.div>
@@ -511,10 +494,10 @@ export default function TrackOrderPage() {
                   {orders && orders.length > 0 && (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-[11px] font-black uppercase tracking-widest" style={{ color: 'var(--text-ghost)' }}>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
                           {orders.length} Order{orders.length !== 1 ? 's' : ''} Found
                         </p>
-                        <button onClick={clear} className="text-[11px] font-bold" style={{ color: 'rgba(212,175,55,0.6)' }}>
+                        <button onClick={clear} className="text-[10px] font-bold uppercase tracking-widest text-[#1F4D3A] hover:text-[#163829] dark:text-[#C8A96B] dark:hover:text-[#E2C98A] cursor-pointer">
                           Clear
                         </button>
                       </div>
@@ -531,20 +514,19 @@ export default function TrackOrderPage() {
           {/* Info cards (shown before search) */}
           {!searched && (
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-              className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
+              className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2"
+            >
               {[
                 { icon: Phone,    title: 'Mobile Lookup',    desc: 'View all orders placed with your phone number' },
                 { icon: FileText, title: 'Invoice Search',   desc: 'Track a specific order using its invoice ID' },
                 { icon: Truck,    title: 'Live Status',      desc: 'See real-time status from pending to delivered' },
               ].map(({ icon: Icon, title, desc }) => (
-                <div key={title} className="p-4 rounded-xl text-center"
-                  style={{ background: 'var(--surface-alt)', border: '1px solid rgba(212,175,55,0.07)' }}>
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center mx-auto mb-3"
-                    style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.15)' }}>
-                    <Icon className="w-4 h-4 text-amber-500" />
+                <div key={title} className="p-4 rounded-xl text-center bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/15 dark:border-white/5">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center mx-auto mb-3 bg-[#F7F4ED] dark:bg-[#121212] border border-[#C8A96B]/20 dark:border-white/10">
+                    <Icon className="w-4 h-4 text-[#1F4D3A] dark:text-[#C8A96B]" />
                   </div>
-                  <p className="font-bold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>{title}</p>
-                  <p className="text-[11px]" style={{ color: 'var(--text-ghost)' }}>{desc}</p>
+                  <p className="font-bold text-sm mb-1 text-[#1F4D3A] dark:text-[#F7F4ED]">{title}</p>
+                  <p className="text-[11px] text-neutral-500 dark:text-neutral-400">{desc}</p>
                 </div>
               ))}
             </motion.div>

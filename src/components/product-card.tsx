@@ -319,7 +319,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                       ? 'bg-[#1F4D3A] text-[#F7F4ED] border-[#1F4D3A] shadow-sm shadow-[#1F4D3A]/20 scale-100'
                       : sizeError
                         ? 'bg-red-500/10 text-red-500 border-red-500/60 animate-pulse'
-                        : 'border-[#C8A96B]/25 bg-transparent text-[#1F4D3A]/70 hover:border-[#1F4D3A]/50 hover:text-[#1F4D3A]'
+                        : 'border-[#C8A96B]/25 bg-transparent text-[#1F4D3A] hover:border-[#1F4D3A]/50 hover:text-[#1F4D3A]'
                   )}
                 >
                   {sv.label}
@@ -343,10 +343,10 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             <div className="flex items-baseline gap-1.5 flex-wrap">
               <p className="text-[#1F4D3A] text-base md:text-lg font-serif font-semibold">{currency}{effectivePrice.toLocaleString('en-IN')}</p>
               {showDiscount && (
-                <p className="text-[10px] md:text-xs line-through text-[#1F4D3A]/40">{currency}{basePrice.toLocaleString('en-IN')}</p>
+                <p className="text-[10px] md:text-xs line-through" style={{ color: '#888888' }}>{currency}{basePrice.toLocaleString('en-IN')}</p>
               )}
             </div>
-            <p className="text-[9px] md:text-[10px] text-[#1F4D3A]/50 truncate">
+            <p className="text-[9px] md:text-[10px] truncate" style={{ color: '#666666' }}>
               {selectedColor ? selectedColor.color : (sizeVariants.length === 0 ? product.weight : '')}
             </p>
           </div>
@@ -357,7 +357,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             disabled={isAdded || isOOS}
             className={`flex items-center justify-center gap-1.5 px-4 py-2 font-semibold rounded-full transition-all duration-300 text-[10px] tracking-wider uppercase relative z-20 cursor-pointer border ${
               isOOS
-                ? 'bg-[#F7F4ED] border-black/5 text-[#1F4D3A]/20 cursor-not-allowed'
+                ? 'bg-[#F7F4ED] border-black/5 text-[#999999] cursor-not-allowed'
                 : isAdded
                 ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/10 border-emerald-600'
                 : 'bg-[#1F4D3A] hover:bg-[#C8A96B] text-[#F7F4ED] hover:text-[#1F4D3A] shadow-md shadow-[#1F4D3A]/10 border-[#1F4D3A] hover:border-[#C8A96B]'

@@ -18,6 +18,7 @@ require_once __DIR__ . '/../controllers/ContactController.php';
 require_once __DIR__ . '/../controllers/CouponController.php';
 require_once __DIR__ . '/../controllers/InventoryController.php';
 require_once __DIR__ . '/../controllers/PaymentController.php';
+require_once __DIR__ . '/../controllers/BlogController.php';
 
 function handleRequest(): void {
     $method = $_SERVER['REQUEST_METHOD'];
@@ -178,6 +179,28 @@ function handleRequest(): void {
     // POST /reviews
     if ($method === 'POST' && $uri === '/reviews') {
         ReviewController::store();
+        return;
+    }
+
+    // ========================================
+    // PUBLIC BLOG ROUTES
+    // ========================================
+
+    // GET /blog — published posts (paginated, filterable)
+    if ($method === 'GET' && $uri === '/blog') {
+        BlogController::publicIndex();
+        return;
+    }
+
+    // GET /blog/categories — distinct categories
+    if ($method === 'GET' && $uri === '/blog/categories') {
+        BlogController::publicCategories();
+        return;
+    }
+
+    // GET /blog/{slug} — single published post
+    if ($method === 'GET' && preg_match('#^/blog/([a-z0-9\-]+)$#', $uri, $m)) {
+        BlogController::publicShow($m[1]);
         return;
     }
 
@@ -740,6 +763,52 @@ function handleRequest(): void {
     // DELETE /admin/coupons/{id}
     if ($method === 'DELETE' && preg_match('#^/admin/coupons/(\d+)$#', $uri, $matches)) {
         CouponController::adminDestroy((int) $matches[1]);
+        return;
+    }
+
+    // ========================================
+    // ADMIN BLOG ROUTES
+    // ========================================
+
+    // GET /admin/blog
+    if ($method === 'GET' && $uri === '/admin/blog') {
+        BlogController::adminIndex();
+        return;
+    }
+
+    // POST /admin/blog/upload-image
+    if ($method === 'POST' && $uri === '/admin/blog/upload-image') {
+        BlogController::uploadImage();
+        return;
+    }
+
+    // GET /admin/blog/{id}
+    if ($method === 'GET' && preg_match('#^/admin/blog/(\d+)$#', $uri, $matches)) {
+        BlogController::adminShow((int) $matches[1]);
+        return;
+    }
+
+    // POST /admin/blog
+    if ($method === 'POST' && $uri === '/admin/blog') {
+        BlogController::store();
+        return;
+    }
+
+    // PUT /admin/blog/{id}/toggle
+    if ($method === 'PUT' && preg_match('#^/admin/blog/(\d+)/toggle$#', $uri, $matches)) {
+        BlogController::toggle((int) $matches[1]);
+        return;
+    }
+
+    // PUT /admin/blog/{id}
+    if ($method === 'PUT' && preg_match('#^/admin/blog/(\d+)$#', $uri, $matches)) {
+        BlogController::update((int) $matches[1]);
+        return;
+    }
+
+    // DELETE /admin/blog/{id}
+    if ($method === 'DELETE' && preg_match('#^/admin/blog/(\d+)$#', $uri, $matches)) {
+        BlogController::destroy((int) $matches[1]);
         return;
     }
 

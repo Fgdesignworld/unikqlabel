@@ -32,8 +32,8 @@ export default function Home() {
       <SolutionsHair />
       <SolutionsBody />
       <TestimonialsSection />
-      <InstagramGallery />
-      <NewsletterSection />
+      {/* <InstagramGallery />
+      <NewsletterSection /> */}
       <Footer />
     </main>
   )

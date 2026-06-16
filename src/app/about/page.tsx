@@ -1,45 +1,44 @@
 import { useRef } from "react"
 import { useScroll, useTransform, motion } from "framer-motion"
-import { Leaf, ArrowRight, Shield, FlaskConical, Heart, Recycle, Quote } from "lucide-react"
+import { Leaf, ArrowRight, Shield, Heart, Recycle, Compass, Sparkles, Quote } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { NewsletterSection } from "@/components/aarvia/newsletter-section"
 import { useSeo } from "@/hooks/use-seo"
 import { StoryStackCards } from "@/components/aarvia/story-stack-cards"
 
 const PILLARS = [
-  { icon: Leaf, title: "Pure Botanicals", desc: "Every ingredient is plant-derived, ethically sourced, and free from synthetics. We trace every botanical from farm to formula." },
-  { icon: FlaskConical, title: "Science-Backed", desc: "Our formulations are developed with cosmetic scientists who understand efficacy. Nature's actives, validated by research." },
-  { icon: Heart, title: "Cruelty Free", desc: "Never tested on animals. Our commitment to ethical beauty means no compromises — every product is developed with compassion." },
-  { icon: Recycle, title: "Sustainable", desc: "Eco-conscious packaging, responsible sourcing, and a carbon-aware supply chain. We take our responsibility to the planet seriously." },
-  { icon: Shield, title: "Dermatologist Tested", desc: "Clinically validated for safety and efficacy across diverse skin and hair types. Gentle enough for daily rituals." },
+  { icon: Leaf, title: "Pure Botanicals", desc: "Every formula features plant-derived actives like Neem, Lemongrass, and Tulsi, free from harsh synthetics or artificial colorants." },
+  { icon: Compass, title: "Thoughtfully Crafted", desc: "We combine high-performance organic ingredients with practicality to elevate your daily home wellness rituals." },
+  { icon: Heart, title: "Cruelty Free", desc: "Ethical formulation is at our core. None of our products or ingredients are ever tested on animals." },
+  { icon: Recycle, title: "Responsible Living", desc: "Crafted with eco-conscious, recyclable materials. We respect the Earth as we harness its botanicals." },
+  { icon: Shield, title: "Everyday Care", desc: "Formulated to be safe for your family, pets, and the home environment. Clean solutions you can trust." },
 ]
 
 const STATS = [
-  { v: "50+", l: "Botanical Actives" },
-  { v: "0", l: "Synthetic Ingredients" },
-  { v: "100%", l: "Cruelty Free" },
-  { v: "5+", l: "Countries Served" },
+  { v: "100%", l: "Inspired by Nature" },
+  { v: "0", l: "Harsh Synthetics" },
+  { v: "100%", l: "Ethically Sourced" },
+  { v: "5+", l: "Wellness Products" },
 ]
 
 const STORY = [
   {
-    badge: "The Beginning",
-    title: "Born from a Belief",
-    body: "Aarvia was founded on the conviction that nature offers everything we need to nourish, heal, and beautify. In a world of synthetic shortcuts, we chose the longer, honest path — pure botanical actives, thoughtful formulation, and absolute integrity.",
+    badge: "The Vision",
+    title: "Nature inspires better living",
+    body: "AARVIA™ was created with a simple belief: Nature inspires better living. Our journey began with a vision to create thoughtfully crafted home wellness products that combine quality, practicality, and everyday care.",
     image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=600&auto=format&fit=crop"
   },
   {
-    badge: "Our Process",
-    title: "Where Ritual Meets Science",
-    body: "We work closely with cosmetic scientists, herbalists, and sustainability experts to develop formulas that perform. Every ingredient is selected not just for its efficacy but for its provenance — we know exactly where everything comes from.",
+    badge: "The Philosophy",
+    title: "A Healthier Home",
+    body: "We believe a cleaner home contributes to a better living experience. Every floor cleaner, dishwash liquid, and hand wash we create is designed with this philosophy in mind, ensuring safety and freshness for everyday spaces.",
     image: "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=600&auto=format&fit=crop"
   },
   {
-    badge: "Our Future",
-    title: "A Brand for the Conscious Consumer",
-    body: "Aarvia is built for people who read labels. Who know that what they put on their body matters as much as what they put in it. We are growing a community of those who choose quality, transparency, and nature — without compromising on luxury.",
+    badge: "The Future",
+    title: "Wellness Expansion",
+    body: "Today, AARVIA™ begins with Home Wellness. Guided by simplicity and nature, we will gradually expand into Personal Care and Lifestyle collections, supporting your complete wellness journey.",
     image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=600&auto=format&fit=crop"
   },
 ]
@@ -53,17 +52,14 @@ const fadeUp = {
   })
 }
 
-// Scroll Word-by-Word Quote Reveal Component
 function PhilosophySection() {
   const sectionRef = useRef<HTMLDivElement>(null)
-  
-  // Track scroll progress of philosophy block
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"]
   })
 
-  const quoteText = "True beauty is not manufactured; it is cultivated. We believe that by returning to pure, active botanicals, we restore the skin and hair's natural harmony."
+  const quoteText = "Wellness begins at home. By selecting pure, nature-inspired solutions, we create a healthier, cleaner, and more harmonious environment for everyday living."
   const words = quoteText.split(" ")
 
   return (
@@ -71,7 +67,6 @@ function PhilosophySection() {
       ref={sectionRef} 
       className="min-h-screen flex items-center justify-center bg-[#1F4D3A] py-28 relative overflow-hidden"
     >
-      {/* Subtle background grain grid */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(200,169,107,0.9) 1px, transparent 0)', backgroundSize: '36px 36px' }} />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[160px] opacity-[0.04] pointer-events-none" style={{ background: '#C8A96B' }} />
 
@@ -98,7 +93,7 @@ function PhilosophySection() {
         
         <div className="w-16 h-[1.5px] bg-[#C8A96B] mx-auto mt-10" />
         <p className="text-[10px] font-bold tracking-[0.4em] uppercase text-[#C8A96B]">
-          Aarvia Philosophy
+          Aarvia Home Wellness
         </p>
       </div>
     </section>
@@ -109,8 +104,6 @@ export default function AboutPage() {
   useSeo({ pageType: 'page', pageSlug: 'about', fallbackTitle: 'Our Story — Aarvia' })
   
   const heroRef = useRef<HTMLDivElement>(null)
-  
-  // Track scroll position for header/hero parallax scaling
   const { scrollY } = useScroll()
   const yHeroBg = useTransform(scrollY, [0, 500], [0, 150])
   const scaleHeroBg = useTransform(scrollY, [0, 600], [1.02, 1.1])
@@ -121,12 +114,11 @@ export default function AboutPage() {
     <main className="min-h-screen relative overflow-x-hidden" style={{ background: '#F7F4ED' }}>
       <Navbar />
 
-      {/* ── Hero with Scroll Parallax Background ── */}
+      {/* Hero */}
       <section 
         ref={heroRef}
         className="relative overflow-hidden h-screen min-h-[600px] flex items-center justify-center bg-[#1F4D3A]"
       >
-        {/* Parallax Background Div */}
         <motion.div 
           style={{ y: yHeroBg, scale: scaleHeroBg }}
           className="absolute inset-0 w-full h-full pointer-events-none"
@@ -136,7 +128,6 @@ export default function AboutPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-[#1F4D3A]/20 via-transparent to-[#1F4D3A]/60" />
         </motion.div>
 
-        {/* Content Overlay */}
         <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full text-center relative z-10">
           <motion.div 
             style={{ opacity: opacityHeroText, y: yHeroText }} 
@@ -152,19 +143,18 @@ export default function AboutPage() {
               className="text-5xl md:text-7xl lg:text-8xl leading-[1.15] font-light text-[#F7F4ED]"
               style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
-              Inspired by<br />
-              <span className="italic font-serif" style={{ color: '#C8A96B' }}>Nature's Wisdom</span>
+              Nature Inspires<br />
+              <span className="italic font-serif" style={{ color: '#C8A96B' }}>Better Living</span>
             </h1>
             <p 
               className="text-sm md:text-base max-w-lg mx-auto font-light leading-relaxed pt-2" 
               style={{ color: 'rgba(247,244,237,0.72)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
-              A premium natural wellness and beauty ritual brand built on circular sourcing, plant science, and absolute ingredient integrity.
+              A thoughtfully crafted collection of home wellness solutions combining botanical quality, everyday care, and practical design.
             </p>
           </motion.div>
         </div>
 
-        {/* Premium Scroll down arrow indicator */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -185,7 +175,7 @@ export default function AboutPage() {
         </motion.div>
       </section>
 
-      {/* ── Stats Section (Editorial Banner) ── */}
+      {/* Stats Section */}
       <section style={{ background: '#F7F4ED', borderBottom: '1px solid rgba(200,169,107,0.12)' }}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
@@ -208,15 +198,58 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── Reusable Stacking Story Cards Section ── */}
+      {/* Stacking Story Cards */}
       <section className="relative bg-[#1A382A] pb-[30vh]">
         <StoryStackCards cards={STORY} />
       </section>
 
-      {/* ── Brand Philosophy Word Reveal ── */}
+      {/* Philosophy Quotes */}
       <PhilosophySection />
 
-      {/* ── Commitments/Pillars ── */}
+      {/* Vision and Mission Section */}
+      <section className="py-24" style={{ background: '#F7F4ED', borderBottom: '1px solid rgba(200,169,107,0.1)' }}>
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-8 lg:gap-16">
+            
+            {/* Vision Card */}
+            <motion.div 
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="bg-white border border-[#C8A96B]/20 rounded-3xl p-8 lg:p-12 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col gap-6"
+            >
+              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[#1F4D3A]/5 border border-[#C8A96B]/25">
+                <Leaf className="w-5 h-5 text-[#1F4D3A]" />
+              </div>
+              <h3 className="text-3xl font-serif font-normal text-[#1F4D3A]">Our Vision</h3>
+              <p className="text-sm leading-relaxed text-[#6A6A60]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                To become a trusted Indian wellness brand inspired by nature and built for modern living.
+              </p>
+            </motion.div>
+
+            {/* Mission Card */}
+            <motion.div 
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="bg-white border border-[#C8A96B]/20 rounded-3xl p-8 lg:p-12 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col gap-6"
+            >
+              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[#C8A96B]/10 border border-[#C8A96B]/30">
+                <Sparkles className="w-5 h-5 text-[#C8A96B]" />
+              </div>
+              <h3 className="text-3xl font-serif font-normal text-[#1F4D3A]">Our Mission</h3>
+              <p className="text-sm leading-relaxed text-[#6A6A60]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                To create thoughtfully crafted products that support cleaner homes, fresher spaces, and healthier everyday routines.
+              </p>
+            </motion.div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* Commitments/Pillars */}
       <section className="py-28 lg:py-36 relative" style={{ background: '#F7F4ED' }}>
         <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #1F4D3A 1px, transparent 0)', backgroundSize: '20px 20px' }} />
         
@@ -255,7 +288,6 @@ export default function AboutPage() {
                 className="p-8 group relative transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_25px_50px_rgba(31,77,58,0.06)] bg-white rounded-2xl overflow-hidden flex flex-col justify-between"
                 style={{ border: '1px solid rgba(200,169,107,0.15)' }}
               >
-                {/* Accent glow on hover */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-[#C8A96B]/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <div>
@@ -269,7 +301,6 @@ export default function AboutPage() {
                   <p className="text-xs leading-relaxed text-[#7A7A72]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{desc}</p>
                 </div>
                 
-                {/* Small indicator */}
                 <span className="text-[10px] font-bold text-[#C8A96B] mt-6 select-none opacity-40 group-hover:opacity-100 transition-opacity">
                   0{i + 1}
                 </span>
@@ -279,7 +310,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── Premium CTA ── */}
+      {/* CTA */}
       <section className="py-24 relative overflow-hidden" style={{ background: '#1F4D3A' }}>
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(200,169,107,0.9) 1px, transparent 0)', backgroundSize: '28px 28px' }} />
         <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full blur-[140px] opacity-[0.06] pointer-events-none" style={{ background: '#C8A96B' }} />
@@ -293,7 +324,7 @@ export default function AboutPage() {
             <span className="italic" style={{ color: '#C8A96B' }}>Pure Botanicals?</span>
           </h2>
           <p className="text-sm text-[#F7F4ED]/70 font-light max-w-md mx-auto leading-relaxed">
-            Discover our curated collections designed to nourish your skin and hair naturally.
+            Discover our curated collections designed to support cleaner homes and better living.
           </p>
           <div className="pt-4">
             <Link 
@@ -307,7 +338,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <NewsletterSection />
       <Footer />
     </main>
   )

@@ -500,8 +500,8 @@ body {
 /* ── Smooth scrollbar ────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(200,169,107,0.3); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(200,169,107,0.6); }
+::-webkit-scrollbar-thumb { background: rgba(31, 77, 58, 0.3); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(31, 77, 58, 0.6); }
 
 /* ── Luxury underline link ───────────────────────────────────────────────── */
 .link-luxury {

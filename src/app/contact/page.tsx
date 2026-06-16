@@ -82,7 +82,7 @@ export default function ContactPage() {
       icon: WhatsAppIcon,
       label: "WhatsApp Chat",
       value: settings?.whatsapp || settings?.phone || "+91 8639424039",
-      href: settings?.whatsapp ? `https://wa.me/${String(settings.whatsapp).replace(/\D/g, "")}` : "#",
+      href: settings?.whatsapp ? `https://wa.me/${String(settings.whatsapp).replace(/\D/g, "")}` : "https://wa.me/918639424039",
       external: true,
       color: "#1F4D3A",
       bg: "rgba(31,77,58,0.02)",
@@ -92,7 +92,7 @@ export default function ContactPage() {
       icon: Phone,
       label: "Wellness Phone",
       value: settings?.phone || "+91 8639424039",
-      href: settings?.phone ? `tel:${settings.phone}` : "#",
+      href: settings?.phone ? `tel:${settings.phone}` : "tel:+918639424039",
       external: false,
       color: "#1F4D3A",
       bg: "rgba(31,77,58,0.02)",
@@ -101,23 +101,23 @@ export default function ContactPage() {
     {
       icon: MapPin,
       label: "Headquarters",
-      value: settings?.address || "Hyderabad, India",
+      value: settings?.address || "Hyderabad, Telangana, India",
       href: null,
       external: false,
       color: "#1F4D3A",
       bg: "rgba(31,77,58,0.02)",
       border: "rgba(200,169,107,0.15)",
     },
-    ...(settings?.email ? [{
+    {
       icon: Mail,
       label: "Wellness Email",
-      value: settings.email,
-      href: `mailto:${settings.email}`,
+      value: settings?.email || "care@aarvia.co",
+      href: `mailto:${settings?.email || "care@aarvia.co"}`,
       external: false,
       color: "#1F4D3A",
       bg: "rgba(31,77,58,0.02)",
       border: "rgba(200,169,107,0.15)",
-    }] : []),
+    },
   ]
 
   const inputCls = (k: string) => {

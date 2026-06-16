@@ -63,8 +63,8 @@ export function BrandStory() {
               viewport={{ once: true }} transition={{ delay: 0.08, duration: 0.7 }}
               className="text-4xl md:text-5xl lg:text-6xl leading-[1.05] mb-7"
               style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600, color: '#F7F4ED' }}>
-              Born from<br />
-              <span style={{ color: '#C8A96B', fontStyle: 'italic' }}>Nature's Wisdom</span>
+              Wellness Begins<br />
+              <span style={{ color: '#C8A96B', fontStyle: 'italic' }}>at Home</span>
             </motion.h2>
 
             <motion.div
@@ -72,8 +72,8 @@ export function BrandStory() {
               viewport={{ once: true }} transition={{ delay: 0.15, duration: 0.7 }}
               className="space-y-4 mb-10"
               style={{ color: 'rgba(247,244,237,0.65)', fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '0.9375rem', lineHeight: 1.75 }}>
-              <p>Aarvia was founded on a simple belief — that the most powerful ingredients are those nature has perfected over millennia. We harness botanical actives, ancient wisdom, and modern science to create formulations that truly deliver.</p>
-              <p>Every product is an invitation to slow down, to nourish, and to reconnect with the rituals that matter. Cruelty-free, sustainable, and crafted with integrity from sourcing to shelf.</p>
+              <p>At AARVIA™, we believe wellness begins at home.</p>
+              <p>Inspired by nature and guided by simplicity, we create thoughtfully crafted products designed to support cleaner homes, fresher spaces, and better living.</p>
             </motion.div>
 
             {/* Pillars */}
@@ -81,10 +81,10 @@ export function BrandStory() {
               initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ delay: 0.22, duration: 0.7 }}
               className="grid grid-cols-3 gap-4 mb-10">
-              {[{ v: '50+', l: 'Botanicals' }, { v: '0', l: 'Synthetics' }, { v: '100%', l: 'Cruelty Free' }].map(({ v, l }) => (
+              {[{ v: '🌿', l: 'Nature Inspired' }, { v: '🏡', l: 'Home Wellness' }, { v: '✨', l: 'Simple Care' }].map(({ v, l }) => (
                 <div key={l} className="text-center py-4" style={{ borderTop: '1px solid rgba(200,169,107,0.2)' }}>
-                  <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.875rem', fontWeight: 700, color: '#C8A96B', lineHeight: 1 }}>{v}</p>
-                  <p className="text-[11px] font-medium tracking-wider uppercase mt-1.5" style={{ color: 'rgba(247,244,237,0.45)' }}>{l}</p>
+                  <p style={{ fontSize: '1.5rem', lineHeight: 1 }}>{v}</p>
+                  <p className="text-[10px] font-medium tracking-wider uppercase mt-2.5" style={{ color: 'rgba(247,244,237,0.45)' }}>{l}</p>
                 </div>
               ))}
             </motion.div>

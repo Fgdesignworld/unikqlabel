@@ -16,14 +16,14 @@ export function SustainabilityStory() {
               className="text-4xl md:text-5xl font-serif font-normal mb-6 leading-tight"
               style={{ color: "#1F4D3A" }}
             >
-              Caring for Your Skin,<br />
+              Caring for Your Home,<br />
               <span className="italic" style={{ color: "#C8A96B" }}>Respecting Our Earth</span>
             </h2>
             <p
               className="text-base leading-relaxed mb-8"
               style={{ color: "#6A6A60", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
-              At AARVIA, we believe premium personal care shouldn't cost the planet. Every decision — from sourcing organic wild-harvested botanicals to utilizing refillable amber glass — is designed to minimize our footprint and support circular sustainability.
+              At AARVIA, we believe everyday home wellness shouldn't cost the planet. Every decision — from sourcing organic, plant-powered cleaning extracts to utilizing recyclable packaging — is designed to support cleaner homes and healthier spaces.
             </p>
 
             {/* List */}
