@@ -12,7 +12,7 @@ const FAQS = [
     items: [
       {
         q: "Are AARVIA products 100% natural?",
-        a: "Yes. Every formulation is crafted entirely from plant-derived actives, cold-pressed vegetable oils, and organic hydrosols. We bypass synthetic silicones, sulfates, parabens, endocrine disruptors, and artificial colors.",
+        a: "Yes. Every formulation is crafted entirely from plant-derived actives, cold-pressed vegetable oils, and pure hydrosols. We bypass synthetic silicones, sulfates, parabens, endocrine disruptors, and artificial colors.",
       },
       {
         q: "Are the formulations dermatologically tested?",

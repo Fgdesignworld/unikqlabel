@@ -8,6 +8,7 @@ import { Package, ShoppingCart, LogOut, LayoutDashboard, Menu, X, Tag, Globe, Se
 import { Toaster } from '@/components/ui/toaster'
 import { NotificationBell } from '@/components/admin/NotificationBell'
 import { MobileBottomNav } from '@/components/admin/MobileBottomNav'
+import { SharedLogo } from '@/components/shared-logo'
 import { OrdersRefreshProvider, useOrdersRefresh } from '@/context/orders-refresh-context'
 import { useTheme } from '@/context/theme-context'
 
@@ -157,13 +158,10 @@ function AdminLayoutContent() {
     <div data-admin="true" className="min-h-screen flex" style={{ background: '#F4F6FB' }}>
       {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-60 w-64 bg-white border-r border-slate-200 transform transition-transform duration-300 lg:translate-x-0 flex flex-col shadow-[1px_0_20px_rgba(15,23,42,0.06)] ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        {/* Pinned header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0">
-          <Link to="/admin/dashboard" className="flex items-center gap-2">
-            <span className="text-base font-black text-slate-900 tracking-tight">
-              Koffee<span className="text-[#C9A45C]">Kup</span>
-            </span>
-            <span className="text-[9px] uppercase font-black text-[#C9A45C] tracking-[0.15em] bg-amber-50 border border-amber-200/80 px-1.5 py-0.5 rounded-md">Admin</span>
+        {/* Pinned header - Logo only */}
+        <div className="flex items-center justify-between px-5 py-2 border-b border-slate-100 shrink-0">
+          <Link to="/admin/dashboard" className="flex items-center group">
+            <SharedLogo variant="admin" size="md" showLabel={false} />
           </Link>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-slate-400 hover:text-slate-700 transition-colors p-1 rounded-lg hover:bg-slate-100">
             <X className="w-4 h-4" />

@@ -29,13 +29,13 @@ const TESTIMONIALS = [
     location: "New Delhi, India",
     rating: 5,
     text: "The difference in my hair texture is remarkable. It feels hydrated, thick, and has this natural radiance that I haven't seen in years. Truly a masterpiece of traditional wellness.",
-    product: "Ayurvedic Glow Elixir",
+    product: "Botanical Glow Elixir",
   },
   {
     name: "Elena R.",
     location: "New York, USA",
     rating: 5,
-    text: "Finding a chemical-free formulation that actually lathers and leaves my hair feeling clean but not stripped was impossible until Aarvia. My scalp feels so calm and refreshed!",
+    text: "Finding a plant-based formulation that actually lathers and leaves my hair feeling clean but not stripped was impossible until Aarvia. My scalp feels so calm and refreshed!",
     product: "Soothing Herb Shampoo",
   },
 ]

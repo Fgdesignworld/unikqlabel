@@ -9,7 +9,8 @@ import { useCart } from "@/context/cart-context"
 import { useSettings } from "@/context/settings-context"
 
 const navLinks = [
-  { name: "Home Wellness", href: "/shop" },
+  {name: "Home", href: "/"},
+  { name: "Products", href: "/shop" },
   { name: "Our Story", href: "/our-story" },
   { name: "Blog", href: "/blog" },
   { name: "Sustainability", href: "/sustainability" },
@@ -17,7 +18,8 @@ const navLinks = [
 ]
 
 const mobileMenuLinks = [
-  { name: "Home Wellness", href: "/shop", sub: "Natural home care solutions" },
+  {name: "Home", href: "/"},
+  { name: "Products", href: "/shop", sub: "Natural home care solutions" },
   { name: "Our Story", href: "/our-story", sub: "Inspired by nature" },
   { name: "Blog", href: "/blog", sub: "Wellness insights & guides" },
   { name: "Sustainability", href: "/sustainability", sub: "Eco-friendly commitment" },
@@ -73,7 +75,7 @@ export function Navbar() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isSearchOpen])
 
-  const isHeroPage = ['/', '/about', '/products', '/contact', '/men', '/women', '/unisex', '/ingredients'].includes(pathname)
+  const isHeroPage = ['/', '/about', '/products', '/contact'].includes(pathname)
 
   const siteName = settings.site_name || 'Aarvia'
   const logoSrc = settings.logo_url

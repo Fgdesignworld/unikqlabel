@@ -1046,7 +1046,7 @@ export default function ProductDetailPage() {
                       <Award className="w-3.5 h-3.5" /> The Aarvia Difference
                     </p>
                     <ul className="space-y-2 text-xs leading-relaxed" style={{ color: '#444444' }}>
-                      <li className="flex gap-2"><span style={{ color: GOLD }}>✦</span> Cold-pressed, unrefined botanical actives at therapeutic concentrations</li>
+                      <li className="flex gap-2"><span style={{ color: GOLD }}>✦</span> Cold-pressed, unrefined botanical actives at premium concentrations</li>
                       <li className="flex gap-2"><span style={{ color: GOLD }}>✦</span> Zero fillers — every ingredient serves a skin-wellness purpose</li>
                       <li className="flex gap-2"><span style={{ color: GOLD }}>✦</span> Dermatologically tested, pH-balanced formulation</li>
                       <li className="flex gap-2"><span style={{ color: GOLD }}>✦</span> Sustainable, eco-conscious packaging — refill-friendly</li>

@@ -23,9 +23,9 @@ export function SustainabilityStory() {
               className="text-base leading-relaxed mb-8"
               style={{ color: "#6A6A60", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
-              At AARVIA, we believe everyday home wellness shouldn't cost the planet. Every decision — from sourcing organic, plant-powered cleaning extracts to utilizing recyclable packaging — is designed to support cleaner homes and healthier spaces.
+              At AARVIA, we believe everyday home wellness shouldn't cost the planet. Every decision — from sourcing pure, plant-powered cleaning extracts to utilizing recyclable packaging — is designed to support cleaner homes and healthier spaces.
             </p>
-
+            
             {/* List */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
               {[
@@ -61,7 +61,7 @@ export function SustainabilityStory() {
           >
             <img
               src="https://images.unsplash.com/photo-1473448912268-2022ce9509d8?q=80&w=600&auto=format&fit=crop"
-              alt="Regenerative Organic Sourcing"
+              alt="Regenerative Sourcing"
               className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#1F4D3A]/20 to-transparent pointer-events-none" />

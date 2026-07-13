@@ -9,7 +9,7 @@ import { StoryStackCards } from "@/components/aarvia/story-stack-cards"
 
 const PILLARS = [
   { icon: Leaf, title: "Pure Botanicals", desc: "Every formula features plant-derived actives like Neem, Lemongrass, and Tulsi, free from harsh synthetics or artificial colorants." },
-  { icon: Compass, title: "Thoughtfully Crafted", desc: "We combine high-performance organic ingredients with practicality to elevate your daily home wellness rituals." },
+  { icon: Compass, title: "Thoughtfully Crafted", desc: "We combine high-performance botanical ingredients with practicality to elevate your daily home wellness rituals." },
   { icon: Heart, title: "Cruelty Free", desc: "Ethical formulation is at our core. None of our products or ingredients are ever tested on animals." },
   { icon: Recycle, title: "Responsible Living", desc: "Crafted with eco-conscious, recyclable materials. We respect the Earth as we harness its botanicals." },
   { icon: Shield, title: "Everyday Care", desc: "Formulated to be safe for your family, pets, and the home environment. Clean solutions you can trust." },

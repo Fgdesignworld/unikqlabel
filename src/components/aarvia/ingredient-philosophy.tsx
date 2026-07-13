@@ -6,7 +6,7 @@ const INGREDIENTS = [
   {
     name: "Neem Active",
     tag: "Purifying & Cleansing",
-    desc: "A time-tested botanical powerhouse, Neem extract is celebrated for its natural purifying qualities, providing deep organic cleansing for floors and hand care.",
+    desc: "A time-tested botanical powerhouse, Neem extract is celebrated for its natural purifying qualities, providing deep plant-based cleansing for floors and hand care.",
     benefit: "Cleanses · Purifies · Protects",
     color: "#2D5E4A",
     image: "/images/neem_leaves.png",
@@ -22,7 +22,7 @@ const INGREDIENTS = [
   {
     name: "Lemon Extract",
     tag: "Degreasing & Brightening",
-    desc: "Rich in organic citric acid, our lemon extract provides powerful cutting action through tough kitchen grease, leaving your dishes sparkling clean.",
+    desc: "Rich in natural citric acid, our lemon extract provides powerful cutting action through tough kitchen grease, leaving your dishes sparkling clean.",
     benefit: "Cuts Grease · Cleans · Brightens",
     color: "#1E4535",
     image: "/images/lemon_extract.png",

@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '@/services/authService'
 import { useSettings } from '@/context/settings-context'
-import { Lock, Mail, Eye, EyeOff, AlertCircle, Leaf } from 'lucide-react'
+import { SharedLogo } from '@/components/shared-logo'
+import { Lock, Mail, Eye, EyeOff, AlertCircle } from 'lucide-react'
 
 export default function AdminLoginPage() {
   const navigate = useNavigate()
@@ -14,7 +15,6 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [logoError, setLogoError] = useState(false)
 
   // Force light theme on login page — it is outside AdminLayout
   useEffect(() => {
@@ -61,40 +61,17 @@ export default function AdminLoginPage() {
   }
 
   const siteName = settings?.site_name || 'Aarvia'
-  const logoSrc = settings?.logo_url
-    ? (settings.logo_url.startsWith('/') && !settings.logo_url.startsWith('/api') ? `/api${settings.logo_url}` : settings.logo_url)
-    : '/logo.png'
 
   return (
-    <div data-admin="true" className="min-h-screen bg-gradient-to-br from-[#FDFDFB] via-[#F7F4ED] to-[#F1EDE5] flex items-center justify-center p-4">
+    <div data-admin="true" className="min-h-screen bg-linear-to-br from-[#FDFDFB] via-[#F7F4ED] to-[#F1EDE5] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         
         {/* Dynamic Logo Section */}
         <div className="text-center mb-8">
-          {settings?.logo_url && !logoError ? (
-            <img 
-              src={logoSrc} 
-              alt={siteName} 
-              onError={() => setLogoError(true)}
-              className="h-[56px] w-auto mx-auto object-contain transition-opacity duration-300 hover:opacity-90 mb-3" 
-            />
-          ) : (
-            <div className="flex items-center justify-center gap-2.5 mb-2.5">
-              <div 
-                className="w-9 h-9 rounded-full flex items-center justify-center shadow-sm"
-                style={{ background: 'rgba(31,77,58,0.06)', border: '1px solid rgba(200,169,107,0.3)' }}
-              >
-                <Leaf className="w-4.5 h-4.5 text-[#1F4D3A]" />
-              </div>
-              <span 
-                className="text-2xl font-bold tracking-wide text-[#1F4D3A]"
-                style={{ fontFamily: "'Cormorant Garamond', serif" }}
-              >
-                {siteName}
-              </span>
-            </div>
-          )}
-          <p className="text-[10px] font-bold tracking-[0.24em] uppercase text-[#C8A96B] mt-1">
+          <div className="flex justify-center mb-3">
+            <SharedLogo variant="login" size="lg" showLabel={false} />
+          </div>
+          <p className="text-[10px] font-bold tracking-[0.24em] uppercase text-[#C8A96B] mt-2">
             Admin Control Center
           </p>
         </div>
@@ -115,7 +92,7 @@ export default function AdminLoginPage() {
 
           {error && (
             <div className="flex items-center gap-2.5 p-3.5 mb-5 bg-red-500/5 border border-red-500/20 rounded-xl">
-              <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
               <p className="text-red-700 text-sm font-medium">{error}</p>
             </div>
           )}

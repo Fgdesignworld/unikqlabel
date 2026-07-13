@@ -170,13 +170,22 @@ function SlideForm({ slide, onSave, onClose }: {
                         />
                     </Field>
 
-                    {/* Subtitle */}
-                    <Field label="Subtitle / Eyebrow (optional)">
+                    {/* Tagline / Eyebrow */}
+                    <Field label="Tagline / Eyebrow (optional)">
+                        <FormInput
+                            type="text" value={form.tagline ?? ''}
+                            onChange={e => set('tagline', e.target.value || null)}
+                            placeholder="e.g. Inspired by Nature"
+                        />
+                    </Field>
+
+                    {/* Description */}
+                    <Field label="Description (optional)">
                         <FormTextarea
                             value={form.subtitle ?? ''}
                             onChange={e => set('subtitle', e.target.value || null)}
-                            placeholder="e.g. Premium Natural Wellness"
-                            rows={2}
+                            placeholder="e.g. Nature-inspired products thoughtfully crafted..."
+                            rows={3}
                         />
                     </Field>
 
