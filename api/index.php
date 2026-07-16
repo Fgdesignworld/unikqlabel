@@ -45,7 +45,7 @@ header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
 if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
     header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
 }
-header('Content-Security-Policy: default-src \'none\'; script-src \'self\' \'unsafe-inline\' https://www.googletagmanager.com https://checkout.razorpay.com https://static.cloudflareinsights.com; connect-src \'self\' https://www.google-analytics.com https://stats.g.doubleclick.net https://api.razorpay.com https://lumberjack.razorpay.com; img-src \'self\' data: https://www.google-analytics.com https://www.googletagmanager.com https://cdn.razorpay.com; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com https://checkout.razorpay.com; font-src https://fonts.gstatic.com https://checkout.razorpay.com; frame-src https://api.razorpay.com https://checkout.razorpay.com;');
+header('Content-Security-Policy: default-src \'none\'; script-src \'self\' \'unsafe-inline\' https://www.googletagmanager.com https://checkout.razorpay.com https://static.cloudflareinsights.com; connect-src \'self\' https://www.google-analytics.com https://stats.g.doubleclick.net https://api.razorpay.com https://lumberjack.razorpay.com; img-src \'self\' data: https://www.google-analytics.com https://www.googletagmanager.com https://cdn.razorpay.com https://images.unsplash.com; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com https://checkout.razorpay.com; font-src https://fonts.gstatic.com https://checkout.razorpay.com; frame-src https://api.razorpay.com https://checkout.razorpay.com;');
 
 // Session config (secure)
 ini_set('session.cookie_httponly', '1');
