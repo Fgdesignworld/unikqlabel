@@ -88,7 +88,7 @@ export function TestimonialsSection() {
             viewport={{ once: true }}
             transition={{ delay: 0.06, duration: 0.6 }}
             className="text-3xl md:text-4xl"
-            style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600, color: '#1F4D3A' }}>
+            style={{ fontWeight: 600, color: '#1F4D3A' }}>
             Loved by Those<br />
             <span style={{ color: '#C8A96B', fontStyle: 'italic' }}>Who Choose Better</span>
           </motion.h2>
@@ -159,8 +159,7 @@ export function TestimonialsSection() {
 
                   {/* Review Text */}
                   <p 
-                    className="text-[15px] md:text-[17px] leading-relaxed text-[#1F4D3A] font-medium italic line-clamp-5 md:line-clamp-4"
-                    style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                    className="text-[15px] md:text-[17px] leading-relaxed text-[#1F4D3A] line-clamp-5 md:line-clamp-4"
                   >
                     "{t.text}"
                   </p>
@@ -180,7 +179,6 @@ export function TestimonialsSection() {
                   <div>
                     <h4 
                       className="font-bold text-[#1F4D3A] text-sm md:text-[15px] leading-tight"
-                      style={{ fontFamily: "'Cormorant Garamond', serif" }}
                     >
                       {t.name}
                     </h4>
