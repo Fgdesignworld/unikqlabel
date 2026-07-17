@@ -27,7 +27,7 @@ export function OurBrandsSection() {
           >
             <div className="relative h-80 overflow-hidden shrink-0">
               <img
-                src="https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?q=80&w=800&auto=format&fit=crop"
+                src="/images/heroes/orviv-home-wellness.png"
                 alt="Orviv Home Wellness"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
               />
