@@ -139,7 +139,6 @@ export function HeroSection() {
                   )}
                   <img src={imgUrl(currentSlide!.image)!} alt={currentSlide!.title || 'Aarvia'}
                     className="w-full h-full object-cover object-center" />
-                  <div className="absolute inset-0 bg-black/30" />
                 </picture>
               </Link>
             </motion.div>
@@ -148,7 +147,6 @@ export function HeroSection() {
               className="absolute inset-0 w-full h-full">
               <Link to="/products" className="block w-full h-full">
                 <img src="/images/heroes/shop-hero.png" alt="Deepthi Living & Wellness" className="w-full h-full object-cover object-center" />
-                <div className="absolute inset-0 bg-black/30" />
               </Link>
             </motion.div>
           )}
