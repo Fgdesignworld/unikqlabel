@@ -19,8 +19,8 @@ export function PhilosophySection() {
           >
             <div className="h-full w-full relative overflow-hidden rounded-bl-[4rem] rounded-tr-[4rem] shadow-2xl">
               <img
-                src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=1200&auto=format&fit=crop"
-                alt="Aarvia Botanical Philosophy"
+                src="/images/heroes/a-simple-belief.png"
+                alt="Deepthi Living & Wellness Philosophy"
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-1000"
               />
               <div className="absolute inset-0 bg-[#1F4D3A]/20 pointer-events-none mix-blend-multiply" />
