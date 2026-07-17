@@ -18,7 +18,7 @@ export default function Home() {
   useSeo({
     pageType: 'home',
     pageSlug: 'home',
-    fallbackTitle: 'Aarvia — Premium Botanical Wellness',
+    fallbackTitle: 'Deepthi Living & Wellness',
   })
 
   return (

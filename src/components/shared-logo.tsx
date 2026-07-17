@@ -22,7 +22,7 @@ export function SharedLogo({
   const { settings } = useSettings()
   const [logoError, setLogoError] = useState(false)
 
-  const siteName = settings?.site_name || 'Aarvia'
+  const siteName = settings?.site_name || 'Deepthi Living & Wellness'
   const logoSrc = settings?.logo_url
     ? (settings.logo_url.startsWith('/') && !settings.logo_url.startsWith('/api') 
         ? `/api${settings.logo_url}` 

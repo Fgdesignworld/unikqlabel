@@ -293,7 +293,7 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function TrackOrderPage() {
-  useSeo({ pageType: 'page', pageSlug: 'track', fallbackTitle: 'Track Your Order — Aarvia' })
+  useSeo({ pageType: 'page', pageSlug: 'track', fallbackTitle: 'Track Your Order — Deepthi Living & Wellness' })
   const { settings } = useSettings()
   const currency = settings?.currency_symbol || '₹'
 

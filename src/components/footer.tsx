@@ -36,13 +36,13 @@ export function Footer() {
 
   useEffect(() => { setLogoError(false) }, [settings.logo_url])
 
-  const siteName = settings.site_name || 'Aarvia'
+  const siteName = settings.site_name || 'Deepthi Living & Wellness'
   const logoSrc = settings.logo_url
     ? (settings.logo_url.startsWith('/') && !settings.logo_url.startsWith('/api') ? `/api${settings.logo_url}` : settings.logo_url)
     : '/logo.png'
   const phone = settings.phone || ''
   const address = settings.address || 'Hyderabad, Telangana, India'
-  const email = settings.email || 'care@aarvia.co'
+  const email = settings.email || 'care@deepthiliving.com'
 
   // Connect settings API for social media links — only show them if link exists
   const socialLinks = []

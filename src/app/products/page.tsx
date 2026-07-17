@@ -15,7 +15,7 @@ import { categories as staticCategories } from "@/data/products"
 import type { Product } from "@/data/products"
 
 export default function ProductsPage() {
-  useSeo({ pageType: 'page', pageSlug: 'products', fallbackTitle: 'Collections — Aarvia' })
+  useSeo({ pageType: 'page', pageSlug: 'products', fallbackTitle: 'Collections — Deepthi Living & Wellness' })
 
   const [searchParams] = useSearchParams()
   const [allProducts, setAllProducts] = useState<Product[]>([])

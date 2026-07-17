@@ -100,7 +100,7 @@ const fadeUp = {
 }
 
 export default function SustainabilityPage() {
-  useSeo({ pageType: "page", pageSlug: "sustainability", fallbackTitle: "Sustainability Commitment — Aarvia" })
+  useSeo({ pageType: "page", pageSlug: "sustainability", fallbackTitle: "Sustainability Commitment — Deepthi Living & Wellness" })
 
   return (
     <main className="min-h-screen" style={{ background: "#FDFBF7" }}>
