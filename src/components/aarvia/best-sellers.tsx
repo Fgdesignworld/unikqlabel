@@ -19,8 +19,14 @@ export function BestSellers() {
   const sliderRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    productService.getBestsellers().then(data => {
-      setProducts(data.slice(0, 6))
+    productService.getBestsellers().then(async data => {
+      let bestSellers = data
+      if (bestSellers.length === 0) {
+        // Fallback to recent products if no bestsellers are flagged
+        const all = await productService.getProducts({ limit: 6 })
+        bestSellers = all.data
+      }
+      setProducts(bestSellers.slice(0, 6))
       setLoading(false)
     }).catch(() => setLoading(false))
   }, [])
@@ -37,14 +43,14 @@ export function BestSellers() {
               transition={{ duration: 0.5 }}
               className="text-[10px] font-bold tracking-[0.4em] uppercase text-[#C8A96B] mb-4"
             >
-              Featured Products
+              Featured Collection
             </motion.p>
             <motion.h2
               initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ duration: 0.6 }}
               className="text-3xl md:text-5xl"
               style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, color: '#1F4D3A' }}>
-              Explore Our Collection
+              Our Best Sellers
             </motion.h2>
           </div>
         </div>
