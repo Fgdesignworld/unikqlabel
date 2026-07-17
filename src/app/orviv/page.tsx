@@ -19,16 +19,16 @@ export default function OrvivPage() {
 
   useEffect(() => {
     // Fetch products related to home wellness
-    productService.getProducts({ limit: 8 }).then(res => {
+    productService.getPublicProducts().then(products => {
       // For now, filter locally to simulate brand products
-      const orvivProducts = res.data.filter(p => 
-        p.category_id === 'home-wellness' || 
-        p.category_id === 'kitchen-care' || 
-        p.category_id === 'laundry-care' ||
-        p.category_id === 'home-fragrance'
+      const orvivProducts = products.filter(p => 
+        p.category === 'home-wellness' || 
+        p.category === 'kitchen-care' || 
+        p.category === 'laundry-care' ||
+        p.category === 'home-fragrance'
       )
       // Fallback if none found
-      setProducts(orvivProducts.length > 0 ? orvivProducts : res.data.slice(0, 4))
+      setProducts(orvivProducts.length > 0 ? orvivProducts.slice(0, 8) : products.slice(0, 4))
       setLoading(false)
     }).catch(() => setLoading(false))
   }, [])

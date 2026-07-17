@@ -19,11 +19,11 @@ export default function AarviaPage() {
 
   useEffect(() => {
     // Fetch products related to personal care
-    productService.getProducts({ limit: 8 }).then(res => {
+    productService.getPublicProducts().then(products => {
       // For now, filter locally to simulate brand products
-      const aarviaProducts = res.data.filter(p => p.category_id === 'personal-care')
+      const aarviaProducts = products.filter(p => p.category === 'personal-care')
       // Fallback if none found
-      setProducts(aarviaProducts.length > 0 ? aarviaProducts : res.data.slice(0, 4))
+      setProducts(aarviaProducts.length > 0 ? aarviaProducts.slice(0, 8) : products.slice(0, 4))
       setLoading(false)
     }).catch(() => setLoading(false))
   }, [])
