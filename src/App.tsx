@@ -12,6 +12,8 @@ import RootLayout from '@/app/layout';
 
 import HomePage from '@/app/page';
 import AboutPage from '@/app/about/page';
+import AarviaPage from '@/app/aarvia/page';
+import OrvivPage from '@/app/orviv/page';
 import CheckoutPage from '@/app/checkout/page';
 import ContactPage from '@/app/contact/page';
 import ProductsPage from '@/app/products/page';
@@ -69,6 +71,8 @@ export default function App() {
       <Route element={<RootLayout><HomePage /></RootLayout>} path="/" />
       <Route path="/about" element={<RootLayout><AboutPage /></RootLayout>} />
       <Route path="/our-story" element={<RootLayout><AboutPage /></RootLayout>} />
+      <Route path="/aarvia" element={<RootLayout><AarviaPage /></RootLayout>} />
+      <Route path="/orviv" element={<RootLayout><OrvivPage /></RootLayout>} />
       <Route path="/checkout" element={<RootLayout><CheckoutPage /></RootLayout>} />
       <Route path="/contact" element={<RootLayout><ContactPage /></RootLayout>} />
       <Route path="/hair-care" element={<RootLayout><HairCarePage /></RootLayout>} />
