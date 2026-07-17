@@ -81,7 +81,7 @@ function SortDropdown({ value, onChange }: { value: SortOption; onChange: (v: So
             initial={{ opacity: 0, y: -8, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.95 }}
             transition={{ duration: 0.15 }}
             className="absolute right-0 top-full mt-2 w-52 rounded-xl overflow-hidden shadow-xl z-50"
-            style={{ background: '#F7F4ED', border: '1px solid rgba(200,169,107,0.25)' }}>
+            style={{ background: '#FDFBF7', border: '1px solid rgba(200,169,107,0.25)' }}>
             {SORT_OPTIONS.map(opt => (
               <button key={opt.value}
                 onClick={() => { onChange(opt.value); setOpen(false) }}
@@ -346,7 +346,7 @@ export function ProductFilters({
             onClick={() => onSubcategoryChange?.('')}
             className={`shrink-0 px-5 py-2 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300 hover:scale-102 cursor-pointer border ${
               !activeSubcategory
-                ? 'bg-[#1F4D3A] text-[#F7F4ED] border-[#1F4D3A] shadow-sm shadow-[#1F4D3A]/10'
+                ? 'bg-[#1F4D3A] text-[#FDFBF7] border-[#1F4D3A] shadow-sm shadow-[#1F4D3A]/10'
                 : 'bg-[#1F4D3A]/5 hover:bg-[#1F4D3A]/10 text-[#444444] hover:text-[#1F4D3A] border-transparent'
             }`}
           >
@@ -359,7 +359,7 @@ export function ProductFilters({
                 onClick={() => onSubcategoryChange?.(sub.slug)}
                 className={`shrink-0 px-5 py-2 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300 hover:scale-102 cursor-pointer border ${
                   isActive
-                    ? 'bg-[#1F4D3A] text-[#F7F4ED] border-[#1F4D3A] shadow-sm shadow-[#1F4D3A]/10'
+                    ? 'bg-[#1F4D3A] text-[#FDFBF7] border-[#1F4D3A] shadow-sm shadow-[#1F4D3A]/10'
                     : 'bg-[#1F4D3A]/5 hover:bg-[#1F4D3A]/10 text-[#444444] hover:text-[#1F4D3A] border-transparent'
                 }`}
               >
@@ -383,7 +383,7 @@ export function ProductFilters({
           Filters
           {activeFilterCount > 0 && (
             <span className="flex items-center justify-center rounded-full text-[10px] font-bold"
-              style={{ background: '#1F4D3A', color: '#F7F4ED', minWidth: '18px', height: '18px' }}>
+              style={{ background: '#1F4D3A', color: '#FDFBF7', minWidth: '18px', height: '18px' }}>
               {activeFilterCount}
             </span>
           )}
@@ -454,7 +454,7 @@ export function ProductFilters({
                           style={{
                             background: active ? '#1F4D3A' : 'rgba(31,77,58,0.03)',
                             borderColor: active ? '#1F4D3A' : 'rgba(200,169,107,0.15)',
-                            color: active ? '#F7F4ED' : '#1F4D3A',
+                            color: active ? '#FDFBF7' : '#1F4D3A',
                           }}>
                           {size}
                         </button>
@@ -561,7 +561,7 @@ export function ProductFilters({
             {emptyIcon ? emptyIcon : (
               <button onClick={clearFilters}
                 className="inline-flex items-center gap-2 px-8 py-3.5 text-[11px] font-bold tracking-[0.14em] uppercase transition-all hover:opacity-90 active:scale-[0.98] cursor-pointer"
-                style={{ background: '#1F4D3A', color: '#F7F4ED' }}>
+                style={{ background: '#1F4D3A', color: '#FDFBF7' }}>
                 Browse All Products
               </button>
             )}
@@ -575,7 +575,7 @@ export function ProductFilters({
             </p>
             <button onClick={clearFilters}
               className="px-6 py-2.5 text-[11px] font-semibold tracking-widest uppercase transition-all hover:opacity-80 cursor-pointer"
-              style={{ background: '#1F4D3A', color: '#F7F4ED' }}>
+              style={{ background: '#1F4D3A', color: '#FDFBF7' }}>
               Clear Filters
             </button>
           </div>

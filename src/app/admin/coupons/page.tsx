@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from 'react'
 import { couponService, type Coupon, type CouponPayload } from '@/services/couponService'
 import { useToast } from '@/hooks/use-toast'

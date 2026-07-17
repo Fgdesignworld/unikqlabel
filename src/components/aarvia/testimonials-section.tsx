@@ -70,17 +70,7 @@ export function TestimonialsSection() {
   }
 
   return (
-    <section className="relative py-12 md:py-16 overflow-hidden select-none" style={{ background: '#1F4D3A' }}>
-      {/* Decorative blurred background blobs */}
-      <div 
-        className="absolute w-72 h-72 rounded-full blur-3xl pointer-events-none -top-12 -left-12 opacity-30" 
-        style={{ background: '#C8A96B' }} 
-      />
-      <div 
-        className="absolute w-96 h-96 rounded-full blur-3xl pointer-events-none -bottom-16 -right-16 opacity-10" 
-        style={{ background: '#F7F4ED' }} 
-      />
-
+    <section className="relative py-12 md:py-16 overflow-hidden select-none" style={{ background: '#FDFBF7' }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
         <div className="text-center mb-8">
           <motion.p
@@ -98,7 +88,7 @@ export function TestimonialsSection() {
             viewport={{ once: true }}
             transition={{ delay: 0.06, duration: 0.6 }}
             className="text-3xl md:text-4xl"
-            style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600, color: '#F7F4ED' }}>
+            style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600, color: '#1F4D3A' }}>
             Loved by Those<br />
             <span style={{ color: '#C8A96B', fontStyle: 'italic' }}>Who Choose Better</span>
           </motion.h2>
@@ -151,8 +141,8 @@ export function TestimonialsSection() {
                     setCurrent(i)
                   }
                 }}
-                className={`p-5 md:p-6 rounded-xl border bg-[#F7F4ED] shadow-lg flex flex-col justify-between h-[320px] md:h-[250px] transition-shadow duration-300 ${
-                  isActive ? "shadow-xl border-[#C8A96B]/35" : "border-[#C8A96B]/10 opacity-60"
+                className={`p-5 md:p-6 rounded-xl border bg-[#F9F6F0] shadow-lg flex flex-col justify-between h-[320px] md:h-[250px] transition-shadow duration-300 ${
+                  isActive ? "shadow-xl border-[#C8A96B]/35" : "border-[#1F4D3A]/5 opacity-60"
                 }`}
               >
                 <div>
@@ -180,7 +170,7 @@ export function TestimonialsSection() {
                 <div className="flex items-center gap-3 border-t border-[#1F4D3A]/10 pt-3 mt-3">
                   {/* Circular Gradient Avatar */}
                   <div 
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-[#F7F4ED] shadow-inner shrink-0"
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-[#FDFBF7] shadow-inner shrink-0"
                     style={{
                       background: "linear-gradient(135deg, #1F4D3A 0%, #C8A96B 100%)"
                     }}
@@ -210,15 +200,15 @@ export function TestimonialsSection() {
             <button 
               onClick={prev}
               aria-label="Previous testimonial"
-              className="w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer bg-transparent"
-              style={{ border: '1px solid rgba(247,244,237,0.25)', color: '#F7F4ED' }}
+              className="w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer bg-white"
+              style={{ border: '1px solid rgba(31,77,58,0.15)', color: '#1F4D3A' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = '#C8A96B'
-                e.currentTarget.style.background = 'rgba(200,169,107,0.1)'
+                e.currentTarget.style.background = 'rgba(200,169,107,0.05)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(247,244,237,0.25)'
-                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.borderColor = 'rgba(31,77,58,0.15)'
+                e.currentTarget.style.background = '#FFFFFF'
               }}
             >
               <ChevronLeft className="w-4 h-4" />
@@ -234,7 +224,7 @@ export function TestimonialsSection() {
                   className="h-1.5 rounded-full transition-all duration-300 cursor-pointer"
                   style={{
                     width: i === current ? '28px' : '7px',
-                    background: i === current ? '#C8A96B' : 'rgba(247,244,237,0.25)'
+                    background: i === current ? '#C8A96B' : 'rgba(31,77,58,0.15)'
                   }}
                 />
               ))}
@@ -243,15 +233,15 @@ export function TestimonialsSection() {
             <button 
               onClick={next}
               aria-label="Next testimonial"
-              className="w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer bg-transparent"
-              style={{ border: '1px solid rgba(247,244,237,0.25)', color: '#F7F4ED' }}
+              className="w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer bg-white"
+              style={{ border: '1px solid rgba(31,77,58,0.15)', color: '#1F4D3A' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = '#C8A96B'
-                e.currentTarget.style.background = 'rgba(200,169,107,0.1)'
+                e.currentTarget.style.background = 'rgba(200,169,107,0.05)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(247,244,237,0.25)'
-                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.borderColor = 'rgba(31,77,58,0.15)'
+                e.currentTarget.style.background = '#FFFFFF'
               }}
             >
               <ChevronRight className="w-4 h-4" />

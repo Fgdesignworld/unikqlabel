@@ -49,7 +49,7 @@ export function BlogEducation() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.6 }}
-              className="flex flex-col sm:flex-row bg-[#F7F4ED]/50 border border-slate-200/80 overflow-hidden group hover:border-[#C8A96B] transition-all"
+              className="flex flex-col sm:flex-row bg-[#FDFBF7]/50 border border-slate-200/80 overflow-hidden group hover:border-[#C8A96B] transition-all"
             >
               <div className="sm:w-1/3 overflow-hidden relative aspect-video sm:aspect-square">
                 <img

@@ -43,14 +43,14 @@ export function SolutionsHair() {
             </span>
             <h2
               className="text-4xl md:text-5xl font-serif font-normal mb-6 leading-tight flex items-center gap-3"
-              style={{ color: "#F7F4ED" }}
+              style={{ color: "#FDFBF7" }}
             >
               Home Wellness<br />
               <span className="italic" style={{ color: "#C8A96B" }}>Starter Kit</span>
             </h2>
             <p
               className="text-base leading-relaxed mb-8"
-              style={{ color: "rgba(247,244,237,0.7)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+              style={{ color: "rgba(253,251,247,0.7)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
               A complete collection thoughtfully crafted for everyday home care. Supports cleaner homes, fresher spaces, and better living naturally.
             </p>
@@ -62,7 +62,7 @@ export function SolutionsHair() {
                   <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 animate-pulse" style={{ background: "rgba(200,169,107,0.2)" }}>
                     <Check className="w-3 h-3" style={{ color: "#C8A96B" }} />
                   </div>
-                  <span className="text-sm font-light text-[#F7F4ED]">{item}</span>
+                  <span className="text-sm font-light text-[#FDFBF7]">{item}</span>
                 </div>
               ))}
             </div>

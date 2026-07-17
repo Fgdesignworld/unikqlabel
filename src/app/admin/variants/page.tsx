@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from 'react'
 import { sizeVariantService, type SizeVariantSet, type SizeVariant } from '@/services/sizeVariantService'
 import { useToast } from '@/hooks/use-toast'

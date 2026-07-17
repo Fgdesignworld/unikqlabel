@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { categoryService, type Category, type CategoryPayload } from '@/services/categoryService'
 import { useToast } from '@/hooks/use-toast'

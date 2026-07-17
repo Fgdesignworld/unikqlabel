@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect, useRef } from 'react'
 import { heroSlideService, type HeroSlide } from '@/services/heroSlideService'
 import { useImageCompress } from '@/hooks/use-image-compress'

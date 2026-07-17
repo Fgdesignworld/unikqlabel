@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { Link, useParams, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
@@ -62,7 +64,7 @@ export default function BlogDetailPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen" style={{ background: "#F7F4ED" }}>
+      <main className="min-h-screen" style={{ background: "#FDFBF7" }}>
         <Navbar />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="flex flex-col items-center gap-4 text-[#1F4D3A]/40">
@@ -77,7 +79,7 @@ export default function BlogDetailPage() {
 
   if (notFound || !post) {
     return (
-      <main className="min-h-screen" style={{ background: "#F7F4ED" }}>
+      <main className="min-h-screen" style={{ background: "#FDFBF7" }}>
         <Navbar />
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 px-6">
           <BookOpen className="w-14 h-14 text-[#C8A96B]/40" />
@@ -93,7 +95,7 @@ export default function BlogDetailPage() {
   }
 
   return (
-    <main className="min-h-screen" style={{ background: "#F7F4ED" }}>
+    <main className="min-h-screen" style={{ background: "#FDFBF7" }}>
       <Navbar />
 
       {/* Cover Image Hero */}

@@ -32,7 +32,7 @@ export function BrandStory() {
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: 0.4, duration: 0.6 }}
                 className="absolute -bottom-6 -right-6 p-6"
-                style={{ background: '#F7F4ED', minWidth: '160px' }}>
+                style={{ background: '#FDFBF7', minWidth: '160px' }}>
                 <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2.5rem', fontWeight: 700, color: '#1F4D3A', lineHeight: 1 }}>100%</p>
                 <p className="text-[11px] font-semibold tracking-widest uppercase mt-1" style={{ color: '#C8A96B' }}>Natural</p>
                 <p className="text-xs mt-1" style={{ color: '#6B6B60' }}>No synthetics. Ever.</p>
@@ -62,7 +62,7 @@ export function BrandStory() {
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ delay: 0.08, duration: 0.7 }}
               className="text-4xl md:text-5xl lg:text-6xl leading-[1.05] mb-7"
-              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600, color: '#F7F4ED' }}>
+              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600, color: '#FDFBF7' }}>
               Wellness Begins<br />
               <span style={{ color: '#C8A96B', fontStyle: 'italic' }}>at Home</span>
             </motion.h2>
@@ -71,7 +71,7 @@ export function BrandStory() {
               initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ delay: 0.15, duration: 0.7 }}
               className="space-y-4 mb-10"
-              style={{ color: 'rgba(247,244,237,0.65)', fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '0.9375rem', lineHeight: 1.75 }}>
+              style={{ color: 'rgba(253,251,247,0.65)', fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '0.9375rem', lineHeight: 1.75 }}>
               <p>At AARVIA™, we believe wellness begins at home.</p>
               <p>Inspired by nature and guided by simplicity, we create thoughtfully crafted products designed to support cleaner homes, fresher spaces, and better living.</p>
             </motion.div>
@@ -84,7 +84,7 @@ export function BrandStory() {
               {[{ v: '🌿', l: 'Nature Inspired' }, { v: '🏡', l: 'Home Wellness' }, { v: '✨', l: 'Simple Care' }].map(({ v, l }) => (
                 <div key={l} className="text-center py-4" style={{ borderTop: '1px solid rgba(200,169,107,0.2)' }}>
                   <p style={{ fontSize: '1.5rem', lineHeight: 1 }}>{v}</p>
-                  <p className="text-[10px] font-medium tracking-wider uppercase mt-2.5" style={{ color: 'rgba(247,244,237,0.45)' }}>{l}</p>
+                  <p className="text-[10px] font-medium tracking-wider uppercase mt-2.5" style={{ color: 'rgba(253,251,247,0.45)' }}>{l}</p>
                 </div>
               ))}
             </motion.div>
@@ -93,7 +93,7 @@ export function BrandStory() {
               initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 }}>
               <Link to="/about"
                 className="inline-flex items-center gap-2.5 font-semibold tracking-wider transition-all hover:gap-4"
-                style={{ color: '#F7F4ED', fontSize: '0.75rem', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                style={{ color: '#FDFBF7', fontSize: '0.75rem', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
                 Read Our Story
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>

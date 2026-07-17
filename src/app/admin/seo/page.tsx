@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from 'react'
 import { seoService, type SeoRecord } from '@/services/seoService'
 import { useToast } from '@/hooks/use-toast'

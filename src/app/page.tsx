@@ -3,14 +3,14 @@ import { HeroSection } from "@/components/hero-section"
 import { Footer } from "@/components/footer"
 import { TrustBar } from "@/components/aarvia/trust-bar"
 import { FeaturedCollections } from "@/components/aarvia/featured-collections"
+import { NewArrivals } from "@/components/aarvia/new-arrivals"
 import { BestSellers } from "@/components/aarvia/best-sellers"
-import { IngredientPhilosophy } from "@/components/aarvia/ingredient-philosophy"
-import { SustainabilityStory } from "@/components/aarvia/sustainability-story"
-import { SolutionsHair } from "@/components/aarvia/solutions-hair"
-import { SolutionsBody } from "@/components/aarvia/solutions-body"
+import { PromotionalBanner } from "@/components/aarvia/promotional-banner"
 import { TestimonialsSection } from "@/components/aarvia/testimonials-section"
+import { FaqSection } from "@/components/aarvia/faq-section"
 import { InstagramGallery } from "@/components/aarvia/instagram-gallery"
 import { NewsletterSection } from "@/components/aarvia/newsletter-section"
+import { PhilosophySection } from "@/components/aarvia/philosophy-section"
 import { useSeo } from "@/hooks/use-seo"
 
 export default function Home() {
@@ -21,17 +21,17 @@ export default function Home() {
   })
 
   return (
-    <main className="min-h-screen" style={{ background: '#F7F4ED' }}>
+    <main className="min-h-screen relative overflow-hidden" style={{ background: '#FDFBF7' }}>
       <Navbar />
       <HeroSection />
       <TrustBar />
       <FeaturedCollections />
       <BestSellers />
-      <IngredientPhilosophy />
-      <SustainabilityStory />
-      <SolutionsHair />
-      <SolutionsBody />
+      <PromotionalBanner />
+      <NewArrivals />
+      <PhilosophySection />
       <TestimonialsSection />
+      <FaqSection />
       {/* <InstagramGallery />
       <NewsletterSection /> */}
       <Footer />

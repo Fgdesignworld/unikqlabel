@@ -1,8 +1,11 @@
+"use client"
+
 import { useState, useEffect, useMemo } from "react"
 import { useSearchParams } from "react-router-dom"
 import { Leaf } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
+import { PageHeader } from "@/components/page-header"
 import { ProductFilters } from "@/components/product-filters"
 import { useSeo } from "@/hooks/use-seo"
 import { productService } from "@/services/productService"
@@ -61,22 +64,12 @@ export default function ProductsPage() {
   }, [category, categoryTree])
 
   return (
-    <main className="min-h-screen" style={{ background: '#F7F4ED' }}>
+    <main className="min-h-screen" style={{ background: '#FDFBF7' }}>
       <Navbar />
       
-      {/* Page Hero */}
-      <div className="relative pt-20" style={{ background: '#1F4D3A', minHeight: '200px', display: 'flex', alignItems: 'flex-end', paddingBottom: '0' }}>
-        <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(200,169,107,0.9) 1px, transparent 0)', backgroundSize: '24px 24px' }} />
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full pb-8 pt-10">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase mb-2" style={{ color: '#C8A96B' }}>Home Wellness</p>
-          <h1 className="text-4xl md:text-5xl leading-tight font-serif font-light text-[#F7F4ED] mb-2">
-            Home Wellness Collection
-          </h1>
-          <p className="text-sm font-light max-w-xl" style={{ color: 'rgba(247,244,237,0.7)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            Nature-inspired solutions designed for everyday home care.
-          </p>
-        </div>
-      </div>
+      <PageHeader 
+        backgroundImage="/images/heroes/shop-hero.png"
+      />
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 pb-12 pt-4">
 
@@ -87,7 +80,7 @@ export default function ProductsPage() {
               onClick={() => { setCategory('all'); setSubcategory('') }}
               className="shrink-0 flex items-center gap-1.5 px-6 py-3 font-semibold text-[10px] tracking-widest uppercase transition-all duration-300 cursor-pointer rounded-full border"
               style={category === 'all'
-                ? { background: '#1F4D3A', color: '#F7F4ED', borderColor: '#1F4D3A' }
+                ? { background: '#1F4D3A', color: '#FDFBF7', borderColor: '#1F4D3A' }
                 : { background: 'transparent', color: '#1F4D3A', borderColor: 'rgba(200,169,107,0.25)' }}
             >
               <Leaf className="w-3.5 h-3.5" /> All
@@ -98,7 +91,7 @@ export default function ProductsPage() {
                 onClick={() => { setCategory(cat.slug); setSubcategory('') }}
                 className="shrink-0 px-6 py-3 font-semibold text-[10px] tracking-widest uppercase transition-all duration-300 cursor-pointer rounded-full border"
                 style={category === cat.slug
-                  ? { background: '#1F4D3A', color: '#F7F4ED', borderColor: '#1F4D3A' }
+                  ? { background: '#1F4D3A', color: '#FDFBF7', borderColor: '#1F4D3A' }
                   : { background: 'transparent', color: '#1F4D3A', borderColor: 'rgba(200,169,107,0.25)' }}
               >
                 {cat.name}

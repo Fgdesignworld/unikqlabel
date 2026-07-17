@@ -171,7 +171,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.25), ease: "easeOut" }}
-      className="group relative rounded-2xl overflow-hidden border border-[#1F4D3A]/5 hover:border-[#C8A96B]/30 transition-all duration-500 flex flex-col hover:-translate-y-1.5 bg-white hover:shadow-[0_20px_40px_rgba(200,169,107,0.08)]"
+      className="group relative rounded-2xl overflow-hidden border border-[#1F4D3A]/5 hover:border-[#C8A96B]/30 transition-all duration-500 flex flex-col hover:-translate-y-1.5 bg-[#F9F6F0] hover:shadow-[0_20px_40px_rgba(200,169,107,0.08)]"
     >
       {/* Stretched Link for entire card clickability */}
       <Link
@@ -206,7 +206,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
         {/* Top Left: Discount Badge */}
         {showDiscount && (
-          <div className="absolute top-3 left-3 z-20 px-2.5 py-0.5 bg-[#C8A96B]/15 backdrop-blur-md text-[#C8A96B] rounded-md text-[9px] font-bold uppercase tracking-wider border border-[#C8A96B]/30 shadow-[0_4px_12px_rgba(200,169,107,0.1)]">
+          <div className="absolute top-3 left-3 z-20 px-2.5 py-1 bg-white/95 backdrop-blur-sm text-[#8F7D59] rounded-full text-[10px] font-black tracking-wider border border-[#C8A96B]/30 shadow-sm">
             -{discountPct}%
           </div>
         )}
@@ -215,31 +215,35 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
         <button
           onClick={handleShare}
           aria-label="Share product"
-          className="absolute top-3 right-3 z-20 w-7 h-7 md:w-8 md:h-8 flex items-center justify-center bg-[#1F4D3A]/40 text-[#F7F4ED]/80 hover:text-[#C8A96B] backdrop-blur-md rounded-full border border-white/10 hover:border-[#C8A96B]/40 hover:bg-[#1F4D3A]/90 transition-all duration-300 shadow-md cursor-pointer hover:shadow-[0_0_12px_rgba(200,169,107,0.2)]"
+          className="absolute top-3 right-3 z-20 w-7 h-7 md:w-8 md:h-8 flex items-center justify-center bg-[#1F4D3A]/40 text-[#FDFBF7]/80 hover:text-[#C8A96B] backdrop-blur-md rounded-full border border-white/10 hover:border-[#C8A96B]/40 hover:bg-[#1F4D3A]/90 transition-all duration-300 shadow-md cursor-pointer hover:shadow-[0_0_12px_rgba(200,169,107,0.2)]"
         >
           <Share2 className="w-3.5 h-3.5" />
         </button>
 
-        {/* Bottom Right: Bestseller Badge */}
-        {product.bestseller && (
-          <div className="absolute bottom-3 right-3 z-20 px-3 py-1 bg-[#1F4D3A] backdrop-blur-md text-[#F7F4ED] text-[9px] font-semibold tracking-widest uppercase rounded-full shadow-lg border border-[#C8A96B]/30">
-            Trending
-          </div>
-        )}
-
-        {/* Bottom Left: Out of Stock overlay badge */}
-        {isOOS && (
-          <div className="absolute bottom-3 left-3 z-20 px-3 py-1 bg-red-600/90 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-wider rounded-full shadow-xl border border-white/10">
+        {/* Bottom Right: Status Badge */}
+        {isOOS ? (
+          <div className="absolute bottom-3 right-3 z-20 px-3 py-1.5 rounded-full shadow-sm bg-gray-500"
+            style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.05em', color: '#FFF', textTransform: 'uppercase' }}>
             Out of Stock
           </div>
-        )}
+        ) : (remainingStock !== null && remainingStock > 0 && remainingStock < 10) ? (
+          <div className="absolute bottom-3 right-3 z-20 px-3 py-1.5 rounded-full shadow-sm"
+            style={{ background: '#C04C36', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.05em', color: '#FFF', textTransform: 'uppercase' }}>
+            Limited Stock
+          </div>
+        ) : product.bestseller ? (
+          <div className="absolute bottom-3 right-3 z-20 px-3 py-1.5 rounded-full shadow-sm"
+            style={{ background: '#1F4D3A', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.05em', color: '#FFF', textTransform: 'uppercase' }}>
+            Trending
+          </div>
+        ) : null}
       </div>
 
       {/* Content */}
-      <div className="p-3 md:p-4 flex flex-col flex-1 relative bg-white">
+      <div className="p-3 md:p-4 flex flex-col flex-1 relative bg-[#F9F6F0]">
         <div className="flex items-start justify-between gap-1 md:gap-2 mb-1 md:mb-2">
           <div className="flex-1 min-w-0">
-            <h3 className="font-serif text-sm md:text-lg font-bold text-[#1F4D3A] group-hover:text-[#C8A96B] transition-colors line-clamp-1">
+            <h3 className="font-serif text-sm md:text-base font-medium text-[#1F4D3A] group-hover:text-[#C8A96B] transition-colors line-clamp-1">
               {product.name}
             </h3>
           </div>
@@ -302,8 +306,8 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
         {/* Size Variants */}
         {sizeVariants.length > 0 && (
-          <div className="mb-3">
-            <div className="flex flex-wrap items-center gap-1.5 pb-0">
+          <div className="mb-3 w-full">
+            <div className="flex w-full gap-1.5 pb-0">
               {sizeVariants.map((sv, idx) => (
                 <button
                   key={sv.label}
@@ -314,15 +318,15 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                     setSizeError(false)
                   }}
                   className={cn(
-                    'shrink-0 min-w-[42px] h-[26px] px-1 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center cursor-pointer border relative z-20',
+                    'flex-1 h-[28px] px-1 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center cursor-pointer border relative z-20',
                     selectedSizeIdx === idx
-                      ? 'bg-[#1F4D3A] text-[#F7F4ED] border-[#1F4D3A] shadow-sm shadow-[#1F4D3A]/20 scale-100'
+                      ? 'bg-[#1F4D3A] text-[#FDFBF7] border-[#1F4D3A] shadow-sm shadow-[#1F4D3A]/20 scale-100'
                       : sizeError
                         ? 'bg-red-500/10 text-red-500 border-red-500/60 animate-pulse'
                         : 'border-[#C8A96B]/25 bg-transparent text-[#1F4D3A] hover:border-[#1F4D3A]/50 hover:text-[#1F4D3A]'
                   )}
                 >
-                  {sv.label}
+                  <span className="truncate">{sv.label}</span>
                 </button>
               ))}
             </div>
@@ -351,16 +355,16 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             </p>
           </div>
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={isOOS ? {} : { scale: 1.05 }}
+            whileTap={isOOS ? {} : { scale: 0.95 }}
             onClick={handleAddToCart}
             disabled={isAdded || isOOS}
             className={`flex items-center justify-center gap-1.5 px-4 py-2 font-semibold rounded-full transition-all duration-300 text-[10px] tracking-wider uppercase relative z-20 cursor-pointer border ${
               isOOS
-                ? 'bg-[#F7F4ED] border-black/5 text-[#999999] cursor-not-allowed'
+                ? 'bg-gray-500 border-gray-500 text-white cursor-not-allowed opacity-60'
                 : isAdded
                 ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/10 border-emerald-600'
-                : 'bg-[#1F4D3A] hover:bg-[#C8A96B] text-[#F7F4ED] hover:text-[#1F4D3A] shadow-md shadow-[#1F4D3A]/10 border-[#1F4D3A] hover:border-[#C8A96B]'
+                : 'bg-[#1F4D3A] hover:bg-[#C8A96B] text-[#FDFBF7] hover:text-[#1F4D3A] shadow-md shadow-[#1F4D3A]/10 border-[#1F4D3A] hover:border-[#C8A96B]'
             }`}
           >
             {isAdded ? (
@@ -369,11 +373,11 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                 Added
               </>
             ) : isOOS ? (
-              'Out'
+              'SOLD OUT'
             ) : (
               <>
                 <ShoppingBag className="w-3 h-3" />
-                Add
+                ADD
               </>
             )}
           </motion.button>

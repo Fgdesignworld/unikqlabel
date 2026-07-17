@@ -36,7 +36,7 @@ const resolveImg = (p?: string | null) => {
 // ── Brand tokens ──
 const GRN  = '#1F4D3A'
 const GOLD = '#C8A96B'
-const CREAM = '#F7F4ED'
+const CREAM = '#FDFBF7'
 
 function StarRow({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' | 'lg' }) {
   const s = size === 'lg' ? 'w-6 h-6' : size === 'md' ? 'w-5 h-5' : 'w-3.5 h-3.5'
@@ -86,7 +86,7 @@ function ReviewCard({ review }: { review: Review }) {
       className="bg-white border border-[#C8A96B]/20 rounded-2xl p-5 space-y-3 shadow-sm hover:shadow-md transition-shadow duration-300">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center text-[#F7F4ED] text-sm font-bold shadow-sm"
+          <div className="w-10 h-10 rounded-full flex items-center justify-center text-[#FDFBF7] text-sm font-bold shadow-sm"
             style={{ background: `linear-gradient(135deg, ${GRN}, ${GOLD})` }}>
             {initials}
           </div>
@@ -231,20 +231,20 @@ function ReviewsSection({ productId }: { productId: number | null }) {
                   <label className="text-[#333333] text-xs font-semibold uppercase tracking-wider block mb-1.5">Name *</label>
                   <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                     placeholder="Your name"
-                    className="w-full bg-[#F7F4ED] border border-[#C8A96B]/25 rounded-xl px-4 py-2.5 text-[#1F4D3A] text-sm placeholder-[#888888] focus:outline-none focus:border-[#1F4D3A]/50 transition-all" />
+                    className="w-full bg-[#FDFBF7] border border-[#C8A96B]/25 rounded-xl px-4 py-2.5 text-[#1F4D3A] text-sm placeholder-[#888888] focus:outline-none focus:border-[#1F4D3A]/50 transition-all" />
                 </div>
                 <div>
                   <label className="text-[#333333] text-xs font-semibold uppercase tracking-wider block mb-1.5">Email *</label>
                   <input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                     placeholder="your@email.com"
-                    className="w-full bg-[#F7F4ED] border border-[#C8A96B]/25 rounded-xl px-4 py-2.5 text-[#1F4D3A] text-sm placeholder-[#888888] focus:outline-none focus:border-[#1F4D3A]/50 transition-all" />
+                    className="w-full bg-[#FDFBF7] border border-[#C8A96B]/25 rounded-xl px-4 py-2.5 text-[#1F4D3A] text-sm placeholder-[#888888] focus:outline-none focus:border-[#1F4D3A]/50 transition-all" />
                 </div>
               </div>
               <div>
                 <label className="text-[#333333] text-xs font-semibold uppercase tracking-wider block mb-1.5">Your Review *</label>
                 <textarea value={form.comment} onChange={e => setForm(f => ({ ...f, comment: e.target.value }))}
                   placeholder="How did this product transform your skin routine?" rows={4}
-                  className="w-full bg-[#F7F4ED] border border-[#C8A96B]/25 rounded-xl px-4 py-2.5 text-[#1F4D3A] text-sm placeholder-[#888888] focus:outline-none focus:border-[#1F4D3A]/50 transition-all resize-none" />
+                  className="w-full bg-[#FDFBF7] border border-[#C8A96B]/25 rounded-xl px-4 py-2.5 text-[#1F4D3A] text-sm placeholder-[#888888] focus:outline-none focus:border-[#1F4D3A]/50 transition-all resize-none" />
               </div>
               <div className="flex items-center justify-between gap-4">
                 <p className="text-[#666666] text-[11px] flex items-center gap-1">
@@ -694,7 +694,7 @@ export default function ProductDetailPage() {
                 {/* OOS overlay */}
                 {currentStock === 0 && (
                   <div className="absolute inset-0 backdrop-blur-[2px] flex items-center justify-center z-20"
-                    style={{ background: 'rgba(247,244,237,0.75)' }}>
+                    style={{ background: 'rgba(253,251,247,0.75)' }}>
                     <span className="px-5 py-2.5 font-semibold text-sm rounded-full shadow-lg"
                       style={{ background: '#dc2626', color: 'white', border: '1px solid rgba(220,38,38,0.3)' }}>
                       Out of Stock
@@ -1104,7 +1104,7 @@ export default function ProductDetailPage() {
               onClick={e => e.stopPropagation()} />
             <button
               className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-colors cursor-pointer"
-              style={{ background: 'rgba(247,244,237,0.15)', color: CREAM }}
+              style={{ background: 'rgba(253,251,247,0.15)', color: CREAM }}
               onClick={() => setZoomed(false)}>
               <X className="w-5 h-5" />
             </button>

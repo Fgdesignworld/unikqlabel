@@ -1,3 +1,5 @@
+"use client"
+
 import { useRef } from "react"
 import { useScroll, useTransform, motion } from "framer-motion"
 import { Leaf, ArrowRight, Shield, Heart, Recycle, Compass, Sparkles, Quote } from "lucide-react"
@@ -5,6 +7,7 @@ import { Link } from "react-router-dom"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { useSeo } from "@/hooks/use-seo"
+import { PageHeader } from "@/components/page-header"
 import { StoryStackCards } from "@/components/aarvia/story-stack-cards"
 
 const PILLARS = [
@@ -27,19 +30,19 @@ const STORY = [
     badge: "The Vision",
     title: "Nature inspires better living",
     body: "AARVIA™ was created with a simple belief: Nature inspires better living. Our journey began with a vision to create thoughtfully crafted home wellness products that combine quality, practicality, and everyday care.",
-    image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=600&auto=format&fit=crop"
+    image: "/images/heroes/about-story-1.png"
   },
   {
     badge: "The Philosophy",
     title: "A Healthier Home",
     body: "We believe a cleaner home contributes to a better living experience. Every floor cleaner, dishwash liquid, and hand wash we create is designed with this philosophy in mind, ensuring safety and freshness for everyday spaces.",
-    image: "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=600&auto=format&fit=crop"
+    image: "/images/heroes/about-story-2.png"
   },
   {
     badge: "The Future",
     title: "Wellness Expansion",
     body: "Today, AARVIA™ begins with Home Wellness. Guided by simplicity and nature, we will gradually expand into Personal Care and Lifestyle collections, supporting your complete wellness journey.",
-    image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=600&auto=format&fit=crop"
+    image: "/images/heroes/about-story-3.png"
   },
 ]
 
@@ -53,48 +56,38 @@ const fadeUp = {
 }
 
 function PhilosophySection() {
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"]
-  })
-
   const quoteText = "Wellness begins at home. By selecting pure, nature-inspired solutions, we create a healthier, cleaner, and more harmonious environment for everyday living."
-  const words = quoteText.split(" ")
 
   return (
-    <section 
-      ref={sectionRef} 
-      className="min-h-screen flex items-center justify-center bg-[#1F4D3A] py-28 relative overflow-hidden"
-    >
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(200,169,107,0.9) 1px, transparent 0)', backgroundSize: '36px 36px' }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[160px] opacity-[0.04] pointer-events-none" style={{ background: '#C8A96B' }} />
+    <section className="relative flex items-center justify-center py-16 lg:py-24 overflow-hidden border-y border-[#C8A96B]/10">
+      {/* Full Bleed Background Image */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-cover bg-center scale-105" style={{ backgroundImage: "url('/images/heroes/about-philosophy.png')" }} />
+        <div className="absolute inset-0 bg-[#FDFBF7]/20" /> {/* Slight lighten overlay */}
+      </div>
 
-      <div className="max-w-5xl mx-auto px-6 text-center space-y-10 relative z-10">
-        <Quote className="w-12 h-12 mx-auto text-[#C8A96B] opacity-40 animate-pulse" />
-        
-        <h3 className="text-3xl md:text-5xl lg:text-6xl font-serif font-light leading-snug text-[#F7F4ED] tracking-wide max-w-4xl mx-auto">
-          {words.map((word, i) => {
-            const start = i / words.length * 0.4 + 0.15
-            const end = start + 0.12
-            const opacity = useTransform(scrollYProgress, [start, end], [0.15, 1])
-            
-            return (
-              <motion.span 
-                key={i} 
-                style={{ opacity }}
-                className="inline-block mr-3 md:mr-4 select-none"
-              >
-                {word}
-              </motion.span>
-            )
-          })}
-        </h3>
-        
-        <div className="w-16 h-[1.5px] bg-[#C8A96B] mx-auto mt-10" />
-        <p className="text-[10px] font-bold tracking-[0.4em] uppercase text-[#C8A96B]">
-          Aarvia Home Wellness
-        </p>
+      <div className="max-w-3xl mx-auto px-6 relative z-10 w-full">
+        {/* Glassmorphism Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="relative bg-white/75 backdrop-blur-xl border border-white/60 shadow-2xl rounded-[2.5rem] p-10 lg:p-14 text-center"
+        >
+          <Quote className="w-10 h-10 mx-auto text-[#C8A96B] opacity-80 mb-8" />
+          
+          <h3 className="text-2xl md:text-3xl lg:text-4xl font-serif font-light leading-[1.6] text-[#1F4D3A] tracking-wide">
+            {quoteText}
+          </h3>
+          
+          <div className="pt-10">
+            <div className="w-12 h-[1px] bg-[#C8A96B]/60 mx-auto mb-6" />
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-[#C8A96B]">
+              Our Philosophy
+            </p>
+          </div>
+        </motion.div>
       </div>
     </section>
   )
@@ -111,74 +104,72 @@ export default function AboutPage() {
   const yHeroText = useTransform(scrollY, [0, 400], [0, 80])
 
   return (
-    <main className="min-h-screen relative overflow-x-hidden" style={{ background: '#F7F4ED' }}>
+    <main className="min-h-screen relative overflow-x-hidden" style={{ background: '#FDFBF7' }}>
       <Navbar />
 
-      {/* Hero */}
-      <section 
-        ref={heroRef}
-        className="relative overflow-hidden h-screen min-h-[600px] flex items-center justify-center bg-[#1F4D3A]"
-      >
-        <motion.div 
-          style={{ y: yHeroBg, scale: scaleHeroBg }}
-          className="absolute inset-0 w-full h-full pointer-events-none"
-        >
-          <div className="absolute inset-0 bg-cover bg-center brightness-[0.35] saturate-[0.8]" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=1200&auto=format&fit=crop')" }} />
-          <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(200,169,107,0.9) 1px, transparent 0)', backgroundSize: '24px 24px' }} />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#1F4D3A]/20 via-transparent to-[#1F4D3A]/60" />
-        </motion.div>
+      {/* Hero Banner */}
+      <PageHeader backgroundImage="/images/heroes/about-hero.png" />
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full text-center relative z-10">
-          <motion.div 
-            style={{ opacity: opacityHeroText, y: yHeroText }} 
-            className="space-y-6"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <span className="text-[11px] font-bold tracking-[0.4em] uppercase block" style={{ color: '#C8A96B' }}>
-              Our Story
-            </span>
-            <h1 
-              className="text-5xl md:text-7xl lg:text-8xl leading-[1.15] font-light text-[#F7F4ED]"
-              style={{ fontFamily: "'Cormorant Garamond', serif" }}
-            >
-              Nature Inspires<br />
-              <span className="italic font-serif" style={{ color: '#C8A96B' }}>Better Living</span>
-            </h1>
-            <p 
-              className="text-sm md:text-base max-w-lg mx-auto font-light leading-relaxed pt-2" 
-              style={{ color: 'rgba(247,244,237,0.72)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-            >
-              A thoughtfully crafted collection of home wellness solutions combining botanical quality, everyday care, and practical design.
-            </p>
-          </motion.div>
-        </div>
-
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-3 cursor-pointer"
-          onClick={() => window.scrollTo({ top: window.innerHeight * 0.85, behavior: 'smooth' })}
-        >
-          <span className="text-[9px] font-bold tracking-[0.25em] uppercase text-[#F7F4ED]/60 select-none">
-            Scroll to Explore
-          </span>
-          <div className="w-[1px] h-10 bg-[#C8A96B]/20 relative overflow-hidden rounded-full">
+      {/* Hero Content - Editorial Split Screen */}
+      <section className="relative overflow-hidden bg-[#FDFBF7] py-20 lg:py-32">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+          <div className="flex flex-col lg:flex-row items-center relative">
+            
+            {/* Left Image */}
             <motion.div 
-              animate={{ y: ["-100%", "100%"] }}
-              transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
-              className="w-full h-1/2 bg-[#C8A96B] absolute top-0"
-            />
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full lg:w-[55%] relative h-[500px] lg:h-[700px] rounded-tl-[4rem] rounded-br-[4rem] overflow-hidden shadow-2xl z-10"
+            >
+              <img src="/images/heroes/about-intro-model.png" alt="Aarvia Lifestyle" className="w-full h-full object-cover" />
+            </motion.div>
+
+            {/* Right Text */}
+            <motion.div 
+              className="w-full lg:w-[55%] lg:-ml-[10%] mt-12 lg:mt-0 relative z-20"
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="bg-white/95 backdrop-blur-xl p-10 md:p-14 lg:p-20 rounded-[3rem] shadow-[0_30px_80px_rgba(31,77,58,0.08)] border border-[#C8A96B]/20">
+                <span className="text-[11px] font-bold tracking-[0.4em] uppercase block mb-6" style={{ color: '#C8A96B' }}>
+                  Our Story
+                </span>
+                <h1 
+                  className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.1] font-light text-[#1F4D3A] mb-8"
+                  style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                >
+                  Nature Inspires<br />
+                  <span className="italic font-serif" style={{ color: '#C8A96B' }}>Better Living</span>
+                </h1>
+                <p 
+                  className="text-base lg:text-lg font-light leading-relaxed text-[#6A6A60]" 
+                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                >
+                  A thoughtfully crafted collection of home wellness solutions combining botanical quality, everyday care, and practical design. We believe that true luxury is found in the purity of nature.
+                </p>
+                <div className="mt-12 flex items-center gap-6">
+                   <div className="w-16 h-[1px] bg-[#C8A96B]" />
+                   <span className="text-xs uppercase tracking-widest text-[#1F4D3A] font-semibold">Since 2026</span>
+                </div>
+              </div>
+            </motion.div>
+
           </div>
-        </motion.div>
+        </div>
       </section>
 
-      {/* Stats Section */}
-      <section style={{ background: '#F7F4ED', borderBottom: '1px solid rgba(200,169,107,0.12)' }}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
+      {/* Cinematic Stats Section */}
+      <section className="relative py-24 lg:py-32 overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/images/heroes/about-stats-bg.png')" }} />
+          <div className="absolute inset-0 bg-[#FDFBF7]/80 backdrop-blur-sm" />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 lg:gap-16">
             {STATS.map(({ v, l }, i) => (
               <motion.div 
                 key={l} 
@@ -187,11 +178,11 @@ export default function AboutPage() {
                 initial="hidden" 
                 whileInView="visible" 
                 viewport={{ once: true, margin: "-40px" }} 
-                className="text-center space-y-1.5"
+                className="text-center space-y-3"
               >
-                <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '3.5rem', fontWeight: 600, color: '#1F4D3A', lineHeight: 1 }}>{v}</p>
-                <div className="w-6 h-[1.5px] bg-[#C8A96B]/50 mx-auto" />
-                <p className="text-[10px] font-semibold tracking-[0.2em] uppercase" style={{ color: '#C8A96B' }}>{l}</p>
+                <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '4rem', fontWeight: 600, color: '#1F4D3A', lineHeight: 1 }}>{v}</p>
+                <div className="w-8 h-[2px] bg-[#C8A96B]/60 mx-auto" />
+                <p className="text-[11px] font-bold tracking-[0.25em] uppercase" style={{ color: '#C8A96B' }}>{l}</p>
               </motion.div>
             ))}
           </div>
@@ -199,50 +190,54 @@ export default function AboutPage() {
       </section>
 
       {/* Stacking Story Cards */}
-      <section className="relative bg-[#1A382A] pb-[30vh]">
+      <section className="relative bg-[#FDFBF7] pb-[30vh]">
         <StoryStackCards cards={STORY} />
       </section>
 
       {/* Philosophy Quotes */}
       <PhilosophySection />
 
-      {/* Vision and Mission Section */}
-      <section className="py-24" style={{ background: '#F7F4ED', borderBottom: '1px solid rgba(200,169,107,0.1)' }}>
+      {/* Vision and Mission Section - Tall Portrait Cards */}
+      <section className="py-24 lg:py-32" style={{ background: '#FDFBF7' }}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-8 lg:gap-16">
             
             {/* Vision Card */}
             <motion.div 
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="bg-white border border-[#C8A96B]/20 rounded-3xl p-8 lg:p-12 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col gap-6"
+              transition={{ duration: 0.8 }}
+              className="group relative h-[600px] lg:h-[700px] rounded-[2.5rem] overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-700"
             >
-              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[#1F4D3A]/5 border border-[#C8A96B]/25">
-                <Leaf className="w-5 h-5 text-[#1F4D3A]" />
+              <div className="absolute inset-0 h-[60%] overflow-hidden">
+                <img src="/images/heroes/about-intro-model.png" alt="Vision" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
               </div>
-              <h3 className="text-3xl font-serif font-normal text-[#1F4D3A]">Our Vision</h3>
-              <p className="text-sm leading-relaxed text-[#6A6A60]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                To become a trusted Indian wellness brand inspired by nature and built for modern living.
-              </p>
+              <div className="absolute bottom-0 w-full h-[50%] bg-white rounded-t-[2.5rem] p-10 lg:p-14 flex flex-col justify-center transform -translate-y-4">
+                <h3 className="text-3xl lg:text-4xl font-serif font-normal text-[#1F4D3A] mb-4">Our Vision</h3>
+                <p className="text-sm lg:text-base leading-relaxed text-[#6A6A60]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  To become a trusted Indian wellness brand inspired by nature and built for modern living, delivering true botanical luxury to every home.
+                </p>
+              </div>
             </motion.div>
 
             {/* Mission Card */}
             <motion.div 
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="bg-white border border-[#C8A96B]/20 rounded-3xl p-8 lg:p-12 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col gap-6"
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="group relative h-[600px] lg:h-[700px] rounded-[2.5rem] overflow-hidden bg-[#F9F6F0] shadow-sm hover:shadow-xl transition-all duration-700 mt-12 md:mt-24"
             >
-              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[#C8A96B]/10 border border-[#C8A96B]/30">
-                <Sparkles className="w-5 h-5 text-[#C8A96B]" />
+              <div className="absolute inset-0 h-[60%] overflow-hidden">
+                <img src="/images/heroes/about-vision-mission.png" alt="Mission" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
               </div>
-              <h3 className="text-3xl font-serif font-normal text-[#1F4D3A]">Our Mission</h3>
-              <p className="text-sm leading-relaxed text-[#6A6A60]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                To create thoughtfully crafted products that support cleaner homes, fresher spaces, and healthier everyday routines.
-              </p>
+              <div className="absolute bottom-0 w-full h-[50%] bg-[#F9F6F0] rounded-t-[2.5rem] p-10 lg:p-14 flex flex-col justify-center transform -translate-y-4 border-t border-white">
+                <h3 className="text-3xl lg:text-4xl font-serif font-normal text-[#1F4D3A] mb-4">Our Mission</h3>
+                <p className="text-sm lg:text-base leading-relaxed text-[#6A6A60]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  To create thoughtfully crafted products that support cleaner homes, fresher spaces, and healthier everyday routines using 100% pure botanical actives.
+                </p>
+              </div>
             </motion.div>
 
           </div>
@@ -250,11 +245,11 @@ export default function AboutPage() {
       </section>
 
       {/* Commitments/Pillars */}
-      <section className="py-28 lg:py-36 relative" style={{ background: '#F7F4ED' }}>
+      <section className="py-12 lg:py-16 relative" style={{ background: '#FDFBF7' }}>
         <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #1F4D3A 1px, transparent 0)', backgroundSize: '20px 20px' }} />
         
         <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-20 space-y-3">
+          <div className="text-center mb-10 space-y-3">
             <motion.p 
               initial={{ opacity: 0, y: 10 }} 
               whileInView={{ opacity: 1, y: 0 }} 
@@ -276,63 +271,71 @@ export default function AboutPage() {
             <div className="w-12 h-1 bg-[#C8A96B] mx-auto mt-4 rounded-full" />
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
-            {PILLARS.map(({ icon: Icon, title, desc }, i) => (
-              <motion.div 
-                key={title} 
-                custom={i} 
-                variants={fadeUp} 
-                initial="hidden" 
-                whileInView="visible" 
-                viewport={{ once: true, margin: "-40px" }}
-                className="p-8 group relative transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_25px_50px_rgba(31,77,58,0.06)] bg-white rounded-2xl overflow-hidden flex flex-col justify-between"
-                style={{ border: '1px solid rgba(200,169,107,0.15)' }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-tr from-[#C8A96B]/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                <div>
-                  <div 
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-[#1F4D3A] group-hover:text-white transition-all duration-500"
-                    style={{ background: 'rgba(31,77,58,0.04)', border: '1px solid rgba(200,169,107,0.18)', color: '#1F4D3A' }}
-                  >
-                    <Icon className="w-5 h-5 transition-colors duration-300" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+            {PILLARS.map(({ icon: Icon, title, desc }, i) => {
+              const bentoClasses = [
+                "md:col-span-1 lg:col-span-2 bg-white",
+                "md:col-span-1 lg:col-span-2 bg-[#F9F6F0]",
+                "md:col-span-1 lg:col-span-1 bg-white",
+                "md:col-span-1 lg:col-span-2 bg-[#F9F6F0]",
+                "md:col-span-1 lg:col-span-1 bg-white"
+              ]
+              
+              return (
+                <motion.div 
+                  key={title} 
+                  custom={i} 
+                  variants={fadeUp} 
+                  initial="hidden" 
+                  whileInView="visible" 
+                  viewport={{ once: true, margin: "-40px" }}
+                  className={`relative p-8 lg:p-12 min-h-[320px] rounded-[2rem] flex flex-col justify-between group overflow-hidden border border-[#C8A96B]/10 hover:shadow-2xl transition-all duration-700 ${bentoClasses[i]}`}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                  
+                  <div className="flex justify-between items-start relative z-10">
+                    <span className="text-sm font-mono font-semibold tracking-widest text-[#C8A96B]/60">
+                      0{i + 1}
+                    </span>
+                    <div className="w-12 h-12 rounded-full border border-[#C8A96B]/20 flex items-center justify-center bg-white/50 backdrop-blur-sm group-hover:bg-[#1F4D3A] transition-colors duration-500">
+                      <Icon className="w-5 h-5 text-[#1F4D3A] group-hover:text-white transition-colors duration-500" />
+                    </div>
                   </div>
-                  <h3 className="font-semibold mb-4 leading-snug text-[#1F4D3A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.25rem' }}>{title}</h3>
-                  <p className="text-xs leading-relaxed text-[#7A7A72]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{desc}</p>
-                </div>
-                
-                <span className="text-[10px] font-bold text-[#C8A96B] mt-6 select-none opacity-40 group-hover:opacity-100 transition-opacity">
-                  0{i + 1}
-                </span>
-              </motion.div>
-            ))}
+                  
+                  <div className="relative z-10 mt-16">
+                    <h3 className="text-2xl lg:text-3xl font-serif font-normal text-[#1F4D3A] mb-4 group-hover:-translate-y-1 transition-transform duration-500">
+                      {title}
+                    </h3>
+                    <p className="text-sm leading-relaxed text-[#6A6A60] opacity-80 group-hover:opacity-100 transition-opacity duration-500" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                      {desc}
+                    </p>
+                  </div>
+                </motion.div>
+              )
+            })}
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="py-24 relative overflow-hidden" style={{ background: '#1F4D3A' }}>
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(200,169,107,0.9) 1px, transparent 0)', backgroundSize: '28px 28px' }} />
-        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full blur-[140px] opacity-[0.06] pointer-events-none" style={{ background: '#C8A96B' }} />
-        
-        <div className="max-w-3xl mx-auto px-6 text-center space-y-8 relative z-10">
-          <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-[#C8A96B] block">
+      <section className="py-4 md:py-6 bg-[#FDFBF7] border-t border-[#C8A96B]/10">
+        <div className="max-w-3xl mx-auto px-6 text-center space-y-2">
+          <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#C8A96B]">
             Begin Your Ritual
           </span>
-          <h2 className="text-4xl md:text-5xl font-serif font-light text-[#F7F4ED] leading-tight">
-            Ready to Experience<br />
-            <span className="italic" style={{ color: '#C8A96B' }}>Pure Botanicals?</span>
+          <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1F4D3A] leading-tight">
+            Ready to Experience <span className="italic">Pure Botanicals?</span>
           </h2>
-          <p className="text-sm text-[#F7F4ED]/70 font-light max-w-md mx-auto leading-relaxed">
+          <p className="text-xs text-[#6A6A60] max-w-sm mx-auto pb-1">
             Discover our curated collections designed to support cleaner homes and better living.
           </p>
-          <div className="pt-4">
+          <div>
             <Link 
               to="/shop"
-              className="inline-flex items-center gap-3 px-10 py-5 font-bold tracking-widest uppercase transition-all duration-300 hover:gap-5 hover:bg-[#b89859] active:scale-95 shadow-[0_10px_30px_rgba(0,0,0,0.15)] rounded-full text-[10px]"
-              style={{ background: '#C8A96B', color: '#1F4D3A' }}
+              className="inline-flex items-center gap-3 bg-transparent border border-[#1F4D3A] text-[#1F4D3A] px-6 py-2 rounded-full text-[9px] font-bold tracking-[0.2em] uppercase hover:bg-[#1F4D3A] hover:text-[#FDFBF7] transition-colors duration-300"
             >
-              Explore Collection <ArrowRight className="w-4 h-4" />
+              Explore Collection
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>

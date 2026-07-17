@@ -15,7 +15,7 @@ export function SolutionsBody() {
   }
 
   return (
-    <section className="py-24" style={{ background: "#F7F4ED", borderTop: "1px solid rgba(200,169,107,0.12)" }}>
+    <section className="py-24" style={{ background: "#FDFBF7", borderTop: "1px solid rgba(200,169,107,0.12)" }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left - text content */}
@@ -81,7 +81,7 @@ export function SolutionsBody() {
                   <button
                     type="submit"
                     className="px-6 py-3 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer hover:shadow-md"
-                    style={{ background: "#1F4D3A", color: "#F7F4ED" }}
+                    style={{ background: "#1F4D3A", color: "#FDFBF7" }}
                   >
                     Subscribe <Send className="w-3 h-3" />
                   </button>

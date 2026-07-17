@@ -1,3 +1,5 @@
+"use client"
+
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown, HelpCircle } from "lucide-react"
@@ -88,7 +90,7 @@ export default function FaqPage() {
   useSeo({ pageType: "page", pageSlug: "faq", fallbackTitle: "Frequently Asked Questions — Aarvia" })
 
   return (
-    <main className="min-h-screen" style={{ background: "#F7F4ED" }}>
+    <main className="min-h-screen" style={{ background: "#FDFBF7" }}>
       <Navbar />
       <PageHeader
         title="Frequently Asked Questions"

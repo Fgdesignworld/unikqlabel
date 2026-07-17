@@ -1,3 +1,5 @@
+"use client"
+
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Phone, MapPin, Send, CheckCircle, Mail, MessageSquare, Loader2, ChevronDown } from "lucide-react"
@@ -121,11 +123,11 @@ export default function ContactPage() {
   ]
 
   const inputCls = (k: string) => {
-    const base = "w-full px-4 py-3.5 rounded-xl text-sm font-sans outline-none transition-all duration-300"
+    const base = "w-full px-0 py-3 bg-transparent text-sm font-sans outline-none transition-all duration-300 border-b"
     const err  = errors[k]
     return `${base} ${err
-      ? "border border-red-500 bg-red-50/50 text-red-900 placeholder-red-300"
-      : "border border-slate-200/80 bg-white text-[#1F4D3A] placeholder-slate-400 focus:border-[#C8A96B] focus:ring-1 focus:ring-[#C8A96B]"
+      ? "border-red-500 text-red-900 placeholder-red-300 focus:border-red-600"
+      : "border-[#1F4D3A]/20 text-[#1F4D3A] placeholder-[#1F4D3A]/40 focus:border-[#C8A96B]"
     }`
   }
 
@@ -133,288 +135,231 @@ export default function ContactPage() {
   const waNumber = String(waRaw).replace(/\D/g, "")
 
   return (
-    <main className="min-h-screen" style={{ background: "#F7F4ED" }}>
+    <main className="min-h-screen" style={{ background: "#FDFBF7" }}>
       <Navbar />
 
-      {/* Page Hero */}
-      <div className="relative pt-20" style={{ background: "#1F4D3A", minHeight: "220px", display: "flex", alignItems: "flex-end" }}>
-        <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(200,169,107,0.9) 1px, transparent 0)", backgroundSize: "24px 24px" }} />
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full pb-12 pt-16">
-          <p className="text-[11px] font-bold tracking-[0.26em] uppercase mb-3" style={{ color: "#C8A96B" }}>Get in Touch</p>
-          <h1 className="text-4xl md:text-5xl font-serif" style={{ color: "#F7F4ED", fontWeight: 500 }}>Contact Us</h1>
+      {/* Custom Premium Hero */}
+      <section className="relative h-[55vh] min-h-[450px] flex items-center justify-center overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=1600&auto=format&fit=crop" 
+            alt="Aarvia Wellness Consultation" 
+            className="w-full h-full object-cover"
+            style={{ objectPosition: 'center 40%' }}
+          />
+          <div className="absolute inset-0 bg-[#1F4D3A]/60 mix-blend-multiply" />
+          <div className="absolute inset-0 bg-black/30" />
         </div>
-      </div>
 
-      <section className="px-6 lg:px-8 pb-24 pt-16" style={{ background: "#F7F4ED" }}>
+        {/* Content */}
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center mt-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-[#C8A96B] block mb-4 drop-shadow-md">
+              Connect With Us
+            </span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light text-[#FDFBF7] leading-[1.1] mb-6 drop-shadow-lg">
+              Let's Begin Your<br />
+              <span className="italic text-[#C8A96B]">Wellness Consultation</span>
+            </h1>
+            <p className="text-sm md:text-base font-light text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-md" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              Every ritual is unique, and so is our approach. Speak directly with our botanical experts for personalized advice, corporate gifting, or wholesale inquiries. We are here to listen.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Separated Content Section */}
+      <section className="py-20 lg:py-32 bg-[#FDFBF7] px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
 
             {/* ── Left: Info & Visual ── */}
             <motion.div
-              initial={{ opacity: 0, x: -40 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7 }}
-              className="space-y-10"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="space-y-12 lg:pr-8"
             >
+              {/* Text Area */}
               <div>
-                <span className="text-[11px] font-bold tracking-[0.26em] uppercase mb-4 block" style={{ color: "#C8A96B" }}>Connect</span>
-                <h2 className="font-serif text-3xl md:text-4xl font-normal mb-4 leading-tight text-[#1F4D3A]">
-                  Let's Begin Your<br />
-                  <span className="italic" style={{ color: "#C8A96B" }}>Wellness Consultation</span>
+                <h2 className="font-serif text-3xl md:text-4xl text-[#1F4D3A] font-light mb-6">
+                  We are here for you.
                 </h2>
-                <p className="text-sm leading-relaxed text-[#6B6B60] font-sans" style={{ fontWeight: 300 }}>
+                <p className="text-base leading-relaxed text-[#6B6B60] font-sans font-light">
                   Have a question about our active botanical formulations, order statuses, or custom corporate/spa gifting? Reach out to our wellness team, and we will guide you.
                 </p>
-              </div>
-
-              {/* Visual Panel */}
-              <div className="relative aspect-[16/10] overflow-hidden border border-slate-200" style={{ borderColor: "rgba(200,169,107,0.15)" }}>
-                <img
-                  src="https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=600&auto=format&fit=crop"
-                  alt="Aarvia Spa Consultation"
-                  className="w-full h-full object-cover transition-transform duration-750 hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-[#1F4D3A]/10 pointer-events-none" />
-              </div>
-
-              {/* Contact Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {contactCards.map((card) => {
-                  const inner = (
-                    <div
-                      className="flex items-center gap-4 p-4 transition-all duration-300 hover:translate-x-1"
-                      style={{ background: card.bg, border: `1px solid ${card.border}` }}
-                    >
-                      <div
-                        className="shrink-0 rounded-full flex items-center justify-center w-10 h-10"
-                        style={{ background: "rgba(31,77,58,0.04)", border: `1px solid ${card.border}` }}
-                      >
-                        <card.icon className="w-4.5 h-4.5" style={{ color: "#1F4D3A" }} />
+                
+                {/* Contact Cards */}
+                <div className="mt-12 space-y-2">
+                  {contactCards.map((card) => {
+                    const inner = (
+                      <div className="flex items-center gap-6 py-4 border-b border-[#1F4D3A]/10 transition-all duration-300 hover:border-[#C8A96B] group cursor-pointer">
+                        <div className="w-12 h-12 flex items-center justify-center">
+                          <card.icon className="w-5 h-5 text-[#C8A96B] group-hover:scale-110 transition-transform duration-500" strokeWidth={1.5} />
+                        </div>
+                        <div>
+                          <p className="text-[10px] uppercase tracking-widest font-bold text-[#C8A96B] mb-1">{card.label}</p>
+                          <p className="text-sm font-medium text-[#1F4D3A]">{card.value}</p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-xs uppercase tracking-wider text-[#1F4D3A]">{card.label}</p>
-                        <p className="text-xs mt-0.5 text-ellipsis text-gray-500 truncate">{card.value}</p>
-                      </div>
-                    </div>
-                  )
-
-                  if (card.href) {
-                    return (
-                      <a
-                        key={card.label}
-                        href={card.href}
-                        target={card.external ? "_blank" : undefined}
-                        rel={card.external ? "noopener noreferrer" : undefined}
-                        className="block"
-                        aria-label={`${card.label} ${card.value}`}
-                      >
-                        {inner}
-                      </a>
                     )
-                  }
 
-                  return (
-                    <div key={card.label} tabIndex={0} role="button" aria-label={`${card.label} ${card.value}`}>
-                      {inner}
-                    </div>
-                  )
-                })}
+                    if (card.href) {
+                      return (
+                        <a key={card.label} href={card.href} target={card.external ? "_blank" : undefined} rel={card.external ? "noopener noreferrer" : undefined} className="block">
+                          {inner}
+                        </a>
+                      )
+                    }
+
+                    return <div key={card.label}>{inner}</div>
+                  })}
+                </div>
+
+                {/* WhatsApp CTA */}
+                <a
+                  href={`https://wa.me/${waNumber}?text=${encodeURIComponent("Hi! I have a question about Aarvia premium botanical wellness products.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-12 flex items-center justify-center gap-3 w-full py-4 border border-[#1F4D3A] text-[#1F4D3A] font-bold text-[10px] tracking-[0.2em] uppercase hover:bg-[#1F4D3A] hover:text-[#FDFBF7] transition-colors duration-500"
+                >
+                  <WhatsAppIcon className="w-4 h-4" />
+                  Chat on WhatsApp
+                </a>
               </div>
-
-              {/* WhatsApp CTA */}
-              <a
-                href={`https://wa.me/${waNumber}?text=${encodeURIComponent("Hi! I have a question about Aarvia premium botanical wellness products.")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2.5 px-8 py-4 w-full sm:w-auto font-semibold tracking-wider uppercase transition-all duration-400 hover:opacity-90"
-                style={{ background: "#1F4D3A", color: "#F7F4ED", fontSize: "0.75rem", letterSpacing: "0.14em" }}
-              >
-                <WhatsAppIcon className="w-4 h-4 fill-white" />
-                Chat on WhatsApp
-              </a>
             </motion.div>
 
             {/* ── Right: Form ── */}
             <motion.div
-              initial={{ opacity: 0, x: 40 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, delay: 0.15 }}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="bg-white p-8 md:p-12 lg:p-16 border border-[#1F4D3A]/10 relative overflow-hidden"
             >
-              <div className="p-8 md:p-10 bg-white border border-slate-200/80 shadow-[0_25px_60px_rgba(31,77,58,0.02)]">
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center"
-                    style={{ background: "rgba(31,77,58,0.06)", border: "1px solid rgba(200,169,107,0.2)" }}>
-                    <MessageSquare className="w-4 h-4" style={{ color: "#1F4D3A" }} />
-                  </div>
-                  <h2 className="text-2xl font-serif text-[#1F4D3A] font-semibold">Send a Message</h2>
-                </div>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#C8A96B]/5 blur-[80px] rounded-full pointer-events-none" />
+              
+              <div className="flex items-center gap-4 mb-10 relative z-10">
+                <MessageSquare className="w-6 h-6 text-[#C8A96B]" strokeWidth={1.5} />
+                <h2 className="text-3xl font-serif text-[#1F4D3A] font-light">Send a Message</h2>
+              </div>
 
-                <AnimatePresence mode="wait">
-                  {isSubmitted ? (
+              <AnimatePresence mode="wait">
+                {isSubmitted ? (
+                  <motion.div
+                    key="success"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="flex flex-col items-center justify-center py-20 text-center"
+                  >
                     <motion.div
-                      key="success"
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      className="flex flex-col items-center justify-center py-14 text-center"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 200, damping: 12 }}
+                      className="w-20 h-20 rounded-full flex items-center justify-center mb-6 bg-[#F9F6F0]"
                     >
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 200, damping: 12 }}
-                        className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-                        style={{ background: "rgba(31,77,58,0.08)", border: "1px solid rgba(200,169,107,0.25)" }}
-                      >
-                        <CheckCircle className="w-8 h-8 text-[#1F4D3A]" />
-                      </motion.div>
-                      <p className="text-xl font-serif font-bold mb-2 text-[#1F4D3A]">Message Sent!</p>
-                      <p className="text-sm text-gray-500 font-sans">We'll reach out within 24 hours via your preferred contact channel.</p>
-                      <button
-                        className="mt-5 text-xs underline text-[#C8A96B]"
-                        onClick={() => setIsSubmitted(false)}
-                      >
-                        Send another message
-                      </button>
+                      <CheckCircle className="w-10 h-10 text-[#C8A96B]" strokeWidth={1} />
                     </motion.div>
-                  ) : (
-                    <motion.form
-                      key="form"
-                      onSubmit={handleSubmit}
-                      className="space-y-6"
-                      noValidate
+                    <p className="text-2xl font-serif font-light mb-3 text-[#1F4D3A]">Inquiry Sent Successfully</p>
+                    <p className="text-sm font-light text-[#6A6A60] max-w-sm mx-auto" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>We will review your message and reach out within 24 hours via your preferred contact channel.</p>
+                    <button
+                      className="mt-8 text-[10px] font-bold uppercase tracking-[0.2em] text-[#C8A96B] hover:text-[#1F4D3A] transition-colors"
+                      onClick={() => setIsSubmitted(false)}
                     >
-                      {/* Honeypot — hidden from real users */}
-                      <input
-                        type="text"
-                        name="website"
-                        value={formData.website}
-                        onChange={setField("website")}
-                        className="hidden"
-                        tabIndex={-1}
-                        autoComplete="off"
-                      />
+                      Send another message
+                    </button>
+                  </motion.div>
+                ) : (
+                  <motion.form
+                    key="form"
+                    onSubmit={handleSubmit}
+                    className="space-y-8 relative z-10"
+                    noValidate
+                  >
+                    {/* Honeypot */}
+                    <input type="text" name="website" value={formData.website} onChange={setField("website")} className="hidden" tabIndex={-1} autoComplete="off" />
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-semibold uppercase tracking-widest text-[#1F4D3A] mb-2">
-                            Your Name *
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="Enter your name"
-                            value={formData.name}
-                            onChange={setField("name")}
-                            className={inputCls("name")}
-                          />
-                          {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
-                        </div>
-                        <div>
-                          <label className="block text-xs font-semibold uppercase tracking-widest text-[#1F4D3A] mb-2">
-                            Phone *
-                          </label>
-                          <input
-                            type="tel"
-                            placeholder="Phone number"
-                            value={formData.phone}
-                            onChange={setField("phone")}
-                            className={inputCls("phone")}
-                          />
-                          {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
-                        </div>
-                      </div>
-
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-widest text-[#1F4D3A] mb-2">
-                          Email (optional)
-                        </label>
-                        <input
-                          type="email"
-                          placeholder="your@email.com"
-                          value={formData.email}
-                          onChange={setField("email")}
-                          className={inputCls("email")}
-                        />
-                        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                        <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-[#C8A96B] mb-2">Your Name *</label>
+                        <input type="text" placeholder="John Doe" value={formData.name} onChange={setField("name")} className={inputCls("name")} />
+                        {errors.name && <p className="text-red-500 text-xs mt-2">{errors.name}</p>}
                       </div>
-
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-widest text-[#1F4D3A] mb-2">
-                          Inquiry Type
-                        </label>
+                        <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-[#C8A96B] mb-2">Phone *</label>
+                        <input type="tel" placeholder="+1 (555) 000-0000" value={formData.phone} onChange={setField("phone")} className={inputCls("phone")} />
+                        {errors.phone && <p className="text-red-500 text-xs mt-2">{errors.phone}</p>}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-[#C8A96B] mb-2">Email (Optional)</label>
+                        <input type="email" placeholder="john@example.com" value={formData.email} onChange={setField("email")} className={inputCls("email")} />
+                        {errors.email && <p className="text-red-500 text-xs mt-2">{errors.email}</p>}
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-[#C8A96B] mb-2">Inquiry Type</label>
                         <div className="relative">
-                          <select
-                            value={formData.inquiry_type}
-                            onChange={setField("inquiry_type")}
-                            className={`${inputCls("inquiry_type")} appearance-none pr-10 cursor-pointer`}
-                          >
-                            {inquiryOptions.map(o => (
-                              <option key={o.value} value={o.value}>{o.label}</option>
-                            ))}
+                          <select value={formData.inquiry_type} onChange={setField("inquiry_type")} className={`${inputCls("inquiry_type")} appearance-none pr-10 cursor-pointer`}>
+                            {inquiryOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                           </select>
-                          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-slate-400" />
+                          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1F4D3A]/40 pointer-events-none" />
                         </div>
                       </div>
+                    </div>
 
-                      <div>
-                        <label className="block text-xs font-semibold uppercase tracking-widest text-[#1F4D3A] mb-2">
-                          Message *
-                        </label>
-                        <textarea
-                          rows={4}
-                          placeholder="Tell us what's on your mind…"
-                          value={formData.message}
-                          onChange={setField("message")}
-                          className={`${inputCls("message")} resize-none`}
-                        />
-                        {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-[#C8A96B] mb-2">Message *</label>
+                      <textarea rows={3} placeholder="How can we help you?" value={formData.message} onChange={setField("message")} className={`${inputCls("message")} resize-none py-2`} />
+                      {errors.message && <p className="text-red-500 text-xs mt-2">{errors.message}</p>}
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-[#C8A96B] mb-4">Preferred Contact Channel</label>
+                      <div className="flex flex-wrap sm:flex-nowrap gap-3">
+                        {contactMethods.map(m => (
+                          <button
+                            key={m.value}
+                            type="button"
+                            onClick={() => setFormData(f => ({ ...f, preferred_contact: m.value as LeadPayload["preferred_contact"] }))}
+                            className={`flex-1 py-3 px-4 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all duration-300 border ${
+                              formData.preferred_contact === m.value
+                                ? "border-[#C8A96B] bg-[#F9F6F0] text-[#1F4D3A]"
+                                : "border-transparent bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-[#1F4D3A]"
+                            }`}
+                          >
+                            {m.label}
+                          </button>
+                        ))}
                       </div>
+                    </div>
 
-                      {/* Preferred contact method */}
-                      <div>
-                        <label className="block text-xs font-semibold uppercase tracking-widest text-[#1F4D3A] mb-2">
-                          Preferred Contact Method
-                        </label>
-                        <div className="flex gap-2">
-                          {contactMethods.map(m => (
-                            <button
-                              key={m.value}
-                              type="button"
-                              onClick={() => setFormData(f => ({ ...f, preferred_contact: m.value as LeadPayload["preferred_contact"] }))}
-                              className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all border cursor-pointer"
-                              style={formData.preferred_contact === m.value
-                                ? { borderColor: "#C8A96B", background: "rgba(31,77,58,0.04)", color: "#1F4D3A" }
-                                : { borderColor: "rgba(0,0,0,0.06)", background: "transparent", color: "gray" }
-                              }
-                            >
-                              {m.label}
-                            </button>
-                          ))}
-                        </div>
+                    {apiErr && (
+                      <div className="px-4 py-3 border border-red-200 bg-red-50 text-red-600 text-sm font-sans rounded-xl">
+                        {apiErr}
                       </div>
+                    )}
 
-                      {apiErr && (
-                        <div className="px-4 py-3 rounded-xl text-sm" style={{ border: "1px solid rgba(239,68,68,0.3)", background: "rgba(239,68,68,0.08)", color: "#ef4444" }}>
-                          {apiErr}
-                        </div>
-                      )}
-
+                    <div className="pt-4">
                       <button
-                        className="w-full py-4 text-xs font-bold uppercase tracking-wider text-white transition-all disabled:opacity-60 cursor-pointer flex items-center justify-center"
+                        className="w-full py-4 md:py-5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-500 hover:opacity-90 disabled:opacity-60 flex items-center justify-center group"
                         type="submit"
                         disabled={loading}
-                        style={{ background: "#1F4D3A" }}
+                        style={{ background: "#1F4D3A", color: "#FDFBF7" }}
                       >
-                        {loading ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Send size={15} />
-                        )}
-                        <span className="ml-2">{loading ? "Sending…" : "Send Message"}</span>
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin text-[#FDFBF7]" /> : <Send className="w-4 h-4 text-[#FDFBF7] group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform duration-300" />}
+                        <span className="ml-3 text-[#FDFBF7]">{loading ? "Sending..." : "Send Message"}</span>
                       </button>
-                    </motion.form>
-                  )}
-                </AnimatePresence>
-              </div>
+                    </div>
+                  </motion.form>
+                )}
+              </AnimatePresence>
             </motion.div>
           </div>
         </div>

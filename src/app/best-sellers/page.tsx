@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { Sparkles, Star, Award } from "lucide-react"
 import { Navbar } from "@/components/navbar"
@@ -33,7 +35,7 @@ export default function BestSellersPage() {
   ]
 
   return (
-    <main className="min-h-screen" style={{ background: "#F7F4ED" }}>
+    <main className="min-h-screen" style={{ background: "#FDFBF7" }}>
       <Navbar />
       <PageHeader
         title="Our Best Sellers"

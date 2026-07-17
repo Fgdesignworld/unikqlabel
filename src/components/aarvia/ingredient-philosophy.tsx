@@ -41,7 +41,7 @@ export function IngredientPhilosophy() {
   const [active, setActive] = useState(0)
 
   return (
-    <section className="py-20 lg:py-28" style={{ background: '#F7F4ED' }}>
+    <section className="py-20 lg:py-28" style={{ background: '#FDFBF7' }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Header */}
         <div className="max-w-xl mb-12 lg:mb-16">
@@ -132,7 +132,7 @@ export function IngredientPhilosophy() {
                             <p className="text-[10px] font-bold tracking-widest uppercase text-[#C8A96B] mb-0.5">
                               Key Benefit
                             </p>
-                            <p className="text-xs font-semibold text-[#F7F4ED] tracking-wide">
+                            <p className="text-xs font-semibold text-[#FDFBF7] tracking-wide">
                               {ing.benefit}
                             </p>
                           </div>
@@ -183,7 +183,7 @@ export function IngredientPhilosophy() {
                     {INGREDIENTS[active].tag}
                   </p>
                   <h3 
-                    className="text-3xl font-bold text-[#F7F4ED] leading-tight mb-3"
+                    className="text-3xl font-bold text-[#FDFBF7] leading-tight mb-3"
                     style={{ fontFamily: "'Cormorant Garamond', serif" }}
                   >
                     {INGREDIENTS[active].name}

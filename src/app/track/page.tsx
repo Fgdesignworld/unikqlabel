@@ -94,7 +94,7 @@ function StatusStepper({ status }: { status: string }) {
               <div className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all border",
                 done 
-                  ? "bg-[#1F4D3A] !text-[#F7F4ED] border-[#1F4D3A] dark:bg-[#C8A96B] dark:!text-[#1A1A1A] dark:border-[#C8A96B]" 
+                  ? "bg-[#1F4D3A] !text-[#FDFBF7] border-[#1F4D3A] dark:bg-[#C8A96B] dark:!text-[#1A1A1A] dark:border-[#C8A96B]" 
                   : "bg-white/80 dark:bg-white/5 border-[#C8A96B]/25 text-neutral-400 dark:text-neutral-500"
               )}
                 style={active ? { boxShadow: '0 0 12px rgba(200,169,107,0.3)' } : undefined}>
@@ -130,10 +130,11 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.06 }}
-      className="rounded-lg overflow-hidden bg-white dark:bg-[#1A1A1A]"
-      style={{ border: '1px solid rgba(200,169,107,0.2)' }}
+      transition={{ delay: index * 0.06, duration: 0.4, ease: "easeOut" }}
+      className="rounded-2xl overflow-hidden bg-white/70 dark:bg-[#121212]/70 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] relative group"
     >
+      <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+      <div className="relative z-10">
       {/* Header row */}
       <button
         onClick={() => setExpanded(e => !e)}
@@ -148,7 +149,7 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
         {/* Invoice + date */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-bold text-sm text-[#1F4D3A] dark:text-[#F7F4ED]">{order.invoice_number}</span>
+            <span className="font-bold text-sm text-[#1F4D3A] dark:text-[#FDFBF7]">{order.invoice_number}</span>
             <span className="px-2 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider border"
               style={{ background: cfg.bg, borderColor: cfg.border, color: cfg.color }}>
               {cfg.label}
@@ -193,7 +194,7 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
               <div className="space-y-2">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#1F4D3A] dark:text-[#C8A96B]">Items Ordered</p>
                 {(order.items || []).map((item, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-[#F7F4ED]/40 dark:bg-[#121212] border border-[#C8A96B]/15 dark:border-white/5">
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-[#FDFBF7]/40 dark:bg-[#121212] border border-[#C8A96B]/15 dark:border-white/5">
                     {/* Image or placeholder */}
                     {item.image_url ? (
                       <img src={item.image_url} alt={item.product_name}
@@ -207,7 +208,7 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm truncate text-[#1F4D3A] dark:text-[#F7F4ED]">{item.product_name}</p>
+                      <p className="font-bold text-sm truncate text-[#1F4D3A] dark:text-[#FDFBF7]">{item.product_name}</p>
                       <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                         {item.size_label && (
                           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#1F4D3A]/5 text-[#1F4D3A] dark:bg-[#C8A96B]/10 dark:text-[#C8A96B] border border-[#1F4D3A]/15 dark:border-[#C8A96B]/15">
@@ -249,14 +250,14 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
               </div>
 
               {/* Summary */}
-              <div className="rounded-lg p-3 space-y-2 bg-[#F7F4ED]/50 dark:bg-[#121212] border border-[#C8A96B]/15 dark:border-white/5">
+              <div className="rounded-lg p-3 space-y-2 bg-[#FDFBF7]/50 dark:bg-[#121212] border border-[#C8A96B]/15 dark:border-white/5">
                 <div className="flex justify-between text-[12px]">
                   <span className="text-neutral-500 dark:text-white/40">Subtotal</span>
-                  <span className="font-semibold text-[#1F4D3A] dark:text-[#F7F4ED]">{currency}{Number(order.subtotal).toLocaleString('en-IN')}</span>
+                  <span className="font-semibold text-[#1F4D3A] dark:text-[#FDFBF7]">{currency}{Number(order.subtotal).toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-[12px]">
                   <span className="text-neutral-500 dark:text-white/40">Delivery</span>
-                  <span className={Number(order.delivery) === 0 ? 'text-green-600 dark:text-green-500 font-bold' : 'text-[#1F4D3A] dark:text-[#F7F4ED]'}>
+                  <span className={Number(order.delivery) === 0 ? 'text-green-600 dark:text-green-500 font-bold' : 'text-[#1F4D3A] dark:text-[#FDFBF7]'}>
                     {Number(order.delivery) === 0 ? 'FREE' : `${currency}${Number(order.delivery).toLocaleString('en-IN')}`}
                   </span>
                 </div>
@@ -273,11 +274,11 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
                 {order.payment_method && (
                   <div className="flex justify-between text-[12px]">
                     <span className="text-neutral-500 dark:text-white/40">Payment</span>
-                    <span className="font-semibold uppercase text-[#1F4D3A] dark:text-[#F7F4ED]">{order.payment_method}</span>
+                    <span className="font-semibold uppercase text-[#1F4D3A] dark:text-[#FDFBF7]">{order.payment_method}</span>
                   </div>
                 )}
                 <div className="flex justify-between pt-2 border-t border-[#C8A96B]/15 dark:border-white/5">
-                  <span className="font-bold text-sm text-[#1F4D3A] dark:text-[#F7F4ED]">Total</span>
+                  <span className="font-bold text-sm text-[#1F4D3A] dark:text-[#FDFBF7]">Total</span>
                   <span className="text-[#C8A96B] font-bold text-base">{currency}{Number(order.total).toLocaleString('en-IN')}</span>
                 </div>
               </div>
@@ -285,6 +286,7 @@ function OrderCard({ order, currency, index }: { order: TrackedOrder; currency: 
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </motion.div>
   )
 }
@@ -347,7 +349,13 @@ export default function TrackOrderPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F7F4ED] dark:bg-[#121212] text-[#1F4D3A] dark:text-[#F7F4ED] transition-colors duration-300">
+    <main className="relative min-h-screen bg-[#FDFBF7] dark:bg-[#0A0A0A] text-[#1F4D3A] dark:text-[#FDFBF7] transition-colors duration-500 overflow-hidden">
+      {/* Decorative Background for Liquid Glass Effect */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#C8A96B]/10 dark:bg-[#C8A96B]/5 blur-[140px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-[#1F4D3A]/10 dark:bg-[#1F4D3A]/10 blur-[120px]" />
+      </div>
+
       <Navbar />
       <PageHeader
         title="Track Order"
@@ -362,11 +370,13 @@ export default function TrackOrderPage() {
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="rounded-2xl p-6 md:p-8 mb-8 bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/15 dark:border-white/5 shadow-sm"
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="rounded-3xl p-6 md:p-10 mb-8 bg-white/70 dark:bg-[#121212]/70 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-[0_8px_40px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_40px_rgb(0,0,0,0.3)] relative overflow-hidden group"
           >
+            <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+            <div className="relative z-10">
             {/* Tab switcher */}
-            <div className="flex rounded-xl p-1 mb-6 bg-[#F7F4ED]/80 dark:bg-[#121212] border border-[#C8A96B]/15 dark:border-white/5">
+            <div className="flex rounded-xl p-1 mb-6 bg-[#FDFBF7]/80 dark:bg-[#121212] border border-[#C8A96B]/15 dark:border-white/5">
               {([
                 { key: 'phone',   label: 'Mobile Number', icon: Phone },
                 { key: 'invoice', label: 'Invoice Number', icon: FileText },
@@ -377,7 +387,7 @@ export default function TrackOrderPage() {
                   className={cn(
                     'flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer',
                     tab === key
-                      ? 'bg-[#1F4D3A] text-white dark:bg-[#C8A96B] dark:text-[#1A1A1A] shadow-sm'
+                      ? 'bg-[#1F4D3A] !text-white dark:bg-[#C8A96B] dark:!text-[#1A1A1A] shadow-sm'
                       : 'text-neutral-500 hover:text-[#1F4D3A] dark:text-neutral-400 dark:hover:text-[#C8A96B]'
                   )}
                 >
@@ -395,7 +405,7 @@ export default function TrackOrderPage() {
                   <>
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
                       <Phone className="w-4 h-4 text-[#1F4D3A] dark:text-[#C8A96B]" />
-                      <span className="text-sm font-bold text-[#1F4D3A] dark:text-[#F7F4ED]">+91</span>
+                      <span className="text-sm font-bold text-[#1F4D3A] dark:text-[#FDFBF7]">+91</span>
                       <span className="w-px h-4 bg-[#C8A96B]/30" />
                     </div>
                     <input
@@ -406,7 +416,7 @@ export default function TrackOrderPage() {
                       placeholder="Enter 10-digit mobile number"
                       value={phoneInput}
                       onChange={e => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                      className="w-full pl-22 pr-12 py-3.5 rounded-lg font-body text-sm bg-[#F7F4ED]/50 dark:bg-[#121212] border border-[#C8A96B]/25 dark:border-white/10 outline-none transition-all focus:border-[#1F4D3A] dark:focus:border-[#C8A96B] focus:bg-white dark:focus:bg-[#1A1A1A] text-[#1F4D3A] dark:text-[#F7F4ED]"
+                      className="w-full pl-22 pr-12 py-3.5 rounded-xl font-body text-sm bg-white dark:bg-[#1A1A1A] border border-[#1F4D3A]/20 dark:border-white/20 outline-none transition-all focus:ring-2 focus:ring-[#C8A96B]/50 focus:border-[#C8A96B] text-[#1F4D3A] dark:text-[#FDFBF7] placeholder:text-neutral-400 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:border-[#1F4D3A]/40 dark:hover:border-white/40"
                     />
                   </>
                 ) : (
@@ -419,7 +429,7 @@ export default function TrackOrderPage() {
                       placeholder="e.g. KK-643770"
                       value={invoiceInput}
                       onChange={e => setInvoiceInput(e.target.value.toUpperCase())}
-                      className="w-full pl-10 pr-12 py-3.5 rounded-lg font-body text-sm bg-[#F7F4ED]/50 dark:bg-[#121212] border border-[#C8A96B]/25 dark:border-white/10 outline-none transition-all focus:border-[#1F4D3A] dark:focus:border-[#C8A96B] focus:bg-white dark:focus:bg-[#1A1A1A] text-[#1F4D3A] dark:text-[#F7F4ED] uppercase tracking-wider"
+                      className="w-full pl-10 pr-12 py-3.5 rounded-xl font-body text-sm bg-white dark:bg-[#1A1A1A] border border-[#1F4D3A]/20 dark:border-white/20 outline-none transition-all focus:ring-2 focus:ring-[#C8A96B]/50 focus:border-[#C8A96B] text-[#1F4D3A] dark:text-[#FDFBF7] uppercase tracking-wider placeholder:text-neutral-400 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:border-[#1F4D3A]/40 dark:hover:border-white/40"
                     />
                   </>
                 )}
@@ -444,8 +454,9 @@ export default function TrackOrderPage() {
               <button
                 type="submit"
                 disabled={loading || (tab === 'phone' ? phoneInput.length !== 10 : invoiceInput.length < 3)}
-                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer bg-[#1F4D3A] hover:bg-[#163829] !text-white dark:bg-[#C8A96B] dark:hover:bg-[#E2C98A] dark:!text-[#1A1A1A]"
+                className="w-full flex items-center justify-center gap-2 py-4 rounded-xl text-[11px] font-bold uppercase tracking-[0.2em] transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer !text-white bg-gradient-to-r from-[#1F4D3A] to-[#163829] hover:from-[#163829] hover:to-[#0f261c] dark:from-[#C8A96B] dark:to-[#E2C98A] dark:hover:from-[#E2C98A] dark:hover:to-[#f3e1a6] dark:!text-[#1A1A1A] shadow-[0_8px_30px_rgba(31,77,58,0.3)] dark:shadow-[0_8px_30px_rgba(200,169,107,0.4)] hover:scale-[1.02] active:scale-[0.98] duration-300 relative overflow-hidden group"
               >
+                <div className="absolute inset-0 bg-white/20 translate-y-[-100%] group-hover:translate-y-[100%] transition-transform duration-1000 pointer-events-none" />
                 {loading ? (
                   <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}>
                     <Search className="w-4 h-4" />
@@ -463,6 +474,7 @@ export default function TrackOrderPage() {
                 ? 'Enter the mobile number you used when placing your order'
                 : 'Find your invoice number in the PDF or WhatsApp confirmation message'}
             </p>
+            </div>
           </motion.div>
 
           {/* Results */}
@@ -473,12 +485,12 @@ export default function TrackOrderPage() {
                   {/* No orders */}
                   {(orders === null || orders.length === 0) && !error && (
                     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-                      className="text-center py-16 rounded-2xl bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/15 dark:border-white/5 shadow-sm"
+                      className="text-center py-16 rounded-3xl bg-white/70 dark:bg-[#121212]/70 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-[0_4px_20px_rgb(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgb(0,0,0,0.2)]"
                     >
-                      <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-[#F7F4ED] dark:bg-[#121212] border border-[#C8A96B]/20 dark:border-white/10">
+                      <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-[#FDFBF7] dark:bg-[#121212] border border-[#C8A96B]/20 dark:border-white/10">
                         <ShoppingBag className="w-7 h-7 text-[#1F4D3A] dark:text-[#C8A96B]" />
                       </div>
-                      <p className="font-serif text-lg font-normal mb-1 text-[#1F4D3A] dark:text-[#F7F4ED]">No Orders Found</p>
+                      <p className="font-serif text-lg font-normal mb-1 text-[#1F4D3A] dark:text-[#FDFBF7]">No Orders Found</p>
                       <p className="text-sm text-neutral-600 dark:text-white/60">
                         {tab === 'phone'
                           ? "We couldn't find any orders for this mobile number."
@@ -521,11 +533,11 @@ export default function TrackOrderPage() {
                 { icon: FileText, title: 'Invoice Search',   desc: 'Track a specific order using its invoice ID' },
                 { icon: Truck,    title: 'Live Status',      desc: 'See real-time status from pending to delivered' },
               ].map(({ icon: Icon, title, desc }) => (
-                <div key={title} className="p-4 rounded-xl text-center bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/15 dark:border-white/5">
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center mx-auto mb-3 bg-[#F7F4ED] dark:bg-[#121212] border border-[#C8A96B]/20 dark:border-white/10">
+                <div key={title} className="p-4 rounded-3xl text-center bg-white/70 dark:bg-[#121212]/70 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-[0_4px_20px_rgb(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgb(0,0,0,0.2)]">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center mx-auto mb-3 bg-[#FDFBF7] dark:bg-[#121212] border border-[#C8A96B]/20 dark:border-white/10">
                     <Icon className="w-4 h-4 text-[#1F4D3A] dark:text-[#C8A96B]" />
                   </div>
-                  <p className="font-bold text-sm mb-1 text-[#1F4D3A] dark:text-[#F7F4ED]">{title}</p>
+                  <p className="font-bold text-sm mb-1 text-[#1F4D3A] dark:text-[#FDFBF7]">{title}</p>
                   <p className="text-[11px] text-neutral-500 dark:text-neutral-400">{desc}</p>
                 </div>
               ))}

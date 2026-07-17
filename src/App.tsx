@@ -24,6 +24,9 @@ import SustainabilityPage from '@/app/sustainability/page';
 import FaqPage from '@/app/faq/page';
 import BlogPage from '@/app/blog/page';
 import BlogDetailPage from '@/app/blog/detail';
+import TermsPage from '@/app/terms/page';
+import PrivacyPage from '@/app/privacy/page';
+import RefundPage from '@/app/refund/page';
 
 
 // Admin pages
@@ -74,6 +77,9 @@ export default function App() {
       <Route path="/sustainability" element={<RootLayout><SustainabilityPage /></RootLayout>} />
       <Route path="/faq" element={<RootLayout><FaqPage /></RootLayout>} />
       <Route path="/track" element={<RootLayout><TrackOrderPage /></RootLayout>} />
+      <Route path="/terms" element={<RootLayout><TermsPage /></RootLayout>} />
+      <Route path="/privacy" element={<RootLayout><PrivacyPage /></RootLayout>} />
+      <Route path="/refund" element={<RootLayout><RefundPage /></RootLayout>} />
       <Route path="/blog" element={<RootLayout><BlogPage /></RootLayout>} />
       <Route path="/blog/:slug" element={<RootLayout><BlogDetailPage /></RootLayout>} />
       <Route path="/products" element={<RootLayout><ProductsPage /></RootLayout>} />

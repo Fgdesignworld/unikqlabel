@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { Sparkles, Leaf, Award } from "lucide-react"
 import { Navbar } from "@/components/navbar"
@@ -49,7 +51,7 @@ export default function BodyCarePage() {
   ]
 
   return (
-    <main className="min-h-screen" style={{ background: "#F7F4ED" }}>
+    <main className="min-h-screen" style={{ background: "#FDFBF7" }}>
       <Navbar />
       <PageHeader
         title="Body Care Solutions"

@@ -21,7 +21,7 @@ export default function AdminLoginPage() {
     const html = document.documentElement
     html.setAttribute('data-theme', 'light')
     const lightVars: Record<string, string> = {
-      '--surface-page': '#F7F4ED', // Aarvia Cream
+      '--surface-page': '#FDFBF7', // Aarvia Cream
       '--surface-card': '#FFFFFF',
       '--surface-alt': '#FAF8F4',
       '--text-primary': '#1F4D3A', // Aarvia Forest Green
@@ -63,7 +63,7 @@ export default function AdminLoginPage() {
   const siteName = settings?.site_name || 'Aarvia'
 
   return (
-    <div data-admin="true" className="min-h-screen bg-linear-to-br from-[#FDFDFB] via-[#F7F4ED] to-[#F1EDE5] flex items-center justify-center p-4">
+    <div data-admin="true" className="min-h-screen bg-linear-to-br from-[#FDFDFB] via-[#FDFBF7] to-[#F1EDE5] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         
         {/* Dynamic Logo Section */}
@@ -142,7 +142,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[#1F4D3A] text-[#F7F4ED] font-semibold rounded-xl hover:bg-[#1E4535] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg mt-6"
+              className="w-full py-3 bg-[#1F4D3A] text-[#FDFBF7] font-semibold rounded-xl hover:bg-[#1E4535] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg mt-6"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>

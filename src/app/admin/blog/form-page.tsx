@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { blogService, type BlogPost, type BlogPostPayload } from '@/services/blogService'

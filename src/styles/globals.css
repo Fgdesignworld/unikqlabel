@@ -319,7 +319,7 @@ html[data-theme="light"] [data-admin="true"] textarea {
   --aarvia-gold:        #C8A96B;
   --aarvia-gold-light:  #E2C98A;
   --aarvia-gold-dark:   #A88645;
-  --aarvia-ivory:       #F7F4ED;
+  --aarvia-ivory:       #FDFBF7;
   --aarvia-ivory-dark:  #EDE9DF;
   --aarvia-kraft:       #C8B08B;
   --aarvia-charcoal:    #1A1A1A;
@@ -440,20 +440,20 @@ body {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.8125rem 2rem;
-  background-color: rgba(247,244,237,0.12);
+  background-color: rgba(253,251,247,0.12);
   color: var(--aarvia-ivory);
   font-family: var(--font-body);
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  border: 1px solid rgba(247,244,237,0.35);
+  border: 1px solid rgba(253,251,247,0.35);
   backdrop-filter: blur(8px);
   cursor: pointer;
   transition: all 0.4s var(--ease-luxury);
 }
 .btn-ghost-light:hover {
-  background-color: rgba(247,244,237,0.22);
+  background-color: rgba(253,251,247,0.22);
   border-color: var(--aarvia-gold);
   color: var(--aarvia-gold-light);
 }

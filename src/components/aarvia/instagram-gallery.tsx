@@ -10,7 +10,7 @@ const GALLERY = [
 
 export function InstagramGallery() {
   return (
-    <section className="py-24" style={{ background: "#F7F4ED", borderTop: "1px solid rgba(200,169,107,0.12)" }}>
+    <section className="py-24" style={{ background: "#FDFBF7", borderTop: "1px solid rgba(200,169,107,0.12)" }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex flex-col items-center mb-16 text-center">
           <Instagram className="w-6 h-6 text-[#C8A96B] mb-3" />

@@ -78,19 +78,19 @@ function ChapterCard({
         <div 
           className="w-full max-w-6xl md:h-[62vh] lg:h-[68vh] max-h-[560px] rounded-[32px] overflow-hidden flex flex-col md:grid md:grid-cols-2 shadow-[0_30px_80px_rgba(31,77,58,0.12)] border items-stretch"
           style={{ 
-            background: idx % 2 === 0 ? '#F7F4ED' : '#1F4D3A',
-            borderColor: idx % 2 === 0 ? 'rgba(200,169,107,0.2)' : 'rgba(200,169,107,0.35)',
-            color: idx % 2 === 0 ? '#1F4D3A' : '#F7F4ED'
+            background: idx % 2 === 0 ? '#FFFFFF' : '#F9F6F0',
+            borderColor: 'rgba(200,169,107,0.15)',
+            color: '#1F4D3A'
           }}
         >
-          {/* Left Narrative Block */}
-          <div className="p-8 md:p-10 lg:p-12 flex flex-col justify-between order-2 md:order-1 flex-1">
+          {/* Narrative Block */}
+          <div className={`p-8 md:p-10 lg:p-12 flex flex-col justify-between order-2 flex-1 ${idx % 2 === 0 ? 'md:order-1' : 'md:order-2'}`}>
             {/* Top Chapter and Progress Count */}
             <div className="flex items-center justify-between mb-4 md:mb-0">
               <span className="text-[10px] font-bold tracking-[0.26em] uppercase" style={{ color: '#C8A96B' }}>
                 Chapter {idx + 1}
               </span>
-              <span className="text-xs font-serif italic" style={{ color: idx % 2 === 0 ? 'rgba(31,77,58,0.5)' : 'rgba(247,244,237,0.5)' }}>
+              <span className="text-xs font-serif italic" style={{ color: 'rgba(31,77,58,0.5)' }}>
                 {String(idx + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
               </span>
             </div>
@@ -108,13 +108,13 @@ function ChapterCard({
               
               <div className="w-14 h-[1.5px]" style={{ background: '#C8A96B' }} />
               
-              <p className="text-xs md:text-sm lg:text-base font-light leading-relaxed font-sans" style={{ color: idx % 2 === 0 ? 'rgba(31,77,58,0.82)' : 'rgba(247,244,237,0.82)' }}>
+              <p className="text-sm md:text-base leading-relaxed" style={{ color: '#6A6A60', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 {card.body}
               </p>
             </div>
 
             {/* Card Progress Line */}
-            <div className="w-full bg-black/5 dark:bg-white/5 h-[2px] relative overflow-hidden rounded-full mt-6 md:mt-0">
+            <div className="w-full h-[1px] bg-[#C8A96B]/20 relative overflow-hidden mt-6 md:mt-0">
               <motion.div 
                 style={{ scaleX: isLastCard ? scrollYProgress : fillProgress, transformOrigin: "left", background: '#C8A96B' }}
                 className="absolute inset-0"
@@ -122,9 +122,9 @@ function ChapterCard({
             </div>
           </div>
 
-          {/* Right Image Block */}
+          {/* Image Block */}
           <div 
-            className="relative overflow-hidden w-full h-[200px] md:h-auto order-1 md:order-2 border-b md:border-b-0 md:border-l" 
+            className={`relative overflow-hidden w-full h-[200px] md:h-auto order-1 border-b md:border-b-0 ${idx % 2 === 0 ? 'md:order-2 md:border-l' : 'md:order-1 md:border-r'}`} 
             style={{ borderColor: idx % 2 === 0 ? 'rgba(200,169,107,0.15)' : 'rgba(200,169,107,0.25)' }}
           >
             <motion.div 

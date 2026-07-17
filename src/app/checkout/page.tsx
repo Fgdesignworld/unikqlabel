@@ -1,3 +1,5 @@
+"use client"
+
 
 
 import { useState, useEffect } from "react"
@@ -566,10 +568,16 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
   }
 
   return (
-    <main className="min-h-screen bg-[#F7F4ED] dark:bg-[#121212] text-[#1F4D3A] dark:text-[#F7F4ED] transition-colors duration-300">
+    <main className="relative min-h-screen bg-[#FDFBF7] dark:bg-[#0A0A0A] text-[#1F4D3A] dark:text-[#FDFBF7] transition-colors duration-500 overflow-hidden">
+      {/* Decorative Background for Liquid Glass Effect */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+        <div className="absolute top-[-15%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#C8A96B]/10 dark:bg-[#C8A96B]/5 blur-[140px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-[#1F4D3A]/10 dark:bg-[#1F4D3A]/10 blur-[120px]" />
+      </div>
+
       <Navbar />
 
-      <div className="pt-24 pb-20 px-4">
+      <div className="pt-24 pb-20 px-4 relative z-10">
         <div className="container mx-auto max-w-6xl">
           {/* Back Button */}
           {step !== "success" && (
@@ -623,7 +631,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                     <span
                       className={cn(
                         "font-body text-xs sm:text-sm font-bold tracking-wide",
-                        isActive ? "text-[#1F4D3A] dark:text-[#F7F4ED]" : "text-neutral-400 dark:text-neutral-500"
+                        isActive ? "text-[#1F4D3A] dark:text-[#FDFBF7]" : "text-neutral-400 dark:text-neutral-500"
                       )}
                     >
                       {label}
@@ -649,8 +657,10 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-16 px-6 bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/20 dark:border-white/10 rounded-2xl max-w-2xl mx-auto shadow-xl"
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="text-center py-16 px-6 rounded-3xl bg-white/70 dark:bg-[#121212]/70 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-[0_8px_40px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_40px_rgb(0,0,0,0.3)] max-w-2xl mx-auto relative overflow-hidden group"
             >
+              <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
@@ -659,7 +669,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
               >
                 <CheckCircle2 className="w-10 h-10 text-green-500" />
               </motion.div>
-              <h1 className="font-serif text-3xl font-normal mb-3 text-[#1F4D3A] dark:text-[#F7F4ED]">
+              <h1 className="font-serif text-3xl font-normal mb-3 text-[#1F4D3A] dark:text-[#FDFBF7]">
                 Order Placed Successfully!
               </h1>
               <p className="font-body text-sm max-w-md mx-auto mb-6 text-neutral-600 dark:text-white/60">
@@ -668,7 +678,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                   : 'Our team will contact you soon for order and delivery confirmations.'
                 }
               </p>
-              <div className="flex items-center justify-center gap-2 font-body text-sm max-w-md mx-auto mb-10 text-[#1F4D3A]/70 dark:text-[#F7F4ED]/80 bg-[#1F4D3A]/5 dark:bg-[#C8A96B]/5 py-3.5 px-4 rounded-lg border border-[#1F4D3A]/10 dark:border-[#C8A96B]/15">
+              <div className="flex items-center justify-center gap-2 font-body text-sm max-w-md mx-auto mb-10 text-[#1F4D3A]/70 dark:text-[#FDFBF7]/80 bg-[#1F4D3A]/5 dark:bg-[#C8A96B]/5 py-3.5 px-4 rounded-lg border border-[#1F4D3A]/10 dark:border-[#C8A96B]/15">
                 <span className="font-medium">For details or support, WhatsApp:</span>
                 <a 
                   href={`https://wa.me/${(settings?.whatsapp || settings?.phone || '919601874404').replace(/[^0-9]/g, '')}`} 
@@ -691,14 +701,14 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                       })
                     }
                   }}
-                  className="w-full flex items-center justify-center gap-2 px-5 py-3 text-xs uppercase tracking-wider font-bold rounded-lg transition-all hover:bg-[#1F4D3A]/5 dark:hover:bg-[#C8A96B]/5 border border-[#1F4D3A]/20 dark:border-[#C8A96B]/20 text-[#1F4D3A] dark:text-[#C8A96B] bg-transparent cursor-pointer hover:scale-102 duration-200"
+                  className="w-full flex items-center justify-center gap-2 px-5 py-3.5 text-[11px] font-bold uppercase tracking-[0.2em] rounded-xl transition-all hover:bg-white/50 dark:hover:bg-white/5 border border-[#1F4D3A]/20 dark:border-white/20 text-[#1F4D3A] dark:text-[#FDFBF7] bg-transparent cursor-pointer hover:scale-[1.02] active:scale-[0.98] duration-300 shadow-sm"
                 >
                   <FileText className="w-4 h-4" />
                   Download Invoice
                 </button>
                 <Link
                   to="/products"
-                  className="w-full flex items-center justify-center gap-2 px-5 py-3 text-xs uppercase tracking-wider font-bold rounded-lg transition-all hover:opacity-95 bg-[#1F4D3A] text-white hover:bg-[#163829] dark:bg-[#C8A96B] dark:text-[#1A1A1A] dark:hover:bg-[#E2C98A] cursor-pointer hover:scale-102 duration-200"
+                  className="w-full flex items-center justify-center gap-2 px-5 py-3.5 text-[11px] font-bold uppercase tracking-[0.2em] !text-white bg-gradient-to-r from-[#1F4D3A] to-[#163829] hover:from-[#163829] hover:to-[#0f261c] dark:from-[#C8A96B] dark:to-[#E2C98A] dark:hover:from-[#E2C98A] dark:hover:to-[#f3e1a6] dark:!text-[#1A1A1A] rounded-xl shadow-[0_4px_20px_rgba(31,77,58,0.2)] dark:shadow-[0_4px_20px_rgba(200,169,107,0.3)] transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] duration-300"
                 >
                   Continue Shopping
                 </Link>
@@ -715,9 +725,11 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="rounded-2xl p-6 md:p-8 bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/15 dark:border-white/5 shadow-sm"
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    className="rounded-3xl p-6 md:p-10 bg-white/70 dark:bg-[#121212]/70 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-[0_8px_40px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_40px_rgb(0,0,0,0.3)] relative overflow-hidden group"
                   >
-                    <h1 className="font-serif text-2xl font-normal mb-1 text-[#1F4D3A] dark:text-[#F7F4ED]">
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                    <h1 className="font-serif text-2xl font-normal mb-1 text-[#1F4D3A] dark:text-[#FDFBF7]">
                       Delivery Details
                     </h1>
                     <p className="font-body text-xs mb-8 text-neutral-500 dark:text-white/40">
@@ -736,8 +748,8 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                           value={customerDetails.name}
                           onChange={(e) => handleInputChange("name", e.target.value)}
                           placeholder="Enter your full name"
-                          className="w-full px-4 py-3.5 rounded-lg font-body text-sm bg-[#F7F4ED]/50 dark:bg-[#121212] border outline-none transition-all focus:border-[#1F4D3A] dark:focus:border-[#C8A96B] focus:bg-white dark:focus:bg-[#1A1A1A] text-[#1F4D3A] dark:text-[#F7F4ED]"
-                          style={{ borderColor: errors.name ? '#ef4444' : 'rgba(200,169,107,0.25)' }}
+                          className="w-full px-4 py-3.5 rounded-xl font-body text-sm bg-white dark:bg-[#1A1A1A] border border-[#1F4D3A]/20 dark:border-white/20 outline-none transition-all focus:ring-2 focus:ring-[#C8A96B]/50 focus:border-[#C8A96B] text-[#1F4D3A] dark:text-[#FDFBF7] placeholder:text-neutral-400 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:border-[#1F4D3A]/40 dark:hover:border-white/40"
+                          style={{ borderColor: errors.name ? '#ef4444' : 'rgba(200,169,107,0.3)' }}
                         />
                         {errors.name && (
                           <p className="text-red-500 text-xs mt-1 font-body font-semibold">{errors.name}</p>
@@ -755,8 +767,8 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                           value={customerDetails.phone}
                           onChange={(e) => handleInputChange("phone", e.target.value.replace(/\D/g, "").slice(0, 10))}
                           placeholder="Enter 10-digit phone number"
-                          className="w-full px-4 py-3.5 rounded-lg font-body text-sm bg-[#F7F4ED]/50 dark:bg-[#121212] border outline-none transition-all focus:border-[#1F4D3A] dark:focus:border-[#C8A96B] focus:bg-white dark:focus:bg-[#1A1A1A] text-[#1F4D3A] dark:text-[#F7F4ED]"
-                          style={{ borderColor: errors.phone ? '#ef4444' : 'rgba(200,169,107,0.25)' }}
+                          className="w-full px-4 py-3.5 rounded-xl font-body text-sm bg-white dark:bg-[#1A1A1A] border border-[#1F4D3A]/20 dark:border-white/20 outline-none transition-all focus:ring-2 focus:ring-[#C8A96B]/50 focus:border-[#C8A96B] text-[#1F4D3A] dark:text-[#FDFBF7] placeholder:text-neutral-400 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:border-[#1F4D3A]/40 dark:hover:border-white/40"
+                          style={{ borderColor: errors.phone ? '#ef4444' : 'rgba(200,169,107,0.3)' }}
                         />
                         {errors.phone && (
                           <p className="text-red-500 text-xs mt-1 font-body font-semibold">{errors.phone}</p>
@@ -774,8 +786,8 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                           onChange={(e) => handleInputChange("address", e.target.value)}
                           placeholder="Flat/House No., Building, Street, Area, Landmark"
                           rows={3}
-                          className="w-full px-4 py-3.5 rounded-lg font-body text-sm bg-[#F7F4ED]/50 dark:bg-[#121212] border outline-none resize-none transition-all focus:border-[#1F4D3A] dark:focus:border-[#C8A96B] focus:bg-white dark:focus:bg-[#1A1A1A] text-[#1F4D3A] dark:text-[#F7F4ED]"
-                          style={{ borderColor: errors.address ? '#ef4444' : 'rgba(200,169,107,0.25)' }}
+                          className="w-full px-4 py-3.5 rounded-xl font-body text-sm bg-white dark:bg-[#1A1A1A] border border-[#1F4D3A]/20 dark:border-white/20 outline-none resize-none transition-all focus:ring-2 focus:ring-[#C8A96B]/50 focus:border-[#C8A96B] text-[#1F4D3A] dark:text-[#FDFBF7] placeholder:text-neutral-400 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:border-[#1F4D3A]/40 dark:hover:border-white/40"
+                          style={{ borderColor: errors.address ? '#ef4444' : 'rgba(200,169,107,0.3)' }}
                         />
                         {errors.address && (
                           <p className="text-red-500 text-xs mt-1 font-body font-semibold">{errors.address}</p>
@@ -794,8 +806,8 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                             value={customerDetails.city}
                             onChange={(e) => handleInputChange("city", e.target.value)}
                             placeholder="City"
-                            className="w-full px-4 py-3.5 rounded-lg font-body text-sm bg-[#F7F4ED]/50 dark:bg-[#121212] border outline-none transition-all focus:border-[#1F4D3A] dark:focus:border-[#C8A96B] focus:bg-white dark:focus:bg-[#1A1A1A] text-[#1F4D3A] dark:text-[#F7F4ED]"
-                            style={{ borderColor: errors.city ? '#ef4444' : 'rgba(200,169,107,0.25)' }}
+                            className="w-full px-4 py-3.5 rounded-xl font-body text-sm bg-white dark:bg-[#1A1A1A] border border-[#1F4D3A]/20 dark:border-white/20 outline-none transition-all focus:ring-2 focus:ring-[#C8A96B]/50 focus:border-[#C8A96B] text-[#1F4D3A] dark:text-[#FDFBF7] placeholder:text-neutral-400 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:border-[#1F4D3A]/40 dark:hover:border-white/40"
+                            style={{ borderColor: errors.city ? '#ef4444' : 'rgba(200,169,107,0.3)' }}
                           />
                           {errors.city && <p className="text-red-500 text-xs mt-1 font-body font-semibold">{errors.city}</p>}
                         </div>
@@ -809,8 +821,8 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                             value={customerDetails.pincode}
                             onChange={(e) => handleInputChange("pincode", e.target.value.replace(/\D/g, "").slice(0, 6))}
                             placeholder="6-digit PIN"
-                            className="w-full px-4 py-3.5 rounded-lg font-body text-sm bg-[#F7F4ED]/50 dark:bg-[#121212] border outline-none transition-all focus:border-[#1F4D3A] dark:focus:border-[#C8A96B] focus:bg-white dark:focus:bg-[#1A1A1A] text-[#1F4D3A] dark:text-[#F7F4ED]"
-                            style={{ borderColor: errors.pincode ? '#ef4444' : 'rgba(200,169,107,0.25)' }}
+                            className="w-full px-4 py-3.5 rounded-xl font-body text-sm bg-white dark:bg-[#1A1A1A] border border-[#1F4D3A]/20 dark:border-white/20 outline-none transition-all focus:ring-2 focus:ring-[#C8A96B]/50 focus:border-[#C8A96B] text-[#1F4D3A] dark:text-[#FDFBF7] placeholder:text-neutral-400 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:border-[#1F4D3A]/40 dark:hover:border-white/40"
+                            style={{ borderColor: errors.pincode ? '#ef4444' : 'rgba(200,169,107,0.3)' }}
                           />
                           {errors.pincode && <p className="text-red-500 text-xs mt-1 font-body font-semibold">{errors.pincode}</p>}
                         </div>
@@ -827,13 +839,14 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                           onChange={(e) => handleInputChange("notes", e.target.value)}
                           placeholder="Any special instructions for your delivery..."
                           rows={2}
-                          className="w-full px-4 py-3.5 rounded-lg font-body text-sm bg-[#F7F4ED]/50 dark:bg-[#121212] border border-[#C8A96B]/25 dark:border-white/10 outline-none resize-none transition-all focus:border-[#1F4D3A] dark:focus:border-[#C8A96B] focus:bg-white dark:focus:bg-[#1A1A1A] text-[#1F4D3A] dark:text-[#F7F4ED]"
+                          className="w-full px-4 py-3.5 rounded-xl font-body text-sm bg-white dark:bg-[#1A1A1A] border border-[#1F4D3A]/20 dark:border-white/20 outline-none resize-none transition-all focus:ring-2 focus:ring-[#C8A96B]/50 focus:border-[#C8A96B] text-[#1F4D3A] dark:text-[#FDFBF7] placeholder:text-neutral-400 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:border-[#1F4D3A]/40 dark:hover:border-white/40"
+                          style={{ borderColor: 'rgba(200,169,107,0.3)' }}
                         />
                       </div>
 
                       <button
                         onClick={handleProceedToReview}
-                        className="w-full py-4 text-xs font-bold uppercase tracking-wider !text-white bg-[#1F4D3A] hover:bg-[#163829] dark:bg-[#C8A96B] dark:!text-[#1A1A1A] dark:hover:bg-[#E2C98A] rounded-lg hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.01] duration-300"
+                        className="w-full py-4 text-[11px] font-bold uppercase tracking-[0.2em] !text-white bg-gradient-to-r from-[#1F4D3A] to-[#163829] hover:from-[#163829] hover:to-[#0f261c] dark:from-[#C8A96B] dark:to-[#E2C98A] dark:hover:from-[#E2C98A] dark:hover:to-[#f3e1a6] dark:!text-[#1A1A1A] rounded-xl shadow-[0_4px_20px_rgba(31,77,58,0.2)] dark:shadow-[0_4px_20px_rgba(200,169,107,0.3)] transition-all cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] duration-300"
                       >
                         Continue to Review
                       </button>
@@ -848,42 +861,42 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                     className="space-y-5"
                   >
                     {/* Delivery Info */}
-                    <div className="rounded-2xl p-6 bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/15 dark:border-white/5 shadow-sm">
+                    <div className="rounded-3xl p-6 bg-white/70 dark:bg-[#121212]/70 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
                       <div className="flex items-center justify-between mb-4">
-                        <h2 className="font-serif text-lg font-normal text-[#1F4D3A] dark:text-[#F7F4ED]">
+                        <h2 className="font-serif text-lg font-normal text-[#1F4D3A] dark:text-[#FDFBF7]">
                           Delivery Information
                         </h2>
                         <button
                           onClick={() => setStep("details")}
-                          className="font-body text-xs uppercase tracking-widest font-bold transition-colors text-[#C8A96B] hover:text-[#1F4D3A] dark:hover:text-[#F7F4ED] cursor-pointer"
+                          className="font-body text-xs uppercase tracking-widest font-bold transition-colors text-[#C8A96B] hover:text-[#1F4D3A] dark:hover:text-[#FDFBF7] cursor-pointer"
                         >
                           Edit
                         </button>
                       </div>
                       <div className="space-y-2 font-body text-sm text-neutral-600 dark:text-white/60">
-                        <p><span className="font-bold text-[#1F4D3A] dark:text-[#F7F4ED]">Name:</span> {customerDetails.name}</p>
-                        <p><span className="font-bold text-[#1F4D3A] dark:text-[#F7F4ED]">Phone:</span> {customerDetails.phone}</p>
-                        <p><span className="font-bold text-[#1F4D3A] dark:text-[#F7F4ED]">Address:</span> {customerDetails.address}</p>
-                        <p><span className="font-bold text-[#1F4D3A] dark:text-[#F7F4ED]">City:</span> {customerDetails.city} - {customerDetails.pincode}</p>
+                        <p><span className="font-bold text-[#1F4D3A] dark:text-[#FDFBF7]">Name:</span> {customerDetails.name}</p>
+                        <p><span className="font-bold text-[#1F4D3A] dark:text-[#FDFBF7]">Phone:</span> {customerDetails.phone}</p>
+                        <p><span className="font-bold text-[#1F4D3A] dark:text-[#FDFBF7]">Address:</span> {customerDetails.address}</p>
+                        <p><span className="font-bold text-[#1F4D3A] dark:text-[#FDFBF7]">City:</span> {customerDetails.city} - {customerDetails.pincode}</p>
                         {customerDetails.notes && (
-                          <p><span className="font-bold text-[#1F4D3A] dark:text-[#F7F4ED]">Notes:</span> {customerDetails.notes}</p>
+                          <p><span className="font-bold text-[#1F4D3A] dark:text-[#FDFBF7]">Notes:</span> {customerDetails.notes}</p>
                         )}
                       </div>
                     </div>
 
                     {/* Order Items (Review) */}
-                    <div className="rounded-2xl p-6 bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/15 dark:border-white/5 shadow-sm">
-                      <h2 className="font-serif text-lg font-normal mb-4 text-[#1F4D3A] dark:text-[#F7F4ED]">
+                    <div className="rounded-3xl p-6 bg-white/70 dark:bg-[#121212]/70 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
+                      <h2 className="font-serif text-lg font-normal mb-4 text-[#1F4D3A] dark:text-[#FDFBF7]">
                         Order Items ({items.length})
                       </h2>
                       <div className="space-y-3">
                         {items.map((item) => (
-                          <div key={item.id} className="flex gap-4 p-4 bg-[#F7F4ED]/50 dark:bg-[#121212] rounded-lg border border-[#C8A96B]/15 dark:border-white/5 shadow-[0_2px_12px_rgba(0,0,0,0.01)] transition-all hover:border-[#1F4D3A]/20 relative group">
-                            <div className="relative w-16 h-16 bg-white dark:bg-[#1a1613] rounded-lg overflow-hidden shrink-0 flex items-center justify-center p-1.5 border border-[#C8A96B]/10 dark:border-white/5 shadow-inner">
+                          <div key={item.id} className="flex gap-4 py-4 bg-transparent border-b border-[#C8A96B]/15 dark:border-white/5 last:border-b-0 relative group">
+                            <div className="relative w-16 h-16 bg-[#FDFBF7] dark:bg-[#121212] rounded-md overflow-hidden shrink-0 flex items-center justify-center p-1 border border-[#C8A96B]/15 dark:border-white/5">
                               <img src={item.image} alt={item.name} className="w-[90%] h-[90%] object-contain select-none transition-transform duration-300 group-hover:scale-105" />
                             </div>
                             <div className="flex-1 min-w-0 pr-2">
-                              <h3 className="font-bold text-sm text-[#1F4D3A] dark:text-[#F7F4ED] truncate mb-0.5 leading-tight">{item.name}</h3>
+                              <h3 className="font-bold text-sm text-[#1F4D3A] dark:text-[#FDFBF7] truncate mb-0.5 leading-tight">{item.name}</h3>
                               {(item.size || item.color) && (
                                 <div className="flex flex-wrap gap-1 mb-1.5">
                                   {item.size && (
@@ -905,15 +918,15 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                               <button onClick={() => removeItem(item.id)} className="p-1.5 text-neutral-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all cursor-pointer">
                                 <Trash2 className="w-4 h-4" />
                               </button>
-                              <div className="flex items-center p-0.5 border border-[#C8A96B]/20 dark:border-white/10 bg-[#F7F4ED] dark:bg-black/20 rounded-lg shadow-sm">
-                                <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all text-[#1F4D3A] dark:text-[#F7F4ED] hover:text-[#C8A96B] cursor-pointer">
+                              <div className="flex items-center p-0.5 border border-[#C8A96B]/20 dark:border-white/10 bg-[#FDFBF7] dark:bg-black/20 rounded-lg shadow-sm">
+                                <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all text-[#1F4D3A] dark:text-[#FDFBF7] hover:text-[#C8A96B] cursor-pointer">
                                   <Minus className="w-3.5 h-3.5 text-[#1F4D3A] dark:text-[#C8A96B]" />
                                 </button>
-                                <span className="text-[#1F4D3A] dark:text-[#F7F4ED] font-mono text-xs font-bold w-6 text-center">{item.quantity}</span>
+                                <span className="text-[#1F4D3A] dark:text-[#FDFBF7] font-mono text-xs font-bold w-6 text-center">{item.quantity}</span>
                                 <button
                                   onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                   disabled={item.maxStock !== undefined && item.quantity >= item.maxStock}
-                                  className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all text-[#1F4D3A] dark:text-[#F7F4ED] hover:text-[#C8A96B] disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer"
+                                  className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all text-[#1F4D3A] dark:text-[#FDFBF7] hover:text-[#C8A96B] disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer"
                                 >
                                   <Plus className="w-3.5 h-3.5 text-[#1F4D3A] dark:text-[#C8A96B]" />
                                 </button>
@@ -934,8 +947,8 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
 
                     {/* Payment Method Selector */}
                     {isCodEnabled && (
-                      <div className="rounded-2xl p-6 bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/15 dark:border-white/5 shadow-sm">
-                        <p className="font-serif text-lg font-normal mb-4 text-[#1F4D3A] dark:text-[#F7F4ED]">
+                      <div className="rounded-3xl p-6 bg-white/70 dark:bg-[#121212]/70 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
+                        <p className="font-serif text-lg font-normal mb-4 text-[#1F4D3A] dark:text-[#FDFBF7]">
                           Payment Method
                         </p>
                         <div className="grid grid-cols-2 gap-4">
@@ -952,7 +965,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                               <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
                               <line x1="1" y1="10" x2="23" y2="10"/>
                             </svg>
-                            <span className="font-body text-xs font-bold uppercase tracking-wider text-[#1F4D3A] dark:text-[#F7F4ED]">
+                            <span className="font-body text-xs font-bold uppercase tracking-wider text-[#1F4D3A] dark:text-[#FDFBF7]">
                               Pay Online
                             </span>
                             {paymentMethod === 'razorpay' && (
@@ -977,7 +990,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                               <circle cx="5.5" cy="18.5" r="2.5"/>
                               <circle cx="18.5" cy="18.5" r="2.5"/>
                             </svg>
-                            <span className="font-body text-xs font-bold uppercase tracking-wider text-[#1F4D3A] dark:text-[#F7F4ED]">
+                            <span className="font-body text-xs font-bold uppercase tracking-wider text-[#1F4D3A] dark:text-[#FDFBF7]">
                               Cash on Delivery
                             </span>
                             {paymentMethod === 'cod' && (
@@ -995,8 +1008,9 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                       <button
                         onClick={handleRazorpayPayment}
                         disabled={isSubmitting}
-                        className="w-full py-4 text-xs font-bold uppercase tracking-wider !text-white bg-[#1F4D3A] hover:bg-[#163829] dark:bg-[#C8A96B] dark:!text-[#1A1A1A] dark:hover:bg-[#E2C98A] rounded-lg hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:scale-[1.01] duration-300 cursor-pointer shadow-md shadow-[#1F4D3A]/10 animate-fade-in"
+                        className="w-full py-4 text-[11px] font-bold uppercase tracking-[0.2em] !text-white bg-gradient-to-r from-[#1F4D3A] to-[#163829] hover:from-[#163829] hover:to-[#0f261c] dark:from-[#C8A96B] dark:to-[#E2C98A] dark:hover:from-[#E2C98A] dark:hover:to-[#f3e1a6] dark:!text-[#1A1A1A] rounded-xl shadow-[0_8px_30px_rgba(31,77,58,0.3)] dark:shadow-[0_8px_30px_rgba(200,169,107,0.4)] transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] duration-300 cursor-pointer animate-fade-in relative overflow-hidden group"
                       >
+                        <div className="absolute inset-0 bg-white/20 translate-y-[-100%] group-hover:translate-y-[100%] transition-transform duration-1000" />
                         {isSubmitting ? (
                           <>
                             <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
@@ -1013,8 +1027,9 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                       <button
                         onClick={handlePlaceOrder}
                         disabled={isSubmitting}
-                        className="w-full py-4 bg-[#25D366] hover:bg-[#20ba5a] !text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:shadow-lg hover:shadow-[#25D366]/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:scale-[1.01] duration-300 cursor-pointer shadow-md shadow-emerald-500/10 animate-fade-in"
+                        className="w-full py-4 bg-gradient-to-r from-[#25D366] to-[#20ba5a] hover:from-[#20ba5a] hover:to-[#1da851] !text-white font-bold text-[11px] uppercase tracking-[0.2em] rounded-xl shadow-[0_8px_30px_rgba(37,211,102,0.3)] transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] duration-300 cursor-pointer animate-fade-in relative overflow-hidden group"
                       >
+                        <div className="absolute inset-0 bg-white/20 translate-y-[-100%] group-hover:translate-y-[100%] transition-transform duration-1000" />
                         {isSubmitting ? (
                           <>
                             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -1038,10 +1053,11 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="rounded-2xl p-6 bg-white dark:bg-[#1A1A1A] border border-[#C8A96B]/15 dark:border-white/5 shadow-sm"
+                    transition={{ delay: 0.1, duration: 0.5, ease: "easeOut" }}
+                    className="rounded-3xl p-6 bg-white/70 dark:bg-[#121212]/70 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-[0_8px_40px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_40px_rgb(0,0,0,0.3)] relative overflow-hidden group"
                   >
-                    <h2 className="font-serif text-lg font-normal mb-4 flex items-center gap-2 text-[#1F4D3A] dark:text-[#F7F4ED]">
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                    <h2 className="font-serif text-lg font-normal mb-4 flex items-center gap-2 text-[#1F4D3A] dark:text-[#FDFBF7]">
                       <ShoppingBag className="w-5 h-5 text-[#1F4D3A] dark:text-[#C8A96B]" />
                       Order Summary
                     </h2>
@@ -1052,12 +1068,12 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                           ? Math.round((item.originalPrice - item.price) * item.quantity)
                           : 0
                         return (
-                          <div key={item.id} className="flex gap-3 items-center p-2.5 rounded-lg bg-[#F7F4ED]/40 dark:bg-[#121212] border border-[#C8A96B]/15 dark:border-white/5">
-                            <div className="relative w-11 h-11 bg-white dark:bg-[#1a1613] rounded-lg overflow-hidden shrink-0 flex items-center justify-center p-1 border border-[#C8A96B]/10 dark:border-white/5 shadow-inner">
+                          <div key={item.id} className="flex gap-3 items-center py-3 bg-transparent border-b border-[#C8A96B]/15 dark:border-white/5 last:border-b-0">
+                            <div className="relative w-14 h-14 bg-[#FDFBF7] dark:bg-[#121212] rounded-md overflow-hidden shrink-0 flex items-center justify-center p-1 border border-[#C8A96B]/15 dark:border-white/5">
                               <img src={item.image} alt={item.name} className="w-[90%] h-[90%] object-contain" />
                             </div>
                             <div className="flex-1 min-w-0 pr-1">
-                              <h3 className="font-bold text-xs text-[#1F4D3A] dark:text-[#F7F4ED] truncate mb-0.5 leading-tight">{item.name}</h3>
+                              <h3 className="font-bold text-xs text-[#1F4D3A] dark:text-[#FDFBF7] truncate mb-0.5 leading-tight">{item.name}</h3>
                               {(item.size || item.color) && (
                                 <div className="flex flex-wrap gap-1 mb-1 leading-none">
                                   {item.size  && <span className="text-[8px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-[#1F4D3A]/5 text-[#1F4D3A] dark:bg-[#C8A96B]/10 dark:text-[#C8A96B] border border-[#1F4D3A]/10 dark:border-[#C8A96B]/10">{item.size}</span>}
@@ -1076,7 +1092,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                                 </div>
                               </div>
                               {savedAmount > 0 && (
-                                <p className="font-body text-[9px] font-bold text-green-600 mt-0.5">Saved {settings?.currency_symbol || '₹'}{savedAmount}</p>
+                                <p className="font-body text-[9px] font-bold text-[#1F4D3A]/60 dark:text-[#C8A96B]/80 mt-0.5">Saved {settings?.currency_symbol || '₹'}{savedAmount}</p>
                               )}
                             </div>
                           </div>
@@ -1110,7 +1126,7 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                                             onKeyDown={e => e.key === 'Enter' && handleApplyCoupon()}
                                             placeholder="COUPON CODE"
                                             maxLength={30}
-                                            className="w-full pl-8 pr-3 py-2.5 rounded-lg font-mono text-xs font-bold bg-[#F7F4ED]/50 dark:bg-[#121212] border outline-none transition-all text-[#1F4D3A] dark:text-[#F7F4ED] placeholder-[#1F4D3A]/30 dark:placeholder-white/30"
+                                            className="w-full pl-8 pr-3 py-2.5 rounded-xl font-mono text-xs font-bold bg-white dark:bg-[#1A1A1A] border border-[#1F4D3A]/20 dark:border-white/20 outline-none transition-all focus:ring-2 focus:ring-[#C8A96B]/50 focus:border-[#C8A96B] text-[#1F4D3A] dark:text-[#FDFBF7] placeholder-[#1F4D3A]/40 dark:placeholder-white/40 shadow-sm"
                                             style={{ borderColor: couponError ? '#ef4444' : 'rgba(200, 169, 107, 0.25)' }}
                                           />
                                         </div>
@@ -1191,14 +1207,14 @@ Delivery: ${deliveryCharge === 0 ? 'FREE' : `${currency}${deliveryCharge}`}
                         )}
                       </div>
                       {totalPrice < deliveryRule.free_delivery_above && deliveryRule.free_delivery_above > 0 && (
-                        <div className="p-2.5 rounded-lg bg-[#1F4D3A]/5 border border-[#1F4D3A]/15 text-[10px] text-[#1F4D3A] dark:text-[#F7F4ED]/90 font-bold leading-normal">
+                        <div className="p-2.5 rounded-lg bg-[#1F4D3A]/5 border border-[#1F4D3A]/15 text-[10px] text-[#1F4D3A] dark:text-[#FDFBF7]/90 font-bold leading-normal">
                           Add {settings?.currency_symbol || '₹'}{Math.ceil(deliveryRule.free_delivery_above - totalPrice)} more for free delivery
                         </div>
                       )}
-                      <div className="flex items-center justify-between pt-3 border-t border-[#C8A96B]/20 dark:border-white/5">
-                        <span className="font-bold text-xs uppercase tracking-wider text-[#1F4D3A] dark:text-[#F7F4ED]">Total</span>
-                        <span className="font-serif text-2xl font-normal text-[#1F4D3A] dark:text-[#C8A96B] font-mono">
-                          {settings?.currency_symbol || '₹'}{finalTotal.toLocaleString('en-IN')}
+                      <div className="flex items-center justify-between pt-4 border-t border-[#C8A96B]/20 dark:border-white/5">
+                        <span className="font-bold text-sm uppercase tracking-wider text-[#1F4D3A] dark:text-[#FDFBF7]">Total</span>
+                        <span className="text-3xl font-serif font-light text-[#1F4D3A] dark:text-[#C8A96B]">
+                          {settings?.currency_symbol || '₹'}{finalTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                         </span>
                       </div>
                     </div>

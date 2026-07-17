@@ -24,6 +24,12 @@ const LINKS_COMPANY = [
   { name: "Track Order", href: "/track" },
 ]
 
+const LINKS_LEGAL = [
+  { name: "Terms & Conditions", href: "/terms" },
+  { name: "Privacy Policy", href: "/privacy" },
+  { name: "Refund Policy", href: "/refund" },
+]
+
 export function Footer() {
   const { settings } = useSettings()
   const [logoError, setLogoError] = useState(false)
@@ -119,14 +125,14 @@ export function Footer() {
                     style={{ background: 'rgba(200,169,107,0.12)', border: '1px solid rgba(200,169,107,0.25)' }}>
                     <Leaf className="w-4 h-4" style={{ color: '#C8A96B' }} />
                   </div>
-                  <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: '1.35rem', fontWeight: 600, letterSpacing: '0.07em', color: '#F7F4ED' }}>
+                  <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: '1.35rem', fontWeight: 600, letterSpacing: '0.07em', color: '#FDFBF7' }}>
                     {siteName}
                   </span>
                 </div>
               )}
             </Link>
             
-            <p className="text-xs leading-relaxed" style={{ color: 'rgba(247,244,237,0.55)', fontFamily: "'Plus Jakarta Sans',sans-serif", lineHeight: 1.8 }}>
+            <p className="text-xs leading-relaxed" style={{ color: 'rgba(253,251,247,0.55)', fontFamily: "'Plus Jakarta Sans',sans-serif", lineHeight: 1.8 }}>
               Premium natural wellness, inspired by nature's wisdom. Crafted for those who choose transparency, sustainability, and quality.
             </p>
 
@@ -144,7 +150,7 @@ export function Footer() {
                     style={{ 
                       background: 'rgba(200,169,107,0.06)', 
                       borderColor: 'rgba(200,169,107,0.15)',
-                      color: 'rgba(247,244,237,0.6)' 
+                      color: 'rgba(253,251,247,0.6)' 
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.borderColor = '#C8A96B';
@@ -153,7 +159,7 @@ export function Footer() {
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.borderColor = 'rgba(200,169,107,0.15)';
-                      e.currentTarget.style.color = 'rgba(247,244,237,0.6)';
+                      e.currentTarget.style.color = 'rgba(253,251,247,0.6)';
                       e.currentTarget.style.background = 'rgba(200,169,107,0.06)';
                     }}
                   >
@@ -171,7 +177,7 @@ export function Footer() {
               {LINKS_EXPLORE.map(l => (
                 <li key={l.name}>
                   <Link to={l.href} className="text-xs transition-all duration-300 hover:text-[#C8A96B] hover:translate-x-1 inline-block"
-                    style={{ color: 'rgba(247,244,237,0.6)', fontFamily: "'Plus Jakarta Sans',sans-serif" }}>
+                    style={{ color: 'rgba(253,251,247,0.6)', fontFamily: "'Plus Jakarta Sans',sans-serif" }}>
                     {l.name}
                   </Link>
                 </li>
@@ -186,7 +192,7 @@ export function Footer() {
               {LINKS_JOURNAL.map(l => (
                 <li key={l.name}>
                   <Link to={l.href} className="text-xs transition-all duration-300 hover:text-[#C8A96B] hover:translate-x-1 inline-block"
-                    style={{ color: 'rgba(247,244,237,0.6)', fontFamily: "'Plus Jakarta Sans',sans-serif" }}>
+                    style={{ color: 'rgba(253,251,247,0.6)', fontFamily: "'Plus Jakarta Sans',sans-serif" }}>
                     {l.name}
                   </Link>
                 </li>
@@ -201,7 +207,7 @@ export function Footer() {
               {LINKS_COMPANY.map(l => (
                 <li key={l.name}>
                   <Link to={l.href} className="text-xs transition-all duration-300 hover:text-[#C8A96B] hover:translate-x-1 inline-block"
-                    style={{ color: 'rgba(247,244,237,0.6)', fontFamily: "'Plus Jakarta Sans',sans-serif" }}>
+                    style={{ color: 'rgba(253,251,247,0.6)', fontFamily: "'Plus Jakarta Sans',sans-serif" }}>
                     {l.name}
                   </Link>
                 </li>
@@ -217,20 +223,20 @@ export function Footer() {
                 <li className="flex items-start gap-3">
                   <Phone className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: 'rgba(200,169,107,0.6)' }} />
                   <a href={`tel:${phone}`} className="text-xs transition-colors duration-300 hover:text-[#C8A96B]"
-                    style={{ color: 'rgba(247,244,237,0.6)', fontFamily: "'Plus Jakarta Sans',sans-serif" }}>{phone}</a>
+                    style={{ color: 'rgba(253,251,247,0.6)', fontFamily: "'Plus Jakarta Sans',sans-serif" }}>{phone}</a>
                 </li>
               )}
               {email && (
                 <li className="flex items-start gap-3">
                   <Mail className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: 'rgba(200,169,107,0.6)' }} />
                   <a href={`mailto:${email}`} className="text-xs transition-colors duration-300 hover:text-[#C8A96B]"
-                    style={{ color: 'rgba(247,244,237,0.6)', fontFamily: "'Plus Jakarta Sans',sans-serif" }}>{email}</a>
+                    style={{ color: 'rgba(253,251,247,0.6)', fontFamily: "'Plus Jakarta Sans',sans-serif" }}>{email}</a>
                 </li>
               )}
               {address && (
                 <li className="flex items-start gap-3">
                   <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: 'rgba(200,169,107,0.6)' }} />
-                  <span className="text-xs leading-relaxed" style={{ color: 'rgba(247,244,237,0.48)', fontFamily: "'Plus Jakarta Sans',sans-serif" }}>{address}</span>
+                  <span className="text-xs leading-relaxed" style={{ color: 'rgba(253,251,247,0.48)', fontFamily: "'Plus Jakarta Sans',sans-serif" }}>{address}</span>
                 </li>
               )}
             </ul>
@@ -247,12 +253,21 @@ export function Footer() {
         {/* Bottom Bar Divider */}
         <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[#C8A96B]/15 to-transparent my-10" />
 
-        {/* Bottom Credits */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-[10px]" style={{ color: 'rgba(247,244,237,0.3)', fontFamily: "'Plus Jakarta Sans',sans-serif" }}>
-            &copy; {new Date().getFullYear()} {siteName}. All rights reserved.
-          </p>
-          <p className="text-[10px] italic font-serif" style={{ color: 'rgba(247,244,237,0.22)' }}>
+        {/* Bottom Bar */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-6">
+            <p className="text-[#FDFBF7]/60 text-xs md:text-sm font-sans font-light">
+              &copy; {new Date().getFullYear()} {siteName}. All rights reserved.
+            </p>
+            <div className="flex items-center gap-4 text-[#FDFBF7]/60 text-xs md:text-sm font-sans font-light">
+              {LINKS_LEGAL.map((link) => (
+                <Link key={link.name} to={link.href} className="hover:text-[#C8A96B] transition-colors duration-300">
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+          <p className="text-[10px] italic font-serif" style={{ color: 'rgba(253,251,247,0.22)' }}>
             Inspired by Nature. Crafted with Integrity.
           </p>
         </div>

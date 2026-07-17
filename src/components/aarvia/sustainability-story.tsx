@@ -4,7 +4,7 @@ import { Link } from "react-router-dom"
 
 export function SustainabilityStory() {
   return (
-    <section className="py-24" style={{ background: "#F7F4ED", borderTop: "1px solid rgba(200,169,107,0.12)" }}>
+    <section className="py-24" style={{ background: "#FDFBF7", borderTop: "1px solid rgba(200,169,107,0.12)" }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left - text content */}

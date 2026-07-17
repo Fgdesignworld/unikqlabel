@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect, useRef } from "react"
 import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
@@ -100,7 +102,7 @@ export default function BlogPage() {
   const gridPosts    = featuredPost ? posts.filter(p => p.id !== featuredPost.id) : posts
 
   return (
-    <main className="min-h-screen" style={{ background: "#F7F4ED" }}>
+    <main className="min-h-screen" style={{ background: "#FDFBF7" }}>
       <Navbar />
       <PageHeader
         title="The Wellness Library"
@@ -146,7 +148,7 @@ export default function BlogPage() {
                   onClick={() => setCategory("")}
                   className={`px-4.5 py-2 text-[10px] font-bold uppercase tracking-wider rounded-full border transition-all duration-300 cursor-pointer ${
                     category === ""
-                      ? "bg-[#1F4D3A] border-[#1F4D3A] text-[#F7F4ED] shadow-md shadow-[#1F4D3A]/10"
+                      ? "bg-[#1F4D3A] border-[#1F4D3A] text-[#FDFBF7] shadow-md shadow-[#1F4D3A]/10"
                       : "bg-white border-[#C8A96B]/20 text-[#1F4D3A] hover:bg-[#FAF8F5] hover:border-[#C8A96B]/50"
                   }`}
                 >
@@ -158,7 +160,7 @@ export default function BlogPage() {
                     onClick={() => setCategory(c)}
                     className={`px-4.5 py-2 text-[10px] font-bold uppercase tracking-wider rounded-full border transition-all duration-300 cursor-pointer ${
                       category === c
-                        ? "bg-[#1F4D3A] border-[#1F4D3A] text-[#F7F4ED] shadow-md shadow-[#1F4D3A]/10"
+                        ? "bg-[#1F4D3A] border-[#1F4D3A] text-[#FDFBF7] shadow-md shadow-[#1F4D3A]/10"
                         : "bg-white border-[#C8A96B]/20 text-[#1F4D3A] hover:bg-[#FAF8F5] hover:border-[#C8A96B]/50"
                     }`}
                   >
@@ -271,7 +273,7 @@ export default function BlogPage() {
                         alt={post.title} 
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103" 
                       />
-                      <span className="absolute top-3 left-3 text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full shadow-sm" style={{ background: "rgba(247,244,237,0.95)", color: "#1F4D3A", border: "1px solid rgba(200,169,107,0.2)" }}>
+                      <span className="absolute top-3 left-3 text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full shadow-sm" style={{ background: "rgba(253,251,247,0.95)", color: "#1F4D3A", border: "1px solid rgba(200,169,107,0.2)" }}>
                         {post.category}
                       </span>
                     </div>

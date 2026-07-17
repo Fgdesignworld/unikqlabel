@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from 'react'
 import { deliveryService, type DeliveryRule } from '@/services/deliveryService'
 import { useToast } from '@/hooks/use-toast'

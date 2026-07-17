@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect, useRef } from 'react'
 import { popupService, type PopupData } from '@/services/popupService'
 import { useToast } from '@/hooks/use-toast'

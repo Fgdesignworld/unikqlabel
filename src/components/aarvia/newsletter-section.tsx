@@ -24,7 +24,7 @@ export function NewsletterSection() {
   }
 
   return (
-    <section className="py-20 lg:py-28" style={{ background: '#F7F4ED', borderTop: '1px solid rgba(200,169,107,0.15)' }}>
+    <section className="py-20 lg:py-28" style={{ background: '#FDFBF7', borderTop: '1px solid rgba(200,169,107,0.15)' }}>
       <div className="max-w-2xl mx-auto px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }}
@@ -80,7 +80,7 @@ export function NewsletterSection() {
             />
             <button type="submit" disabled={state === 'loading'}
               className="flex items-center justify-center gap-2 px-7 py-4 font-semibold transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-60 shrink-0"
-              style={{ background: '#1F4D3A', color: '#F7F4ED', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+              style={{ background: '#1F4D3A', color: '#FDFBF7', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
               {state === 'loading' ? 'Joining…' : (<>Join <ArrowRight className="w-3 h-3" /></>)}
             </button>
           </motion.form>

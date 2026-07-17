@@ -1,3 +1,5 @@
+"use client"
+
 ﻿import { useState, useEffect } from 'react'
 import { colorLibraryService, type LibraryColor } from '@/services/colorLibraryService'
 import { useToast } from '@/hooks/use-toast'
