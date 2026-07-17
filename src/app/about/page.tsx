@@ -9,12 +9,12 @@ import { OurBrandsSection } from "@/components/aarvia/our-brands-section"
 import { ShieldCheck, Star, Recycle, Lightbulb, Leaf, Heart } from "lucide-react"
 
 const VALUES = [
-  { name: "Integrity", icon: ShieldCheck },
-  { name: "Quality", icon: Star },
-  { name: "Responsibility", icon: Recycle },
-  { name: "Innovation", icon: Lightbulb },
-  { name: "Simplicity", icon: Leaf },
-  { name: "Trust", icon: Heart },
+  { name: "Integrity", icon: ShieldCheck, desc: "We are committed to unwavering honesty and transparency in everything we create." },
+  { name: "Quality", icon: Star, desc: "We prioritize excellence, ensuring every product meets our rigorous standards." },
+  { name: "Responsibility", icon: Recycle, desc: "We make choices that respect our communities and protect the environment." },
+  { name: "Innovation", icon: Lightbulb, desc: "We constantly explore new, sustainable ways to improve everyday living." },
+  { name: "Simplicity", icon: Leaf, desc: "We believe in the beauty of clean, uncomplicated formulations and designs." },
+  { name: "Trust", icon: Heart, desc: "We build lasting relationships by always putting our families' wellbeing first." },
 ]
 
 export default function AboutPage() {
@@ -141,22 +141,30 @@ export default function AboutPage() {
             </motion.h2>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6 lg:gap-10 max-w-4xl mx-auto">
-            {VALUES.map(({ icon: Icon, name }, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto mt-12">
+            {VALUES.map(({ icon: Icon, name, desc }, i) => (
               <motion.div 
                 key={name} 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-                className="flex flex-col items-center justify-center p-8 text-center"
+                transition={{ delay: i * 0.1, duration: 0.7 }}
+                className="group p-8 lg:p-10 rounded-[2rem] bg-white border border-[#C8A96B]/15 hover:border-[#C8A96B]/40 transition-all duration-500 hover:shadow-xl relative overflow-hidden"
               >
-                <div className="w-16 h-16 rounded-full border border-[#C8A96B]/30 flex items-center justify-center mb-6 bg-white shadow-sm">
-                  <Icon className="w-6 h-6 text-[#1F4D3A]" />
+                <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity duration-500 transform group-hover:scale-110 pointer-events-none">
+                  <Icon className="w-32 h-32 text-[#C8A96B]" />
                 </div>
-                <h3 className="text-lg lg:text-xl font-serif font-medium text-[#1F4D3A]">
-                  {name}
-                </h3>
+                <div className="relative z-10">
+                  <div className="w-14 h-14 rounded-2xl bg-[#F9F6F0] flex items-center justify-center mb-8 group-hover:bg-[#1F4D3A] transition-colors duration-500">
+                    <Icon className="w-6 h-6 text-[#1F4D3A] group-hover:text-white transition-colors duration-500" />
+                  </div>
+                  <h3 className="text-xl lg:text-2xl font-serif font-medium text-[#1F4D3A] mb-4">
+                    {name}
+                  </h3>
+                  <p className="text-sm font-light text-[#6A6A60] leading-relaxed" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                    {desc}
+                  </p>
+                </div>
               </motion.div>
             ))}
           </div>
