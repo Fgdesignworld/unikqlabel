@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react"
 import { Link } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { ShoppingBag, Star, ChevronLeft, ChevronRight, Share2, Sparkles } from "lucide-react"
+import { ShoppingBag, Star, ChevronLeft, ChevronRight, Share2, Sparkles, ArrowRight } from "lucide-react"
 import { productService } from "@/services/productService"
 import { useCart } from "@/context/cart-context"
 import { ProductCard } from "@/components/product-card"
@@ -80,18 +80,26 @@ export function NewArrivals() {
           </div>
         )}
 
-        {/* Mobile nav */}
-        <div className="flex items-center justify-center gap-3 mt-10 md:hidden">
-          <button onClick={prev} disabled={!canPrev}
-            className="w-10 h-10 rounded-full flex items-center justify-center border disabled:opacity-30"
-            style={{ borderColor: 'rgba(200,169,107,0.35)', color: '#1F4D3A' }}>
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button onClick={next} disabled={!canNext}
-            className="w-10 h-10 rounded-full flex items-center justify-center border disabled:opacity-30"
-            style={{ borderColor: 'rgba(200,169,107,0.35)', color: '#1F4D3A' }}>
-            <ChevronRight className="w-4 h-4" />
-          </button>
+        {/* Bottom Actions */}
+        <div className="flex flex-col items-center gap-8 mt-10">
+          <div className="flex items-center justify-center gap-3 md:hidden">
+            <button onClick={prev} disabled={!canPrev}
+              className="w-10 h-10 rounded-full flex items-center justify-center border disabled:opacity-30"
+              style={{ borderColor: 'rgba(200,169,107,0.35)', color: '#1F4D3A' }}>
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button onClick={next} disabled={!canNext}
+              className="w-10 h-10 rounded-full flex items-center justify-center border disabled:opacity-30"
+              style={{ borderColor: 'rgba(200,169,107,0.35)', color: '#1F4D3A' }}>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          <Link to="/products"
+            className="inline-flex items-center gap-2 font-semibold tracking-widest uppercase transition-all hover:gap-3"
+            style={{ color: '#1F4D3A', fontSize: '0.75rem', letterSpacing: '0.14em' }}>
+            View All Products <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
       </div>
     </section>
