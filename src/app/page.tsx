@@ -27,12 +27,12 @@ export default function Home() {
       <HeroSection />
       <TrustBar />
       <FeaturedCollections />
-      <PhilosophySection />
-      <OurBrandsSection />
-      <TestimonialsSection />
-      <PromotionalBanner />
       <NewArrivals />
+      <PhilosophySection />
       <BestSellers />
+      <OurBrandsSection />
+      <PromotionalBanner />
+      <TestimonialsSection />
       <NewsletterSection />
       {/* <FaqSection /> */}
       {/* <InstagramGallery /> */}
