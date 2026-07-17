@@ -74,19 +74,19 @@ const STORY_SECTIONS = [
     badge: "Sourcing Integrity",
     title: "Made with Carefully Selected Ingredients",
     body: "We believe true quality begins at the source. We select botanical-inspired ingredients like Neem, Lemongrass, and Tulsi, cultivated under ethical conditions. By harvesting these plants through cold-press methods, we preserve their natural attributes to formulate home care products that are pleasant to use and gentle on the environment. Features regenerative soil cultivation and traceable farming partnerships.",
-    image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=600&auto=format&fit=crop",
+    image: "/images/sustainability/sourcing_integrity.png",
   },
   {
     badge: "Packaging Roadmap",
     title: "Circular Design and Refillable Rituals",
     body: "Packaging should not become waste. We package our cleaning essentials in amber glass and high-grade PCR bottles to minimize virgin plastic creation. Furthermore, our upcoming refill program will allow customers to purchase lightweight concentrate pouches, cutting down packaging weight and transport emissions.",
-    image: "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=600&auto=format&fit=crop",
+    image: "/images/sustainability/packaging_roadmap.png",
   },
   {
     badge: "Conscious Footprint",
     title: "Traceable Supply Chains & Carbon Care",
     body: "AARVIA traces each step of the product journey from raw botanical harvest to your doorstep. We work with freight partners who offset logistics emissions, consolidating shipments to decrease logistics impact. We are committed to achieving verified carbon-neutral transit benchmarks.",
-    image: "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?q=80&w=600&auto=format&fit=crop",
+    image: "/images/sustainability/conscious_footprint.png",
   },
 ]
 
