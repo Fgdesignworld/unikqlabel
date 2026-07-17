@@ -156,7 +156,7 @@ export function HeroSection() {
       </motion.div>
 
       {/* ── Text Overlay ── */}
-      <div className="absolute inset-0 z-10 flex flex-col justify-center items-center text-center px-4 md:px-12 pointer-events-none">
+      <div className="hidden absolute inset-0 z-10 flex flex-col justify-center items-center text-center px-4 md:px-12 pointer-events-none">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide?.id ?? currentIdx}
