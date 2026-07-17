@@ -25,10 +25,10 @@ export default function Home() {
     <main className="min-h-screen relative overflow-hidden" style={{ background: '#FDFBF7' }}>
       <Navbar />
       <HeroSection />
-      <PhilosophySection />
-      <OurBrandsSection />
       <TrustBar />
       <FeaturedCollections />
+      <PhilosophySection />
+      <OurBrandsSection />
       <TestimonialsSection />
       <PromotionalBanner />
       <NewArrivals />
