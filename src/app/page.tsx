@@ -31,9 +31,9 @@ export default function Home() {
       <FeaturedCollections />
       <TestimonialsSection />
       <PromotionalBanner />
+      <NewArrivals />
       <BestSellers />
       <NewsletterSection />
-      {/* <NewArrivals /> */}
       {/* <FaqSection /> */}
       {/* <InstagramGallery /> */}
       <Footer />
