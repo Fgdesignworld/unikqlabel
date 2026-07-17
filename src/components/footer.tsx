@@ -4,24 +4,24 @@ import { Phone, MapPin, Mail, Leaf, ArrowRight } from "lucide-react"
 import { useSettings } from "@/context/settings-context"
 
 const LINKS_EXPLORE = [
-  { name: "Home Wellness", href: "/shop" },
-  { name: "Our Story", href: "/our-story" },
-  { name: "Blog", href: "/blog" },
-  { name: "Contact Us", href: "/contact" },
+  { name: "About Us", href: "/about" },
+  { name: "Orviv", href: "/orviv" },
+  { name: "Aarvia", href: "/aarvia" },
+  { name: "Products", href: "/products" },
 ]
 
 const LINKS_JOURNAL = [
-  { name: "Wellness Begins at Home", href: "/blog" },
-  { name: "Simple Home Care Habits", href: "/blog" },
-  { name: "Creating Fresher Spaces", href: "/blog" },
-  { name: "Choosing Clean Products", href: "/blog" },
+  { name: "Healthy Homes", href: "/blog" },
+  { name: "Natural Living", href: "/blog" },
+  { name: "Personal Wellness", href: "/blog" },
+  { name: "Simple Living", href: "/blog" },
 ]
 
 const LINKS_COMPANY = [
-  { name: "Our Story", href: "/our-story" },
+  { name: "Our Story", href: "/about" },
   { name: "Sustainability", href: "/sustainability" },
-  { name: "Contact Us", href: "/contact" },
-  { name: "Track Order", href: "/track" },
+  { name: "Journal", href: "/blog" },
+  { name: "Contact", href: "/contact" },
 ]
 
 const LINKS_LEGAL = [

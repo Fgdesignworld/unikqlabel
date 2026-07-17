@@ -1,12 +1,13 @@
 import { motion } from "framer-motion"
-import { Leaf, Recycle, FlaskConical, Heart, Star } from "lucide-react"
+import { Leaf, Recycle, ShieldCheck, Heart, Star, Sparkles } from "lucide-react"
 
 const TRUST_ITEMS = [
-  { icon: Leaf, label: "100% Natural", sub: "Pure botanical actives" },
-  { icon: Heart, label: "Cruelty Free", sub: "Ethically formulated" },
-  { icon: Recycle, label: "Sustainable", sub: "Eco-conscious packaging" },
-  { icon: Star, label: "Australian Inspired", sub: "Premium formulations" },
-  { icon: FlaskConical, label: "Dermatologist Tested", sub: "Clinically validated" },
+  { icon: Leaf, label: "Nature Inspired" },
+  { icon: ShieldCheck, label: "Family Safe" },
+  { icon: Star, label: "Premium Quality" },
+  { icon: Heart, label: "Cruelty Free" },
+  { icon: Sparkles, label: "Thoughtfully Crafted" },
+  { icon: Recycle, label: "Responsible Choices" },
 ]
 
 export function TrustBar() {
@@ -39,7 +40,6 @@ export function TrustBar() {
                 <div>
                   <p className="text-[11px] lg:text-xs font-bold tracking-[0.14em] uppercase leading-none"
                     style={{ color: '#FDFBF7' }}>{item.label}</p>
-                  <p className="text-[9px] lg:text-[10px] mt-1.5 font-semibold tracking-wider uppercase" style={{ color: 'rgba(253,251,247,0.55)' }}>{item.sub}</p>
                 </div>
               </div>
             )

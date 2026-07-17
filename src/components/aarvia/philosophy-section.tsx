@@ -40,31 +40,17 @@ export function PhilosophySection() {
           >
             <div>
               <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-[#C8A96B] block mb-4">
-                The Aarvia Ritual
+                Our Philosophy
               </span>
               <h2 className="font-serif text-4xl md:text-5xl text-[#1F4D3A] font-light leading-[1.1] mb-6">
-                Active Botanicals & <br />
-                <span className="italic text-[#C8A96B]">Pure Wellness</span>
+                A Simple Belief
               </h2>
             </div>
 
             <div className="space-y-6 text-[#6B6B60] font-sans font-light leading-relaxed">
-              <p>
-                At Aarvia, we believe true wellness comes from the earth. Every formulation we create is a celebration of active botanicals, meticulously sourced and carefully blended to honor the natural healing properties of the planet.
+              <p className="text-xl leading-relaxed">
+                We believe the products we bring into our homes should be safe, beautifully designed, effective, and created with respect for people and the planet.
               </p>
-              <p>
-                Our ritual goes beyond skincare. It is a moment of pause, a sensory experience designed to bring harmony to your body and mind. No compromises, no harsh synthetics—just pure, luxurious efficacy.
-              </p>
-            </div>
-
-            <div className="pt-4">
-              <a
-                href="/about"
-                className="inline-flex items-center gap-4 border-b border-[#C8A96B] pb-2 text-[10px] font-bold tracking-[0.2em] uppercase text-[#1F4D3A] hover:text-[#C8A96B] transition-colors group"
-              >
-                Discover Our Story
-                <ArrowRight className="w-4 h-4 text-[#C8A96B] group-hover:translate-x-2 transition-transform duration-500" strokeWidth={1.5} />
-              </a>
             </div>
           </motion.div>
 

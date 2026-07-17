@@ -49,13 +49,13 @@ export function HeroSection() {
     let active = true
     const fallbackSlide: HeroSlide = {
       id: 1,
-      title: "AARVIA™",
-      tagline: "Inspired by Nature",
-      subtitle: "Nature-inspired products thoughtfully crafted to support cleaner homes, fresher spaces, and better living.",
-      cta_primary_text: "Shop Collection",
-      cta_primary_link: "/shop",
-      cta_secondary_text: "Contact Us",
-      cta_secondary_link: "/contact",
+      title: "Better Living Begins at Home.",
+      tagline: "Deepthi Living & Wellness",
+      subtitle: "At Deepthi Living & Wellness, we create thoughtfully crafted brands that help families live healthier, happier, and more consciously—every single day.",
+      cta_primary_text: "Explore Our Brands",
+      cta_primary_link: "/#brands",
+      cta_secondary_text: "Shop Products",
+      cta_secondary_link: "/products",
       image: null,
       mobile_image: null,
       category: 'trending',
@@ -139,19 +139,59 @@ export function HeroSection() {
                   )}
                   <img src={imgUrl(currentSlide!.image)!} alt={currentSlide!.title || 'Aarvia'}
                     className="w-full h-full object-cover object-center" />
+                  <div className="absolute inset-0 bg-black/30" />
                 </picture>
               </Link>
             </motion.div>
           ) : (
             <motion.div key="default-bg" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="absolute inset-0 w-full h-full">
-              <Link to="/shop" className="block w-full h-full">
-                <img src="/images/hero-bg.jpg" alt="Aarvia" className="w-full h-full object-cover object-center" />
+              <Link to="/products" className="block w-full h-full">
+                <img src="/images/heroes/shop-hero.png" alt="Deepthi Living & Wellness" className="w-full h-full object-cover object-center" />
+                <div className="absolute inset-0 bg-black/30" />
               </Link>
             </motion.div>
           )}
         </AnimatePresence>
       </motion.div>
+
+      {/* ── Text Overlay ── */}
+      <div className="absolute inset-0 z-10 flex flex-col justify-center items-center text-center px-4 md:px-12 pointer-events-none">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide?.id ?? currentIdx}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -30 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="max-w-3xl mx-auto"
+          >
+            {currentSlide?.tagline && (
+              <p className="text-[#FDFBF7]/90 text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase mb-4 drop-shadow-md">
+                {currentSlide.tagline}
+              </p>
+            )}
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif text-[#FDFBF7] mb-6 leading-tight drop-shadow-lg">
+              {currentSlide?.title}
+            </h1>
+            <p className="text-base md:text-xl text-[#FDFBF7]/90 font-sans max-w-2xl mx-auto mb-10 drop-shadow-md font-light leading-relaxed">
+              {currentSlide?.subtitle}
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto">
+              {currentSlide?.cta_primary_text && (
+                <Link to={currentSlide.cta_primary_link || '/products'} className="px-8 py-4 bg-[#C8A96B] hover:bg-[#b89858] text-[#1A1A1A] text-xs font-bold uppercase tracking-[0.15em] rounded-full transition-all hover:scale-105 active:scale-95 shadow-xl">
+                  {currentSlide.cta_primary_text}
+                </Link>
+              )}
+              {currentSlide?.cta_secondary_text && (
+                <Link to={currentSlide.cta_secondary_link || '/products'} className="px-8 py-4 bg-transparent border border-[#FDFBF7] hover:bg-[#FDFBF7] text-[#FDFBF7] hover:text-[#1F4D3A] text-xs font-bold uppercase tracking-[0.15em] rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg backdrop-blur-sm">
+                  {currentSlide.cta_secondary_text}
+                </Link>
+              )}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
 
       {/* ── Slide Counter & Navigation ── */}
       {slides.length > 1 && (

@@ -5,10 +5,11 @@ import { ArrowRight } from "lucide-react"
 import { categoryService, type Category } from "@/services/categoryService"
 
 const FALLBACK_COLLECTIONS = [
-  { name: "Shop All", href: "/shop", color: "#1F4D3A" },
-  { name: "Kitchen", href: "/shop", color: "#2A5C45" },
-  { name: "Floor Cleaner", href: "/shop", color: "#345E4A" },
-  { name: "Personal Care", href: "/shop", color: "#1B4432" },
+  { name: "Home Wellness", href: "/shop?category=home-wellness", color: "#1F4D3A" },
+  { name: "Kitchen Care", href: "/shop?category=kitchen-care", color: "#2A5C45" },
+  { name: "Laundry Care", href: "/shop?category=laundry-care", color: "#345E4A" },
+  { name: "Home Fragrance", href: "/shop?category=home-fragrance", color: "#1B4432" },
+  { name: "Personal Care", href: "/shop?category=personal-care", color: "#163a2a" },
 ]
 
 function imgUrl(src: string | null | undefined) {

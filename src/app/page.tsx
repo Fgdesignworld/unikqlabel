@@ -11,6 +11,7 @@ import { FaqSection } from "@/components/aarvia/faq-section"
 import { InstagramGallery } from "@/components/aarvia/instagram-gallery"
 import { NewsletterSection } from "@/components/aarvia/newsletter-section"
 import { PhilosophySection } from "@/components/aarvia/philosophy-section"
+import { OurBrandsSection } from "@/components/aarvia/our-brands-section"
 import { useSeo } from "@/hooks/use-seo"
 
 export default function Home() {
@@ -24,16 +25,17 @@ export default function Home() {
     <main className="min-h-screen relative overflow-hidden" style={{ background: '#FDFBF7' }}>
       <Navbar />
       <HeroSection />
+      <PhilosophySection />
+      <OurBrandsSection />
       <TrustBar />
       <FeaturedCollections />
-      <BestSellers />
-      <PromotionalBanner />
-      <NewArrivals />
-      <PhilosophySection />
       <TestimonialsSection />
-      <FaqSection />
-      {/* <InstagramGallery />
-      <NewsletterSection /> */}
+      <PromotionalBanner />
+      <BestSellers />
+      <NewsletterSection />
+      {/* <NewArrivals /> */}
+      {/* <FaqSection /> */}
+      {/* <InstagramGallery /> */}
       <Footer />
     </main>
   )

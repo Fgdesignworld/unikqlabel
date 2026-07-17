@@ -9,21 +9,23 @@ import { useCart } from "@/context/cart-context"
 import { useSettings } from "@/context/settings-context"
 
 const navLinks = [
-  {name: "Home", href: "/"},
-  { name: "Products", href: "/shop" },
-  { name: "Our Story", href: "/our-story" },
-  { name: "Blog", href: "/blog" },
+  { name: "Home", href: "/" },
+  { name: "About", href: "/about" },
+  { name: "Orviv", href: "/orviv" },
+  { name: "Aarvia", href: "/aarvia" },
+  { name: "Shop", href: "/products" },
+  { name: "Journal", href: "/blog" },
   { name: "Sustainability", href: "/sustainability" },
-  { name: "Contact", href: "/contact" },
 ]
 
 const mobileMenuLinks = [
-  {name: "Home", href: "/"},
-  { name: "Products", href: "/shop", sub: "Natural home care solutions" },
-  { name: "Our Story", href: "/our-story", sub: "Inspired by nature" },
-  { name: "Blog", href: "/blog", sub: "Wellness insights & guides" },
-  { name: "Sustainability", href: "/sustainability", sub: "Eco-friendly commitment" },
-  { name: "Contact", href: "/contact", sub: "We are here to help" },
+  { name: "Home", href: "/", sub: "Better Living Begins at Home" },
+  { name: "About", href: "/about", sub: "Purpose built every day" },
+  { name: "Orviv", href: "/orviv", sub: "Inspired by Nature" },
+  { name: "Aarvia", href: "/aarvia", sub: "Naturally You" },
+  { name: "Shop", href: "/products", sub: "Premium wellness products" },
+  { name: "Journal", href: "/blog", sub: "Healthy homes & natural living" },
+  { name: "Sustainability", href: "/sustainability", sub: "Responsible choices" },
 ]
 
 export function Navbar() {

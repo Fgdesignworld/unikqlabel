@@ -39,7 +39,7 @@ export function NewsletterSection() {
           viewport={{ once: true }} transition={{ delay: 0.05, duration: 0.5 }}
           className="text-[11px] font-bold tracking-[0.26em] uppercase mb-3"
           style={{ color: '#C8A96B' }}>
-          Stay Connected
+          Join Us
         </motion.p>
 
         <motion.h2
@@ -47,7 +47,7 @@ export function NewsletterSection() {
           viewport={{ once: true }} transition={{ delay: 0.1, duration: 0.6 }}
           className="text-3xl md:text-4xl leading-tight mb-4"
           style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600, color: '#1F4D3A' }}>
-          Join the Aarvia Circle
+          Join Our Community
         </motion.h2>
 
         <motion.p
@@ -55,7 +55,7 @@ export function NewsletterSection() {
           viewport={{ once: true }} transition={{ delay: 0.14, duration: 0.6 }}
           className="text-sm leading-relaxed mb-10"
           style={{ color: '#6B6B60', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-          Get early access to new launches, exclusive wellness rituals, and thoughtful content on natural living. No spam — only things worth reading.
+          Receive thoughtful ideas on healthier homes, conscious living, and new product launches.
         </motion.p>
 
         {state === 'success' ? (

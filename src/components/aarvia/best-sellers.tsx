@@ -20,77 +20,52 @@ export function BestSellers() {
 
   useEffect(() => {
     productService.getBestsellers().then(data => {
-      setProducts(data.slice(0, 8))
+      setProducts(data.slice(0, 6))
       setLoading(false)
     }).catch(() => setLoading(false))
   }, [])
 
-  const VISIBLE = 4
-  const canPrev = startIdx > 0
-  const canNext = startIdx + VISIBLE < products.length
-
-  const prev = () => { if (canPrev) setStartIdx(i => i - 1) }
-  const next = () => { if (canNext) setStartIdx(i => i + 1) }
-
-  const displayedItems = products.slice(startIdx, startIdx + VISIBLE)
-
   return (
     <section className="py-16 lg:py-20" style={{ background: '#FDFBF7' }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <motion.h2
-            initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }} transition={{ duration: 0.6 }}
-            className="text-3xl md:text-4xl"
-            style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: '#1F4D3A' }}>
-            Our Best Sellers
-          </motion.h2>
-          
-          <div className="hidden md:flex items-center gap-2.5">
-            <button onClick={prev} disabled={!canPrev}
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30 hover:bg-[#1F4D3A]/5 active:scale-95"
-              style={{ border: '1px solid rgba(200,169,107,0.4)', color: '#1F4D3A' }}>
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button onClick={next} disabled={!canNext}
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30 hover:bg-[#1F4D3A]/5 active:scale-95"
-              style={{ border: '1px solid rgba(200,169,107,0.4)', color: '#1F4D3A' }}>
-              <ChevronRight className="w-4 h-4" />
-            </button>
+        <div className="flex items-center justify-center mb-12">
+          <div className="text-center">
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="text-[10px] font-bold tracking-[0.4em] uppercase text-[#C8A96B] mb-4"
+            >
+              Featured Products
+            </motion.p>
+            <motion.h2
+              initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ duration: 0.6 }}
+              className="text-3xl md:text-5xl"
+              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, color: '#1F4D3A' }}>
+              Explore Our Collection
+            </motion.h2>
           </div>
         </div>
 
         {/* Products */}
         {loading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-            {Array.from({ length: 4 }).map((_, i) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-5 lg:gap-8">
+            {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="rounded-none overflow-hidden animate-pulse" style={{ aspectRatio: '3/4', background: 'rgba(31,77,58,0.06)' }} />
             ))}
           </div>
         ) : products.length === 0 ? null : (
-          <div ref={sliderRef} className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-5 lg:gap-8">
             <AnimatePresence mode="popLayout">
-              {displayedItems.map((product, i) => (
+              {products.map((product, i) => (
                 <ProductCard key={product.id} product={product} index={i} />
               ))}
             </AnimatePresence>
           </div>
         )}
 
-        {/* Mobile nav */}
-        <div className="flex items-center justify-center gap-3 mt-10 md:hidden">
-          <button onClick={prev} disabled={!canPrev}
-            className="w-10 h-10 rounded-full flex items-center justify-center border disabled:opacity-30"
-            style={{ borderColor: 'rgba(200,169,107,0.35)', color: '#1F4D3A' }}>
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button onClick={next} disabled={!canNext}
-            className="w-10 h-10 rounded-full flex items-center justify-center border disabled:opacity-30"
-            style={{ borderColor: 'rgba(200,169,107,0.35)', color: '#1F4D3A' }}>
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
 
         <div className="text-center mt-10">
           <Link to="/products"
