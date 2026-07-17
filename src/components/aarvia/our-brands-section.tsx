@@ -66,7 +66,7 @@ export function OurBrandsSection() {
           >
             <div className="relative h-80 overflow-hidden shrink-0">
               <img
-                src="https://images.unsplash.com/photo-1614859664551-7c9eb1a6f0fa?q=80&w=800&auto=format&fit=crop"
+                src="/images/heroes/aarvia-personal-care.png"
                 alt="Aarvia Personal Care"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
               />
