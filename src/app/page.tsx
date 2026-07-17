@@ -12,6 +12,7 @@ import { InstagramGallery } from "@/components/aarvia/instagram-gallery"
 import { NewsletterSection } from "@/components/aarvia/newsletter-section"
 import { PhilosophySection } from "@/components/aarvia/philosophy-section"
 import { OurBrandsSection } from "@/components/aarvia/our-brands-section"
+import { SimpleQuestion } from "@/components/aarvia/simple-question"
 import { useSeo } from "@/hooks/use-seo"
 
 export default function Home() {
@@ -32,6 +33,7 @@ export default function Home() {
       <BestSellers />
       <OurBrandsSection />
       <PromotionalBanner />
+      <SimpleQuestion />
       <TestimonialsSection />
       <NewsletterSection />
       {/* <FaqSection /> */}
